@@ -7,7 +7,7 @@
 
 **Objetivo del proyecto: Se requiere un sistema digital que permita la gestión, visualización y descarga controlada de material fotográfico por parte de usuarios registrados.**
 
-**Justificación del proyecto: **
+**Justificación del proyecto:**
 
 **Alcance inicial:**
 
