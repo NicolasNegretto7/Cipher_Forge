@@ -1,3 +1,4 @@
+# Project Charter (Acta de Constitución del Proyecto)
 **Nombre del proyecto: Sistema gestion distribucion material fotografico**  
 **Patrocinador:**  
 **Director del proyecto:**  
