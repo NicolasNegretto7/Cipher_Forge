@@ -7,12 +7,12 @@
 
 **Objetivo del proyecto: Se requiere un sistema digital que permita la gestión, visualización y descarga controlada de material fotográfico por parte de usuarios registrados.**
 
-**Justificación del proyecto:**
+**Justificación del proyecto: Actualmente no existe una gestion de fotografias.**
 
 **Alcance inicial:**
 
 **Stakeholders principales:**
 
-**Riesgos iniciales:**
+**Riesgos iniciales: Falta de experiencia en ciertos requerimientos necesarios.**
 
 **Criterios de éxito: El sistema debe organizar imagenes de colecciones tematicas, facilitando su acceso, consulta y descarga de manera ordenada.**
