@@ -5,11 +5,11 @@
 **Equipo: Nicolás Negretto, Iván Sandoval y Augusto Fernández**  
 **Fecha de inicio: 26/6/2026**  
 
-**Objetivo del proyecto: 
+**Objetivo del proyecto:**
 * Proyecto de egreso para el grupo de 3º año EMT 2026.
 * Desarrollo de una solución informática completa para la gestión, organización y distribución de material fotográfico mediante colecciones digitales.
 * Aplicación integrada de competencias de análisis, modelado, desarrollo, documentación, testing y organización del trabajo.
-* Presentación del proyecto en formato institucional, con documentación técnica y demostración funcional.**
+* Presentación del proyecto en formato institucional, con documentación técnica y demostración funcional.
 
 **Justificación del proyecto: Actualmente no existe una gestion de fotografias.**
 
