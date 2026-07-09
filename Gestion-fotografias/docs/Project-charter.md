@@ -1,6 +1,6 @@
 # Project Charter (Acta de Constitución del Proyecto)
 **Nombre del proyecto: Sistema gestion distribucion material fotografico**  
-**Patrocinador: Unknown**  
+**Patrocinador: Lemuel**  
 **Director del proyecto:**  
 **Equipo: Nicolás Negretto, Iván Sandoval y Augusto Fernández**  
 **Fecha de inicio: 26/6/2026**  
