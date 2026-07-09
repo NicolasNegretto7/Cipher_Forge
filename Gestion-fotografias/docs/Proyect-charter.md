@@ -18,6 +18,7 @@
 **Stakeholders principales:**
 * Fotografos.
 * Usuarios recurrentes.
+  
 **Riesgos iniciales: Falta de experiencia en ciertos requerimientos necesarios.**
 
 **Criterios de éxito: El sistema debe organizar imagenes de colecciones tematicas, facilitando su acceso, consulta y descarga de manera ordenada.**
