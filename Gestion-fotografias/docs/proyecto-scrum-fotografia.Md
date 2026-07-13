@@ -11,7 +11,7 @@
 | Infraestructura     | Servidor en la nube, alta disponilibidad, almacenamineto cambiable por usuario.         |
 | Seguridad           | Cedula, nombre, correo electronico y politicas de privacidad                            |
 | Riesgo operativo    | Caida del servidor, problemas con metodos de pago y material con riesgo legal.           
-| Restricción técnica | La pagina debe tener marca de agua.                                                     |
+| Restricción técnica | Imágenes descargables deben contar con marca de agua.                                                 |
 
 ---
 
