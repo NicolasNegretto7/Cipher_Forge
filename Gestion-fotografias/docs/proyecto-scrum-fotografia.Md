@@ -5,7 +5,7 @@
 | Problema principal  | Dificultad de entrega inmediata de material fotografico y baja calidad de imagen.       |
 | Objetivo de negocio | Plataforma donde fotografos puedan subir su contenido con imagenes de buena calidad     |
 | Alcance inicial     | Subida y bajada de imagenes, marca de agua.                                             |
-| Plazo esperado      | Hasta Noviembre.                                                                        |
+| Plazo esperado      | 4 meses.                                                                        |
 | Presupuesto         | Proyecto de UTU sin presupuesto.                                                        |
 | Usuarios            | Fotografos, compradores.                                                                |
 | Infraestructura     | Servidor en la nube, alta disponilibidad, almacenamineto cambiable por usuario.         |
