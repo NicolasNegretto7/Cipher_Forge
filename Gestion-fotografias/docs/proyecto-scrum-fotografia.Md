@@ -67,19 +67,36 @@ Quedarán fuera de la primera versión:
 
 | Código | Requerimiento funcional                                                                                                                                                 |
 | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| RF1    | El sistema debe permitir iniciar sesión con usuario y cédula.                                                                                                       |
-| RF2    | El sistema debe permitir gestionar usuarios con diferentes roles.                                                                                                       |
-| RF3    | El sistema debe permitir registrar Usuarios, cédula, correo electrónico y cuenta de administración.                                    |
-| RF4    | El sistema debe permitir modificar el estado de una vaca: en producción, secado, tratamiento o baja.                                                                    |
-| RF5    | El sistema debe permitir registrar ordeñes indicando fecha, turno, responsable y tanque asociado.                                                                       |
-| RF6    | El sistema debe permitir seleccionar las vacas participantes en cada ordeñe.                                                                                            |
-| RF7    | El sistema debe permitir excluir vacas de un ordeñe indicando motivo.                                                                                                   |
-| RF8    | El sistema debe permitir crear lotes de leche a partir de un ordeñe.                                                                                                    |
-| RF9    | El sistema debe permitir registrar propiedades del lote: litros estimados, temperatura, grasa, proteína, células somáticas, resultado de antibióticos y observaciones.  |
-| RF10   | El sistema debe permitir completar propiedades de calidad después de creado el lote.                                                                                    |
-| RF11   | El sistema debe permitir cerrar un lote para evitar modificaciones no autorizadas.                                                                                      |
-| RF12   | El sistema debe permitir consultar la trazabilidad de un lote, mostrando fecha, turno, tanque, responsable, vacas incluidas, vacas excluidas y propiedades registradas. |
-| RF13   | El sistema debe permitir buscar vacas por caravana, nombre o estado.                                                                                                    |
-| RF14   | El sistema debe permitir generar reportes exportables en PDF o planilla.                                                                                                |
-| RF15   | El sistema debe registrar un historial de cambios sobre lotes cerrados o datos críticos.                                                                                |
+| RF1    | El sistema debe permitir el registro obligatorio de usuarios (fotógrafos y clientes) solicitando Nombre completo, Cédula, Correo Electrónico y numero de telefono.                                                                                                    |
+| RF2    | El sistema debe impedir el registro de usuarios duplicados utilizando una misma Cédula de Identidad o un mismo Correo Electrónico ya existente en la base de datos.                                                                                                    |
+| RF3    | El sistema debe proveer una pantalla de inicio de sesión (Login) segura.                                   |
+| RF4    | El sistema debe permitir al fotógrafo crear colecciones de imágenes y clasificarlas manualmente como Públicas o Privadas.                         |
+| RF5    | Las colecciones marcadas como Privadas deben permanecer en ese estado de forma permanente y solo ser visibles para los clientes que el fotógrafo asigne de manera explícita.                                                                       |
+| RF6    | El sistema debe bloquear mediante lógica de backend cualquier intento de acceso directo mediante URL a colecciones privadas por parte de usuarios no autorizados.                                                                                           |
+| RF7    | El sistema debe permitir al fotógrafo subir imágenes en formato JPG.                                                                                                  |
+| RF8    | Al subir una imagen, el backend debe generar automáticamente una versión optimizada y más ligera para su visualización fluida en la galería del cliente (vista previa).                                                                                                 |
+| RF9    | El sistema debe aplicar automáticamente una marca de agua sobre las imágenes en su vista previa para proteger la propiedad intelectual del fotógrafo antes de que autorice su descarga.  |
+| RF10   | El sistema debe permitir al cliente descargar las imágenes autorizadas de forma individual o masiva (comprimiendo la selección en un archivo .zip).                                                                                    |
+| RF11   | El sistema debe ofrecer al cliente dos opciones de descarga según los permisos otorgados por el fotógrafo, buena calidad: versión ligera y optimizada Excelente calidad: El archivo original sin pérdida de resolución subido por el fotógrafo (este requerimiento fue adaptado a la restriccion de no realizar metodos de pago el cual fue la idea del cliente).                                                                                     |
+| RF12   | El sistema debe permitir al fotógrafo activar o desactivar manualmente el permiso de descarga en "Excelente Calidad" para clientes específicos dentro de una colección privada. |
+| RF13   | El sistema debe permitir al fotógrafo generar un código QR único vinculado a una colección específica de un evento.                                                                                                   |
+| RF14   | Cualquier invitado del evento debe poder escanear el código QR con su celular para subir fotos y videos directamente a esa colección, sin necesidad de completar un registro de cuenta complejo.                                                                                                |
+| RF15   | El fotógrafo debe poder visualizar y gestionar (aprobar, ocultar o descargar) todo el material multimedia colaborativo subido por los invitados mediante el QR.
+
+---
+
+## 7. Requerimientos no funcionales
+
+| Código | Requerimiento no funcional                                                                                                  |
+| ------ | --------------------------------------------------------------------------------------------------------------------------- |
+| RNF1   | La interfaz de usuario debe ser completamente adaptable (Responsive) para asegurar una experiencia de usuario óptima tanto en computadoras de escritorio como en dispositivos móviles (smartphones y tablets).                                      |
+| RNF2   | Las páginas del portal de clientes y las galerías deben cargar en un tiempo prudencial (idealmente bajo estándares web aceptables de menos de 3 segundos bajo conexiones normales).                                         |
+| RNF3   | La interfaz de la pagina web debe ser simple, rapida y formal.                              |
+| RNF4   | El sistema debe asegurar la estabilidad de la pagina para soportar el uso constante de esta misma (la pagina tendra horario 24/7)                           |
+| RNF5   | El sistema debe realizar respaldos automáticos diarios.                                         |
+| RNF6   | El sistema debe eliminar de manera automatica el respaldo mas antiguo si ya hay tres en disposicion.                                                                    |
+| RNF7   | El sistema debe registrar fecha y hora para cada respaldo diario.                                                        |
+
+
+---                                                                                |
 
