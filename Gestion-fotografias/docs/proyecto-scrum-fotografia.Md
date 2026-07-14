@@ -131,9 +131,9 @@ En este ejemplo:
 
 Se asumirá una velocidad promedio del equipo de **20 puntos por sprint**.
 
-Cada sprint tendrá una duración de **2 semanas**.
+Cada sprint tendrá una duración de **3 semanas**.
 
-El proyecto tendrá **4 sprints**, por lo tanto la duración total estimada será de **8 semanas**.
+El proyecto tendrá **5 sprints**, por lo tanto la duración total estimada será de **15 semanas**.
 
 ---
 
