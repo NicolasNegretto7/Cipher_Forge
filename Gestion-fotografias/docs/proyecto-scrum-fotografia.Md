@@ -43,7 +43,7 @@ El proyecto incluirá:
 6. Aplicación de marca de agua en la vista previa de las imágenes.
 7. Restricción de descarga y captura de pantalla en el contenido no adquirido.
 8. Visualización de imágenes en al menos dos niveles de calidad (alta calidad y calidad normal).
-9. Compra y descarga inmediata de imágenes.
+9. Descarga inmediata de imágenes.
 10. Control de espacio de almacenamiento por usuario.
 11. Políticas de privacidad y protección de datos.
 
