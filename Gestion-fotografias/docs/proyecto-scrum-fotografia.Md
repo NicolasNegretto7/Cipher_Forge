@@ -46,15 +46,15 @@ El proyecto incluirá:
 9. Descarga inmediata de imágenes.
 10. Control de espacio de almacenamiento por usuario.
 11. Políticas de privacidad y protección de datos.
+12. Invitacion a material privado mediante código QR.
 
 ---
 
 ## 5. Alcance excluido para esta primera versión
 
 Quedarán fuera de la primera versión:
-
+ 
 1. Una version App.
-2. Invitacion a material privado mediante código QR.
 3. Plantillas predeterminadas para exposición/publicación de fotos.
 4. Integración con redes sociales.
 5. Perfil público con acceso libre a todo el material del fotógrafo.
@@ -100,3 +100,57 @@ Quedarán fuera de la primera versión:
 
 ---                                                                                
 
+# 8. Épicas del proyecto
+
+| Código | Épica                           | Descripción                                                                         |
+| ------ | ------------------------------- | ----------------------------------------------------------------------------------- |
+| EP1    | Gestión de usuarios y seguridad | Registro de usuarios, inicio de sesión seguro, asignación de roles y políticas de privacidad.                   |
+| EP2    | Perfiles de fotógrafos            | Creación, edición y administración de los perfiles profesionales de los fotógrafos.                      |
+| EP3    | Gestión de colecciones             | Creación, categorización (públicas/privadas) y control de acceso por URL a colecciones de fotos. |
+| EP4    | Carga y procesamiento multimedia       | Subida de imágenes de alta calidad, generación de vistas previas optimizadas y aplicación de marcas de agua.                             |
+| EP5    | Visualización y descargas | Galería de previsualización para clientes, control de calidad de descarga y bajada de imágenes (individual o en .zip).                  |
+| EP6    | Carga colaborativa por QR         | Generación de códigos QR para eventos, subida rápida de fotos por invitados y aprobación por parte del fotógrafo..                |
+| EP7    | Mantenimiento técnico y respaldo     | Configuración de respaldos automáticos diarios, rotación de las últimas tres copias y registro de auditoría.               |
+| EP8    | Capacitación y cierre           | Entrega de la guía básica de uso, capacitación a usuarios y cierre formal del proyecto de UTU.               |
+
+---
+
+# 9. Estimación de esfuerzo, plazo y costo
+
+## Criterio didáctico de estimación
+
+Para simplificar la explicación, vamos a utilizar una estimación basada en puntos de historia (storypoints).
+
+En este ejemplo:
+
+- 1 punto representa una tarea muy pequeña.
+- 3 puntos representan una tarea simple pero con cierta lógica.
+- 5 puntos representan una tarea media.
+- 8 puntos representan una tarea compleja.
+- 13 puntos representan una tarea grande o riesgosa.
+
+Se asumirá una velocidad promedio del equipo de **20 puntos por sprint**.
+
+Cada sprint tendrá una duración de **2 semanas**.
+
+El proyecto tendrá **4 sprints**, por lo tanto la duración total estimada será de **8 semanas**.
+
+---
+
+## 10. Estimación por épica
+
+| Código    | Épica                           | Estimación en puntos |
+| --------- | ------------------------------- | -------------------- |
+| EP1       | Gestión de usuarios y seguridad |                    |
+| EP2       | Perfiles de fotógrafos             |                    |
+| EP3       | Gestión de colecciones             |                    |
+| EP4       | Carga y procesamiento multimedia       |                   |
+| EP5       | Visualización y descarga |                    |
+| EP6       | Carga colaborativa por QR         |                    |
+| EP7       | Mantenimiento técnico y respaldo     |                     |
+| EP8       | Capacitación y cierre           |                     |
+| **Total** |                                 | **puntos**        |
+
+La estimación supera la capacidad inicial de 80 puntos para 4 sprints. Por lo tanto, el equipo deberá ajustar alcance y priorizar. En Scrum esto es normal: el Product Backlog se ordena por valor y riesgo.
+
+---
