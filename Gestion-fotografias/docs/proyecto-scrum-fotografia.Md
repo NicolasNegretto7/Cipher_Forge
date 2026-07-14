@@ -151,6 +151,5 @@ El proyecto tendrá **4 sprints**, por lo tanto la duración total estimada ser�
 | EP8       | Capacitación y cierre           |                     |
 | **Total** |                                 | **puntos**        |
 
-La estimación supera la capacidad inicial de 80 puntos para 4 sprints. Por lo tanto, el equipo deberá ajustar alcance y priorizar. En Scrum esto es normal: el Product Backlog se ordena por valor y riesgo.
 
 ---
