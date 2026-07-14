@@ -141,15 +141,15 @@ El proyecto tendrá **5 sprints**, por lo tanto la duración total estimada ser�
 
 | Código    | Épica                           | Estimación en puntos |
 | --------- | ------------------------------- | -------------------- |
-| EP1       | Gestión de usuarios y seguridad |                    |
-| EP2       | Perfiles de fotógrafos             |                    |
-| EP3       | Gestión de colecciones             |                    |
-| EP4       | Carga y procesamiento multimedia       |                   |
-| EP5       | Visualización y descarga |                    |
-| EP6       | Carga colaborativa por QR         |                    |
-| EP7       | Mantenimiento técnico y respaldo     |                     |
-| EP8       | Capacitación y cierre           |                     |
-| **Total** |                                 | **puntos**        |
+| EP1       | Gestión de usuarios y seguridad |           5         |
+| EP2       | Perfiles de fotógrafos             |       5             |
+| EP3       | Gestión de colecciones             |         5           |
+| EP4       | Carga y procesamiento multimedia       |      8             |
+| EP5       | Visualización y descarga |              5      |
+| EP6       | Carga colaborativa por QR         |           8         |
+| EP7       | Mantenimiento técnico y respaldo     |         5            |
+| EP8       | Capacitación y cierre           |            3         |
+| **Total** |                                 | **49 puntos**        |
 
 
 ---
