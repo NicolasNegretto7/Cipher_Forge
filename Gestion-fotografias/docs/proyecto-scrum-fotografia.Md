@@ -109,7 +109,7 @@ Quedarán fuera de la primera versión:
 | EP3    | Gestión de colecciones             | Creación, categorización (públicas/privadas) y control de acceso por URL a colecciones de fotos. |
 | EP4    | Carga y procesamiento multimedia       | Subida de imágenes de alta calidad, generación de vistas previas optimizadas y aplicación de marcas de agua.                             |
 | EP5    | Visualización y descargas | Galería de previsualización para clientes, control de calidad de descarga y bajada de imágenes (individual o en .zip).                  |
-| EP6    | Carga colaborativa por QR         | Generación de códigos QR para eventos, subida rápida de fotos por invitados y aprobación por parte del fotógrafo..                |
+| EP6    | Carga colaborativa por QR         | Generación de códigos QR para eventos, subida rápida de fotos por invitados y aprobación por parte del fotógrafo.                |
 | EP7    | Mantenimiento técnico y respaldo     | Configuración de respaldos automáticos diarios, rotación de las últimas tres copias y registro de auditoría.               |
 | EP8    | Capacitación y cierre           | Entrega de la guía básica de uso, capacitación al cliente y cierre formal del proyecto de UTU.               |
 
