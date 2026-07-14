@@ -151,5 +151,6 @@ El proyecto tendrá **5 sprints**, por lo tanto la duración total estimada ser�
 | EP8       | Capacitación y cierre           |            3         |
 | **Total** |                                 | **49 puntos**        |
 
+La estimación no supera la cantidad inicial por tanto no es necesario un ajuste de alcance. 
 
 ---
