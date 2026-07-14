@@ -98,5 +98,5 @@ Quedarán fuera de la primera versión:
 | RNF7   | El sistema debe registrar fecha y hora para cada respaldo diario.                                                        |
 
 
----                                                                                |
+---                                                                                
 
