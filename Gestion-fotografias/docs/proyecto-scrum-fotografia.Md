@@ -5,13 +5,13 @@
 | Problema principal  | Dificultad de entrega inmediata de material fotografico y baja calidad de imagen.       |
 | Objetivo de negocio | Plataforma donde fotografos puedan subir su contenido con imagenes de buena calidad     |
 | Alcance inicial     | Subida y bajada de imagenes, marca de agua.                                             |
-| Plazo esperado      | Hasta Noviembre.                                                                        |
+| Plazo esperado      | 4 meses.                                                                        |
 | Presupuesto         | Proyecto de UTU sin presupuesto.                                                        |
 | Usuarios            | Fotografos, compradores.                                                                |
 | Infraestructura     | Servidor en la nube, alta disponilibidad, almacenamineto cambiable por usuario.         |
 | Seguridad           | Cedula, nombre, correo electronico y politicas de privacidad                            |
 | Riesgo operativo    | Caida del servidor, problemas con metodos de pago y material con riesgo legal.           
-| Restricción técnica | La pagina debe tener marca de agua.                                                     |
+| Restricción técnica | Imágenes descargables deben contar con marca de agua.                                                 |
 
 ---
 
@@ -63,4 +63,23 @@ Quedarán fuera de la primera versión:
 8. Restricción de descarga y captura de pantalla en el contenido no adquirido.
 
 
+## 6. Requerimientos funcionales
+
+| Código | Requerimiento funcional                                                                                                                                                 |
+| ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| RF1    | El sistema debe permitir iniciar sesión con usuario y cédula.                                                                                                       |
+| RF2    | El sistema debe permitir gestionar usuarios con diferentes roles.                                                                                                       |
+| RF3    | El sistema debe permitir registrar Usuarios, cédula, correo electrónico y cuenta de administración.                                    |
+| RF4    | El sistema debe permitir modificar el estado de una vaca: en producción, secado, tratamiento o baja.                                                                    |
+| RF5    | El sistema debe permitir registrar ordeñes indicando fecha, turno, responsable y tanque asociado.                                                                       |
+| RF6    | El sistema debe permitir seleccionar las vacas participantes en cada ordeñe.                                                                                            |
+| RF7    | El sistema debe permitir excluir vacas de un ordeñe indicando motivo.                                                                                                   |
+| RF8    | El sistema debe permitir crear lotes de leche a partir de un ordeñe.                                                                                                    |
+| RF9    | El sistema debe permitir registrar propiedades del lote: litros estimados, temperatura, grasa, proteína, células somáticas, resultado de antibióticos y observaciones.  |
+| RF10   | El sistema debe permitir completar propiedades de calidad después de creado el lote.                                                                                    |
+| RF11   | El sistema debe permitir cerrar un lote para evitar modificaciones no autorizadas.                                                                                      |
+| RF12   | El sistema debe permitir consultar la trazabilidad de un lote, mostrando fecha, turno, tanque, responsable, vacas incluidas, vacas excluidas y propiedades registradas. |
+| RF13   | El sistema debe permitir buscar vacas por caravana, nombre o estado.                                                                                                    |
+| RF14   | El sistema debe permitir generar reportes exportables en PDF o planilla.                                                                                                |
+| RF15   | El sistema debe registrar un historial de cambios sobre lotes cerrados o datos críticos.                                                                                |
 
