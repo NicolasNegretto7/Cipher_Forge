@@ -25,7 +25,7 @@ Sistema web para fotografos y compradores que permite subir material fotografico
 
 ## 3. Visión del producto
 
-??? sera plataforma web que permitirá a fotógrafos subir, organizar y comercializar su material fotográfico, protegido con marca de agua, y a sus compradores visualizar, comprar y descargar ese contenido en buena calidad.
+Para fotógrafos y videógrafos que tienen dificultad para entregar su material de forma inmediata, profesional y sin perder calidad, ??? es una plataforma web que permitirá a fotógrafos subir, organizar y comercializar su material fotográfico, protegido con marca de agua, y a sus compradores visualizar, comprar y descargar ese contenido en buena calidad. A diferencia de WhatsApp o plataformas como Pixyset y Lumipick, nuestro producto combina protección del contenido, alta calidad de imagen y un cobro ágil sin intermediarios que retengan el dinero del fotógrafo.
 
 La primera versión sera de subida y bajada de imagenes y videos, marca de agua.
 
