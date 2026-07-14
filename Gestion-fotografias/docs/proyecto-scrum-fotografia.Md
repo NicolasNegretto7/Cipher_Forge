@@ -111,7 +111,7 @@ Quedarán fuera de la primera versión:
 | EP5    | Visualización y descargas | Galería de previsualización para clientes, control de calidad de descarga y bajada de imágenes (individual o en .zip).                  |
 | EP6    | Carga colaborativa por QR         | Generación de códigos QR para eventos, subida rápida de fotos por invitados y aprobación por parte del fotógrafo..                |
 | EP7    | Mantenimiento técnico y respaldo     | Configuración de respaldos automáticos diarios, rotación de las últimas tres copias y registro de auditoría.               |
-| EP8    | Capacitación y cierre           | Entrega de la guía básica de uso, capacitación a usuarios y cierre formal del proyecto de UTU.               |
+| EP8    | Capacitación y cierre           | Entrega de la guía básica de uso, capacitación al cliente y cierre formal del proyecto de UTU.               |
 
 ---
 
