@@ -154,3 +154,20 @@ El proyecto tendrá **5 sprints**, por lo tanto la duración total estimada ser�
 La estimación no supera la cantidad inicial por tanto no es necesario un ajuste de alcance. 
 
 ---
+
+## 11. Propuesta presentada al cliente
+
+El equipo presenta la siguiente propuesta:
+
+| Elemento         | Propuesta                                                                           |
+| ---------------- | ----------------------------------------------------------------------------------- |
+| Producto         | ???, sistema web para fotografos.                                    |
+| Duración         | 15 semanas.                                                                          |
+| Metodología      | Scrum, con 5 sprints de 3 semanas.                                                  |
+| Entregas         | Incremento funcional al final de cada sprint.                                       |
+| Presupuesto      | Proyecto de Egreso por tanto no habra presupuesto asignado.                                                                          |
+| Forma de trabajo | Revisión con cliente al cierre de cada sprint.                                      |
+| Primera versión  | Subida y bajada de imagenes/videos, marca de agua   |
+| Exclusiones      | App móvil nativa, integracion con redes sociales, Perfil público con acceso libre a todo el material del fotógrafo, apartado para las Políticas de privacidad y protección de datos, control de espacio de almacenamiento por usuario, restricción de descarga y captura de pantalla en el contenido no adquirido|
+
+---
