@@ -171,3 +171,13 @@ El equipo presenta la siguiente propuesta:
 | Exclusiones      | App móvil nativa, integracion con redes sociales, Perfil público con acceso libre a todo el material del fotógrafo, apartado para las Políticas de privacidad y protección de datos, control de espacio de almacenamiento por usuario, restricción de descarga y captura de pantalla en el contenido no adquirido|
 
 ---
+
+## 19. Aprobación ficticia del cliente
+
+Luego de revisar la propuesta, el cliente responde:
+
+> “”
+
+Con esta aprobación, el equipo pasa de épicas a historias de usuario y construye el Product Backlog inicial.
+
+---
