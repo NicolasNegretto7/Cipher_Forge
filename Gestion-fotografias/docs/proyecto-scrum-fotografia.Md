@@ -198,15 +198,24 @@ Cada historia incluirá criterios de aceptación para saber cuándo puede consid
 
 | ID   | Historia de usuario                                                                                                                     | Puntos | Prioridad |
 | ---- | --------------------------------------------------------------------------------------------------------------------------------------- | ------ | --------- |
-| HU1  | Como usuario, quiero iniciar sesión en el sistema, para acceder de forma segura.                                                  | 3      | Alta      |
-| HU2  | Como fotografo, quiero crear colecciones y asignar permisos (privado o publicas), para controlar quien puede acceder a cada coleccion.                                 | 5      | Alta      |
-| HU3  | Como fotografo, quiero darle permiso a un usuario con sus datos principales (login), para permititrle acceder a la coleccion  | 5      | Alta      |
-| HU4  | Como fotografo, quiero generar un QR de una coleccion (ya sea privada o publica), para  imprimirla y usarla en ambiente laboral (fiestas, cumpleaños).                                               | 3      | Alta      |
-| HU5  | Como usuario/fotografo, quiero subir imagenes/videos, para poder subirlas a la coleccion.                   | 3      | Alta      |
-| HU6  | Como fotografo, quiero ser capaz de borrar videos/imagenes de una coleccion, para tener control de las publicaciones de los usuarios.                 | 5      | Alta      |
-| HU7  | Como fotografo, quiero poder imprimir el QR generado de la coleccion, para imprimirlo.              | 8      | Alta      |
-| HU8  | Como usuario, quiero poder elegir ser usuario (comprador) o fotografo (proveedor) , para evitar incluir animales en tratamiento.                         | 5      | Alta      |
-
+| HU1  | Como usuario, quiero iniciar sesión en el sistema, para acceder de forma segura a mi panel según mi rol.                                                  | 3      | Alta      |
+| HU2  | Como fotógrafo, quiero crear colecciones y asignarles visibilidad (privada o pública), para controlar quién puede acceder a cada una.                                 | 5      | Alta      |
+| HU3  | Como fotógrafo, quiero autorizar de forma explícita a un cliente mediante sus datos principales para que acceda a una colección privada.  | 5      | Alta      |
+| HU4  | Como fotógrafo, quiero generar un código QR único para una colección, para utilizarlo de manera presencial en mis eventos laborales.                                               | 3      | Alta      |
+| HU5  | Como fotógrafo, quiero subir imágenes (JPG) a mi colección, para ponerlas a disposición de mis clientes.                   | 3      | Alta      |
+| HU6  | Como fotógrafo, quiero eliminar imágenes o videos de una colección, para mantener el control sobre el contenido publicado.                 | 5      | Alta      |
+| HU7  | Como fotógrafo, quiero descargar el código QR generado para poder imprimirlo físicamente y exponerlo en el evento.              | 8      | Alta      |
+| HU8  | Como usuario nuevo, quiero poder elegir si registrarme como fotógrafo profesional o como cliente, para acceder a las funciones correctas del sistema.                         | 5      | Alta      |
+| HU9  | Como encargado, quiero crear un lote de leche a partir de un ordeñe, para identificar formalmente la producción.                        | 8      | Alta      |
+| HU10 | Como encargado, quiero cargar litros estimados y tanque asociado al lote, para registrar datos productivos básicos.                     | 3      | Alta      |
+| HU11 | Como administración, quiero cargar resultados de calidad del lote, para completar información recibida después del laboratorio.         | 5      | Media     |
+| HU12 | Como encargado, quiero cerrar un lote, para evitar modificaciones accidentales.                                                         | 5      | Alta      |
+| HU13 | Como administración, quiero consultar un lote y ver vacas incluidas, excluidas y propiedades, para responder consultas de trazabilidad. | 8      | Alta      |
+| HU14 | Como administración, quiero exportar un reporte de trazabilidad, para presentarlo en auditorías o controles internos.                   | 5      | Media     |
+| HU15 | Como veterinario, quiero registrar observaciones sanitarias de una vaca, para documentar situaciones relevantes.                        | 5      | Media     |
+| HU16 | Como administrador, quiero ver historial de cambios críticos, para saber quién modificó información sensible.                           | 5      | Media     |
+| HU17 | Como administrador, quiero que el sistema realice respaldos automáticos, para reducir riesgo de pérdida de datos.                       | 3      | Media     |
+| HU18 | Como usuario nuevo, quiero recibir una guía básica de uso, para aprender el flujo principal del sistema.                                | 2      | Baja      |
 
 ---
 
