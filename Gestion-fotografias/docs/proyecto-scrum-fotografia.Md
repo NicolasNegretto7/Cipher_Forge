@@ -172,12 +172,67 @@ El equipo presenta la siguiente propuesta:
 
 ---
 
-## 19. Aprobación ficticia del cliente
+## 12. Aprobación del cliente
 
 Luego de revisar la propuesta, el cliente responde:
 
 > “”
 
 Con esta aprobación, el equipo pasa de épicas a historias de usuario y construye el Product Backlog inicial.
+
+---
+
+# Historias de usuario
+
+## 13. Formato de historia de usuario
+
+Se utilizará el siguiente formato:
+
+> Como **[tipo de usuario]**, quiero **[acción o necesidad]**, para **[beneficio o resultado esperado]**.
+
+Cada historia incluirá criterios de aceptación para saber cuándo puede considerarse terminada.
+
+---
+
+## 14. Historias de usuario iniciales
+
+| ID   | Historia de usuario                                                                                                                     | Puntos | Prioridad |
+| ---- | --------------------------------------------------------------------------------------------------------------------------------------- | ------ | --------- |
+| HU1  | Como usuario, quiero iniciar sesión en el sistema, para acceder de forma segura.                                                  | 3      | Alta      |
+| HU2  | Como fotografo, quiero crear colecciones y asignar permisos (privado o publicas), para controlar quien puede acceder a cada coleccion.                                 | 5      | Alta      |
+| HU3  | Como fotografo, quiero darle permiso a un usuario con sus datos principales (login), para permititrle acceder a la coleccion  | 5      | Alta      |
+| HU4  | Como fotografo, quiero generar un QR de una coleccion (ya sea privada o publica), para  imprimirla y usarla en ambiente laboral (fiestas, cumpleaños).                                               | 3      | Alta      |
+| HU5  | Como usuario/fotografo, quiero subir imagenes/videos, para poder subirlas a la coleccion.                   | 3      | Alta      |
+| HU6  | Como fotografo, quiero ser capaz de borrar videos/imagenes de una coleccion, para tener control de las publicaciones de los usuarios.                 | 5      | Alta      |
+| HU7  | Como fotografo, quiero poder imprimir el QR generado de la coleccion, para imprimirlo.              | 8      | Alta      |
+| HU8  | Como usuario, quiero poder elegir ser usuario (comprador) o fotografo (proveedor) , para evitar incluir animales en tratamiento.                         | 5      | Alta      |
+
+
+---
+
+# Product Backlog inicial
+
+## 15. Backlog priorizado
+
+| Orden | ID   | Historia                           | Puntos | Sprint estimado            |
+| ----- | ---- | ---------------------------------- | ------ | -------------------------- |
+| 1     | HU1  | Inicio de sesión                   | 3      | Sprint 1                   |
+| 2     | HU2  | Gestión de usuarios y roles        | 5      | Sprint 1                   |
+| 3     | HU3  | Registro de vacas                  | 5      | Sprint 1                   |
+| 4     | HU4  | Búsqueda de vacas                  | 3      | Sprint 1                   |
+| 5     | HU5  | Cambio de estado de vaca           | 3      | Sprint 1                   |
+| 6     | HU6  | Registro de ordeñe                 | 5      | Sprint 2                   |
+| 7     | HU7  | Selección de vacas participantes   | 8      | Sprint 2                   |
+| 8     | HU8  | Exclusión de vacas con motivo      | 5      | Sprint 2                   |
+| 9     | HU9  | Creación de lote desde ordeñe      | 8      | Sprint 3                   |
+| 10    | HU10 | Datos productivos básicos del lote | 3      | Sprint 3                   |
+| 11    | HU11 | Resultados de calidad              | 5      | Sprint 3                   |
+| 12    | HU12 | Cierre de lote                     | 5      | Sprint 3                   |
+| 13    | HU13 | Consulta de trazabilidad por lote  | 8      | Sprint 4                   |
+| 14    | HU14 | Exportación de reporte             | 5      | Sprint 4                   |
+| 15    | HU16 | Historial de cambios críticos      | 5      | Sprint 4                   |
+| 16    | HU17 | Respaldos automáticos              | 3      | Sprint 4                   |
+| 17    | HU15 | Observaciones sanitarias           | 5      | Sprint 4, si hay capacidad |
+| 18    | HU18 | Guía básica de uso                 | 2      | Sprint 4                   |
 
 ---
