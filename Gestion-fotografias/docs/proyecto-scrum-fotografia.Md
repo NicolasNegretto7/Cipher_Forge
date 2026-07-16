@@ -206,16 +206,13 @@ Cada historia incluirá criterios de aceptación para saber cuándo puede consid
 | HU6  | Como fotógrafo, quiero eliminar imágenes o videos de una colección, para mantener el control sobre el contenido publicado.                 | 5      | Alta      |
 | HU7  | Como fotógrafo, quiero descargar el código QR generado para poder imprimirlo físicamente y exponerlo en el evento.              | 8      | Alta      |
 | HU8  | Como usuario nuevo, quiero poder elegir si registrarme como fotógrafo profesional o como cliente, para acceder a las funciones correctas del sistema.                         | 5      | Alta      |
-| HU9  | Como encargado, quiero crear un lote de leche a partir de un ordeñe, para identificar formalmente la producción.                        | 8      | Alta      |
-| HU10 | Como encargado, quiero cargar litros estimados y tanque asociado al lote, para registrar datos productivos básicos.                     | 3      | Alta      |
-| HU11 | Como administración, quiero cargar resultados de calidad del lote, para completar información recibida después del laboratorio.         | 5      | Media     |
-| HU12 | Como encargado, quiero cerrar un lote, para evitar modificaciones accidentales.                                                         | 5      | Alta      |
-| HU13 | Como administración, quiero consultar un lote y ver vacas incluidas, excluidas y propiedades, para responder consultas de trazabilidad. | 8      | Alta      |
-| HU14 | Como administración, quiero exportar un reporte de trazabilidad, para presentarlo en auditorías o controles internos.                   | 5      | Media     |
-| HU15 | Como veterinario, quiero registrar observaciones sanitarias de una vaca, para documentar situaciones relevantes.                        | 5      | Media     |
-| HU16 | Como administrador, quiero ver historial de cambios críticos, para saber quién modificó información sensible.                           | 5      | Media     |
-| HU17 | Como administrador, quiero que el sistema realice respaldos automáticos, para reducir riesgo de pérdida de datos.                       | 3      | Media     |
-| HU18 | Como usuario nuevo, quiero recibir una guía básica de uso, para aprender el flujo principal del sistema.                                | 2      | Baja      |
+| HU9  | Como fotógrafo, quiero habilitar o deshabilitar manualmente el permiso de descarga en "Excelente Calidad" para un cliente específico, para controlar la entrega final del material.                        | 8      | Alta      |
+| HU10 | Como cliente autorizado, quiero descargar mis fotos de forma individual o en un archivo comprimido (.zip), para obtener mi material de manera ágil.                     | 3      | Alta      |
+| HU11 | Como invitado de un evento, quiero escanear el código QR para subir directamente mis fotos y videos a la colección sin necesidad de crearme una cuenta compleja.         | 5      | Media     |
+| HU12 | Como fotógrafo, quiero moderar (aprobar u ocultar) el material que subieron los invitados mediante el QR antes de que sea visible en la colección, para resguardar la calidad del evento.                                                         | 5      | Alta      |
+| HU13 | Como sistema, quiero realizar un respaldo automático diario de la base de datos y rotar las últimas 3 copias, para mitigar el riesgo de pérdida de datos. | 8      | Alta      |
+| HU14 | Como cliente, quiero visualizar las fotos de mi evento con una marca de agua integrada automáticamente, para poder previsualizar el trabajo antes de descargarlo en máxima resolución.                   | 5      | Media     |
+
 
 ---
 
