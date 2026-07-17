@@ -220,25 +220,22 @@ Cada historia incluirá criterios de aceptación para saber cuándo puede consid
 
 ## 15. Backlog priorizado
 
-| Orden | ID   | Historia                           | Puntos | Sprint estimado            |
-| ----- | ---- | ---------------------------------- | ------ | -------------------------- |
-| 1     | HU1  | Inicio de sesión                   | 3      | Sprint 1                   |
-| 2     | HU2  | Gestión de usuarios y roles        | 5      | Sprint 1                   |
-| 3     | HU3  | Registro de vacas                  | 5      | Sprint 1                   |
-| 4     | HU4  | Búsqueda de vacas                  | 3      | Sprint 1                   |
-| 5     | HU5  | Cambio de estado de vaca           | 3      | Sprint 1                   |
-| 6     | HU6  | Registro de ordeñe                 | 5      | Sprint 2                   |
-| 7     | HU7  | Selección de vacas participantes   | 8      | Sprint 2                   |
-| 8     | HU8  | Exclusión de vacas con motivo      | 5      | Sprint 2                   |
-| 9     | HU9  | Creación de lote desde ordeñe      | 8      | Sprint 3                   |
-| 10    | HU10 | Datos productivos básicos del lote | 3      | Sprint 3                   |
-| 11    | HU11 | Resultados de calidad              | 5      | Sprint 3                   |
-| 12    | HU12 | Cierre de lote                     | 5      | Sprint 3                   |
-| 13    | HU13 | Consulta de trazabilidad por lote  | 8      | Sprint 4                   |
-| 14    | HU14 | Exportación de reporte             | 5      | Sprint 4                   |
-| 15    | HU16 | Historial de cambios críticos      | 5      | Sprint 4                   |
-| 16    | HU17 | Respaldos automáticos              | 3      | Sprint 4                   |
-| 17    | HU15 | Observaciones sanitarias           | 5      | Sprint 4, si hay capacidad |
-| 18    | HU18 | Guía básica de uso                 | 2      | Sprint 4                   |
+| Orden | ID | Historia | Puntos | Sprint estimado |
+| :--- | :--- | :--- | :--- | :--- |
+| 1 | HU1 | Inicio de sesión | | Sprint 1 |
+| 2 | HU8 | Selección de rol (Fotógrafo / Cliente) | | Sprint 1 |
+| 3 | HU2 | Creación de colecciones y visibilidad | | Sprint 1 |
+| 4 | HU5 | Subida de imágenes | | Sprint 1 |
+| 5 | HU3 | Autorización de clientes a colecciones | | Sprint 2 |
+| 6 | HU4 | Generación de código QR único | | Sprint 2 |
+| 7 | HU7 | Descarga e impresión de código QR | | Sprint 2 |
+| 8 | HU11 | Carga de archivos por QR (Invitados) | | Sprint 2 |
+| 9 | HU9 | Habilitación manual de descarga "Excelente Calidad" | | Sprint 3 |
+| 10 | HU10 | Descarga individual o comprimida (.zip) | | Sprint 3 |
+| 11 | HU14 | Visualización con marca de agua automática | | Sprint 3 |
+| 12 | HU12 | Moderación de material subido por invitados | | Sprint 3 |
+| 13 | HU6 | Eliminación de imágenes o videos | | Sprint 4 |
+| 14 | HU13 | Respaldo automático de base de datos | | Sprint 4 |
+| 15 | HU15 | Ayuda o sección de soporte al usuario | | Sprint 4, si hay capacidad |
 
 ---
