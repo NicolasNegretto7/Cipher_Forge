@@ -8,7 +8,7 @@
 | Plazo esperado      |                                                                        |
 | Presupuesto         | Proyecto de UTU sin presupuesto.                                                        |
 | Usuarios            | Fotografos, compradores.                                                                |
-| Infraestructura     | Servidor en la nube, alta disponilibidad, almacenamineto cambiable por usuario.         |
+| Infraestructura     | Este proyecto correra en local no se realizara hosting/dominio publico, esto mismo quedando para futuro.         |
 | Seguridad           | Cedula, nombre, correo electronico y politicas de privacidad                            |
 | Riesgo operativo    | Caida del servidor, problemas con metodos de pago y material con riesgo legal.           
 | Restricción técnica | Imágenes descargables deben contar con marca de agua.                                                 |
@@ -58,9 +58,7 @@ Quedarán fuera de la primera versión:
 3. Plantillas predeterminadas para exposición/publicación de fotos.
 4. Integración con redes sociales.
 5. Perfil público con acceso libre a todo el material del fotógrafo.
-6. Apartado para las Políticas de privacidad y protección de datos.
-7. Control de espacio de almacenamiento por usuario.
-8. Restricción de descarga y captura de pantalla en el contenido no adquirido.
+
 
 
 ## 6. Requerimientos funcionales
@@ -77,7 +75,7 @@ Quedarán fuera de la primera versión:
 | RF8    | Al subir una imagen, el backend debe generar automáticamente una versión optimizada y más ligera para su visualización fluida en la galería del cliente (vista previa).                                                                                                 |
 | RF9    | El sistema debe aplicar automáticamente una marca de agua sobre las imágenes en su vista previa para proteger la propiedad intelectual del fotógrafo antes de que autorice su descarga.  |
 | RF10   | El sistema debe permitir al cliente descargar las imágenes autorizadas de forma individual o masiva (comprimiendo la selección en un archivo .zip).                                                                                    |
-| RF11   | El sistema debe ofrecer al cliente dos opciones de descarga según los permisos otorgados por el fotógrafo, buena calidad: versión ligera y optimizada Excelente calidad: El archivo original sin pérdida de resolución subido por el fotógrafo (este requerimiento fue adaptado a la restriccion de no realizar metodos de pago el cual fue la idea del cliente).                                                                                     |
+| RF11   | El sistema debe ofrecer al cliente dos opciones de descarga según los permisos otorgados por el fotógrafo, calidad normal: versión ligera y optimizada alta calidad: El archivo original sin pérdida de resolución subido por el fotógrafo (este requerimiento fue adaptado a la restriccion de no realizar metodos de pago el cual fue la idea del cliente).                                                                                     |
 | RF12   | El sistema debe permitir al fotógrafo activar o desactivar manualmente el permiso de descarga en "Excelente Calidad" para clientes específicos dentro de una colección privada. |
 | RF13   | El sistema debe permitir al fotógrafo generar un código QR único vinculado a una colección específica de un evento, para compartir con un comprador puntual.                                                                                                   |
 | RF14   | Cualquier invitado del evento debe poder escanear el código QR con su celular para subir fotos y videos directamente a esa colección, sin necesidad de completar un registro de cuenta complejo.                                                                                                |
