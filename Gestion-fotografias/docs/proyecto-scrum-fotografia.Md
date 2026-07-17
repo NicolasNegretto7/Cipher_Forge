@@ -58,6 +58,7 @@ El proyecto incluirá:
 Quedarán fuera de la primera versión:
  
 1. Una version App.
+2. Plantillas predeterminadas para exposición/publicación de fotos.
 3. Plantillas predeterminadas para exposición/publicación de fotos.
 4. Integración con redes sociales.
 5. Perfil público con acceso libre a todo el material del fotógrafo.
