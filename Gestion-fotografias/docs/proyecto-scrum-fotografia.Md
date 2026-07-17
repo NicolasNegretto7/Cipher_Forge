@@ -8,10 +8,13 @@
 | Plazo esperado      |                                                                        |
 | Presupuesto         | Proyecto de UTU sin presupuesto.                                                        |
 | Usuarios            | Fotografos, compradores.                                                                |
-| Infraestructura     | Este proyecto correra en local no se realizara hosting/dominio publico, esto mismo quedando para futuro.         |
+| Infraestructura     | Nube, alta disponibilidad, almacenamiento variable.         |
 | Seguridad           | Cedula, nombre, correo electronico y politicas de privacidad                            |
 | Riesgo operativo    | Caida del servidor, problemas con metodos de pago y material con riesgo legal.           
 | Restricción técnica | Imágenes descargables deben contar con marca de agua.                                                 |
+
+> “Restricción institucional (UTU): por tratarse de un equipo de estudiantes menores de edad, no es posible contratar hosting ni procesar pagos reales para este proyecto. Esta restricción es ajena tanto al pedido del cliente como a una decisión técnica del equipo. El sistema correrá en entorno local para esta entrega, y se recomendará al cliente, una vez el equipo se gradúe, migrar el sistema de un servidor local a uno en la nube, adquiriendo hosting y dominio propio, y habilitando en ese momento un método de pago real.”
+
 
 ---
 
