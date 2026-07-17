@@ -61,6 +61,8 @@ Quedarán fuera de la primera versión:
 3. Plantillas predeterminadas para exposición/publicación de fotos.
 4. Integración con redes sociales.
 5. Perfil público con acceso libre a todo el material del fotógrafo.
+6. Metodos de pago.
+7. Hosting/dominio.
 
 
 
@@ -78,7 +80,7 @@ Quedarán fuera de la primera versión:
 | RF8    | Al subir una imagen, el backend debe generar automáticamente una versión optimizada y más ligera para su visualización fluida en la galería del cliente (vista previa).                                                                                                 |
 | RF9    | El sistema debe aplicar automáticamente una marca de agua sobre las imágenes en su vista previa para proteger la propiedad intelectual del fotógrafo antes de que autorice su descarga.  |
 | RF10   | El sistema debe permitir al cliente descargar las imágenes autorizadas de forma individual o masiva (comprimiendo la selección en un archivo .zip).                                                                                    |
-| RF11   | El sistema debe ofrecer al cliente dos opciones de descarga según los permisos otorgados por el fotógrafo, calidad normal: versión ligera y optimizada alta calidad: El archivo original sin pérdida de resolución subido por el fotógrafo (este requerimiento fue adaptado a la restriccion de no realizar metodos de pago el cual fue la idea del cliente).                                                                                     |
+| RF11   | El sistema debe ofrecer al cliente dos opciones de descarga según los permisos otorgados por el fotógrafo, calidad normal: versión ligera y optimizada alta calidad: El archivo original sin pérdida de resolución subido por el fotógrafo (este requerimiento fue adaptado a la restriccion de no realizar metodos de pago el cual fue restriccion de la UTU).                                                                                     |
 | RF12   | El sistema debe permitir al fotógrafo activar o desactivar manualmente el permiso de descarga en "Excelente Calidad" para clientes específicos dentro de una colección privada. |
 | RF13   | El sistema debe permitir al fotógrafo generar un código QR único vinculado a una colección específica de un evento, para compartir con un comprador puntual.                                                                                                   |
 | RF14   | Cualquier invitado del evento debe poder escanear el código QR con su celular para subir fotos y videos directamente a esa colección, sin necesidad de completar un registro de cuenta complejo.                                                                                                |
@@ -94,7 +96,7 @@ Quedarán fuera de la primera versión:
 | RNF1   | La interfaz de usuario debe ser completamente adaptable (Responsive) para asegurar una experiencia de usuario óptima tanto en computadoras de escritorio como en dispositivos móviles (smartphones y tablets).                                      |
 | RNF2   | Las páginas del portal de clientes y las galerías deben cargar en un tiempo prudencial (idealmente bajo estándares web aceptables de menos de 3 segundos bajo conexiones normales).                                         |
 | RNF3   | La interfaz de la pagina web debe ser simple, rapida y formal.                              |
-| RNF4   | El sistema debe asegurar la estabilidad de la pagina para soportar el uso constante de esta misma (la pagina tendra horario 24/7)                           |
+| RNF4   | El sistema debe asegurar la estabilidad de la pagina para soportar el uso constante de esta misma mientras se corre en entornos de pruebas en el entorno local (Pensar estabilidad para posible hosting en un futuro).                         |
 | RNF5   | El sistema debe realizar respaldos automáticos diarios.                                         |
 | RNF6   | El sistema debe eliminar de manera automatica el respaldo mas antiguo si ya hay tres en disposicion.                                                                    |
 | RNF7   | El sistema debe registrar fecha y hora para cada respaldo diario.                                                        |
@@ -170,7 +172,7 @@ El equipo presenta la siguiente propuesta:
 | Presupuesto      | Proyecto de Egreso por tanto no habra presupuesto asignado.                                                                          |
 | Forma de trabajo | Revisión con cliente al cierre de cada sprint.                                      |
 | Primera versión  | Subida y bajada de imagenes/videos, marca de agua.   |
-| Exclusiones      | App móvil nativa, integracion con redes sociales, Perfil público con acceso libre a todo el material del fotógrafo, apartado para las Políticas de privacidad y protección de datos, control de espacio de almacenamiento por usuario, restricción de descarga y captura de pantalla en el contenido no adquirido|
+| Exclusiones      | App móvil nativa, integracion con redes sociales, Perfil público con acceso libre a todo el material del fotógrafo, apartado para las Políticas de privacidad y protección de datos, control de espacio de almacenamiento por usuario, restricción de descarga y captura de pantalla en el contenido no adquirido, metodos de pagos.|
 
 ---
 
