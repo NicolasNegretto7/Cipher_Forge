@@ -202,7 +202,7 @@ Cada historia incluirá criterios de aceptación para saber cuándo puede consid
 
 | ID   | Historia de usuario                                                                                                                     | Puntos | Prioridad |
 | ---- | --------------------------------------------------------------------------------------------------------------------------------------- | ------ | --------- |
-| HU1  | Como usuario, quiero iniciar sesión en el sistema, para acceder de forma segura a mi panel según mi rol.                                                  |       | Media      |
+| HU1  | Como usuario, quiero iniciar sesión en el sistema, para acceder de forma segura a mi panel según mi rol.                                                  |       | Alta      |
 | HU2  | Como fotógrafo, quiero crear colecciones y asignarles visibilidad (privada o pública), para controlar quién puede acceder a cada una.                                 |       | Alta      |
 | HU3  | Como fotógrafo, quiero autorizar de forma explícita a un cliente mediante sus datos principales para que acceda a una colección privada.  |       | Alta      |
 | HU4  | Como fotógrafo, quiero generar un código QR único para una colección, para utilizarlo de manera presencial en mis eventos laborales.                                               |       | Media      |
@@ -211,11 +211,11 @@ Cada historia incluirá criterios de aceptación para saber cuándo puede consid
 | HU7  | Como fotógrafo, quiero descargar el código QR generado para poder imprimirlo físicamente y exponerlo en el evento.              |       | Media      |
 | HU8  | Como usuario nuevo, quiero poder elegir si registrarme como fotógrafo o como cliente, para acceder a las funciones correctas del sistema.                         |       | Alta      |
 | HU9  | Como fotógrafo, quiero habilitar o deshabilitar manualmente el permiso de descarga en "Excelente Calidad" para un cliente específico, para controlar la entrega final del material.                        |       | Alta      |
-| HU10 | Como cliente autorizado, quiero descargar mis fotos de forma individual o en un archivo comprimido (.zip), para obtener mi material de manera ágil.                     |       | Alta      |
+| HU10 | Como cliente autorizado, quiero descargar mis fotos de forma individual o en un archivo comprimido (.zip), para obtener mi material de manera ágil.                     |       | Media      |
 | HU11 | Como invitado de un evento, quiero escanear el código QR para subir directamente mis fotos y videos a la colección sin necesidad de crearme una cuenta compleja.         |       | Media     |
-| HU12 | Como fotógrafo, quiero moderar (aprobar u ocultar) el material que subieron los invitados mediante el QR antes de que sea visible en la colección, para resguardar la calidad del evento.                                                         |       | Alta      |
-| HU13 | Como sistema, quiero realizar un respaldo automático diario de la base de datos y rotar las últimas 3 copias, para mitigar el riesgo de pérdida de datos. |       | Alta      |
-| HU14 | Como cliente, quiero visualizar las fotos de mi evento con una marca de agua integrada automáticamente, para poder previsualizar el trabajo antes de descargarlo en máxima resolución.                   |       | Media     |
+| HU12 | Como fotógrafo, quiero moderar (aprobar u ocultar) el material que subieron los invitados mediante el QR antes de que sea visible en la colección, para resguardar la calidad del evento.                                                         |       | Media      |
+| HU13 | Como sistema, quiero realizar un respaldo automático diario de la base de datos y rotar las últimas 3 copias, para mitigar el riesgo de pérdida de datos. |       | Media      |
+| HU14 | Como cliente, quiero visualizar las fotos de mi evento con una marca de agua integrada automáticamente, para poder previsualizar el trabajo antes de descargarlo en máxima resolución.                   |       | Alta     |
 
 
 ---
