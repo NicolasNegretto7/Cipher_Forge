@@ -59,11 +59,10 @@ Quedarán fuera de la primera versión:
  
 1. Una version App.
 2. Plantillas predeterminadas para exposición/publicación de fotos.
-3. Plantillas predeterminadas para exposición/publicación de fotos.
-4. Integración con redes sociales.
-5. Perfil público con acceso libre a todo el material del fotógrafo.
-6. Metodos de pago.
-7. Hosting/dominio.
+3. Integración con redes sociales.
+4. Perfil público con acceso libre a todo el material del fotógrafo.
+5. Metodos de pago.
+6. Hosting/dominio.
 
 
 
@@ -85,7 +84,7 @@ Quedarán fuera de la primera versión:
 | RF12   | El sistema debe permitir al fotógrafo activar o desactivar manualmente el permiso de descarga en "Excelente Calidad" para clientes específicos dentro de una colección privada. |
 | RF13   | El sistema debe permitir al fotógrafo generar un código QR único vinculado a una colección específica de un evento, para compartir con un comprador puntual.                                                                                                   |
 | RF14   | Cualquier invitado del evento debe poder escanear el código QR con su celular para subir fotos y videos directamente a esa colección, sin necesidad de completar un registro de cuenta complejo.                                                                                                |
-| RF15   | El fotógrafo debe poder visualizar y gestionar (aprobar, ocultar o descargar) todo el material multimedia colaborativo subido por los invitados mediante el QR.
+| RF15   | El fotógrafo debe poder visualizar y gestionar (ocultar o descargar) todo el material multimedia colaborativo subido por los invitados mediante el QR.
 | RF16   | El sistema debe permitir al fotógrafo generar un enlace o QR de acceso directo a una colección privada específica, distinto del QR de carga colaborativa
 
 ---
