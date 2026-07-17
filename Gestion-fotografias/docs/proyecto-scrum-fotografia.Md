@@ -5,7 +5,7 @@
 | Problema principal  | Dificultad de entrega inmediata de material fotografico y baja calidad de imagen.       |
 | Objetivo de negocio | Plataforma donde fotografos puedan subir su contenido con imagenes de buena calidad     |
 | Alcance inicial     | Subida y bajada de imagenes, marca de agua.                                             |
-| Plazo esperado      | 4 meses.                                                                        |
+| Plazo esperado      |                                                                        |
 | Presupuesto         | Proyecto de UTU sin presupuesto.                                                        |
 | Usuarios            | Fotografos, compradores.                                                                |
 | Infraestructura     | Servidor en la nube, alta disponilibidad, almacenamineto cambiable por usuario.         |
@@ -46,7 +46,7 @@ El proyecto incluirá:
 9. Descarga inmediata de imágenes.
 10. Control de espacio de almacenamiento por usuario.
 11. Políticas de privacidad y protección de datos.
-12. Invitacion a material privado mediante código QR.
+12. Generación de un enlace o QR de acceso directo a una colección privada puntual, para que un comprador vea su sesión sin necesidad de buscar el perfil del fotógrafo.
 
 ---
 
@@ -73,15 +73,16 @@ Quedarán fuera de la primera versión:
 | RF4    | El sistema debe permitir al fotógrafo crear colecciones de imágenes y clasificarlas manualmente como Públicas o Privadas.                         |
 | RF5    | Las colecciones marcadas como Privadas deben permanecer en ese estado de forma permanente y solo ser visibles para los clientes que el fotógrafo asigne de manera explícita.                                                                       |
 | RF6    | El sistema debe bloquear mediante lógica de backend cualquier intento de acceso directo mediante URL a colecciones privadas por parte de usuarios no autorizados.                                                                                           |
-| RF7    | El sistema debe permitir al fotógrafo subir imágenes en formato JPG.                                                                                                  |
+| RF7    | El sistema debe permitir al fotógrafo subir imágenes (JPG) y videos a su colección..                                                                                                  |
 | RF8    | Al subir una imagen, el backend debe generar automáticamente una versión optimizada y más ligera para su visualización fluida en la galería del cliente (vista previa).                                                                                                 |
 | RF9    | El sistema debe aplicar automáticamente una marca de agua sobre las imágenes en su vista previa para proteger la propiedad intelectual del fotógrafo antes de que autorice su descarga.  |
 | RF10   | El sistema debe permitir al cliente descargar las imágenes autorizadas de forma individual o masiva (comprimiendo la selección en un archivo .zip).                                                                                    |
 | RF11   | El sistema debe ofrecer al cliente dos opciones de descarga según los permisos otorgados por el fotógrafo, buena calidad: versión ligera y optimizada Excelente calidad: El archivo original sin pérdida de resolución subido por el fotógrafo (este requerimiento fue adaptado a la restriccion de no realizar metodos de pago el cual fue la idea del cliente).                                                                                     |
 | RF12   | El sistema debe permitir al fotógrafo activar o desactivar manualmente el permiso de descarga en "Excelente Calidad" para clientes específicos dentro de una colección privada. |
-| RF13   | El sistema debe permitir al fotógrafo generar un código QR único vinculado a una colección específica de un evento.                                                                                                   |
+| RF13   | El sistema debe permitir al fotógrafo generar un código QR único vinculado a una colección específica de un evento, para compartir con un comprador puntual.                                                                                                   |
 | RF14   | Cualquier invitado del evento debe poder escanear el código QR con su celular para subir fotos y videos directamente a esa colección, sin necesidad de completar un registro de cuenta complejo.                                                                                                |
 | RF15   | El fotógrafo debe poder visualizar y gestionar (aprobar, ocultar o descargar) todo el material multimedia colaborativo subido por los invitados mediante el QR.
+| RF16   | El sistema debe permitir al fotógrafo generar un enlace o QR de acceso directo a una colección privada específica, distinto del QR de carga colaborativa
 
 ---
 
