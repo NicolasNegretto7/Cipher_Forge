@@ -153,7 +153,7 @@ El proyecto tendrá **5 sprints**, por lo tanto la duración total estimada ser�
 | EP6       | Carga colaborativa por QR         |           8         |
 | EP7       | Mantenimiento técnico y respaldo     |         5            |
 | EP8       | Capacitación y cierre           |            3         |
-| **Total** |                                 | **46 puntos**        |
+| **Total** |                                 | **44 puntos**        |
 
 La estimación no supera la cantidad inicial por tanto no es necesario un ajuste de alcance. 
 
