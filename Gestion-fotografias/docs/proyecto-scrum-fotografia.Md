@@ -172,7 +172,7 @@ El equipo presenta la siguiente propuesta:
 | Presupuesto      | Proyecto de Egreso por tanto no habra presupuesto asignado.                                                                          |
 | Forma de trabajo | Revisión con cliente al cierre de cada sprint.                                      |
 | Primera versión  | Subida y bajada de imagenes/videos, marca de agua.   |
-| Exclusiones      | App móvil nativa, integracion con redes sociales, Perfil público con acceso libre a todo el material del fotógrafo, apartado para las Políticas de privacidad y protección de datos, control de espacio de almacenamiento por usuario, restricción de descarga y captura de pantalla en el contenido no adquirido, metodos de pagos.|
+| Exclusiones      | App móvil nativa, integracion con redes sociales, Perfil público con acceso libre a todo el material del fotógrafo, control de espacio de almacenamiento por usuario, restricción de descarga y captura de pantalla en el contenido no adquirido, metodos de pagos.|
 
 ---
 
