@@ -47,7 +47,7 @@ El proyecto incluirá:
 7. Restricción de descarga y captura de pantalla en el contenido no adquirido.
 8. Visualización de imágenes en al menos dos niveles de calidad (alta calidad y calidad normal).
 9. Descarga inmediata de imágenes.
-10. Control de espacio de almacenamiento por usuario.
+10. Control de espacio de almacenamiento por usuario (3GB).
 11. Políticas de privacidad y protección de datos.
 12. Generación de un enlace o QR de acceso directo a una colección privada puntual, para que un comprador vea su sesión sin necesidad de buscar el perfil del fotógrafo.
 
@@ -113,7 +113,7 @@ Quedarán fuera de la primera versión:
 | EP3    | Gestión de colecciones             | Creación, categorización (públicas/privadas) y control de acceso por URL a colecciones de fotos. |
 | EP4    | Carga y procesamiento multimedia       | Subida de imágenes de alta calidad, generación de vistas previas optimizadas y aplicación de marcas de agua.                             |
 | EP5    | Visualización y descargas | Galería de previsualización para clientes, control de calidad de descarga y bajada de imágenes (individual o en .zip).                  |
-| EP6    | Carga colaborativa por QR         | Generación de códigos QR para eventos, subida rápida de fotos por invitados y aprobación por parte del fotógrafo.                |
+| EP6    | Carga colaborativa por QR         | Generación de códigos QR para eventos, subida rápida de fotos por invitados y moderación/gestión posterior del material por parte del fotógrafo (ocultar o eliminar).                |
 | EP7    | Mantenimiento técnico y respaldo     | Configuración de respaldos automáticos diarios, rotación de las últimas tres copias y registro de auditoría.               |
 | EP8    | Capacitación y cierre           | Entrega de la guía básica de uso, capacitación al cliente y cierre formal del proyecto de UTU.               |
 
@@ -172,7 +172,7 @@ El equipo presenta la siguiente propuesta:
 | Presupuesto      | Proyecto de Egreso por tanto no habra presupuesto asignado.                                                                          |
 | Forma de trabajo | Revisión con cliente al cierre de cada sprint.                                      |
 | Primera versión  | Subida y bajada de imagenes/videos, marca de agua.   |
-| Exclusiones      | App móvil nativa, integracion con redes sociales, Perfil público con acceso libre a todo el material del fotógrafo, control de espacio de almacenamiento por usuario, restricción de descarga y captura de pantalla en el contenido no adquirido, metodos de pagos.|
+| Exclusiones      | App móvil nativa, integracion con redes sociales, Perfil público con acceso libre a todo el material del fotógrafo, metodos de pagos.|
 
 ---
 
@@ -180,7 +180,7 @@ El equipo presenta la siguiente propuesta:
 
 Luego de revisar la propuesta, el cliente responde:
 
-> “”
+> “Pendiente de confirmación formal por parte del cliente. Se espera su respuesta en los próximos días para proceder con el detalle de sprints.”
 
 Con esta aprobación, el equipo pasa de épicas a historias de usuario y construye el Product Backlog inicial.
 
@@ -213,7 +213,7 @@ Cada historia incluirá criterios de aceptación para saber cuándo puede consid
 | HU9  | Como fotógrafo, quiero habilitar o deshabilitar manualmente el permiso de descarga en "Excelente Calidad" para un cliente específico, para controlar la entrega final del material.                        |       | Alta      |
 | HU10 | Como cliente autorizado, quiero descargar mis fotos de forma individual o en un archivo comprimido (.zip), para obtener mi material de manera ágil.                     |       | Media      |
 | HU11 | Como invitado de un evento, quiero escanear el código QR para subir directamente mis fotos y videos a la colección sin necesidad de crearme una cuenta compleja.         |       | Media     |
-| HU12 | Como fotógrafo, quiero moderar (aprobar u ocultar) el material que subieron los invitados mediante el QR antes de que sea visible en la colección, para resguardar la calidad del evento.                                                         |       | Media      |
+| HU12 | Como fotógrafo, quiero visualizar y gestionar (ocultar o eliminar) el material subido por invitados                                                         |       | Media      |
 | HU13 | Como sistema, quiero realizar un respaldo automático diario de la base de datos y rotar las últimas 3 copias, para mitigar el riesgo de pérdida de datos. |       | Media      |
 | HU14 | Como cliente, quiero visualizar las fotos de mi evento con una marca de agua integrada automáticamente, para poder previsualizar el trabajo antes de descargarlo en máxima resolución.                   |       | Alta     |
 
@@ -240,6 +240,5 @@ Cada historia incluirá criterios de aceptación para saber cuándo puede consid
 | 12 | HU12 | Moderación de material subido por invitados | | Sprint 3 |
 | 13 | HU6 | Eliminación de imágenes o videos | | Sprint 4 |
 | 14 | HU13 | Respaldo automático de base de datos | | Sprint 4 |
-| 15 | HU15 | Ayuda o sección de soporte al usuario | | Sprint 4, si hay capacidad |
 
 ---
