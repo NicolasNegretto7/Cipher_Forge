@@ -237,6 +237,8 @@ Cada historia incluirá criterios de aceptación para saber cuándo puede consid
 | HU21  | Como sistema, quiero enviar un codigo de verificacion al correo o telefono, para asegurar si pertenece ese correo o telefono a esa persona.                                              |       | Media      |
 | HU22  | Como cliente, quiero consultar mi propio historial de descargas, para saber qué material ya descargué.                                              |       | Media      |
 | HU23  | Como fotógrafo, quiero consultar estadísticas de descargas de mis colecciones, incluyendo las imágenes más descargadas, para entender qué contenido le interesa más a mis clientes.                                              |       | Media      |
+| HU24  | Como fotografo quiero editar los datos basicos (titulo, descripcion) de una imagen o video ya subido, para no tener que subirlo de nuevo para cambiar los datos basicos.                                              |       | Media      |
+| HU25  | Como usuario quiero marcar favorito una imagen o video de una coleccion a la que tenga autorizacion, para tener una lista de favoritos.                                              |       | Media      |
 
 
 
@@ -249,21 +251,28 @@ Cada historia incluirá criterios de aceptación para saber cuándo puede consid
 | Orden | ID | Historia | Puntos | Sprint estimado |
 | :--- | :--- | :--- | :--- | :--- |
 | 1 | HU1 | Inicio de sesión | | Sprint 1 |
+| 1 | HU19 | Impedir el registro de usuarios duplicados | | Sprint 1 |
+| 1 | HU21 | Envio de codigo de verificacion al correo o telefono | | Sprint 1 |
 | 2 | HU8 | Selección de rol (Fotógrafo / Cliente) | | Sprint 1 |
 | 3 | HU18 | Edicion de informacion del perfil "fotografo" | | Sprint 1 |
 | 4 | HU2 | Creación de colecciones y visibilidad | | Sprint 1 |
 | 5 | HU5 | Subida de imágenes | | Sprint 1 |
 | 6 | HU3 | Autorización de clientes a colecciones | | Sprint 2 |
+| 6 | HU20 | Impedicion de acceso directo mediante URL a colecciones privadas | | Sprint 2 |
 | 7 | HU17 | Generacion de codigo QR unico para descarga de imagenes o videos | | Sprint 2 |
 | 8 | HU4 | Generación de código QR único para subida de imagenes o videos | | Sprint 2 |
 | 9 | HU7 | Descarga e impresión de código QR | | Sprint 2 |
 | 10 | HU11 | Carga de archivos por QR (Invitados) | | Sprint 3 |
 | 11 | HU9 | Habilitación manual de descarga "Alta Calidad" | | Sprint 3 |
 | 12 | HU10 | Descarga individual o comprimida (.zip) | | Sprint 3 |
+| 12 | HU22 | Consultar historial de descarga | | Sprint 3 |
+| 12 | HU25 | Marcar favorito una imagen o video | | Sprint 3 |
 | 13 | HU14 | Visualización con marca de agua automática | | Sprint 3 |
 | 14 | HU12 | Moderación de material subido por invitados | | Sprint 4 |
 | 15 | HU16 | Restriccion por superar la cuota de almacenamiento | | Sprint 4 |
 | 16 | HU6 | Eliminación de imágenes o videos | | Sprint 4 |
+| 16 | HU24 | Edicion de datos basicos de una imagen o video | | Sprint 4 |
+| 16 | HU23 | Consultar estadisticas de descargas | | Sprint 4 |
 | 17 | HU13 | Respaldo automático de base de datos | | Sprint 4 |
 | 18 | HU15 | Capacitacion y cierre | | Sprint 5 |
 
