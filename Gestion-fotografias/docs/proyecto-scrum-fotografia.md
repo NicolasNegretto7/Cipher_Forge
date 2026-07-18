@@ -9,7 +9,7 @@
 | Presupuesto         | Proyecto de UTU sin presupuesto.                                                        |
 | Usuarios            | Fotografos, clientes.                                                                |
 | Infraestructura     | Nube, alta disponibilidad, almacenamiento variable.         |
-| Seguridad           | Cedula, nombre, direccion,correo electronico y politicas de privacidad                            |
+| Seguridad           | Cedula, nombre, telefono, direccion, correo electronico y politicas de privacidad                            |
 | Riesgo operativo    | Caida del servidor, material de riesgo real y metodos de pagos (este mismo se tendra cuenta a futuro).           
 | Restricción técnica | Las imágenes en vista previa deben tener marca de agua;la descarga autorizada no.                                               |
 
@@ -94,6 +94,11 @@ Quedarán fuera de la primera versión:
 | RF17  | El sistema debe impedir que el fotógrafo suba nuevo contenido si supera su cuota de almacenamiento asignada (la cantidad sera propuesta por el cliente mas adelante), permitiendo igualmente la descarga del contenido ya existente.
 | RF18  | El sistema debe enviar un codigo de verificacion al correo o telefono para asegurar que realmente exista.
 | RF19  | El sistema debe permitir permitir editar la informacion de perfil de los fotografos.
+| RF20  | El sistema debe permitir al fotógrafo modificar los datos básicos de una imagen o video ya subido (título, descripción o colección) sin necesidad de volver a subir el archivo.
+| RF21  | El sistema debe permitir al cliente marcar y desmarcar como favorita cualquier imagen perteneciente a una colección a la que tenga acceso autorizado, sin exponer esta información a otros usuarios.
+| RF22  | El sistema debe registrar cada descarga (usuario, imagen o colección, fecha/hora, cantidad de archivos), permitiendo al cliente consultar su propio historial y al fotógrafo consultar estadísticas agregadas de sus colecciones.
+
+
 
 ---
 
@@ -225,12 +230,15 @@ Cada historia incluirá criterios de aceptación para saber cuándo puede consid
 | HU13 | Como sistema, quiero realizar un respaldo automático diario de la base de datos y rotar las últimas 3 copias, para mitigar el riesgo de pérdida de datos. |       | Media      |
 | HU14 | Como cliente, quiero visualizar las fotos de mi evento con una marca de agua integrada automáticamente, para poder previsualizar el trabajo antes de descargarlo en alta calidad.                   |       | Alta     |
 | HU15 | Como fotógrafo/cliente, quiero contar con una guía básica de uso y recibir una breve capacitación sobre la plataforma, para poder utilizarla de forma autónoma una vez finalizado el proyecto.                   |  3     | Media     |
-| HU16 | Como sistema, quiero impedir al fotografo subir imagenes o videos si supera la cuota de almacenamiento para no sobrecargar la base de datos.                   |  3     | Media     |
+| HU16 | Como sistema, quiero impedir al fotografo subir imagenes o videos si supera la cuota de almacenamiento, para no sobrecargar el espacio en el filesystem.                   |  3     | Media     |
 | HU17  | Como fotógrafo, quiero generar un código QR único, para una colección, para visualizar y descargar (según los permisos habilitados) las imágenes de la colección, sin necesidad de buscar mi perfil.                                              |       | Media      |
 | HU18  | Como fotógrafo, quiero editar mi información de perfil y contacto comercial, para que los clientes me reconozcan.                                              |       | Media      |
 | HU19  | Como sistema, quiero impedir el registro de usuarios duplicados utilizando una misma cedula de identidad o un mismo correo electronico ya existentes, para que exista solo una unica cuenta.                                              |       | Media      |
 | HU20  | Como sistema, quiero impedir cualquier intento de acceso directo mediante URL a colecciones privadas por parte de usuarios no autorizados, para mantener orden.                                              |       | Media      |
 | HU21  | Como sistema, quiero enviar un codigo de verificacion al correo o telefono, para asegurar si pertenece ese correo o telefono a esa persona.                                              |       | Media      |
+| HU22  | Como cliente, quiero consultar mi propio historial de descargas, para saber qué material ya descargué.                                              |       | Media      |
+| HU23  | Como fotógrafo, quiero consultar estadísticas de descargas de mis colecciones, incluyendo las imágenes más descargadas, para entender qué contenido le interesa más a mis clientes.                                              |       | Media      |
+
 
 
 ---
