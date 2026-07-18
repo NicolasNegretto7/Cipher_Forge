@@ -17,7 +17,6 @@
 
 > “El rol "Administrador" de la propuesta por Polo se implementara bajo el alias comercial propuesto por el cliente como "Fotografo" y el rol "Cliente" abarcara a los compradores. Los invitados podran acceder a la coleccion sin necesidad de ser un "Cliente" mediante el codigo QR dado por el "Fotografo".”
 
-> “La propuesta por Polo de la implementacion de seleccionar una imagen como favorita queda absolutamente omitida, el cliente redacto en la entrevista que desea una relacion entre comprador y proveedor, dicho por sus mismas palabras de evitar una red social y tratarlo como una pagina web seria. ”
 
 > “La propuesta por Polo que se repitio en reiteradas ocasiones en dicha propuesta queda omitida. La propuesta dice: si una coleccion con cero clientes asignados se volvera una coleccion publica pero, el cliente dijo lo contrario el rol "Fotografo" decide si una coleccion es privada o publica independientemente de si haya clientes asignados o no. Por tanto decidimos marcar esta desicion del cliente entrevistado como prioritaria y obligatoria por encima de la propuesta por Polo.”
 
@@ -231,7 +230,7 @@ Cada historia incluirá criterios de aceptación para saber cuándo puede consid
 | HU14 | Como cliente, quiero visualizar las fotos de mi evento con una marca de agua integrada automáticamente, para poder previsualizar el trabajo antes de descargarlo en alta calidad.                   |       | Alta     |
 | HU15 | Como fotógrafo/cliente, quiero contar con una guía básica de uso y recibir una breve capacitación sobre la plataforma, para poder utilizarla de forma autónoma una vez finalizado el proyecto.                   |  3     | Media     |
 | HU16 | Como sistema, quiero impedir al fotografo subir imagenes o videos si supera la cuota de almacenamiento, para no sobrecargar el espacio en el filesystem.                   |  3     | Media     |
-| HU17  | Como fotógrafo, quiero generar un código QR único, para una colección, para visualizar y descargar (según los permisos habilitados) las imágenes de la colección, sin necesidad de buscar mi perfil.                                              |       | Media      |
+| HU17  | Como fotógrafo, quiero generar un código QR único de una coleccion, para dar permisos de visualizacion y descarga (según los permisos habilitados) las imágenes de la colección, sin necesidad de buscar mi perfil.                                              |       | Media      |
 | HU18  | Como fotógrafo, quiero editar mi información de perfil y contacto comercial, para que los clientes me reconozcan.                                              |       | Media      |
 | HU19  | Como sistema, quiero impedir el registro de usuarios duplicados utilizando una misma cedula de identidad o un mismo correo electronico ya existentes, para que exista solo una unica cuenta.                                              |       | Media      |
 | HU20  | Como sistema, quiero impedir cualquier intento de acceso directo mediante URL a colecciones privadas por parte de usuarios no autorizados, para mantener orden.                                              |       | Media      |
