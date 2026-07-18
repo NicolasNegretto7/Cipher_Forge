@@ -15,6 +15,7 @@
 
 > “Restricción institucional (UTU): por tratarse de un equipo de estudiantes menores de edad, no es posible contratar hosting ni procesar pagos reales para este proyecto. Esta restricción es ajena tanto al pedido del cliente como a una decisión técnica del equipo. El sistema correrá en entorno local para esta entrega, y se recomendará al cliente, una vez el equipo se gradúe, migrar el sistema de un servidor local a uno en la nube, adquiriendo hosting y dominio propio, y habilitando en ese momento un método de pago real.”
 
+> “El rol "Administrador" de la propuesta Polo se implementara bajo el alias comercial propuesto por el cliente como "Fotografo" y el rol "Cliente" abarcara tanto a los compradores como a los invitados del evento.”
 
 ---
 
@@ -88,7 +89,7 @@ Quedarán fuera de la primera versión:
 | RF16   | El sistema debe permitir al fotógrafo generar un enlace o QR de acceso directo a una colección privada específica, distinto del QR de carga colaborativa.
 | RF17  | El sistema debe impedir que el fotógrafo suba nuevo contenido si supera su cuota de almacenamiento asignada (la cantidad sera propuesta por el cliente mas adelante), permitiendo igualmente la descarga del contenido ya existente.
 | RF18  | El sistema debe enviar un codigo de verificacion al correo o telefono para asegurar que realmente exista.
-| RF19  | El sistema debe permitir permitir elegir entre fotografo o usuario,
+| RF19  | El sistema debe permitir permitir editar la informacion de perfil de los fotografos.
 
 ---
 
@@ -221,7 +222,8 @@ Cada historia incluirá criterios de aceptación para saber cuándo puede consid
 | HU14 | Como cliente, quiero visualizar las fotos de mi evento con una marca de agua integrada automáticamente, para poder previsualizar el trabajo antes de descargarlo en alta calidad.                   |       | Alta     |
 | HU15 | Como fotógrafo/cliente, quiero contar con una guía básica de uso y recibir una breve capacitación sobre la plataforma, para poder utilizarla de forma autónoma una vez finalizado el proyecto.                   |  3     | Media     |
 | HU16 | Como sistema, quiero impedir al fotografo subir imagenes o videos si supera la cuota de almacenamiento para no sobrecargar la base de datos.                   |  3     | Media     |
-| HU17  | Como fotógrafo, quiero generar un código QR único para una colección, para visualizar y descargar (según los permisos habilitados) las imágenes de la colección, sin necesidad de buscar mi perfil."                                              |       | Media      |
+| HU17  | Como fotógrafo, quiero generar un código QR único para una colección, para visualizar y descargar (según los permisos habilitados) las imágenes de la colección, sin necesidad de buscar mi perfil.                                              |       | Media      |
+| HU18  | Como fotógrafo, quiero editar mi información de perfil y contacto comercial, para que los clientes me reconozcan.                                              |       | Media      |
 
 
 ---
@@ -234,21 +236,22 @@ Cada historia incluirá criterios de aceptación para saber cuándo puede consid
 | :--- | :--- | :--- | :--- | :--- |
 | 1 | HU1 | Inicio de sesión | | Sprint 1 |
 | 2 | HU8 | Selección de rol (Fotógrafo / Cliente) | | Sprint 1 |
-| 3 | HU2 | Creación de colecciones y visibilidad | | Sprint 1 |
-| 4 | HU5 | Subida de imágenes | | Sprint 1 |
-| 5 | HU3 | Autorización de clientes a colecciones | | Sprint 2 |
-| 6 | HU17 | Generacion de codigo QR unico para descarga de imagenes o videos | | Sprint 2 |
-| 7 | HU4 | Generación de código QR único para subida de imagenes o videos | | Sprint 2 |
-| 8 | HU7 | Descarga e impresión de código QR | | Sprint 2 |
-| 9 | HU11 | Carga de archivos por QR (Invitados) | | Sprint 3 |
-| 10 | HU9 | Habilitación manual de descarga "Alta Calidad" | | Sprint 3 |
-| 11 | HU10 | Descarga individual o comprimida (.zip) | | Sprint 3 |
-| 12 | HU14 | Visualización con marca de agua automática | | Sprint 3 |
-| 13 | HU12 | Moderación de material subido por invitados | | Sprint 4 |
-| 14 | HU16 | Restriccion por superar la cuota de almacenamiento | | Sprint 4 |
-| 15 | HU6 | Eliminación de imágenes o videos | | Sprint 4 |
-| 16 | HU13 | Respaldo automático de base de datos | | Sprint 4 |
-| 17 | HU15 | Capacitacion y cierre | | Sprint 5 |
+| 3 | HU18 | Edicion de informacion del perfil "fotografo" | | Sprint 1 |
+| 4 | HU2 | Creación de colecciones y visibilidad | | Sprint 1 |
+| 5 | HU5 | Subida de imágenes | | Sprint 1 |
+| 6 | HU3 | Autorización de clientes a colecciones | | Sprint 2 |
+| 7 | HU17 | Generacion de codigo QR unico para descarga de imagenes o videos | | Sprint 2 |
+| 8 | HU4 | Generación de código QR único para subida de imagenes o videos | | Sprint 2 |
+| 9 | HU7 | Descarga e impresión de código QR | | Sprint 2 |
+| 10 | HU11 | Carga de archivos por QR (Invitados) | | Sprint 3 |
+| 11 | HU9 | Habilitación manual de descarga "Alta Calidad" | | Sprint 3 |
+| 12 | HU10 | Descarga individual o comprimida (.zip) | | Sprint 3 |
+| 13 | HU14 | Visualización con marca de agua automática | | Sprint 3 |
+| 14 | HU12 | Moderación de material subido por invitados | | Sprint 4 |
+| 15 | HU16 | Restriccion por superar la cuota de almacenamiento | | Sprint 4 |
+| 16 | HU6 | Eliminación de imágenes o videos | | Sprint 4 |
+| 17 | HU13 | Respaldo automático de base de datos | | Sprint 4 |
+| 18 | HU15 | Capacitacion y cierre | | Sprint 5 |
 
 
 ---
