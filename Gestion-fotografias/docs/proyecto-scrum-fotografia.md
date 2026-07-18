@@ -17,8 +17,9 @@
 
 > “El rol "Administrador" de la propuesta por Polo se implementara bajo el alias comercial propuesto por el cliente como "Fotografo" y el rol "Cliente" abarcara a los compradores. Los invitados podran acceder a la coleccion sin necesidad de ser un "Cliente" mediante el codigo QR dado por el "Fotografo".”
 
-
 > “La propuesta por Polo que se repitio en reiteradas ocasiones en dicha propuesta queda omitida. La propuesta dice: si una coleccion con cero clientes asignados se volvera una coleccion publica pero, el cliente dijo lo contrario el rol "Fotografo" decide si una coleccion es privada o publica independientemente de si haya clientes asignados o no. Por tanto decidimos marcar esta desicion del cliente entrevistado como prioritaria y obligatoria por encima de la propuesta por Polo.”
+
+> “Exclusion de "direccion" en tabla Seguridad porque es una pagina 100% virtual y no es necesario la direccion del usuario.”
 
 ---
 
