@@ -4,20 +4,22 @@
 | ------------------- | --------------------------------------------------------------------------------------- |
 | Problema principal  | Dificultad de entrega inmediata de material fotografico y baja calidad de imagen.       |
 | Objetivo de negocio | Vínculo comercial comprador-vendedor y el cobro ágil sin intermediarios que retengan la plata.     |
-| Alcance inicial     | Subida y bajada de imagenes, marca de agua.                                             |
+| Alcance inicial     | Subida y bajada de imagenes, metodos de pagos, marca de agua.                                             |
 | Plazo esperado      |                                                                        |
 | Presupuesto         | Proyecto de UTU sin presupuesto.                                                        |
 | Usuarios            | Fotografos, clientes.                                                                |
 | Infraestructura     | Nube, alta disponibilidad, almacenamiento variable.         |
-| Seguridad           | Cedula, nombre, correo electronico y politicas de privacidad                            |
+| Seguridad           | Cedula, nombre, direccion,correo electronico y politicas de privacidad                            |
 | Riesgo operativo    | Caida del servidor, material de riesgo real y metodos de pagos (este mismo se tendra cuenta a futuro).           
 | Restricción técnica | Las imágenes en vista previa deben tener marca de agua;la descarga autorizada no.                                               |
 
 > “Restricción institucional (UTU): por tratarse de un equipo de estudiantes menores de edad, no es posible contratar hosting ni procesar pagos reales para este proyecto. Esta restricción es ajena tanto al pedido del cliente como a una decisión técnica del equipo. El sistema correrá en entorno local para esta entrega, y se recomendará al cliente, una vez el equipo se gradúe, migrar el sistema de un servidor local a uno en la nube, adquiriendo hosting y dominio propio, y habilitando en ese momento un método de pago real.”
 
-> “El rol "Administrador" de la propuesta por Polo se implementara bajo el alias comercial propuesto por el cliente como "Fotografo" y el rol "Cliente" abarcara tanto a los compradores como a los invitados del evento.”
+> “El rol "Administrador" de la propuesta por Polo se implementara bajo el alias comercial propuesto por el cliente como "Fotografo" y el rol "Cliente" abarcara a los compradores. Los invitados podran acceder a la coleccion sin necesidad de ser un "Cliente" mediante el codigo QR dado por el "Fotografo".”
 
 > “La propuesta por Polo de la implementacion de seleccionar una imagen como favorita queda absolutamente omitida, el cliente redacto en la entrevista que desea una relacion entre comprador y proveedor, dicho por sus mismas palabras de evitar una red social y tratarlo como una pagina web seria. ”
+
+> “La propuesta por Polo que se repitio en reiteradas ocasiones en dicha propuesta queda omitida. La propuesta dice: si una coleccion con cero clientes asignados se volvera una coleccion publica pero, el cliente dijo lo contrario el rol "Fotografo" decide si una coleccion es privada o publica independientemente de si haya clientes asignados o no. Por tanto decidimos marcar esta desicion del cliente entrevistado como prioritaria y obligatoria por encima de la propuesta por Polo.”
 
 ---
 
