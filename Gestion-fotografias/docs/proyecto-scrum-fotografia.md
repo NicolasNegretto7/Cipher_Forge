@@ -81,11 +81,12 @@ Quedarán fuera de la primera versión:
 | RF9    | El sistema debe aplicar automáticamente una marca de agua sobre las imágenes en su vista previa para proteger la propiedad intelectual del fotógrafo antes de que autorice su descarga.  |
 | RF10   | El sistema debe permitir al cliente descargar las imágenes autorizadas de forma individual o masiva (comprimiendo la selección en un archivo .zip).                                                                                    |
 | RF11   | El sistema debe ofrecer al cliente dos opciones de descarga según los permisos otorgados por el fotógrafo, calidad normal: versión ligera y optimizada alta calidad: El archivo original sin pérdida de resolución subido por el fotógrafo (este requerimiento fue adaptado a la restriccion de no realizar metodos de pago el cual fue restriccion de la UTU).                                                                                     |
-| RF12   | El sistema debe permitir al fotógrafo activar o desactivar manualmente el permiso de descarga en "Excelente Calidad" para clientes específicos dentro de una colección privada. |
+| RF12   | El sistema debe permitir al fotógrafo activar o desactivar manualmente el permiso de descarga en "alta Calidad" para clientes específicos dentro de una colección privada. |
 | RF13   | El sistema debe permitir al fotógrafo generar un código QR único vinculado a una colección específica de un evento, para compartir con un comprador puntual.                                                                                                   |
 | RF14   | Cualquier invitado del evento debe poder escanear el código QR con su celular para subir fotos y videos directamente a esa colección, sin necesidad de completar un registro de cuenta complejo.                                                                                                |
-| RF15   | El fotógrafo debe poder visualizar y gestionar (ocultar o descargar) todo el material multimedia colaborativo subido por los invitados mediante el QR.
+| RF15   | El fotógrafo debe poder visualizar y gestionar (ocultar o eliminar) todo el material multimedia colaborativo subido por los invitados mediante el QR.
 | RF16   | El sistema debe permitir al fotógrafo generar un enlace o QR de acceso directo a una colección privada específica, distinto del QR de carga colaborativa
+| RF17  | El sistema debe restringir la descarga de imagen si se supera la cuota de almacenamiento (3GB por usuario).
 
 ---
 
@@ -172,7 +173,7 @@ El equipo presenta la siguiente propuesta:
 | Presupuesto      | Proyecto de Egreso por tanto no habra presupuesto asignado.                                                                          |
 | Forma de trabajo | Revisión con cliente al cierre de cada sprint.                                      |
 | Primera versión  | Subida y bajada de imagenes/videos, marca de agua.   |
-| Exclusiones      | App móvil nativa, integracion con redes sociales, Perfil público con acceso libre a todo el material del fotógrafo, metodos de pagos.|
+| Exclusiones      | App móvil nativa, integracion con redes sociales, Perfil público con acceso libre a todo el material del fotógrafo, metodos de pagos, Hosting/dominio|
 
 ---
 
@@ -210,7 +211,7 @@ Cada historia incluirá criterios de aceptación para saber cuándo puede consid
 | HU6  | Como fotógrafo, quiero eliminar imágenes o videos de una colección, para mantener el control sobre el contenido publicado.                 |       | Alta      |
 | HU7  | Como fotógrafo, quiero descargar el código QR generado para poder imprimirlo físicamente y exponerlo en el evento.              |       | Media      |
 | HU8  | Como usuario nuevo, quiero poder elegir si registrarme como fotógrafo o como cliente, para acceder a las funciones correctas del sistema.                         |       | Alta      |
-| HU9  | Como fotógrafo, quiero habilitar o deshabilitar manualmente el permiso de descarga en "Excelente Calidad" para un cliente específico, para controlar la entrega final del material.                        |       | Alta      |
+| HU9  | Como fotógrafo, quiero habilitar o deshabilitar manualmente el permiso de descarga en "alta Calidad" para un cliente específico, para controlar la entrega final del material.                        |       | Alta      |
 | HU10 | Como cliente autorizado, quiero descargar mis fotos de forma individual o en un archivo comprimido (.zip), para obtener mi material de manera ágil.                     |       | Media      |
 | HU11 | Como invitado de un evento, quiero escanear el código QR para subir directamente mis fotos y videos a la colección sin necesidad de crearme una cuenta compleja.         |       | Media     |
 | HU12 | Como fotógrafo, quiero visualizar y gestionar (ocultar o eliminar) el material subido por invitados                                                         |       | Media      |
