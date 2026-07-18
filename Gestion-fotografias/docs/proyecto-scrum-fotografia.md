@@ -240,6 +240,7 @@ Cada historia incluirá criterios de aceptación para saber cuándo puede consid
 | HU23  | Como fotógrafo, quiero consultar estadísticas de descargas de mis colecciones, incluyendo las imágenes más descargadas, para entender qué contenido le interesa más a mis clientes.                                              |       | Media      |
 | HU24  | Como fotografo quiero editar los datos basicos (titulo, descripcion) de una imagen o video ya subido, para no tener que subirlo de nuevo para cambiar los datos basicos.                                              |       | Media      |
 | HU25  | Como usuario quiero marcar favorito una imagen o video de una coleccion a la que tenga autorizacion, para tener una lista de favoritos.                                              |       | Media      |
+| HU26  | Como sistema quiero que cada usuario indiscriminadamente si es Fotografo o Cliente tenga que registrarse con su nombre completo, cédula, correo electrónico y numero de telefono, para identificar quien es.                                             |       | Media      |
 
 
 
@@ -257,7 +258,7 @@ Cada historia incluirá criterios de aceptación para saber cuándo puede consid
 | 4 | HU8 | Selección de rol (Fotógrafo / Cliente) | | Sprint 1 |
 | 5 | HU18 | Edicion de informacion del perfil "fotografo" | | Sprint 1 |
 | 6 | HU2 | Creación de colecciones y visibilidad | | Sprint 1 |
-| 7 | HU5 | Subida de imágenes | | Sprint 1 |
+| 7 | HU5 | Subida de imágenes o videos| | Sprint 1 |
 | 8 | HU3 | Autorización de clientes a colecciones | | Sprint 2 |
 | 9 | HU20 | Impedicion de acceso directo mediante URL a colecciones privadas | | Sprint 2 |
 | 10 | HU17 | Generacion de codigo QR unico para descarga de imagenes o videos | | Sprint 2 |
