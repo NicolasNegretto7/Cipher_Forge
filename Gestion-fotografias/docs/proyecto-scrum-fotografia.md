@@ -15,7 +15,9 @@
 
 > “Restricción institucional (UTU): por tratarse de un equipo de estudiantes menores de edad, no es posible contratar hosting ni procesar pagos reales para este proyecto. Esta restricción es ajena tanto al pedido del cliente como a una decisión técnica del equipo. El sistema correrá en entorno local para esta entrega, y se recomendará al cliente, una vez el equipo se gradúe, migrar el sistema de un servidor local a uno en la nube, adquiriendo hosting y dominio propio, y habilitando en ese momento un método de pago real.”
 
-> “El rol "Administrador" de la propuesta Polo se implementara bajo el alias comercial propuesto por el cliente como "Fotografo" y el rol "Cliente" abarcara tanto a los compradores como a los invitados del evento.”
+> “El rol "Administrador" de la propuesta por Polo se implementara bajo el alias comercial propuesto por el cliente como "Fotografo" y el rol "Cliente" abarcara tanto a los compradores como a los invitados del evento.”
+
+> “La propuesta por Polo de la implementacion de seleccionar una imagen como favorita queda absolutamente omitida, el cliente redacto en la entrevista que desea una relacion entre comprador y proveedor, dicho por sus mismas palabras de evitar una red social y tratarlo como una pagina web seria. ”
 
 ---
 
