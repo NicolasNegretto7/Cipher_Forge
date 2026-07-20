@@ -268,14 +268,14 @@ Cada historia incluirá criterios de aceptación para saber cuándo puede consid
 | 14 | HU9 | Habilitación manual de descarga "Alta Calidad" |5 | Sprint 3 |
 | 15 | HU10 | Descarga individual o comprimida (.zip) |3 | Sprint 3 |
 | 16 | HU22 | Consultar historial de descarga |5 | Sprint 3 |
-| 17 | HU25 | Marcar favorito una imagen o video |5 | Sprint 3 |
-| 18 | HU14 | Visualización con marca de agua automática | 8| Sprint 3 |
+| 17 | HU25 | Marcar favorito una imagen o video |5 | Sprint 4 |
+| 18 | HU14 | Visualización con marca de agua automática | 8| Sprint 4 |
 | 19 | HU12 | Moderación de material subido por invitados |5 | Sprint 4 |
 | 20 | HU16 | Restriccion por superar la cuota de almacenamiento |8 | Sprint 4 |
 | 21 | HU6 | Eliminación de imágenes o videos |5 | Sprint 4 |
-| 22 | HU24 | Edicion de datos basicos de una imagen o video |5 | Sprint 4 |
-| 23 | HU23 | Consultar estadisticas de descargas |5 | Sprint 4 |
-| 24 | HU13 | Respaldo automático de base de datos |8 | Sprint 4 |
+| 22 | HU24 | Edicion de datos basicos de una imagen o video |5 | Sprint 5 |
+| 23 | HU23 | Consultar estadisticas de descargas |5 | Sprint 5 |
+| 24 | HU13 | Respaldo automático de base de datos |8 | Sprint 5 |
 | 25 | HU15 | Capacitacion y cierre |3 | Sprint 5 |
 
 
