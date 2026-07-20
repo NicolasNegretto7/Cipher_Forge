@@ -1,6 +1,4 @@
 
----
-
 ## 1. Información obtenida en la entrevista
 
 | Categoría           | Información relevada                                                                    |
@@ -15,6 +13,8 @@
 | Seguridad           | Cédula, nombre, teléfono, dirección, correo electrónico y políticas de privacidad                            |
 | Riesgo operativo    | Caída del servidor, material de riesgo real y métodos de pagos (este mismo se tendrá cuenta a futuro).           
 | Restricción técnica | Las imágenes en vista previa deben tener marca de agua; la descarga autorizada no.                                               |
+
+---
 
 > “Restricción institucional (UTU): por tratarse de un equipo de estudiantes menores de edad, no es posible contratar hosting ni procesar pagos reales para este proyecto. Esta restricción es ajena tanto al pedido del cliente como a una decisión técnica del equipo. El sistema correrá en entorno local para esta entrega, y se recomendará al cliente, una vez el equipo se gradúe, migrar el sistema de un servidor local a uno en la nube, adquiriendo hosting y dominio propio, y habilitando en ese momento un método de pago real.”
 
