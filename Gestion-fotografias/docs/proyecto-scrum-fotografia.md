@@ -255,28 +255,29 @@ Cada historia incluirá criterios de aceptación para saber cuándo puede consid
 | 1 | HU1 | Inicio de sesión |5 | Sprint 1 |
 | 2 | HU19 | Impedir el registro de usuarios duplicados |5 | Sprint 1 |
 | 3 | HU21 | Envio de codigo de verificacion al correo o telefono |5 | Sprint 1 |
-| 4 | HU8 | Selección de rol (Fotógrafo / Cliente) |5 | Sprint 1 |
-| 5 | HU18 | Edicion de informacion del perfil "fotografo" | 5| Sprint 1 |
-| 6 | HU2 | Creación de colecciones y visibilidad |5 | Sprint 1 |
-| 7 | HU5 | Subida de imágenes o videos|5 | Sprint 1 |
-| 8 | HU3 | Autorización de clientes a colecciones |5 | Sprint 2 |
-| 9 | HU20 | Impedicion de acceso directo mediante URL a colecciones privadas |8 | Sprint 2 |
-| 10 | HU17 | Generacion de codigo QR unico para descarga de imagenes o videos | 5| Sprint 2 |
-| 11 | HU4 | Generación de código QR único para subida de imagenes o videos |8 | Sprint 2 |
-| 12 | HU7 | Descarga e impresión de código QR |5 | Sprint 2 |
-| 13 | HU11 | Carga de archivos por QR (Invitados) |5 | Sprint 3 |
-| 14 | HU9 | Habilitación manual de descarga "Alta Calidad" |5 | Sprint 3 |
-| 15 | HU10 | Descarga individual o comprimida (.zip) |3 | Sprint 3 |
-| 16 | HU22 | Consultar historial de descarga |5 | Sprint 3 |
-| 17 | HU25 | Marcar favorito una imagen o video |5 | Sprint 4 |
-| 18 | HU14 | Visualización con marca de agua automática | 8| Sprint 4 |
-| 19 | HU12 | Moderación de material subido por invitados |5 | Sprint 4 |
-| 20 | HU16 | Restriccion por superar la cuota de almacenamiento |8 | Sprint 4 |
-| 21 | HU6 | Eliminación de imágenes o videos |5 | Sprint 4 |
-| 22 | HU24 | Edicion de datos basicos de una imagen o video |5 | Sprint 5 |
-| 23 | HU23 | Consultar estadisticas de descargas |5 | Sprint 5 |
-| 24 | HU13 | Respaldo automático de base de datos |8 | Sprint 5 |
-| 25 | HU15 | Capacitacion y cierre |3 | Sprint 5 |
+| 4 | HU21 | Envio de codigo de verificacion al correo o telefono |5 | Sprint 1 |
+| 5 | HU8 | Selección de rol (Fotógrafo / Cliente) |5 | Sprint 1 |
+| 6 | HU18 | Edicion de informacion del perfil "fotografo" | 5| Sprint 1 |
+| 7 | HU2 | Creación de colecciones y visibilidad |5 | Sprint 1 |
+| 8 | HU5 | Subida de imágenes o videos|5 | Sprint 1 |
+| 9 | HU3 | Autorización de clientes a colecciones |5 | Sprint 2 |
+| 10| HU20 | Impedicion de acceso directo mediante URL a colecciones privadas |8 | Sprint 2 |
+| 11 | HU17 | Generacion de codigo QR unico para descarga de imagenes o videos | 5| Sprint 2 |
+| 12 | HU4 | Generación de código QR único para subida de imagenes o videos |8 | Sprint 2 |
+| 13 | HU7 | Descarga e impresión de código QR |5 | Sprint 2 |
+| 14 | HU11 | Carga de archivos por QR (Invitados) |5 | Sprint 3 |
+| 15 | HU9 | Habilitación manual de descarga "Alta Calidad" |5 | Sprint 3 |
+| 16 | HU10 | Descarga individual o comprimida (.zip) |3 | Sprint 3 |
+| 17 | HU22 | Consultar historial de descarga |5 | Sprint 3 |
+| 18 | HU25 | Marcar favorito una imagen o video |5 | Sprint 4 |
+| 19 | HU14 | Visualización con marca de agua automática | 8| Sprint 4 |
+| 20 | HU12 | Moderación de material subido por invitados |5 | Sprint 4 |
+| 21 | HU16 | Restriccion por superar la cuota de almacenamiento |8 | Sprint 4 |
+| 22 | HU6 | Eliminación de imágenes o videos |5 | Sprint 4 |
+| 23 | HU24 | Edicion de datos basicos de una imagen o video |5 | Sprint 5 |
+| 24 | HU23 | Consultar estadisticas de descargas |5 | Sprint 5 |
+| 25 | HU13 | Respaldo automático de base de datos |8 | Sprint 5 |
+| 26 | HU15 | Capacitacion y cierre |3 | Sprint 5 |
 
 
 ---
