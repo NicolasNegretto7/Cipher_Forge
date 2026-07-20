@@ -187,6 +187,7 @@ El equipo presenta la siguiente propuesta:
 | Primera versión  | Subida y bajada de imagenes/videos, marca de agua.   |
 | Exclusiones      | App móvil nativa, integracion con redes sociales, Perfil público con acceso libre a todo el material del fotógrafo, metodos de pagos, Hosting/dominio|
 
+
 ---
 
 ## 12. Aprobación del cliente
