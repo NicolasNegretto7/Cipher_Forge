@@ -218,6 +218,30 @@ flowchart LR
     linkStyle 10 stroke:#888888,stroke-width:1.5px;
 ```
 
+---
+
+## a. Roles del sistema y niveles de acceso.
+
+* Fotógrafo: rol con mayor nivel de privilegio sobre su propio contenido. Administra sus colecciones (públicas o privadas), autoriza clientes de forma explícita, genera códigos QR y habilita o revoca el permiso de descarga en alta calidad (RF12). No tiene acceso a colecciones de otros fotógrafos.
+* Cliente: rol autenticado con acceso restringido a las colecciones donde fue autorizado explícitamente por un fotógrafo (RF5). Solo puede descargar en alta calidad si ese permiso fue habilitado específicamente para él.
+* Invitado: rol sin cuenta, con el nivel de acceso más bajo. Su participación se limita a lo habilitado por un código QR de un evento puntual, con permisos acotados (por ejemplo, subir contenido) y sin acceso administrativo a la colección.
+
+---
+
+## b. Medidas de control en casos de uso sensibles
+
+* Iniciar sesión — requiere autenticación (usuario/contraseña con hash seguro) antes de habilitar cualquier otra funcionalidad.
+* Modificar datos del usuario — requiere autenticación y autorización de propietario: el backend debe verificar que el usuario autenticado sea el dueño del perfil que intenta modificar.
+* Crear / clasificar colección y Generar código QR de colección — requieren verificar que el usuario autenticado tenga el rol Fotógrafo antes de exponer la funcionalidad, tanto en la interfaz como en el backend.
+* Acceder a colección privada — requiere autorización explícita: el backend valida, para cada solicitud, si el cliente autenticado figura en la lista de autorizados de esa colección específica (mitiga el riesgo de IDOR descrito en 1.4).
+* Descargar en alta calidad — requiere verificar el permiso individual habilitado por el fotógrafo para ese cliente en esa colección (RF12), no solo la pertenencia a la colección.
+* Subir contenido vía QR (invitado) — requiere validar que el token/código QR esté vigente y vinculado a la colección/evento correspondiente antes de aceptar la carga (mitiga el riesgo de abuso de QR descrito en 1.6).
+
+
+
+
+
+
 
 
 
