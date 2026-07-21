@@ -16,9 +16,9 @@
 Sistema de gestion para distribucion de material fotografico, crear un vinculo entre compradores y proveedores, pagina web con capacidad para subir imagenes, crear colecciones de imagenes por evento, codigo qr para compartir colecciones, descarga de imagenes mediante metodo de pago.
 
 **Necesidad planteada por el cliente:**
-    > "Quiero un sistema que me ayude a mi y a los fotografos tener una relacion tipo  
-    > comprador-proveedor. La idea es el poder subir imagenes o videos a una coleccion para lograr un ambiente formal y ordenado al momento de la descarga
-    > y compra."
+>"Quiero un sistema que me ayude a mi y a los fotografos tener una relacion tipo  
+comprador-proveedor. La idea es el poder subir imagenes o videos a una coleccion para lograr un ambiente formal y ordenado al momento de la descarga
+y compra."
 
 **Objetivo del proyecto:**
 Desarrollar una aplicación web que permita subir, descargar imagenes o videos de una coleccion por evento, mediante un enlace compartido o el registro de un usuario.
