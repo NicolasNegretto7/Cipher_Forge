@@ -63,9 +63,9 @@ Aplicacion web para subir, descargar imagenes o videos de una coleccion, mediant
 
 | Riesgo | Impacto posible |
 | --- | --- |
-| Falta de experiencia en ciertos requerimientos necesarios. | Dificultad para implementar ciertos requerimientos |
-| Restricción institucional (UTU) | Dificultad para implementar ciertos requerimientos |
-| Restricción institucional (UTU) | Dificultad para implementar ciertos requerimientos |
+| Falta de experiencia en ciertos requerimientos necesarios. | Dificultad para lograr la mayoria del alcance. |
+| Restricción institucional (UTU) | Dificultad para implementar ciertos requerimientos. |
+| Politicas de privacidad y proteccion de datos | Dificultad por leyes legales. |
 
 **Plazo y metodología:**
 Scrum, 5 sprints de 3 semanas (15 semanas totales), con revisión del incremento junto
