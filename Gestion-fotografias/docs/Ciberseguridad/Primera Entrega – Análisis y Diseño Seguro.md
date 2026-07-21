@@ -144,6 +144,7 @@ Tabla construida a partir de las conexiones reales del Mapa de Riesgos (componen
 - **Phishing** se clasifica como Alto por su alta probabilidad: es el vector de ataque más simple de ejecutar contra el punto de registro/inicio de sesión, sin requerir explotar una falla técnica del sistema.
 - **Acceso no autorizado a colecciones privadas (IDOR)** se clasifica como Alto porque dos componentes distintos convergen en esta amenaza (Gestión de colecciones y Acceso vía QR), lo que aumenta su probabilidad de ocurrencia.
 - **Evasión de marca de agua** y **Abuso de código QR** quedan en Medio: su impacto afecta principalmente el modelo de negocio del fotógrafo, pero su explotación depende de condiciones más puntuales (acceso al archivo original o al QR físico).
+
 ---
  
 ## Análisis de impacto (técnico y sobre los usuarios)
@@ -156,6 +157,66 @@ Tabla construida a partir de las conexiones reales del Mapa de Riesgos (componen
 | Acceso no autorizado a colecciones privadas (IDOR) | Bypass de la lógica de autorización del backend | Exposición de material privado de clientes y eventos ajenos |
 | Evasión de marca de agua / descarga no autorizada | Acceso directo al archivo original sin control de permisos | Pérdida económica para el fotógrafo (afecta el objetivo de negocio) |
 | Abuso o reutilización de códigos QR | Carga de contenido no controlado; acceso fuera del contexto previsto | Contenido indebido en la colección; exposición no deseada de material |
+
+---
+
+## 3. Seguridad en los Diagramas de Casos de Uso
+
+El siguiente diagrama incorpora explícitamente los roles del sistema (Fotógrafo, Cliente e Invitado), sus niveles de acceso, y las medidas de control que protegen los casos de uso más sensibles y una diferenciación visual de los casos de uso que requieren un control de seguridad.
+
+```mermaid
+flowchart LR
+    Fotografo["🧑 Fotógrafo<br/><i>(rol: Administrador<br/>de su colección)</i>"]
+    Cliente["🧑 Cliente<br/><i>(rol: comprador<br/>autorizado)</i>"]
+    Invitado["🧑 Invitado<br/><i>(sin cuenta,<br/>acceso vía QR)</i>"]
+ 
+    subgraph SISTEMA["Sistema Web de Comercialización Fotográfica"]
+        UC1(["Registrarse en<br/>el sistema"])
+        UC2(["«autenticación»<br/>Iniciar sesión"])
+        UC3(["«autenticación + autorización»<br/>Modificar datos del usuario"])
+        UC4(["«autorización por rol»<br/>Crear / clasificar colección"])
+        UC5(["Subir imágenes<br/>y videos"])
+        UC6(["«autorización por rol»<br/>Generar código QR de colección"])
+        UC7(["«autorización explícita»<br/>Acceder a colección privada"])
+        UC8(["«control de permiso por cliente»<br/>Descargar en alta calidad"])
+        UC9(["Visualizar galería<br/>con marca de agua"])
+        UC10(["«validación de token QR»<br/>Subir contenido vía QR (invitado)"])
+    end
+ 
+    Fotografo --> UC1
+    Fotografo -.-> UC2
+    Fotografo -.-> UC3
+    Fotografo -.-> UC4
+    Fotografo --> UC5
+    Fotografo -.-> UC6
+ 
+    Cliente -.-> UC7
+    Cliente -.-> UC8
+    Cliente --> UC9
+ 
+    Invitado -.-> UC10
+    Invitado --> UC9
+ 
+    classDef actor fill:#ffffff,stroke:#2c3e50,stroke-width:1.5px,color:#2c3e50;
+    classDef normal fill:#dfe9f5,stroke:#1f4e79,stroke-width:2px,color:#12283f;
+    classDef seguro fill:#fdecea,stroke:#c0392b,stroke-width:2px,color:#7a2e20;
+ 
+    class Fotografo,Cliente,Invitado actor;
+    class UC1,UC5,UC9 normal;
+    class UC2,UC3,UC4,UC6,UC7,UC8,UC10 seguro;
+ 
+    linkStyle 0 stroke:#888888,stroke-width:1.5px;
+    linkStyle 1 stroke:#c0392b,stroke-width:1.5px;
+    linkStyle 2 stroke:#c0392b,stroke-width:1.5px;
+    linkStyle 3 stroke:#c0392b,stroke-width:1.5px;
+    linkStyle 4 stroke:#888888,stroke-width:1.5px;
+    linkStyle 5 stroke:#c0392b,stroke-width:1.5px;
+    linkStyle 6 stroke:#c0392b,stroke-width:1.5px;
+    linkStyle 7 stroke:#c0392b,stroke-width:1.5px;
+    linkStyle 8 stroke:#888888,stroke-width:1.5px;
+    linkStyle 9 stroke:#c0392b,stroke-width:1.5px;
+    linkStyle 10 stroke:#888888,stroke-width:1.5px;
+```
 
 
 
