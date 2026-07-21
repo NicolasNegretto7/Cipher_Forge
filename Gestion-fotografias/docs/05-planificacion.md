@@ -1,4 +1,5 @@
-# Project Charter (Acta de Constitución del Proyecto)
+## 1. Project Charter (Acta de Constitución del Proyecto)
+
 **Nombre del proyecto: Sistema gestion distribucion material fotografico**  
 **Patrocinador: Lemuel Swec**  
 **Director del proyecto: Nicolás Negretto**  
@@ -22,3 +23,4 @@
 **Riesgos iniciales: Falta de experiencia en ciertos requerimientos necesarios.**
 
 **Criterios de éxito: El sistema debe organizar imagenes de colecciones tematicas, facilitando su acceso, consulta y descarga de manera ordenada.**
+---
