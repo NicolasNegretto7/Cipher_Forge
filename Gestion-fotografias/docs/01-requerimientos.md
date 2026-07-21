@@ -1,4 +1,3 @@
-
 ## 1. Información obtenida en la entrevista
 
 | Categoría           | Información relevada                                                                    |
@@ -13,6 +12,8 @@
 | Seguridad           | Cédula, nombre, teléfono, dirección, correo electrónico y políticas de privacidad                            |
 | Riesgo operativo    | Caída del servidor, material de riesgo real y métodos de pagos (este mismo se tendrá cuenta a futuro).           
 | Restricción técnica | Las imágenes en vista previa deben tener marca de agua; la descarga autorizada no.                                               |
+
+> Informacion obtenida de la transcripcion de la entrevista realizada con el cliente. Parte 1 de la entrevista: "https://turboscribe.ai/es/transcript/share/5521413143271206535/BAQ_YceRsNbt_qSbib6HglsceYdjERFhVwK3hj63kII/screen-recording-2026-07-10-112551", parte 2: "https://turboscribe.ai/es/transcript/share/5845672316447232238/SpD0uFbmbpp-LPeTqhBtjAwON_rYso_hrBSaekkgC_w/lv-0-20260710161346". Esta informacion se validó con la grabacion de la entrevista ya que la AI que transcribio la entrevista a veces confunde palabras y es necesario reescuchar el audio. Por tanto , se puede decir que esta informacion es valida, fiel y se puede utilizar para nuestro proyecto.
 
 ---
 
