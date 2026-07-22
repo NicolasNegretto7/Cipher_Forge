@@ -100,7 +100,7 @@ Quedarán fuera de la primera versión:
 | RF19  | El sistema debe permitir permitir editar la información de perfil de los fotógrafos.
 | RF20  | El sistema debe permitir al fotógrafo modificar los datos básicos de una imagen o video ya subido (título, descripción o colección) sin necesidad de volver a subir el archivo.
 | RF21  | El sistema debe permitir al cliente marcar y desmarcar como favorita cualquier imagen perteneciente a una colección a la que tenga acceso autorizado, sin exponer esta información a otros usuarios.
-| RF22  | El sistema debe registrar cada descarga (usuario, imagen o colección, fecha/hora, cantidad de archivos), permitiendo al fotógrafo consultar estadísticas agregadas de sus colecciones.
+| RF22  | El sistema debe registrar cada descarga (usuario, imagen o colección, fecha/hora, cantidad de archivos), permitiendo al cliente consultar su propio historial y al fotógrafo consultar estadísticas agregadas de sus colecciones.
 
 ---
 
@@ -161,11 +161,11 @@ El proyecto tendrá **5 sprints**, por lo tanto la duración total estimada ser�
 | EP2       | Perfiles de fotógrafos             |           5          | HU18                |
 | EP3       | Gestión de colecciones             |          18          | HU2, HU3, HU20      |
 | EP4       | Carga y procesamiento multimedia       |          31          | HU5, HU6, HU14, HU16, HU24 |
-| EP5       | Visualización y descarga |          18          | HU9, HU10, HU23, HU25 |
+| EP5       | Visualización y descarga |          23          | HU9, HU10, HU22, HU23, HU25 |
 | EP6       | Carga colaborativa por QR         |          28          | HU4, HU7, HU11, HU12, HU17 |
 | EP7       | Mantenimiento técnico y respaldo     |           8          | HU13                |
 | EP8       | Capacitación y cierre           |           3          | HU15                |
-| **Total** |                                 | **136 puntos**       |                     |
+| **Total** |                                 | **141 puntos**       |                     |
 
 ---
 
@@ -220,13 +220,14 @@ Se utilizará el siguiente formato:
 | HU12 | Como fotógrafo, quiero visualizar y gestionar (ocultar o eliminar) el material subido por invitados para tener un control sobre la colección.                                                         |  5     | Media      |
 | HU13 | Como sistema, quiero realizar un respaldo automático diario de la base de datos y rotar las últimas 3 copias, para mitigar el riesgo de pérdida de datos. |   8    | Media      |
 | HU14 | Como cliente, quiero visualizar las fotos de mi evento con una marca de agua integrada automáticamente, para poder previsualizar el trabajo antes de descargarlo en alta calidad.                   |   8    | Alta     |
-| HU15 | Como fotógrafo/cliente, quiero contar con una guía básica de uso y recibir una breve capacitación sobre la plataforma, para poder utilizarla de forma autónoma una vez finalizado el proyecto.                   |    3   | Media     |
+| HU15 | Como cliente(entrevistado), quiero contar con una guía básica de uso y recibir una breve capacitación sobre la plataforma, para poder utilizarla de forma autónoma una vez finalizado el proyecto.                   |    3   | Media     |
 | HU16 | Como sistema, quiero impedir al fotógrafo subir imágenes o videos si supera la cuota de almacenamiento, para no sobrecargar el espacio en el filesystem.                   |   8    | Media     |
 | HU17  | Como fotógrafo, quiero generar un código QR único de una colección, para permitir la visualización y descarga de las imágenes (según los permisos habilitados) las imágenes de la colección, sin necesidad de buscar mi perfil.                                              |   5    | Media      |
 | HU18  | Como fotógrafo, quiero editar mi información de perfil y contacto comercial, para que los clientes me reconozcan.                                              |  5     | Media      |
 | HU19  | Como sistema, quiero impedir el registro de usuarios duplicados utilizando una misma cédula de identidad o un mismo correo electrónico ya existentes, para que exista solo una única cuenta.                                              |  5     | Media      |
 | HU20  | Como sistema, quiero impedir cualquier intento de acceso directo mediante URL a colecciones privadas por parte de usuarios no autorizados, para mantener orden.                                              |    8   | Media      |
 | HU21  | Como sistema, quiero enviar un código de verificación al correo o teléfono, para asegurar si pertenece ese correo o teléfono a esa persona.                                              |   5    | Media      |
+| HU22  | Como cliente, quiero consultar mi propio historial de descargas, para saber qué material ya descargué.                                              |   5    | Media      |
 | HU23  | Como fotógrafo, quiero consultar estadísticas de descargas de mis colecciones, incluyendo las imágenes más descargadas, para entender qué contenido le interesa más a mis clientes.                                              | 5      | Media      |
 | HU24  | Como fotógrafo quiero editar los datos básicos (título, descripción) de una imagen o video ya subido, para no tener que subirlo de nuevo para cambiar los datos básicos.                                              |  5     | Media      |
 | HU25  | Como usuario quiero marcar favorito una imagen o video de una colección a la que tenga autorización, para tener una lista de favoritos.                                              |  5     | Media      |
@@ -263,8 +264,9 @@ Se utilizará el siguiente formato:
 | 20 | HU9 | Habilitación manual del permiso de "Alta Calidad" | 5 | Sprint 4 |
 | 21 | HU16 | Restricción por superación de la cuota de espacio | 8 | Sprint 4 |
 | 22 | HU25 | Marcar como favorito una imagen o video | 5 | Sprint 5 |
-| 23 | HU23 | Consultar estadísticas agregadas de descargas (Fotógrafo) | 5 | Sprint 5 |
-| 24 | HU13 | Respaldo automático diario de base de datos (3 copias) | 8 | Sprint 5 |
-| 25 | HU15 | Entrega de guía de uso, capacitación y cierre | 3 | Sprint 5 |
+| 23 | HU22 | Consultar historial propio de descargas (Cliente) | 5 | Sprint 5 |
+| 24 | HU23 | Consultar estadísticas agregadas de descargas (Fotógrafo) | 5 | Sprint 5 |
+| 25 | HU13 | Respaldo automático diario de base de datos (3 copias) | 8 | Sprint 5 |
+| 26 | HU15 | Entrega de guía de uso, capacitación y cierre | 3 | Sprint 5 |
 
 ---
