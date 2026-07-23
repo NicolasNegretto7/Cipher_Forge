@@ -12,7 +12,7 @@
 
 | Herramienta | Etapa / documento | Tipo de uso | Integrante |
 | --- | --- | --- | --- |
-| Gemini, Claude, Grok, DeepSeek | [Requerimientos](01-requerimientos.md), [Backend](backend)|  Investigacion, validacion, transcripcion, |  |
+| Gemini, Claude, Grok, DeepSeek | [Requerimientos](01-requerimientos.md), [Backend](backend)|  Investigacion, validacion, transcripcion, relevamiento, correccion de errores, optimizacion,   |  |
 | |  |  |  |
 |  |  |  |  |
 

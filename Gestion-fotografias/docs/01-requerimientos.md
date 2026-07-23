@@ -264,4 +264,4 @@ Se utilizará el siguiente formato:
 | 22 | HU24 | Marcar como favorita una imagen o video | 5 | Sprint 5 |
 | 23 | HU22 | Consultar estadísticas agregadas de descargas (Fotógrafo) | 5 | Sprint 5 |
 | 24 | HU13 | Respaldo automático diario de base de datos (3 copias) | 8 | Sprint 5 |
-| 25 | HU15 | Entrega de guía de uso, capacitación y cierre | 3 | Sprint 5 |
+| 25 | HU15 | Entrega de guía de uso, capacitación y cierre | 3 | Sprint 5 |                                                      

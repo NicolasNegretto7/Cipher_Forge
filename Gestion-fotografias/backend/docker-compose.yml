@@ -1,0 +1,38 @@
+# Toma la imagen definida en el Dockerfile y la imagen oficial de mysql:8.0, y las pone a ejecutar juntas como contenedores. Define en qué puertos escuchan (8080 y 3306), cómo se comunican entre sí por red interna (DB_HOST=db) y qué carpetas de tu disco local se montan en vivo.
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cipher_forge_app
+    ports:
+      - "8080:80"
+    volumes:
+      - .:/var/www/html
+      - uploads_data:/var/www/html/uploads
+    environment:
+      - DB_HOST=db
+      - DB_NAME=cipher_forge
+      - DB_USER=cipher_user
+      - DB_PASS=cipher_password
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.0
+    container_name: cipher_forge_db
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: cipher_forge
+      MYSQL_USER: cipher_user
+      MYSQL_PASSWORD: cipher_password
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+
+volumes:
+  db_data:
+  uploads_data:
