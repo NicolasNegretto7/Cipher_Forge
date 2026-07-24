@@ -14,7 +14,7 @@ rol ENUM('fotografo', 'cliente') NOT NULL
 
 CREATE TABLE colecciones(
 id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-fotografo_id INT NOT NULL,FOREIGN KEY (fotografo_id) REFERENCES usuarios(id) ON DELETE CASCADE,
+fotografo_id INT NOT NULL FOREIGN KEY (fotografo_id) REFERENCES usuarios(id) ON DELETE CASCADE,
 tipo_visibilidad ENUM('privada', 'publica') NOT NULL,
 titulo VARCHAR(40) NOT NULL,
 descripcion VARCHAR(90) NOT NULL,
