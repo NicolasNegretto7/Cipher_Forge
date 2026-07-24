@@ -29,14 +29,7 @@ Actualmente no existe una gestion de fotografias, lo que genera desorden y dific
 **Visión del producto:**
 Aplicacion web para subir, descargar imagenes o videos de una coleccion, mediante un enlace compartido o el registro de un usuario. Ademas de un metodo de pago para la descarga de las imagenes. Generando un vinculo mas directo entre fotografos y compradores.
 
-**Alcance incluido (primera versión):**
-1. Subida, descarga y visualizacion de imagenes y videos.
-2. Marca de agua para el material fotografico.
-3. Descarga individual o comprimida (.zip) de material fotografico.
-4. Creacion de colecciones.
-5. Inicio de sesion.
-
-**Alcance excluido (queda para etapas futuras):**
+**Alcance incluido:**
 1. Gestión de usuarios y roles.
 2. Registro y verificación de usuarios.
 3. Creación de perfiles de fotógrafo.
@@ -48,7 +41,15 @@ Aplicacion web para subir, descargar imagenes o videos de una coleccion, mediant
 9. Descarga inmediata de imágenes.
 10. Control de espacio de almacenamiento por usuario (la cantidad será propuesta por el cliente más adelante).
 11. Políticas de privacidad y protección de datos.
-12. Gener   ación de un enlace o QR de acceso directo a una colección privada puntual, para que un comprador vea su sesión sin necesidad de buscar el perfil del fotógrafo.
+12. Generación de un enlace o QR de acceso directo a una colección privada puntual, para que un comprador vea su sesión sin necesidad de buscar el perfil del fotógrafo.
+
+**Alcance excluido de esta primera version:**
+1. Una versión de app.
+2. Plantillas predeterminadas para exposición/publicación de fotos.
+3. Integración con redes sociales.
+4. Perfil público con acceso libre a todo el material del fotógrafo.
+5. Métodos de pago.
+6. Hosting/dominio.
 
 **Stakeholders principales:**
 
