@@ -24,18 +24,20 @@ FOREIGN KEY (fotografo_id) REFERENCES usuarios(id) ON DELETE CASCADE
 );
 
 CREATE TABLE imagenes (
-coleccion_id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-url_imagen VARCHAR(125) NOT NULL,
+    id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    coleccion_id INT NOT NULL,
+    url_imagen VARCHAR(125) NOT NULL,
 
 FOREIGN KEY (coleccion_id) REFERENCES colecciones(id) ON DELETE CASCADE
 );
 
 CREATE TABLE favoritos (
-id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+
+usuarios_id INT NOT NULL,
 favoritos_id INT NOT NULL,
-url_imagen VARCHAR(125) NOT NULL,
 
-
-FOREIGN KEY (favoritos_id) REFERENCES imagenes (coleccion_id),
-FOREIGN KEY (url_imagen) REFERENCES imagenes (url_imagen)
+PRIMARY KEY (usuarios_id, favoritos_id),
+FOREIGN KEY (usuarios_id) REFERENCES usuarios(id) ON DELETE CASCADE,
+FOREIGN KEY (favoritos_id) REFERENCES imagenes (id) ON DELETE CASCADE
 );
+
