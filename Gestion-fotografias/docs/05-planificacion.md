@@ -46,10 +46,9 @@ Aplicacion web para subir, descargar imagenes o videos de una coleccion, mediant
 **Alcance excluido de esta primera version:**
 1. Una versión de app.
 2. Plantillas predeterminadas para exposición/publicación de fotos.
-3. Integración con redes sociales.
-4. Perfil público con acceso libre a todo el material del fotógrafo.
-5. Métodos de pago.
-6. Hosting/dominio.
+3. Perfil público con acceso libre a todo el material del fotógrafo.
+4. Métodos de pago.
+5. Hosting/dominio.
 
 **Stakeholders principales:**
 

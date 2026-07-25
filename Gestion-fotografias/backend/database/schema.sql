@@ -41,3 +41,15 @@ FOREIGN KEY (usuarios_id) REFERENCES usuarios(id) ON DELETE CASCADE,
 FOREIGN KEY (favoritos_id) REFERENCES imagenes (id) ON DELETE CASCADE
 );
 
+CREATE TABLE acceso_colecciones(
+usuario_id INT NOT NULL,
+coleccion_id INT NOT NULL,
+permitira_alta_calidad BOOLEAN DEFAULT FALSE,
+
+PRIMARY KEY(usuario_id, coleccion_id),
+FOREIGN KEY (usuario_id) REFERENCES usuarios(id),
+FOREIGN KEY (coleccion_id) REFERENCES colecciones(id)
+
+
+
+);
