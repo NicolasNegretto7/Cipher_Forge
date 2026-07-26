@@ -99,7 +99,6 @@ Quedarán fuera de la primera versión:
 | RF19 | El sistema debe permitir editar la información de perfil de los fotógrafos. |
 | RF20 | El sistema debe permitir al fotógrafo modificar los datos básicos de una imagen o video ya subido (título, descripción o colección) sin necesidad de volver a subir el archivo. |
 | RF21 | El sistema debe permitir al cliente marcar y desmarcar como favorita cualquier imagen perteneciente a una colección a la que tenga acceso autorizado, sin exponer esta información a otros usuarios. |
-| RF22 | El sistema debe registrar cada descarga (usuario, imagen o colección, fecha/hora, cantidad de archivos), permitiendo al cliente consultar su propio historial y al fotógrafo consultar estadísticas agregadas de sus colecciones. |
 
 ---
 
