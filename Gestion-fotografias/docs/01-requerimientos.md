@@ -99,7 +99,6 @@ Quedarán fuera de la primera versión:
 | RF19 | El sistema debe permitir editar la información de perfil de los fotógrafos. |
 | RF20 | El sistema debe permitir al fotógrafo modificar los datos básicos de una imagen o video ya subido (título, descripción o colección) sin necesidad de volver a subir el archivo. |
 | RF21 | El sistema debe permitir al cliente marcar y desmarcar como favorita cualquier imagen perteneciente a una colección a la que tenga acceso autorizado, sin exponer esta información a otros usuarios. |
-| RF22 | El sistema debe registrar cada descarga (usuario, imagen o colección, fecha/hora, cantidad de archivos), permitiendo al cliente consultar su propio historial y al fotógrafo consultar estadísticas agregadas de sus colecciones. |
 
 ---
 
@@ -119,16 +118,16 @@ Quedarán fuera de la primera versión:
 
 ## 8. Épicas del proyecto
 
-| Código | Épica | Descripción |
-| --- | --- | --- |
-| EP1 | Gestión de usuarios y seguridad | Registro de usuarios, inicio de sesión seguro, asignación de roles y políticas de privacidad. |
-| EP2 | Perfiles de fotógrafos | Creación, edición y administración de los perfiles profesionales de los fotógrafos. |
-| EP3 | Gestión de colecciones | Creación, categorización (públicas/privadas) y control de acceso por URL a colecciones de fotos. |
-| EP4 | Carga y procesamiento multimedia | Subida de imágenes de alta calidad, generación de vistas previas optimizadas y aplicación de marcas de agua. |
-| EP5 | Visualización y descargas | Galería de previsualización para clientes, control de calidad de descarga y bajada de imágenes (individual o en .zip). |
-| EP6 | Carga colaborativa por QR | Generación de códigos QR para eventos, subida rápida de fotos por invitados y moderación/gestión posterior del material por parte del fotógrafo (ocultar o eliminar). |
-| EP7 | Mantenimiento técnico y respaldo | Configuración de respaldos automáticos diarios, rotación de las últimas tres copias y registro de auditoría. |
-| EP8 | Capacitación y cierre | Entrega de la guía básica de uso, capacitación al cliente y cierre formal del proyecto de UTU. |
+| Código | Épica | Descripción | Requerimientos vinculados |
+| --- | --- | --- | --- |
+| EP1 | Gestión de usuarios y seguridad | Registro de usuarios, inicio de sesión seguro, asignación de roles y políticas de privacidad. | RF1, RF2, RF3, RF18 |
+| EP2 | Perfiles de fotógrafos | Creación, edición y administración de los perfiles profesionales de los fotógrafos. | RF19 |
+| EP3 | Gestión de colecciones | Creación, categorización (públicas/privadas) y control de acceso por URL a colecciones de fotos. | RF4, RF5, RF6 |
+| EP4 | Carga y procesamiento multimedia | Subida de imágenes de alta calidad, generación de vistas previas optimizadas y aplicación de marcas de agua. | RF7, RF8, RF9, RF17, RF20 |
+| EP5 | Visualización y descargas | Galería de previsualización para clientes, control de calidad de descarga y bajada de imágenes (individual o en .zip). | RF10, RF11, RF12, RF21 |
+| EP6 | Carga colaborativa por QR | Generación de códigos QR para eventos, subida rápida de fotos por invitados y moderación/gestión posterior del material por parte del fotógrafo (ocultar o eliminar). | RF13, RF14, RF15, RF16 |
+| EP7 | Mantenimiento técnico y respaldo | Configuración de respaldos automáticos diarios, rotación de las últimas tres copias y registro de auditoría. | RNF5, RNF6, RNF7 |
+| EP8 | Capacitación y cierre | Entrega de la guía básica de uso, capacitación al cliente y cierre formal del proyecto de UTU. | — (actividad de entrega/capacitación; no corresponde a una función del sistema) |
 
 ---
 
@@ -160,11 +159,11 @@ El proyecto tendrá **5 sprints**, por lo tanto, la duración total estimada ser
 | EP2 | Perfiles de fotógrafos | 5 | HU18 |
 | EP3 | Gestión de colecciones | 18 | HU2, HU3, HU20 |
 | EP4 | Carga y procesamiento multimedia | 31 | HU5, HU6, HU14, HU16, HU23 |
-| EP5 | Visualización y descarga | 18 | HU9, HU10, HU22, HU24 |
+| EP5 | Visualización y descarga | 13 | HU9, HU10, HU24 |
 | EP6 | Carga colaborativa por QR | 28 | HU4, HU7, HU11, HU12, HU17 |
 | EP7 | Mantenimiento técnico y respaldo | 8 | HU13 |
 | EP8 | Capacitación y cierre | 3 | HU15 |
-| **Total** | | **136 puntos** | |
+| **Total** | | **131 puntos** | |
 
 ---
 
@@ -181,7 +180,7 @@ El equipo presenta la siguiente propuesta:
 | Presupuesto | Proyecto de Egreso, por lo tanto no habrá presupuesto asignado. |
 | Forma de trabajo | Revisión con el cliente al cierre de cada sprint. |
 | Primera versión | Subida y bajada de imágenes/videos, marca de agua. |
-| Exclusiones | App móvil nativa, integración con redes sociales, perfil público con acceso libre a todo el material del fotógrafo, métodos de pago, hosting/dominio. |
+| Exclusiones | Una versión de app, plantillas predeterminadas para exposición/publicación de fotos, perfil público con acceso libre a todo el material del fotógrafo, métodos de pago, hosting/dominio. |
 
 ---
 
@@ -226,7 +225,6 @@ Se utilizará el siguiente formato:
 | HU19 | Como sistema, quiero impedir el registro de usuarios duplicados utilizando una misma cédula de identidad o un mismo correo electrónico ya existentes, para que exista solo una única cuenta. | 5 | Media |
 | HU20 | Como sistema, quiero impedir cualquier intento de acceso directo mediante URL a colecciones privadas por parte de usuarios no autorizados, para mantener el orden. | 8 | Media |
 | HU21 | Como sistema, quiero enviar un código de verificación al correo o teléfono, para asegurar si ese correo o teléfono realmente pertenece a esa persona. | 5 | Media |
-| HU22 | Como fotógrafo, quiero consultar estadísticas de descargas de mis colecciones, incluyendo las imágenes más descargadas, para entender qué contenido le interesa más a mis clientes. | 5 | Media |
 | HU23 | Como fotógrafo, quiero editar los datos básicos (título, descripción) de una imagen o video ya subido, para no tener que subirlo de nuevo para cambiar los datos básicos. | 5 | Media |
 | HU24 | Como usuario, quiero marcar como favorita una imagen o video de una colección a la que tenga autorización, para tener una lista de favoritos. | 5 | Media |
 | HU25 | Como sistema, quiero que cada usuario, independientemente de si es Fotógrafo o Cliente, tenga que registrarse con su nombre completo, cédula, correo electrónico y número de teléfono, para identificar quién es. | 5 | Media |
@@ -249,18 +247,17 @@ Se utilizará el siguiente formato:
 | 8 | HU25 | Registro obligatorio de campos y datos básicos | 5 | Sprint 2 |
 | 9 | HU19 | Impedir el registro de usuarios duplicados | 5 | Sprint 2 |
 | 10 | HU21 | Envío de código de verificación al correo/teléfono | 5 | Sprint 2 |
-| 11 | HU18 | Edición de información del perfil del fotógrafo | 5 | Sprint 2 |
-| 12 | HU20 | Bloqueo de acceso directo por URL a privadas | 8 | Sprint 3 |
-| 13 | HU17 | Código QR único para visualización/descarga directa | 5 | Sprint 3 |
-| 14 | HU4 | Código QR único para subida (Eventos) | 8 | Sprint 3 |
-| 15 | HU7 | Descarga e impresión física del código QR | 5 | Sprint 3 |
-| 16 | HU23 | Edición de datos básicos de un archivo ya subido | 5 | Sprint 3 |
-| 17 | HU11 | Carga de archivos vía QR por invitados (sin cuenta) | 5 | Sprint 4 |
-| 18 | HU12 | Moderación de material de invitados (ocultar/eliminar) | 5 | Sprint 4 |
-| 19 | HU6 | Eliminación regular de imágenes o videos | 5 | Sprint 4 |
-| 20 | HU9 | Habilitación manual del permiso de "alta calidad" | 5 | Sprint 4 |
-| 21 | HU16 | Restricción por superación de la cuota de espacio | 8 | Sprint 4 |
-| 22 | HU24 | Marcar como favorita una imagen o video | 5 | Sprint 5 |
-| 23 | HU22 | Consultar estadísticas agregadas de descargas (Fotógrafo) | 5 | Sprint 5 |
-| 24 | HU13 | Respaldo automático diario de base de datos (3 copias) | 8 | Sprint 5 |
-| 25 | HU15 | Entrega de guía de uso, capacitación y cierre | 3 | Sprint 5 |                                                      
+| 11 | HU20 | Bloqueo de acceso directo por URL a privadas | 8 | Sprint 3 |
+| 12 | HU17 | Código QR único para visualización/descarga directa | 5 | Sprint 3 |
+| 13 | HU4 | Código QR único para subida (Eventos) | 8 | Sprint 3 |
+| 14 | HU7 | Descarga e impresión física del código QR | 5 | Sprint 3 |
+| 15 | HU11 | Carga de archivos vía QR por invitados (sin cuenta) | 5 | Sprint 4 |
+| 16 | HU12 | Moderación de material de invitados (ocultar/eliminar) | 5 | Sprint 4 |
+| 17 | HU6 | Eliminación regular de imágenes o videos | 5 | Sprint 4 |
+| 18 | HU9 | Habilitación manual del permiso de "alta calidad" | 5 | Sprint 4 |
+| 19 | HU16 | Restricción por superación de la cuota de espacio | 8 | Sprint 4 |
+| 20 | HU24 | Marcar como favorita una imagen o video | 5 | Sprint 5 |
+| 21 | HU18 | Edición de información del perfil del fotógrafo | 5 | Sprint 5 |
+| 22 | HU23 | Edición de datos básicos de un archivo ya subido | 5 | Sprint 5 |
+| 23 | HU13 | Respaldo automático diario de base de datos (3 copias) | 8 | Sprint 5 |
+| 24 | HU15 | Entrega de guía de uso, capacitación y cierre | 3 | Sprint 5 |
