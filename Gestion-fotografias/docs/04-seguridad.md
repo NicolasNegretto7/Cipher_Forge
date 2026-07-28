@@ -153,6 +153,7 @@ flowchart LR
 
 
 
+
 ```
  
 *Rojo = Impacto Alto (técnico y a usuarios) · Naranja = Impacto Medio*

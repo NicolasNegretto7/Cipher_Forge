@@ -233,7 +233,7 @@ Se utilizará el siguiente formato:
 
 ## 15. Product Backlog inicial
 
-## Backlog priorizado, balanceado y enfocado en MVP
+## Backlog priorizado
 
 | Orden | ID | Historia | Puntos | Sprint estimado |
 | :--- | :--- | :--- | :--- | :--- |
