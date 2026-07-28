@@ -60,50 +60,46 @@ El sistema usa códigos QR con dos propósitos distintos: acceso directo a una c
 El siguiente esquema vincula los componentes principales del sistema con las amenazas identificadas, permitiendo visualizar qué partes del sistema concentran mayor exposición.
 
 ```mermaid
-flowchart LR
-    subgraph COMP["Componentes del sistema"]
-        C1["Registro e inicio de<br/>sesión de usuarios"]
-        C2["Base de datos de usuarios<br/>(cédula, correo, teléfono)"]
-        C3["Gestión de colecciones<br/>(públicas / privadas)"]
-        C4["Carga de imágenes<br/>y videos"]
-        C5["Vista previa con<br/>marca de agua"]
-        C6["Acceso y carga vía<br/>código QR"]
-    end
- 
-    subgraph AMEN["Amenazas detectadas"]
-        A1["Phishing dirigido a<br/>fotógrafos y clientes"]
-        A2["Fuga de datos personales<br/>(cédula, contacto)"]
-        A3["Inyección SQL en<br/>formularios y filtros"]
-        A4["Acceso no autorizado a<br/>colecciones privadas (IDOR)"]
-        A5["Evasión de marca de agua /<br/>descarga no autorizada"]
-        A6["Abuso o reutilización<br/>de códigos QR"]
-    end
- 
-    C1 --> A1
-    C2 --> A2
-    C2 --> A3
-    C4 --> A3
-    C3 --> A4
-    C6 --> A4
-    C5 --> A5
-    C6 --> A6
- 
-    classDef comp fill:#eaf1fb,stroke:#1f4e79,stroke-width:2px,color:#12283f;
-    classDef alto fill:#fdecea,stroke:#c0392b,stroke-width:2px,color:#7a2e20;
-    classDef medio fill:#fdf2e3,stroke:#d68910,stroke-width:2px,color:#7a4e0a;
- 
-    class C1,C2,C3,C4,C5,C6 comp;
-    class A1,A2,A3,A4 alto;
-    class A5,A6 medio;
- 
-    linkStyle 0 stroke:#c0392b,stroke-width:2px;
-    linkStyle 1 stroke:#c0392b,stroke-width:2px;
-    linkStyle 2 stroke:#c0392b,stroke-width:2px;
-    linkStyle 3 stroke:#c0392b,stroke-width:2px;
-    linkStyle 4 stroke:#c0392b,stroke-width:2px;
-    linkStyle 5 stroke:#c0392b,stroke-width:2px;
-    linkStyle 6 stroke:#d68910,stroke-width:2px;
-    linkStyle 7 stroke:#d68910,stroke-width:2px;
+block-beta
+columns 2
+
+  hcomp["Componentes del sistema"]
+  hamen["Amenazas detectadas"]
+
+  c1["Registro e inicio de<br/>sesión de usuarios"]
+  a1["Phishing dirigido a<br/>fotógrafos y clientes"]
+
+  c2["Base de datos de usuarios<br/>(cédula, correo, teléfono)"]
+  a2["Fuga de datos personales<br/>(cédula, contacto)"]
+
+  c2b["Base de datos de usuarios<br/>(cédula, correo, teléfono)"]
+  a3["Inyección SQL en<br/>formularios y filtros"]
+
+  c4["Carga de imágenes<br/>y videos"]
+  a3b["Inyección SQL en<br/>formularios y filtros"]
+
+  c3["Gestión de colecciones<br/>(públicas / privadas)"]
+  a4["Acceso no autorizado a<br/>colecciones privadas (IDOR)"]
+
+  c6["Acceso y carga vía<br/>código QR"]
+  a4b["Acceso no autorizado a<br/>colecciones privadas (IDOR)"]
+
+  c5["Vista previa con<br/>marca de agua"]
+  a5["Evasión de marca de agua /<br/>descarga no autorizada"]
+
+  c6b["Acceso y carga vía<br/>código QR"]
+  a6["Abuso o reutilización<br/>de códigos QR"]
+
+  classDef header fill:#3c3c3c,stroke:#3c3c3c,color:#ffffff,font-weight:bold;
+  classDef comp fill:#EDEDED,stroke:#BBBBBB,stroke-width:2px,color:#333333;
+  classDef alto fill:#F0524F,stroke:#c0392b,stroke-width:2px,color:#ffffff;
+  classDef medio fill:#F0834D,stroke:#d68910,stroke-width:2px,color:#ffffff;
+
+  class hcomp,hamen header
+  class c1,c2,c2b,c4,c3,c6,c5,c6b comp
+  class a1,a2,a3,a3b,a4,a4b alto
+  class a5,a6 medio
+
 ```
  
 *Rojo = Impacto Alto (técnico y a usuarios) · Naranja = Impacto Medio*
