@@ -60,45 +60,104 @@ El sistema usa códigos QR con dos propósitos distintos: acceso directo a una c
 El siguiente esquema vincula los componentes principales del sistema con las amenazas identificadas, permitiendo visualizar qué partes del sistema concentran mayor exposición.
 
 ```mermaid
-block-beta
-columns 2
+flowchart TD
+    %% Título principal
+    subgraph MAPA ["MATRIZ DE RIESGOS / MAPA DE CALOR (Frecuencia vs Impacto)"]
+        direction TB
 
-  hcomp["Componentes del sistema"]
-  hamen["Amenazas detectadas"]
+        %% Fila 1: Altamente probable
+        subgraph F1 ["Altamente probable"]
+            direction LR
+            R1C1["<b>Muy bajo</b><br/>-"]
+            R1C2["<b>Bajo</b><br/>-"]
+            R1C3["<b>Medio</b><br/>-"]
+            R1C4["<b>Alto</b><br/>A3: Inyección SQL"]
+            R1C5["<b>Crítico</b><br/>A2: Fuga de datos"]
+        end
 
-  c1["Registro e inicio de<br/>sesión de usuarios"]
-  a1["Phishing dirigido a<br/>fotógrafos y clientes"]
+        %% Fila 2: Posible
+        subgraph F2 ["Posible"]
+            direction LR
+            R2C1["<b>Muy bajo</b><br/>-"]
+            R2C2["<b>Bajo</b><br/>-"]
+            R2C3["<b>Medio</b><br/>-"]
+            R2C4["<b>Alto</b><br/>A1: Phishing"]
+            R2C5["<b>Crítico</b><br/>A4: Acceso IDOR"]
+        end
 
-  c2["Base de datos de usuarios<br/>(cédula, correo, teléfono)"]
-  a2["Fuga de datos personales<br/>(cédula, contacto)"]
+        %% Fila 3: Ocasional
+        subgraph F3 ["Ocasional"]
+            direction LR
+            R3C1["<b>Muy bajo</b><br/>-"]
+            R3C2["<b>Bajo</b><br/>-"]
+            R3C3["<b>Medio</b><br/>A5: Evasión marca de agua"]
+            R3C4["<b>Alto</b><br/>-"]
+            R3C5["<b>Crítico</b><br/>-"]
+        end
 
-  c2b["Base de datos de usuarios<br/>(cédula, correo, teléfono)"]
-  a3["Inyección SQL en<br/>formularios y filtros"]
+        %% Fila 4: Probable
+        subgraph F4 ["Probable"]
+            direction LR
+            R4C1["<b>Muy bajo</b><br/>-"]
+            R4C2["<b>Bajo</b><br/>-"]
+            R4C3["<b>Medio</b><br/>-"]
+            R4C4["<b>Alto</b><br/>A6: Reutilización QR"]
+            R4C5["<b>Crítico</b><br/>-"]
+        end
 
-  c4["Carga de imágenes<br/>y videos"]
-  a3b["Inyección SQL en<br/>formularios y filtros"]
+        %% Fila 5: Improbable
+        subgraph F5 ["Improbable"]
+            direction LR
+            R5C1["<b>Muy bajo</b><br/>-"]
+            R5C2["<b>Bajo</b><br/>-"]
+            R5C3["<b>Medio</b><br/>-"]
+            R5C4["<b>Alto</b><br/>-"]
+            R5C5["<b>Crítico</b><br/>-"]
+        end
 
-  c3["Gestión de colecciones<br/>(públicas / privadas)"]
-  a4["Acceso no autorizado a<br/>colecciones privadas (IDOR)"]
+        F1 ~~~ F2 ~~~ F3 ~~~ F4 ~~~ F5
+    end
 
-  c6["Acceso y carga vía<br/>código QR"]
-  a4b["Acceso no autorizado a<br/>colecciones privadas (IDOR)"]
+    %% Alineación invisible de columnas de la matriz
+    R1C1 ~~~ R2C1 ~~~ R3C1 ~~~ R4C1 ~~~ R5C1
+    R1C2 ~~~ R2C2 ~~~ R3C2 ~~~ R4C2 ~~~ R5C2
+    R1C3 ~~~ R2C3 ~~~ R3C3 ~~~ R4C3 ~~~ R5C3
+    R1C4 ~~~ R2C4 ~~~ R3C4 ~~~ R4C4 ~~~ R5C4
+    R1C5 ~~~ R2C5 ~~~ R3C5 ~~~ R4C5 ~~~ R5C5
 
-  c5["Vista previa con<br/>marca de agua"]
-  a5["Evasión de marca de agua /<br/>descarga no autorizada"]
+    %% Definición de estilos de color replicando el mapa de Pirani
+    classDef verde fill:#52be80,stroke:#27ae60,stroke-width:1.5px,color:#ffffff;
+    classDef amarillo fill:#f1c40f,stroke:#d4ac0d,stroke-width:1.5px,color:#000000;
+    classDef naranja fill:#eb6841,stroke:#d35400,stroke-width:1.5px,color:#ffffff;
+    classDef rojo fill:#f05252,stroke:#c0392b,stroke-width:1.5px,color:#ffffff;
 
-  c6b["Acceso y carga vía<br/>código QR"]
-  a6["Abuso o reutilización<br/>de códigos QR"]
+    %% Asignación de colores casilla por casilla según el mapa de imagen
 
-  classDef header fill:#3c3c3c,stroke:#3c3c3c,color:#ffffff,font-weight:bold;
-  classDef comp fill:#EDEDED,stroke:#BBBBBB,stroke-width:2px,color:#333333;
-  classDef alto fill:#F0524F,stroke:#c0392b,stroke-width:2px,color:#ffffff;
-  classDef medio fill:#F0834D,stroke:#d68910,stroke-width:2px,color:#ffffff;
+    %% Fila 1: Altamente probable (Naranja, Naranja, Rojo, Rojo, Rojo)
+    class R1C1,R1C2 naranja;
+    class R1C3,R1C4,R1C5 rojo;
 
-  class hcomp,hamen header
-  class c1,c2,c2b,c4,c3,c6,c5,c6b comp
-  class a1,a2,a3,a3b,a4,a4b alto
-  class a5,a6 medio
+    %% Fila 2: Posible (Verde, Amarillo, Naranja, Rojo, Rojo)
+    class R2C1 verde;
+    class R2C2 amarillo;
+    class R2C3 naranja;
+    class R2C4,R2C5 rojo;
+
+    %% Fila 3: Ocasional (Verde, Amarillo, Amarillo, Naranja, Rojo)
+    class R3C1 verde;
+    class R3C2,R3C3 amarillo;
+    class R3C4 naranja;
+    class R3C5 rojo;
+
+    %% Fila 4: Probable (Verde, Verde, Amarillo, Amarillo, Naranja)
+    class R4C1,R4C2 verde;
+    class R4C3,R4C4 amarillo;
+    class R4C5 naranja;
+
+    %% Fila 5: Improbable (Verde, Verde, Verde, Amarillo, Amarillo)
+    class R5C1,R5C2,R5C3 verde;
+    class R5C4,R5C5 amarillo;
+
 
 ```
  
