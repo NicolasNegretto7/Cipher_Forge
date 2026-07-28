@@ -227,7 +227,7 @@ Se utilizará el siguiente formato:
 | HU21 | Como sistema, quiero enviar un código de verificación al correo o teléfono, para asegurar si ese correo o teléfono realmente pertenece a esa persona. | 5 | Media |
 | HU22 | Como fotógrafo, quiero editar los datos básicos (título, descripción) de una imagen o video ya subido, para no tener que subirlo de nuevo para cambiar los datos básicos. | 5 | Media |
 | HU23 | Como usuario, quiero marcar como favorita una imagen o video de una colección a la que tenga autorización, para tener una lista de favoritos. | 5 | Media |
-| HU24 | Como sistema, quiero que cada usuario, independientemente de si es Fotógrafo o Cliente, tenga que registrarse con su nombre completo, cédula, correo electrónico y número de teléfono, para identificar quién es. | 5 | Media |
+| HU24 | Como sistema, quiero que cada usuario, independientemente de si es Fotógrafo o Cliente, tenga que registrarse con su nombre completo, cédula, correo electrónico y número de teléfono, para identificar quién es. | 5 | baja |
 
 ---
 
