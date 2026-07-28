@@ -5,8 +5,8 @@
 | Problema principal | Dificultad de entrega inmediata de material fotográfico y baja calidad de imagen. |
 | Objetivo de negocio | Vínculo comercial comprador-vendedor y el cobro ágil sin intermediarios que retengan el dinero. |
 | Alcance inicial | Subida y bajada de imágenes, métodos de pago, marca de agua. |
-| Plazo esperado | |
-| Presupuesto | Proyecto de UTU sin presupuesto. |
+| Plazo esperado |Plazo no acordado con el cliente.
+ | Presupuesto | Proyecto de UTU sin presupuesto. |
 | Usuarios | Fotógrafos, clientes. |
 | Infraestructura | Nube, alta disponibilidad, almacenamiento variable. |
 | Seguridad | Cédula, nombre, teléfono, dirección, correo electrónico y políticas de privacidad. |
