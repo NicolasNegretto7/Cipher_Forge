@@ -60,86 +60,96 @@ El sistema usa códigos QR con dos propósitos distintos: acceso directo a una c
 El siguiente esquema vincula los componentes principales del sistema con las amenazas identificadas, permitiendo visualizar qué partes del sistema concentran mayor exposición.
 
 ```mermaid
-stateDiagram-v2
-    %% Definición de la estructura de la matriz
-    [*] --> MatrizRiesgos
- 
-    state MatrizRiesgos {
-        %% Definición de las celdas (nodos invisibles para color)
-        state " " as R1C1
-        state " " as R1C2
-        state " " as R1C3
-        state " " as R1C4
-        state " " as R1C5
- 
-        state " " as R2C1
-        state " " as R2C2
-        state " " as R2C3
-        state " " as R2C4
-        state " " as R2C5
- 
-        state " " as R3C1
-        state " " as R3C2
-        state " " as R3C3
-        state " " as R3C4
-        state " " as R3C5
- 
-        state " " as R4C1
-        state " " as R4C2
-        state " " as R4C3
-        state " " as R4C4
-        state " " as R4C5
- 
-        state " " as R5C1
-        state " " as R5C2
-        state " " as R5C3
-        state " " as R5C4
-        state " " as R5C5
- 
-        %% Conexiones invisibles para forzar la cuadrícula 5x5
-        R1C1 --> R1C2
-        R1C2 --> R1C3
-        R1C3 --> R1C4
-        R1C4 --> R1C5
- 
-        R1C1 --> R2C1
-        R2C1 --> R3C1
-        R3C1 --> R4C1
-        R4C1 --> R5C1
- 
-        %% Estilos de color (replicando Pirani)
-        classDef verde fill:#52be80,stroke:#27ae60,stroke-width:1px,color:#ffffff,border-radius:10px;
-        classDef amarillo fill:#f1c40f,stroke:#d4ac0d,stroke-width:1px,color:#000000,border-radius:10px;
-        classDef naranja fill:#eb6841,stroke:#d35400,stroke-width:1px,color:#ffffff,border-radius:10px;
-        classDef rojo fill:#f05252,stroke:#c0392b,stroke-width:1px,color:#ffffff,border-radius:10px;
- 
-        %% Asignación de colores casilla por casilla
-        %% Fila 1: Altamente probable (Naranja, Naranja, Rojo, Rojo, Rojo)
-        class R1C1,R1C2 naranja;
-        class R1C3,R1C4,R1C5 rojo;
- 
-        %% Fila 2: Posible (Verde, Amarillo, Naranja, Rojo, Rojo)
-        class R2C1 verde;
-        class R2C2 amarillo;
-        class R2C3 naranja;
-        class R2C4,R2C5 rojo;
- 
-        %% Fila 3: Ocasional (Verde, Amarillo, Amarillo, Naranja, Rojo)
-        class R3C1 verde;
-        class R3C2,R3C3 amarillo;
-        class R3C4 naranja;
-        class R3C5 rojo;
- 
-        %% Fila 4: Probable (Verde, Verde, Amarillo, Amarillo, Naranja)
-        class R4C1,R4C2 verde;
-        class R4C3,R4C4 amarillo;
-        class R4C5 naranja;
- 
-        %% Fila 5: Improbable (Verde, Verde, Verde, Amarillo, Amarillo)
-        class R5C1,R5C2,R5C3 verde;
-        class R5C4,R5C5 amarillo;
-    }
+flowchart LR
+    subgraph MAPA ["MATRIZ DE RIESGOS / MAPA DE CALOR"]
+        direction LR
 
+        %% Columna 1: Altamente probable
+        subgraph F1 ["Altamente probable"]
+            direction TB
+            R1C1["<b>Muy bajo</b><br/>-"]
+            R1C2["<b>Bajo</b><br/>-"]
+            R1C3["<b>Medio</b><br/>-"]
+            R1C4["<b>Alto</b><br/>A3: Inyección SQL"]
+            R1C5["<b>Crítico</b><br/>A2: Fuga de datos"]
+        end
+
+        %% Columna 2: Posible
+        subgraph F2 ["Posible"]
+            direction TB
+            R2C1["<b>Muy bajo</b><br/>-"]
+            R2C2["<b>Bajo</b><br/>-"]
+            R2C3["<b>Medio</b><br/>-"]
+            R2C4["<b>Alto</b><br/>A1: Phishing"]
+            R2C5["<b>Crítico</b><br/>A4: Acceso IDOR"]
+        end
+
+        %% Columna 3: Ocasional
+        subgraph F3 ["Ocasional"]
+            direction TB
+            R3C1["<b>Muy bajo</b><br/>-"]
+            R3C2["<b>Bajo</b><br/>-"]
+            R3C3["<b>Medio</b><br/>A5: Evasión marca de agua"]
+            R3C4["<b>Alto</b><br/>-"]
+            R3C5["<b>Crítico</b><br/>-"]
+        end
+
+        %% Columna 4: Probable
+        subgraph F4 ["Probable"]
+            direction TB
+            R4C1["<b>Muy bajo</b><br/>-"]
+            R4C2["<b>Bajo</b><br/>-"]
+            R4C3["<b>Medio</b><br/>-"]
+            R4C4["<b>Alto</b><br/>A6: Reutilización QR"]
+            R4C5["<b>Crítico</b><br/>-"]
+        end
+
+        %% Columna 5: Improbable
+        subgraph F5 ["Improbable"]
+            direction TB
+            R5C1["<b>Muy bajo</b><br/>-"]
+            R5C2["<b>Bajo</b><br/>-"]
+            R5C3["<b>Medio</b><br/>-"]
+            R5C4["<b>Alto</b><br/>-"]
+            R5C5["<b>Crítico</b><br/>-"]
+        end
+
+        F1 ~~~ F2 ~~~ F3 ~~~ F4 ~~~ F5
+    end
+
+    %% Alineación invisible de filas
+    R1C1 ~~~ R2C1 ~~~ R3C1 ~~~ R4C1 ~~~ R5C1
+    R1C2 ~~~ R2C2 ~~~ R3C2 ~~~ R4C2 ~~~ R5C2
+    R1C3 ~~~ R2C3 ~~~ R3C3 ~~~ R4C3 ~~~ R5C3
+    R1C4 ~~~ R2C4 ~~~ R3C4 ~~~ R4C4 ~~~ R5C4
+    R1C5 ~~~ R2C5 ~~~ R3C5 ~~~ R4C5 ~~~ R5C5
+
+    %% Estilos de color replicando la paleta de Pirani
+    classDef verde fill:#52be80,stroke:#27ae60,stroke-width:1.5px,color:#ffffff;
+    classDef amarillo fill:#f1c40f,stroke:#d4ac0d,stroke-width:1.5px,color:#000000;
+    classDef naranja fill:#eb6841,stroke:#d35400,stroke-width:1.5px,color:#ffffff;
+    classDef rojo fill:#f05252,stroke:#c0392b,stroke-width:1.5px,color:#ffffff;
+
+    %% Asignación de colores
+    class R1C1,R1C2 naranja;
+    class R1C3,R1C4,R1C5 rojo;
+
+    class R2C1 verde;
+    class R2C2 amarillo;
+    class R2C3 naranja;
+    class R2C4,R2C5 rojo;
+
+    class R3C1 verde;
+    class R3C2,R3C3 amarillo;
+    class R3C4 naranja;
+    class R3C5 rojo;
+
+    class R4C1,R4C2 verde;
+    class R4C3,R4C4 amarillo;
+    class R4C5 naranja;
+
+    class R5C1,R5C2,R5C3 verde;
+    class R5C4,R5C5 amarillo;
 
 
 
