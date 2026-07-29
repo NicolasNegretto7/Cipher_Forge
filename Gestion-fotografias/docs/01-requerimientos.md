@@ -252,7 +252,7 @@ Se utilizará el siguiente formato:
 | 9 | HU19 | Impedir el registro de usuarios duplicados por correo | 5 | Sprint 2 |
 | 10 | HU21 | Envío de código de verificación al correo/teléfono | 5 | Sprint 2 |
 | 11 | HU20 | Bloqueo de acceso directo por URL a colecciones privadas | 8 | Sprint 3 |
-| 12 | HU4|HU17 | Generación de códigos QR de colección (Acceso directo, descarga y subida colaborativa) | 13 | Sprint 3 |
+| 12 | HU4, HU17 | Generación de códigos QR de colección (Acceso directo, descarga y subida colaborativa) | 13 | Sprint 3 |
 | 13 | HU7 | Descarga e impresión física del código QR | 5 | Sprint 3 |
 | 14 | HU24 | Acceso y visualización de galerías en colecciones públicas | 5 | Sprint 3 |
 | 15 | HU11 | Carga de archivos vía QR por invitados (sin cuenta) | 5 | Sprint 4 |
