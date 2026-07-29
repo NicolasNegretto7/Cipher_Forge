@@ -60,99 +60,26 @@ El sistema usa códigos QR con dos propósitos distintos: acceso directo a una c
 El siguiente esquema vincula los componentes principales del sistema con las amenazas identificadas, permitiendo visualizar qué partes del sistema concentran mayor exposición.
 
 ```mermaid
-flowchart LR
-    subgraph MAPA ["MATRIZ DE RIESGOS / MAPA DE CALOR"]
-        direction LR
+block-beta
+columns 6
+  esq["Impacto ↓ / Probabilidad →"] h1["Altamente<br/>probable"] h2["Posible"] h3["Ocasional"] h4["Probable"] h5["Improbable"]
+  rC["Crítico"] a["A2: Fuga de datos"] b["A4: Acceso IDOR"] c["-"] d["-"] e["-"]
+  rA["Alto"] f["A3: Inyección SQL"] g["A1: Phishing"] h["-"] i["A6: Reutilización QR"] j["-"]
+  rM["Medio"] k["-"] l["-"] m["A5: Evasión marca de agua"] n["-"] o["-"]
+  rB["Bajo"] p["-"] q["-"] r["-"] s["-"] t["-"]
+  rMB["Muy bajo"] u["-"] v["-"] w["-"] x["-"] y["-"]
 
-        %% Columna 1: Altamente probable
-        subgraph F1 ["Altamente probable"]
-            direction TB
-            R1C1["<b>Muy bajo</b><br/>-"]
-            R1C2["<b>Bajo</b><br/>-"]
-            R1C3["<b>Medio</b><br/>-"]
-            R1C4["<b>Alto</b><br/>A3: Inyección SQL"]
-            R1C5["<b>Crítico</b><br/>A2: Fuga de datos"]
-        end
+  classDef header fill:#2c3e50,stroke:#1a252f,stroke-width:1px,color:#ffffff,font-weight:bold;
+  classDef verde fill:#52be80,stroke:#27ae60,stroke-width:1.5px,color:#ffffff;
+  classDef amarillo fill:#f1c40f,stroke:#d4ac0d,stroke-width:1.5px,color:#000000;
+  classDef naranja fill:#eb6841,stroke:#d35400,stroke-width:1.5px,color:#ffffff;
+  classDef rojo fill:#f05252,stroke:#c0392b,stroke-width:1.5px,color:#ffffff;
 
-        %% Columna 2: Posible
-        subgraph F2 ["Posible"]
-            direction TB
-            R2C1["<b>Muy bajo</b><br/>-"]
-            R2C2["<b>Bajo</b><br/>-"]
-            R2C3["<b>Medio</b><br/>-"]
-            R2C4["<b>Alto</b><br/>A1: Phishing"]
-            R2C5["<b>Crítico</b><br/>A4: Acceso IDOR"]
-        end
-
-        %% Columna 3: Ocasional
-        subgraph F3 ["Ocasional"]
-            direction TB
-            R3C1["<b>Muy bajo</b><br/>-"]
-            R3C2["<b>Bajo</b><br/>-"]
-            R3C3["<b>Medio</b><br/>A5: Evasión marca de agua"]
-            R3C4["<b>Alto</b><br/>-"]
-            R3C5["<b>Crítico</b><br/>-"]
-        end
-
-        %% Columna 4: Probable
-        subgraph F4 ["Probable"]
-            direction TB
-            R4C1["<b>Muy bajo</b><br/>-"]
-            R4C2["<b>Bajo</b><br/>-"]
-            R4C3["<b>Medio</b><br/>-"]
-            R4C4["<b>Alto</b><br/>A6: Reutilización QR"]
-            R4C5["<b>Crítico</b><br/>-"]
-        end
-
-        %% Columna 5: Improbable
-        subgraph F5 ["Improbable"]
-            direction TB
-            R5C1["<b>Muy bajo</b><br/>-"]
-            R5C2["<b>Bajo</b><br/>-"]
-            R5C3["<b>Medio</b><br/>-"]
-            R5C4["<b>Alto</b><br/>-"]
-            R5C5["<b>Crítico</b><br/>-"]
-        end
-
-        F1 ~~~ F2 ~~~ F3 ~~~ F4 ~~~ F5
-    end
-
-    %% Alineación invisible de filas
-    R1C1 ~~~ R2C1 ~~~ R3C1 ~~~ R4C1 ~~~ R5C1
-    R1C2 ~~~ R2C2 ~~~ R3C2 ~~~ R4C2 ~~~ R5C2
-    R1C3 ~~~ R2C3 ~~~ R3C3 ~~~ R4C3 ~~~ R5C3
-    R1C4 ~~~ R2C4 ~~~ R3C4 ~~~ R4C4 ~~~ R5C4
-    R1C5 ~~~ R2C5 ~~~ R3C5 ~~~ R4C5 ~~~ R5C5
-
-    %% Estilos de color replicando la paleta de Pirani
-    classDef verde fill:#52be80,stroke:#27ae60,stroke-width:1.5px,color:#ffffff;
-    classDef amarillo fill:#f1c40f,stroke:#d4ac0d,stroke-width:1.5px,color:#000000;
-    classDef naranja fill:#eb6841,stroke:#d35400,stroke-width:1.5px,color:#ffffff;
-    classDef rojo fill:#f05252,stroke:#c0392b,stroke-width:1.5px,color:#ffffff;
-
-    %% Asignación de colores
-    class R1C1,R1C2 naranja;
-    class R1C3,R1C4,R1C5 rojo;
-
-    class R2C1 verde;
-    class R2C2 amarillo;
-    class R2C3 naranja;
-    class R2C4,R2C5 rojo;
-
-    class R3C1 verde;
-    class R3C2,R3C3 amarillo;
-    class R3C4 naranja;
-    class R3C5 rojo;
-
-    class R4C1,R4C2 verde;
-    class R4C3,R4C4 amarillo;
-    class R4C5 naranja;
-
-    class R5C1,R5C2,R5C3 verde;
-    class R5C4,R5C5 amarillo;
-
-
-
+  class esq,h1,h2,h3,h4,h5,rC,rA,rM,rB,rMB header
+  class a,b,c,f,g,k rojo
+  class d,h,l,p naranja
+  class e,i,j,m,n,q,r amarillo
+  class o,s,t,u,v,w,x,y verde
 
 ```
  
