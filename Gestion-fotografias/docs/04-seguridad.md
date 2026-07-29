@@ -39,7 +39,7 @@ El sistema cuenta con múltiples formularios que interactúan con la base de dat
 
 1.3 Fuga de datos personales
 
-El RF1 exige registrar nombre completo, cédula, correo electrónico y teléfono tanto de fotógrafos como de clientes. Una fuga de esta base de datos (por configuración insegura del entorno en la nube, respaldo mal protegido o error humano) expondría información de identificación personal, lo que además de un daño reputacional para el proyecto implicaría un problema legal y ético para el equipo, dado que se trata de datos sensibles de terceros.
+El RF1 dice que el sistema debe permitir registrar nombre completo, correo electrónico, contraseña y número de telefono como opcional tanto de fotógrafos como de clientes. Una fuga de esta base de datos (por configuración insegura del entorno en la nube, respaldo mal protegido o error humano) expondría información de identificación personal, lo que además de un daño reputacional para el proyecto implicaría un problema legal y ético para el equipo, dado que se trata de datos sensibles de terceros.
 
 1.4 Acceso no autorizado a colecciones privadas (IDOR)
 
@@ -115,7 +115,7 @@ Tabla construida a partir de las conexiones reales del Mapa de Riesgos (componen
  
 ### Notas de justificación
  
-- **Fuga de datos personales** e **Inyección SQL** se clasifican como Alto por su impacto catastrófico: ambas comprometen directamente la base de datos de usuarios, que contiene cédula, correo y teléfono reales de fotógrafos y clientes.
+- **Fuga de datos personales** e **Inyección SQL** se clasifican como Alto por su impacto catastrófico: ambas comprometen directamente la base de datos de usuarios, que contiene nombres completos, correos y teléfonos reales de fotógrafos y clientes.
 - **Phishing** se clasifica como Alto por su alta probabilidad: es el vector de ataque más simple de ejecutar contra el punto de registro/inicio de sesión, sin requerir explotar una falla técnica del sistema.
 - **Acceso no autorizado a colecciones privadas (IDOR)** se clasifica como Alto porque dos componentes distintos convergen en esta amenaza (Gestión de colecciones y Acceso vía QR), lo que aumenta su probabilidad de ocurrencia.
 - **Evasión de marca de agua** y **Abuso de código QR** quedan en Medio: su impacto afecta principalmente el modelo de negocio del fotógrafo, pero su explotación depende de condiciones más puntuales (acceso al archivo original o al QR físico).
@@ -126,8 +126,8 @@ Tabla construida a partir de las conexiones reales del Mapa de Riesgos (componen
  
 | Amenaza | Impacto técnico | Impacto sobre los usuarios |
 |---|---|---|
-| Phishing dirigido a fotógrafos y clientes | Robo de credenciales; compromiso de cuentas de Fotógrafo o Cliente | Suplantación de identidad; pérdida de confianza en la plataforma |
-| Fuga de datos personales (cédula, contacto) | Pérdida de confidencialidad del almacenamiento en la nube | Exposición de cédula, correo y teléfono de usuarios reales |
+| Phishing dirigido a fotógrafos y clientes | Robo de informacion; compromiso de cuentas de Fotógrafo o Cliente | Suplantación de identidad; pérdida de confianza en la plataforma |
+| Fuga de datos personales (Contactos y Nombres) | Pérdida de confidencialidad del almacenamiento en la nube | Exposición de nombre completo, correo y teléfono de usuarios reales |
 | Inyección SQL en formularios y filtros | Alteración o destrucción de datos; posible caída del servicio | Exposición de datos personales de todos los usuarios registrados |
 | Acceso no autorizado a colecciones privadas (IDOR) | Bypass de la lógica de autorización del backend | Exposición de material privado de clientes y eventos ajenos |
 | Evasión de marca de agua / descarga no autorizada | Acceso directo al archivo original sin control de permisos | Pérdida económica para el fotógrafo (afecta el objetivo de negocio) |
