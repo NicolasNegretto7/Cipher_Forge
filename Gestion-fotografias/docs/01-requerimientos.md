@@ -93,7 +93,7 @@ Quedarán fuera de la primera versión:
 | RF12 | El sistema debe enviar una notificación al fotógrafo cuando un usuario solicite la descarga en alta calidad de un contenido, permitiendo al fotógrafo autorizar o denegar dicha solicitud. |
 | RF13 | El sistema debe permitir al fotógrafo generar un código QR único vinculado a una colección específica para permitir el acceso directo, la descarga o la carga colaborativa de contenido durante un evento. |
 | RF14 | Cualquier invitado del evento debe poder escanear el código QR con su celular para subir fotos y videos directamente a esa colección, sin necesidad de completar un registro de cuenta complejo. |
-| RF15 | El fotógrafo debe poder visualizar y gestionar (ocultar o eliminar) todo el material multimedia colaborativo subido por los invitados mediante el QR. |
+| RF15 | El fotógrafo debe poder visualizar y gestionar (eliminar) todo el material multimedia colaborativo subido por los invitados mediante el QR. |
 | RF16 | El sistema debe permitir al fotógrafo generar un enlace o QR de acceso directo a una colección privada específica, distinto del QR de carga colaborativa. |
 | RF17 | El sistema debe impedir que el fotógrafo suba nuevo contenido si supera su cuota de almacenamiento asignada (la cantidad será propuesta por el cliente más adelante), permitiendo igualmente la descarga del contenido ya existente. |
 | RF18 | El sistema debe enviar un código de verificación al correo o teléfono (en caso de haber sido proporcionado) para asegurar que realmente exista. |
