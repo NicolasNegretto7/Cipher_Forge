@@ -218,7 +218,7 @@ Se utilizará el siguiente formato:
 | HU9 | Como usuario/cliente, quiero solicitar la descarga en alta calidad de una imagen o video desde la vista previa (con marca de agua), para que al fotógrafo le llegue una notificación y pueda autorizar mi descarga en alta calidad. | 5 | Alta |
 | HU10 | Como cliente autorizado, quiero descargar mis fotos de forma individual o en un archivo comprimido (.zip), para obtener mi material de manera ágil. | 3 | Media |
 | HU11 | Como invitado de un evento, quiero escanear el código QR para subir directamente mis fotos y videos a la colección sin necesidad de crearme una cuenta compleja. | 5 | Media |
-| HU12 | Como fotógrafo, quiero visualizar y gestionar (ocultar o eliminar) el material subido por invitados para tener un control sobre la colección. | 5 | Media |
+| HU12 | Como fotógrafo, quiero visualizar y gestionar (eliminar) el material subido por invitados para tener un control sobre la colección. | 5 | Media |
 | HU13 | Como sistema, quiero realizar un respaldo automático diario de la base de datos y rotar las últimas 3 copias, para mitigar el riesgo de pérdida de datos. | 8 | Media |
 | HU14 | Como cliente, quiero visualizar las fotos de mi evento con una marca de agua integrada automáticamente, para poder previsualizar el trabajo antes de descargarlo en alta calidad. | 8 | Alta |
 | HU15 | Como fotógrafo/cliente, quiero contar con una guía básica de uso y recibir una breve capacitación sobre la plataforma, para poder utilizarla de forma autónoma una vez finalizado el proyecto. | 3 | Media |
@@ -252,7 +252,7 @@ Se utilizará el siguiente formato:
 | 9 | HU19 | Impedir el registro de usuarios duplicados por correo | 5 | Sprint 2 |
 | 10 | HU21 | Envío de código de verificación al correo/teléfono | 5 | Sprint 2 |
 | 11 | HU20 | Bloqueo de acceso directo por URL a colecciones privadas | 8 | Sprint 3 |
-| 12 | HU4 / HU17 | Generación de códigos QR de colección (Acceso directo, descarga y subida colaborativa) | 13 | Sprint 3 |
+| 12 | HU4/HU17 | Generación de códigos QR de colección (Acceso directo, descarga y subida colaborativa) | 13 | Sprint 3 |
 | 13 | HU7 | Descarga e impresión física del código QR | 5 | Sprint 3 |
 | 14 | HU24 | Acceso y visualización de galerías en colecciones públicas | 5 | Sprint 3 |
 | 15 | HU11 | Carga de archivos vía QR por invitados (sin cuenta) | 5 | Sprint 4 |
