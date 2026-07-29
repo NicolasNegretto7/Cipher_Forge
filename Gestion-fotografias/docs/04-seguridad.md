@@ -61,13 +61,12 @@ El siguiente esquema vincula los componentes principales del sistema con las ame
 
 ```mermaid
 block-beta
-columns 6
-  esq["Impacto ↓ / Probabilidad →"] h1["Altamente<br/>probable"] h2["Posible"] h3["Ocasional"] h4["Probable"] h5["Improbable"]
-  rC["Crítico"] a["A2: Fuga de datos"] b["A4: Acceso IDOR"] c["-"] d["-"] e["-"]
-  rA["Alto"] f["A3: Inyección SQL"] g["A1: Phishing"] h["-"] i["A6: Reutilización QR"] j["-"]
-  rM["Medio"] k["-"] l["-"] m["A5: Evasión marca de agua"] n["-"] o["-"]
-  rB["Bajo"] p["-"] q["-"] r["-"] s["-"] t["-"]
-  rMB["Muy bajo"] u["-"] v["-"] w["-"] x["-"] y["-"]
+columns 5
+  esq["Impacto ↓ / Probabilidad →"] h1["Baja"] h2["Media"] h3["Alta"] h4["Muy Alta"]
+  rC["Catastrófico"] c1["-"] c2["A2: Fuga de datos<br/>A3: Inyección SQL"] c3["-"] c4["-"]
+  rMy["Mayor"] m1["-"] m2["-"] m3["A1: Phishing<br/>A4: Acceso IDOR"] m4["-"]
+  rMd["Moderado"] o1["-"] o2["A6: Reutilización QR"] o3["A5: Evasión marca de agua"] o4["-"]
+  rMn["Menor"] n1["-"] n2["-"] n3["-"] n4["-"]
 
   classDef header fill:#2c3e50,stroke:#1a252f,stroke-width:1px,color:#ffffff,font-weight:bold;
   classDef verde fill:#52be80,stroke:#27ae60,stroke-width:1.5px,color:#ffffff;
@@ -75,12 +74,11 @@ columns 6
   classDef naranja fill:#eb6841,stroke:#d35400,stroke-width:1.5px,color:#ffffff;
   classDef rojo fill:#f05252,stroke:#c0392b,stroke-width:1.5px,color:#ffffff;
 
-  class esq,h1,h2,h3,h4,h5,rC,rA,rM,rB,rMB header
-  class a,b,c,f,g,k rojo
-  class d,h,l,p naranja
-  class e,i,j,m,n,q,r amarillo
-  class o,s,t,u,v,w,x,y verde
-
+  class esq,h1,h2,h3,h4,rC,rMy,rMd,rMn header
+  class m1,o1,n1,n2,n3 verde
+  class c1,m2,o2,o3,n4 amarillo
+  class c2,c3,m3,m4,o4 naranja
+  class c4 rojo
 ```
  
 *Rojo = Impacto Alto (técnico y a usuarios) · Naranja = Impacto Medio*
