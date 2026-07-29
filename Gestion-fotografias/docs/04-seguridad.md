@@ -35,11 +35,11 @@ El sistema almacena datos de contacto (correo y teléfono) y gestiona el acceso 
 
 1.2 Inyección SQL 
 
-El sistema cuenta con múltiples formularios que interactúan con la base de datos: registro de usuarios (RF1, RF2), inicio de sesión (RF3), creación de colecciones (RF4), carga de metadatos de imágenes/videos (RF7, RF20) y validación de códigos QR (RF13-RF17). Si estas entradas no se validan ni se usan consultas parametrizadas, un atacante podría inyectar código SQL para leer, modificar o eliminar datos de usuarios, colecciones o permisos de descarga, representando un riesgo crítico dado que la base de datos contiene cédulas y otros datos personales.
+El sistema cuenta con múltiples formularios que interactúan con la base de datos: registro de usuarios (RF1, RF2), inicio de sesión (RF3), creación de colecciones (RF4), carga de metadatos de imágenes/videos (RF7, RF20) y validación de códigos QR (RF13-RF17). Si estas entradas no se validan ni se usan consultas parametrizadas, un atacante podría inyectar código SQL para leer, modificar o eliminar datos de usuarios, colecciones o permisos de descarga, representando un riesgo crítico dado que la base de datos contiene datos personales.
 
 1.3 Fuga de datos personales
 
-El RF1 exige registrar nombre completo, cédula, correo electrónico y teléfono tanto de fotógrafos como de clientes. Una fuga de esta base de datos (por configuración insegura del entorno en la nube, respaldo mal protegido o error humano) expondría información de identificación personal, lo que además de un daño reputacional para el proyecto implicaría un problema legal y ético para el equipo, dado que se trata de datos sensibles de terceros.
+El RF1 dice que el sistema debe permitir registrar nombre completo, correo electrónico, contraseña y número de telefono como opcional tanto de fotógrafos como de clientes. Una fuga de esta base de datos (por configuración insegura del entorno en la nube, respaldo mal protegido o error humano) expondría información de identificación personal, lo que además de un daño reputacional para el proyecto implicaría un problema legal y ético para el equipo, dado que se trata de datos sensibles de terceros.
 
 1.4 Acceso no autorizado a colecciones privadas (IDOR)
 
@@ -61,13 +61,12 @@ El siguiente esquema vincula los componentes principales del sistema con las ame
 
 ```mermaid
 block-beta
-columns 6
-  esq["Impacto ↓ / Probabilidad →"] h1["Altamente<br/>probable"] h2["Posible"] h3["Ocasional"] h4["Probable"] h5["Improbable"]
-  rC["Crítico"] a["A2: Fuga de datos"] b["A4: Acceso IDOR"] c["-"] d["-"] e["-"]
-  rA["Alto"] f["A3: Inyección SQL"] g["A1: Phishing"] h["-"] i["A6: Reutilización QR"] j["-"]
-  rM["Medio"] k["-"] l["-"] m["A5: Evasión marca de agua"] n["-"] o["-"]
-  rB["Bajo"] p["-"] q["-"] r["-"] s["-"] t["-"]
-  rMB["Muy bajo"] u["-"] v["-"] w["-"] x["-"] y["-"]
+columns 5
+  esq["Impacto ↓ / Probabilidad →"] h1["Baja"] h2["Media"] h3["Alta"] h4["Muy Alta"]
+  rC["Catastrófico"] c1["-"] c2["A2: Fuga de datos<br/>A3: Inyección SQL"] c3["-"] c4["-"]
+  rMy["Mayor"] m1["-"] m2["-"] m3["A1: Phishing<br/>A4: Acceso IDOR"] m4["-"]
+  rMd["Moderado"] o1["-"] o2["A6: Reutilización QR"] o3["A5: Evasión marca de agua"] o4["-"]
+  rMn["Menor"] n1["-"] n2["-"] n3["-"] n4["-"]
 
   classDef header fill:#2c3e50,stroke:#1a252f,stroke-width:1px,color:#ffffff,font-weight:bold;
   classDef verde fill:#52be80,stroke:#27ae60,stroke-width:1.5px,color:#ffffff;
@@ -75,12 +74,11 @@ columns 6
   classDef naranja fill:#eb6841,stroke:#d35400,stroke-width:1.5px,color:#ffffff;
   classDef rojo fill:#f05252,stroke:#c0392b,stroke-width:1.5px,color:#ffffff;
 
-  class esq,h1,h2,h3,h4,h5,rC,rA,rM,rB,rMB header
-  class a,b,c,f,g,k rojo
-  class d,h,l,p naranja
-  class e,i,j,m,n,q,r amarillo
-  class o,s,t,u,v,w,x,y verde
-
+  class esq,h1,h2,h3,h4,rC,rMy,rMd,rMn header
+  class m1,o1,n1,n2,n3 verde
+  class c1,m2,o2,o3,n4 amarillo
+  class c2,c3,m3,m4,o4 naranja
+  class c4 rojo
 ```
  
 *Rojo = Impacto Alto (técnico y a usuarios) · Naranja = Impacto Medio*
@@ -107,7 +105,7 @@ Tabla construida a partir de las conexiones reales del Mapa de Riesgos (componen
 | Amenaza | Componente(s) afectado(s) | Probabilidad | Impacto | R | Nivel | Acción Inmediata |
 |---|---|---|---|---|---|---|
 | Phishing dirigido a fotógrafos y clientes | Registro e inicio de sesión de usuarios | Alta (3) | Mayor (3) | 9 | **Alto** | Planes de acción correctiva a corto plazo |
-| Fuga de datos personales (cédula, contacto) | Base de datos de usuarios | Media (2) | Catastrófico (5) | 10 | **Alto** | Planes de acción correctiva a corto plazo |
+| Fuga de datos personales (contatcos, nombres) | Base de datos de usuarios | Media (2) | Catastrófico (5) | 10 | **Alto** | Planes de acción correctiva a corto plazo |
 | Inyección SQL en formularios y filtros | Base de datos de usuarios · Carga de imágenes y videos | Media (2) | Catastrófico (5) | 10 | **Alto** | Planes de acción correctiva a corto plazo |
 | Acceso no autorizado a colecciones privadas (IDOR) | Gestión de colecciones · Acceso y carga vía código QR | Alta (3) | Mayor (3) | 9 | **Alto** | Planes de acción correctiva a corto plazo |
 | Evasión de marca de agua / descarga no autorizada | Vista previa con marca de agua | Alta (3) | Moderado (2) | 6 | **Medio** | Monitoreo periódico y controles programados |
@@ -117,7 +115,7 @@ Tabla construida a partir de las conexiones reales del Mapa de Riesgos (componen
  
 ### Notas de justificación
  
-- **Fuga de datos personales** e **Inyección SQL** se clasifican como Alto por su impacto catastrófico: ambas comprometen directamente la base de datos de usuarios, que contiene cédula, correo y teléfono reales de fotógrafos y clientes.
+- **Fuga de datos personales** e **Inyección SQL** se clasifican como Alto por su impacto catastrófico: ambas comprometen directamente la base de datos de usuarios, que contiene nombres completos, correos y teléfonos reales de fotógrafos y clientes.
 - **Phishing** se clasifica como Alto por su alta probabilidad: es el vector de ataque más simple de ejecutar contra el punto de registro/inicio de sesión, sin requerir explotar una falla técnica del sistema.
 - **Acceso no autorizado a colecciones privadas (IDOR)** se clasifica como Alto porque dos componentes distintos convergen en esta amenaza (Gestión de colecciones y Acceso vía QR), lo que aumenta su probabilidad de ocurrencia.
 - **Evasión de marca de agua** y **Abuso de código QR** quedan en Medio: su impacto afecta principalmente el modelo de negocio del fotógrafo, pero su explotación depende de condiciones más puntuales (acceso al archivo original o al QR físico).
@@ -128,8 +126,8 @@ Tabla construida a partir de las conexiones reales del Mapa de Riesgos (componen
  
 | Amenaza | Impacto técnico | Impacto sobre los usuarios |
 |---|---|---|
-| Phishing dirigido a fotógrafos y clientes | Robo de credenciales; compromiso de cuentas de Fotógrafo o Cliente | Suplantación de identidad; pérdida de confianza en la plataforma |
-| Fuga de datos personales (cédula, contacto) | Pérdida de confidencialidad del almacenamiento en la nube | Exposición de cédula, correo y teléfono de usuarios reales |
+| Phishing dirigido a fotógrafos y clientes | Robo de informacion; compromiso de cuentas de Fotógrafo o Cliente | Suplantación de identidad; pérdida de confianza en la plataforma |
+| Fuga de datos personales (Contactos y Nombres) | Pérdida de confidencialidad del almacenamiento en la nube | Exposición de nombre completo, correo y teléfono de usuarios reales |
 | Inyección SQL en formularios y filtros | Alteración o destrucción de datos; posible caída del servicio | Exposición de datos personales de todos los usuarios registrados |
 | Acceso no autorizado a colecciones privadas (IDOR) | Bypass de la lógica de autorización del backend | Exposición de material privado de clientes y eventos ajenos |
 | Evasión de marca de agua / descarga no autorizada | Acceso directo al archivo original sin control de permisos | Pérdida económica para el fotógrafo (afecta el objetivo de negocio) |
@@ -137,52 +135,46 @@ Tabla construida a partir de las conexiones reales del Mapa de Riesgos (componen
 
 ---
 
-## 4. Buenas prácticas de seguridad en desarrollo web
+## 3. Buenas prácticas de seguridad en desarrollo web
 
 Resumen las buenas prácticas durante el desarrollo, seleccionadas y justificadas en función de las amenazas concretas identificadas para este proyecto.
 
-## 4.1 Validación y saneamiento de entradas
+## 3.1 Validación y saneamiento de entradas
 
 Todo dato ingresado por el usuario (formularios de registro, título/descripción de imágenes, parámetros de búsqueda) se validará y saneará tanto en el frontend como en el backend, y las consultas a la base de datos se realizarán mediante sentencias parametrizadas u ORM, nunca concatenando texto. Esta práctica ataca directamente el riesgo de inyección SQL (1.2) descrito arriba, que es crítico por la cantidad de formularios con los que cuenta el sistema.
 
 ---
 
-## 4.2 Autenticación robusta y gestión segura de sesiones
+## 3.2 Autenticación robusta y gestión segura de sesiones
 
-Las contraseñas se almacenarán con un algoritmo de hash con salting (por ejemplo bcrypt o Argon2), nunca en texto plano ni con hashes reversibles. Las sesiones utilizarán tokens con expiración y se invalidarán al cerrar sesión. Esta práctica reduce el impacto de un eventual phishing (1.1), ya que aunque se filtre un correo o usuario, la contraseña no queda expuesta directamente en la base de datos.
-
-
----
-
-## 4.3 Control de acceso verificado en el backend (no solo en la interfaz)
-
-Cada endpoint que devuelve una colección, imagen o dato de usuario deberá verificar en el servidor que el solicitante tiene permiso sobre ese recurso puntual, usando identificadores no predecibles (UUID en lugar de IDs incrementales) para colecciones privadas. Esta práctica es la respuesta directa al riesgo de acceso no autorizado / IDOR (1.4), y es coherente con el requerimiento RF6 del proyecto.
+Las contraseñas se almacenarán con un algoritmo de hash con salting (bcrypt), nunca en texto plano ni con hashes reversibles. Las sesiones utilizarán tokens con expiración y se invalidarán al cerrar sesión. Esta práctica reduce el impacto de un eventual phishing (1.1), ya que aunque se filtre un correo o usuario, la contraseña no queda expuesta directamente en la base de datos.
 
 
 ---
 
-## 4.4 Protección del archivo original frente a la vista previa
+## 3.3 Control de acceso verificado en el backend (no solo en la interfaz)
+
+Cada endpoint que devuelve una colección, imagen o dato de usuario deberá verificar en el servidor que el solicitante tiene permiso sobre ese recurso puntual, usando identificadores no predecibles (UUID en lugar de IDs incrementales) para colecciones privadas. Esta práctica es la respuesta directa al riesgo de acceso no autorizado.
+
+
+---
+
+## 3.4 Protección del archivo original frente a la vista previa
 
 El archivo en alta calidad no se expondrá en ninguna ruta pública ni predecible: se servirá únicamente a través de un endpoint que valide el permiso de descarga del cliente en el momento de la solicitud (RF11, RF12), mientras que la vista previa con marca de agua se generará como una copia separada y optimizada (RF8, RF9). Esto protege el objetivo de negocio del cliente frente a la evasión de marca de agua (1.5).
 
 
 ---
 
-## 4.5 Códigos QR con expiración y alcance limitado
+## 3.5 Códigos QR con expiración
 
-Cada código QR se generará como un token único asociado a una colección o evento específico, con fecha de expiración y con permisos acotados según su propósito (solo carga, para invitados; o solo visualización/descarga, según RF16 y RF17). Esta práctica limita el riesgo de abuso o reutilización de QR (1.6) identificado para las funcionalidades colaborativas del sistema.
-
----
-
-## 4.6 Cifrado de datos en tránsito y protección de datos personales en reposo
-
-Toda comunicación entre cliente y servidor se realizará bajo HTTPS/TLS, incluso en el entorno de pruebas local. Los campos más sensibles de la base de datos (cédula, teléfono) se tratarán con acceso restringido por rol de aplicación, y se aplicarán respaldos automáticos diarios con rotación de las últimas tres copias, tal como ya fue definido por el equipo en los requerimientos no funcionales RNF5, RNF6 y RNF7 del documento de planificación. Esta práctica reduce el impacto de una eventual fuga de datos (1.3).
+Cada código QR se generará como un token único asociado a una colección o evento específico, con fecha de expiración.
 
 ---
 
-## 4.7 Registro y monitoreo de eventos sensibles
+## 3.6 Registro y monitoreo de eventos sensibles
 
-Se registrarán eventos como inicios de sesión fallidos, cambios de permisos de descarga y generación/uso de códigos QR, lo que permitirá detectar patrones de abuso (por ejemplo, múltiples intentos de acceso a colecciones privadas) y respalda además el requerimiento funcional RF22 de historial de descargas, reutilizando la misma infraestructura de auditoría para fines de seguridad y de negocio.
+Se registrarán eventos como inicios de sesión fallidos y uso de códigos QR, lo que permitirá detectar patrones de abuso (por ejemplo, múltiples intentos de acceso a colecciones privadas).
 
 
 
