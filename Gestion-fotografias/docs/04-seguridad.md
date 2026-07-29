@@ -135,52 +135,46 @@ Tabla construida a partir de las conexiones reales del Mapa de Riesgos (componen
 
 ---
 
-## 4. Buenas prácticas de seguridad en desarrollo web
+## 3. Buenas prácticas de seguridad en desarrollo web
 
 Resumen las buenas prácticas durante el desarrollo, seleccionadas y justificadas en función de las amenazas concretas identificadas para este proyecto.
 
-## 4.1 Validación y saneamiento de entradas
+## 3.1 Validación y saneamiento de entradas
 
 Todo dato ingresado por el usuario (formularios de registro, título/descripción de imágenes, parámetros de búsqueda) se validará y saneará tanto en el frontend como en el backend, y las consultas a la base de datos se realizarán mediante sentencias parametrizadas u ORM, nunca concatenando texto. Esta práctica ataca directamente el riesgo de inyección SQL (1.2) descrito arriba, que es crítico por la cantidad de formularios con los que cuenta el sistema.
 
 ---
 
-## 4.2 Autenticación robusta y gestión segura de sesiones
+## 3.2 Autenticación robusta y gestión segura de sesiones
 
-Las contraseñas se almacenarán con un algoritmo de hash con salting (por ejemplo bcrypt o Argon2), nunca en texto plano ni con hashes reversibles. Las sesiones utilizarán tokens con expiración y se invalidarán al cerrar sesión. Esta práctica reduce el impacto de un eventual phishing (1.1), ya que aunque se filtre un correo o usuario, la contraseña no queda expuesta directamente en la base de datos.
-
-
----
-
-## 4.3 Control de acceso verificado en el backend (no solo en la interfaz)
-
-Cada endpoint que devuelve una colección, imagen o dato de usuario deberá verificar en el servidor que el solicitante tiene permiso sobre ese recurso puntual, usando identificadores no predecibles (UUID en lugar de IDs incrementales) para colecciones privadas. Esta práctica es la respuesta directa al riesgo de acceso no autorizado / IDOR (1.4), y es coherente con el requerimiento RF6 del proyecto.
+Las contraseñas se almacenarán con un algoritmo de hash con salting (bcrypt), nunca en texto plano ni con hashes reversibles. Las sesiones utilizarán tokens con expiración y se invalidarán al cerrar sesión. Esta práctica reduce el impacto de un eventual phishing (1.1), ya que aunque se filtre un correo o usuario, la contraseña no queda expuesta directamente en la base de datos.
 
 
 ---
 
-## 4.4 Protección del archivo original frente a la vista previa
+## 3.3 Control de acceso verificado en el backend (no solo en la interfaz)
+
+Cada endpoint que devuelve una colección, imagen o dato de usuario deberá verificar en el servidor que el solicitante tiene permiso sobre ese recurso puntual, usando identificadores no predecibles (UUID en lugar de IDs incrementales) para colecciones privadas. Esta práctica es la respuesta directa al riesgo de acceso no autorizado.
+
+
+---
+
+## 3.4 Protección del archivo original frente a la vista previa
 
 El archivo en alta calidad no se expondrá en ninguna ruta pública ni predecible: se servirá únicamente a través de un endpoint que valide el permiso de descarga del cliente en el momento de la solicitud (RF11, RF12), mientras que la vista previa con marca de agua se generará como una copia separada y optimizada (RF8, RF9). Esto protege el objetivo de negocio del cliente frente a la evasión de marca de agua (1.5).
 
 
 ---
 
-## 4.5 Códigos QR con expiración y alcance limitado
+## 3.5 Códigos QR con expiración
 
-Cada código QR se generará como un token único asociado a una colección o evento específico, con fecha de expiración y con permisos acotados según su propósito (solo carga, para invitados; o solo visualización/descarga, según RF16 y RF17). Esta práctica limita el riesgo de abuso o reutilización de QR (1.6) identificado para las funcionalidades colaborativas del sistema.
-
----
-
-## 4.6 Cifrado de datos en tránsito y protección de datos personales en reposo
-
-Toda comunicación entre cliente y servidor se realizará bajo HTTPS/TLS, incluso en el entorno de pruebas local. Los campos más sensibles de la base de datos (cédula, teléfono) se tratarán con acceso restringido por rol de aplicación, y se aplicarán respaldos automáticos diarios con rotación de las últimas tres copias, tal como ya fue definido por el equipo en los requerimientos no funcionales RNF5, RNF6 y RNF7 del documento de planificación. Esta práctica reduce el impacto de una eventual fuga de datos (1.3).
+Cada código QR se generará como un token único asociado a una colección o evento específico, con fecha de expiración.
 
 ---
 
-## 4.7 Registro y monitoreo de eventos sensibles
+## 3.6 Registro y monitoreo de eventos sensibles
 
-Se registrarán eventos como inicios de sesión fallidos, cambios de permisos de descarga y generación/uso de códigos QR, lo que permitirá detectar patrones de abuso (por ejemplo, múltiples intentos de acceso a colecciones privadas) y respalda además el requerimiento funcional RF22 de historial de descargas, reutilizando la misma infraestructura de auditoría para fines de seguridad y de negocio.
+Se registrarán eventos como inicios de sesión fallidos y uso de códigos QR, lo que permitirá detectar patrones de abuso (por ejemplo, múltiples intentos de acceso a colecciones privadas).
 
 
 
