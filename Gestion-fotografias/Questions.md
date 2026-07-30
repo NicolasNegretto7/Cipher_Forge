@@ -63,7 +63,7 @@ El diálogo con el cliente osciló entre rechazar el formato RAW, aceptarlo y vo
 ### Preguntas para el PM
 1. ¿Se descarta definitivamente la subida/almacenamiento de archivos RAW (.CR2, .NEF, .ARW) manteniendo únicamente JPG/PNG para evitar costos y sobrecarga del servidor?
 2. ¿El sistema debe generar y ofrecer obligatoriamente **dos opciones de descarga** (ej. *Calidad Web - 1080p* y *Calidad Original/Impresión*) para una misma foto autorizada, o basta con la descarga del archivo original en alta resolución?
-3. **Propuesta de Unificación Sugerida:** Restringir subidas estrictamente a JPG/PNG. Al autorizar la descarga, el usuario dispondrá de dos botones de descarga: "Calidad Web (Redes)" e "Hi-Res (Impresión)", generadas automáticamente durante el procesamiento del servidor.
+3. **Propuesta de Unificación Sugerida:** Restringir subidas strictly a JPG/PNG. Al autorizar la descarga, el usuario dispondrá de dos botones de descarga: "Calidad Web (Redes)" e "Hi-Res (Impresión)", generadas automáticamente durante el procesamiento del servidor.
 
 ---
 
@@ -173,7 +173,7 @@ El requerimiento RF17 deja la cantidad de almacenamiento como "a ser propuesta m
 3. **Propuesta de Unificación Sugerida:** Fijar formalmente en el sistema:
    * **Plan Gratuito (*Default*):** 3 GB de almacenamiento.
    * **Plan Profesional (Simulado):** 50 GB.
-   When the quote limit reaches 100%, the backend rejects new uploads returning an error message: *"Cuota de almacenamiento excedida. Actualice su plan para continuar subiendo archivos."* The photographer will maintain access to edit metadata and allow buyers to download existing files.
+   Cuando la cuota alcance el 100%, el backend rechazará nuevas subidas devolviendo el mensaje: *"Cuota de almacenamiento excedida. Actualice su plan para continuar subiendo archivos."* El fotógrafo mantendrá acceso para editar metadatos y permitir descargas a los compradores.
 
 ---
 
@@ -206,7 +206,90 @@ El documento oficial entregado utiliza tres signos de interrogación (`???`) en 
 
 ### Preguntas para el PM
 1. ¿Qué nombre provisional o comercial se asignará al proyecto para reemplazar las marcas de agua de marcadores de posición (`???`) en el código, interfaz y documentación?
-2. **Propuesta de Unificación Sugerida:** Utilizar el nombre en clave **"Photorium Web"** o **"Lumina Eventos"** de forma provisional en el código y en la interfaz gráfica hasta que el cliente defina una marca comercial oficial.
+2. **Propuesta de Unificación Sugerida:** Utilizar el nombre en clave **"Photorium Web"** o **"Cipher Forge"** de forma provisional en el código y en la interfaz gráfica hasta que el cliente defina una marca comercial oficial.
+
+---
+
+## 12. Flujo de Selección de Fotos vs. Favoritos (Edición post-evento)
+
+### Citas de Origen
+* **Entrevista (Cliente):** *"Vos me contrataste para que yo te dé 100 fotos. Bueno, yo ahí tengo 1000 fotos, vos elegís la foto que querés. Entonces, vos ahí elegís 100 fotos... querés que te la edite o querés bajarla así."*
+* **Documentación (RF21 / HU23):** *"El sistema debe permitir al cliente marcar y desmarcar como favorita cualquier imagen... para tener una lista de favoritos."*
+
+### Conflicto / Ambigüedad
+El cliente describe un flujo de trabajo fotográfico real donde el comprador selecciona un cupo de fotos (ej. 100 de 1000) para que el fotógrafo las edite antes de la descarga final. En los requerimientos (RF21, HU23) solo se implementó "marcar como favorita" de forma privada. No queda claro si los "Favoritos" son un simple marcador personal o si el fotógrafo recibe la lista elegida para proceder a editar/liberar.
+
+### Preguntas para el PM
+1. ¿El botón de "Favoritos" es solo un guardado personal del cliente o es una lista de selección que se envía al fotógrafo para que proceda a editar/entregar?
+2. En caso de ser un pedido de selección (ej. 100 fotos contratadas), ¿el sistema debe bloquear al cliente cuando intenta seleccionar más del cupo acordado?
+3. **Propuesta de Unificación Sugerida:** Mantener "Favoritos" en V1 solo como marcador personal visual del cliente. La funcionalidad de "Selección de paquete para retoque/edición" se declara formalmente fuera de alcance para la V1.
+
+---
+
+## 13. Permisos y Alcance del Código QR para Invitados: ¿Visualización + Descarga o Solo Subida?
+
+### Citas de Origen
+* **Entrevista (Cliente):** *"Le pide a todos los invitados que le hagan el favor de los videos que hacen de la fiesta, que los suban ahí... Y de repente lo que hago es que me creo un QR y lo pongo en diferentes lugares... la gente escanea y ahí los videos que van haciendo... los manda a eso."*
+* **Documentación (RF13, RF14, HU4, HU17):**
+  * **RF14:** *"Cualquier invitado... debe poder escanear el código QR... para subir fotos y videos directamente... sin necesidad de un registro complejo."*
+  * **HU17:** *"Generar un código QR único... para permitir la visualización y descarga de las imágenes... sin necesidad de buscar mi perfil."*
+
+### Conflicto / Ambigüedad
+Existe una confusión entre dos tipos de QR o los permisos de un mismo QR:
+1. ¿El QR que se imprime en un evento es exclusivamente una vía de entrada para subir contenido anónimo sin ver lo que subieron otros?  
+2. ¿O el QR otorga acceso total para que cualquier invitado vea y descargue gratis las fotos subidas por los demás invitados y el fotógrafo?  
+
+### Preguntas para el PM
+1. ¿Existirán dos códigos QR distintos por colección (uno "QR de Carga Colaborativa" y otro "QR de Galería/Descarga") o un único QR con permisos globales? 
+2. Si un invitado escanea el QR de carga, ¿puede ver o descargar el material subido por otros invitados, o su pantalla solo le muestra un botón de "Adjuntar/Subir archivo"?
+3. **Propuesta de Unificación Sugerida:** Separar conceptualmente ambos flujos:
+   * **QR de Carga Colaborativa (Evento):** Solo muestra una interfaz simple de subida (*Upload Zone*) sin dar acceso a la galería ni a descargas.
+   * **QR/Enlace de Galería:** Solo permite previsualizar la colección (con marca de agua) y requiere autorización o código PIN para descargar. 
+
+---
+
+## 14. Mecanismo Real de Notificaciones al Fotógrafo
+
+### Citas de Origen
+* **Entrevista (Cliente):** *"Compré y automáticamente pude bajar las cosas."*
+* **Documentación (RF12 / HU9):** *"El sistema debe enviar una notificación al fotógrafo cuando un usuario solicite la descarga en alta calidad... permitiendo al fotógrafo autorizar o denegar dicha solicitud."*
+
+### Conflicto / Ambigüedad
+En la arquitectura de un sistema web local (sin servidor SMTP externo de producción ni servicios WebSocket o Push en la nube configurados por la restricción de egreso UTU), la palabra "Notificación" es ambigua. ¿Se refiere a un correo electrónico en tiempo real, una notificación Push en el navegador, o un simple módulo/tab de "Solicitudes Pendientes" dentro del panel del fotógrafo?
+
+### Preguntas para el PM
+1. Ante la imposibilidad de contratar servidores de correo masivo o SMS (Twilio/SendGrid), ¿cómo se entregará técnicamente la notificación al fotógrafo?
+2. **Propuesta de Unificación Sugerida:** La notificación consistirá en un indicador numérico/Badge en el panel interno del fotógrafo (sección "Solicitudes de Descarga"). Cuando el fotógrafo inicie sesión, verá la lista de solicitudes pendientes con botones de "Aprobar" o "Rechazar".
+
+---
+
+## 15. Política de Limpieza, Expiración y Retención de Almacenamiento
+
+### Citas de Origen
+* **Entrevista (Cliente):** *"Si vos de repente tenés un espacio gratuito que te dan 2, 3 gigas para trabajar, entonces vos bajás, subís, bajás, subís, bajás, subís material toda la semana, bien."*
+* **Documentación (RF17 / HU16):** *"El sistema debe impedir que el fotógrafo suba nuevo contenido si supera su cuota de almacenamiento asignada... permitiendo igualmente la descarga del contenido ya existente."*
+
+### Conflicto / Ambigüedad
+El cliente asume un flujo rotativo ("subes, descargas y borras toda la semana"). La documentación especifica que al llegar al 100% de la cuota se bloquean las subidas. Sin embargo, no hay ninguna regla de negocio definida sobre si las colecciones antiguas expiran o se eliminan automáticamente tras X días de inactividad para liberar espacio en el servidor de pruebas.
+
+### Preguntas para el PM
+1. ¿El sistema eliminará o archivará automáticamente las colecciones inactivas después de un período (ej. 30 días) para liberar cuota en cuentas gratuitas, o el borrado es 100% manual por el fotógrafo?
+2. **Propuesta de Unificación Sugerida:** El borrado de imágenes y colecciones será 100% manual por parte del fotógrafo desde su panel de control. No habrá procesos automáticos de eliminación por tiempo en la V1 para evitar pérdida accidental de datos.
+
+---
+
+## 16. Simulación del Proceso de Pago / Cobro en Entorno Local (UTU)
+
+### Citas de Origen
+* **Entrevista (Cliente):** *"Al menos con lo más básico... Brou o Prex... hace una transferencia... o pago por Redpagos o Abitab o tarjeta... que la persona compre y automáticamente pueda bajar las cosas."*
+* **Documentación (Sección 6 / Alcance Excluido #4):** *"Por tratarse de un equipo de estudiantes... no es posible procesar pagos reales... Exclusión: Métodos de pago."*
+
+### Conflicto / Ambigüedad
+Mientras que el Alcance Excluido quita formalmente los "Métodos de Pago", la solicitud del cliente de probar el flujo "Compré -> Pagué -> Descargué" requiere que el prototipo demuestre la experiencia del usuario. Si no hay métodos de pago, el usuario no entiende cómo pasa la foto de "Vista previa con marca de agua" a "Descargable sin marca de agua".
+
+### Preguntas para el PM
+1. ¿Qué interfaz exacta se mostrará al cliente cuando presione "Comprar / Solicitar Descarga"?
+2. **Propuesta de Unificación Sugerida:** Diseñar un Simulador de Pasarela de Pago (*Mock/Sandbox*). Al hacer clic en "Pagar", se despliega un modal con la opción ficticia "Transferencia / Tarjeta de Prueba". Al presionar "Confirmar Pago Simulado", el sistema cambia el estado del pedido a "Aprobado" y libera automáticamente la descarga en alta calidad.
 
 ---
 
@@ -224,7 +307,12 @@ El documento oficial entregado utiliza tres signos de interrogación (`???`) en 
 | **M8** | Verificación Usuarios | Cliente pide SMS/Cédula; UTU restringe pagos/servicios externos. | **Verificación exclusiva por Correo (SMTP).** Teléfono queda opcional y sin validación SMS. |
 | **M9** | Cuotas Espacio | El límite en GB está indefinido en la tabla de RF17. | **Fijar 3 GB Gratis** y 50 GB Pro. Bloqueo de subidas al 100% permitiendo administración y descargas. |
 | **M10**| Scope de Redes | Cliente pide plantillas y difusión; alcance documentado las excluye. | **Plantillas Excluidas.** Solo botón genérico de "Copiar enlace" y "Enviar por WhatsApp". |
-| **M11**| Marca / Nombre | La documentación tiene `???` como nombre del producto. | Adopción del nombre provisional **"Photorium Web"** para interfaz y prototipo. |
+| **M11**| Marca / Nombre | La documentación tiene `???` como nombre del producto. | Adopción del nombre provisional **"Photorium Web" / "Cipher Forge"** para interfaz y prototipo. |
+| **M12**| Selección vs. Favoritos | ¿"Favoritos" es solo un guardado personal o un pedido de selección para edición? | **Favoritos es solo marcador personal.** La selección de paquetes para retoque/edición queda fuera del MVP. |
+| **M13**| Permisos QR Invitados | ¿QR da acceso a ver/descargar todo o solo es una zona de subida? | **Separar en 2 QR:** "QR Carga Colaborativa" (solo subida) y "QR/Enlace de Galería" (previsualización con PIN/autorización). |
+| **M14**| Mecanismo Notificaciones | ¿Cómo notificar al fotógrafo en sistema local sin servicios en la nube? | **Badge/Indicador interno.** Notificaciones mediante alertas numéricas en el panel de control. |
+| **M15**| Retención Almacenamiento | ¿Las colecciones expiran o se eliminan automáticamente tras X días? | **Borrado 100% manual.** No se aplicarán políticas de borrado automático por expiración en V1. |
+| **M16**| Simulación de Pagos | ¿Cómo probar el flujo "Compré -> Pagué -> Descargué" si no hay pagos reales? | **Pasarela Mock/Sandbox.** Modal con opciones ficticias que aprueban el estado a "Aprobado" y liberan descarga. |
 
 ---
 
