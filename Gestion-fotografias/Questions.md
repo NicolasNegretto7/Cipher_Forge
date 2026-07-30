@@ -14,7 +14,7 @@ Este documento consolida cada uno de estos hallazgos en formato de **Preguntas d
 
 ---
 
-## 1. Visibilidad de la Plataforma: ¿Red Social vs. Vínculo Privado?
+## 1. Visibilidad de la Plataforma: ¿Red Social vs. Vínculo Privado? +++
 
 ### Citas de Origen
 * **Entrevista (Cliente):** *"Lo que yo estoy buscando no es como si fuese una red social en el que yo entre y pueda ver mi perfil... sino que sea un contacto directo de vendedor a consumidor... si querés entrar a la página y buscarme a mí, no lo vas a encontrar."*
@@ -32,7 +32,7 @@ Existe una contradicción entre la afirmación de que el sistema **no debe permi
 
 ---
 
-## 2. Flujo de Descarga: ¿Compra Directa Inmediata vs. Notificación y Aprobación Manual?
+## 2. Flujo de Descarga: ¿Compra Directa Inmediata vs. Notificación y Aprobación Manual? +++
 
 ### Citas de Origen
 * **Entrevista (Cliente):** *"Quiero que sea algo más descentralizado... compré, ¡pum!, descargué. No se hace un pedido de tiempo... Compré y automáticamente pude bajar las cosas."*
@@ -49,7 +49,7 @@ El cliente exige por un lado una experiencia inmediata e instantánea (pago/soli
 
 ---
 
-## 3. Calidad de Archivos, Formato RAW y Niveles de Calidad de Descarga
+## 3. Calidad de Archivos, Formato RAW y Niveles de Calidad de Descarga +++
 
 ### Citas de Origen
 * **Entrevista (Equipo a Cliente):** *"¿En qué calidad debería subirse? ¿Hace falta RAW?"* -> **Cliente:** *"No hace falta RAW; JPG está bien... pero con una calidad bastante mejor que la de WhatsApp."*
@@ -67,7 +67,7 @@ El diálogo con el cliente osciló entre rechazar el formato RAW, aceptarlo y vo
 
 ---
 
-## 4. Restricción Anti-Captura de Pantalla (*Screenshots*) en Entorno Web
+## 4. Restricción Anti-Captura de Pantalla (*Screenshots*) en Entorno Web ---
 
 ### Citas de Origen
 * **Entrevista (Cliente):** *"Con marca de agua y restricciones para descargar o hacer captura de pantalla... WhatsApp te manda la foto para ver una sola vez y no podés sacar screenshot, o páginas que lo tienen deshabilitado... No sé cómo funciona eso para ustedes, capaz sea un desafío."*
@@ -83,7 +83,7 @@ El cliente asume que la plataforma web puede bloquear técnicamente las capturas
 
 ---
 
-## 5. Modelo de Negocio y Monetización (Comisión vs. Suscripción vs. Venta por Espacio)
+## 5. Modelo de Negocio y Monetización (Comisión vs. Suscripción vs. Venta por Espacio) ---
 
 ### Citas de Origen
 * **Entrevista (Cliente):** *"No quiero depender de intermediarios que retengan la plata... en Lumepic te cobran 20% y el fotógrafo cobra tarde. Prefiero un cobro más directo."*
@@ -105,7 +105,7 @@ A esto se le suma la restricción institucional de UTU que prohíbe el uso de pa
 
 ---
 
-## 6. Carga Colaborativa por QR en Eventos: Seguridad y Moderación
+## 6. Carga Colaborativa por QR en Eventos: Seguridad y Moderación +++
 
 ### Citas de Origen
 * **Entrevista (Cliente):** *"Crear un QR para el evento y que los propios invitados... lo escaneen y suban ahí mismo sus fotos y videos, sin necesidad de un registro complejo."*
@@ -125,7 +125,7 @@ Permitir que personas anónimas (invitados sin cuenta registrada) suban archivos
 
 ---
 
-## 7. Manejo y Procesamiento de Videos
+## 7. Manejo y Procesamiento de Videos +++
 
 ### Citas de Origen
 * **Entrevista (Cliente):** *"Una plataforma con capacidad para alojar material gráfico... fotos y videos de eventos... subida y bajada de imágenes y videos."*
@@ -141,7 +141,7 @@ El tratamiento de video difiere drásticamente del de las imágenes estáticas. 
 
 ---
 
-## 8. Registro de Usuarios, Datos Requeridos y Verificación
+## 8. Registro de Usuarios, Datos Requeridos y Verificación ===
 
 ### Citas de Origen
 * **Entrevista (Cliente):** *"Que sea un usuario certificado, que tenga cédula, nombre, dirección... un número de celular vinculado a un correo electrónico... verificación para que no sea un bot."*
@@ -158,7 +158,7 @@ Aunque el equipo excluyó acertadamente la Cédula de Identidad y la Dirección 
 
 ---
 
-## 9. Definición Explícita de Cuotas de Almacenamiento
+## 9. Definición Explícita de Cuotas de Almacenamiento ===
 
 ### Citas de Origen
 * **Entrevista (Cliente):** *"Con una cuota gratuita chica (menciona 2 o 3 GB, tomando como referencia Pixieset) y la posibilidad de pagar por más espacio."*
@@ -177,7 +177,7 @@ El requerimiento RF17 deja la cantidad de almacenamiento como "a ser propuesta m
 
 ---
 
-## 10. Inconsistencias de Alcance: Plantillas visuales y Redes Sociales
+## 10. Inconsistencias de Alcance: Plantillas visuales y Redes Sociales ---
 
 ### Citas de Origen
 * **Entrevista (Cliente):** *"Que cada uno tenga la vinculación directa o se le pueda presentar una plantilla directamente para que lo puedan exponer en las redes sociales (WhatsApp, Instagram, Snapchat)... o plantillas ya predeterminadas como Pixieset."*
@@ -194,7 +194,7 @@ El cliente insiste durante la entrevista en contar con plantillas prediseñadas 
 
 ---
 
-## 11. Nombre Oficial del Producto / Plataforma (Marca)
+## 11. Nombre Oficial del Producto / Plataforma (Marca) ===
 
 ### Citas de Origen
 * **Doc. Sección 7:** *"Nombre propuesto del producto: ???"*
@@ -210,7 +210,7 @@ El documento oficial entregado utiliza tres signos de interrogación (`???`) en 
 
 ---
 
-## 12. Flujo de Selección de Fotos vs. Favoritos (Edición post-evento)
+## 12. Flujo de Selección de Fotos vs. Favoritos (Edición post-evento) +++@
 
 ### Citas de Origen
 * **Entrevista (Cliente):** *"Vos me contrataste para que yo te dé 100 fotos. Bueno, yo ahí tengo 1000 fotos, vos elegís la foto que querés. Entonces, vos ahí elegís 100 fotos... querés que te la edite o querés bajarla así."*
@@ -226,7 +226,7 @@ El cliente describe un flujo de trabajo fotográfico real donde el comprador sel
 
 ---
 
-## 13. Permisos y Alcance del Código QR para Invitados: ¿Visualización + Descarga o Solo Subida?
+## 13. Permisos y Alcance del Código QR para Invitados: ¿Visualización + Descarga o Solo Subida? ===
 
 ### Citas de Origen
 * **Entrevista (Cliente):** *"Le pide a todos los invitados que le hagan el favor de los videos que hacen de la fiesta, que los suban ahí... Y de repente lo que hago es que me creo un QR y lo pongo en diferentes lugares... la gente escanea y ahí los videos que van haciendo... los manda a eso."*
@@ -248,7 +248,7 @@ Existe una confusión entre dos tipos de QR o los permisos de un mismo QR:
 
 ---
 
-## 14. Mecanismo Real de Notificaciones al Fotógrafo
+## 14. Mecanismo Real de Notificaciones al Fotógrafo ===
 
 ### Citas de Origen
 * **Entrevista (Cliente):** *"Compré y automáticamente pude bajar las cosas."*
@@ -263,7 +263,7 @@ En la arquitectura de un sistema web local (sin servidor SMTP externo de producc
 
 ---
 
-## 15. Política de Limpieza, Expiración y Retención de Almacenamiento
+## 15. Política de Limpieza, Expiración y Retención de Almacenamiento +++@
 
 ### Citas de Origen
 * **Entrevista (Cliente):** *"Si vos de repente tenés un espacio gratuito que te dan 2, 3 gigas para trabajar, entonces vos bajás, subís, bajás, subís, bajás, subís material toda la semana, bien."*
@@ -278,7 +278,7 @@ El cliente asume un flujo rotativo ("subes, descargas y borras toda la semana").
 
 ---
 
-## 16. Simulación del Proceso de Pago / Cobro en Entorno Local (UTU)
+## 16. Simulación del Proceso de Pago / Cobro en Entorno Local (UTU) ---
 
 ### Citas de Origen
 * **Entrevista (Cliente):** *"Al menos con lo más básico... Brou o Prex... hace una transferencia... o pago por Redpagos o Abitab o tarjeta... que la persona compre y automáticamente pueda bajar las cosas."*
