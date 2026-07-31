@@ -15,6 +15,8 @@
 **Nivel tecnológico actual:** medio; el cliente mencionó herramientas como Pixieset o Lumepic para publicar/entregar material, pero ninguna resuelve a la vez calidad de imagen, protección del contenido y cobro ágil\
 **Registro actual:** entrega por WhatsApp (con pérdida notoria de calidad y sin protección del contenido) o por plataformas de terceros que cobran comisión y demoran la liquidación al fotógrafo.
 
+> Debido a que el cliente no proporciono una respuesta exacta y tampoco el equipo de desarrollo tiene una respuesta de su parte; el equipo decidio dedicar esta pagina web para Urugay implementando la ley 18.331 contra la proteccion de datos. Y se le informara al cliente de dicha decision cuando concuerde la fecha de la proxima entrevista.
+
 ---
 
 ## 2. Necesidad puntual presentada por el cliente
