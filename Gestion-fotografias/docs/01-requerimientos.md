@@ -6,13 +6,13 @@
 
 ## 1. Situación inicial del cliente
 
-**Nombre del emprendimiento/estudio:** no especificado (el cliente no menciona una marca propia).\\
-**Cliente:** Lemuel Swec\\
-**Rubro:** Fotografía y videografía de eventos (bodas/casamientos, fiestas de 15 años y similares)\\
-**Ubicación:** No especificado para una única ubicación, se toma en cuenta que es una aplicación web con alcance para cualquier parte del mundo.\\
-**Tamaño:** fotógrafo/a independiente; el sistema se concibe como una plataforma multi-fotógrafo (varios vendedores), no solo para uso del entrevistado\\
-**Producción:** fotografías (JPG, sin necesidad de RAW) y videos de eventos, destinados a la venta directa a compradores\\
-**Nivel tecnológico actual:** medio; el cliente mencionó herramientas como Pixieset o Lumepic para publicar/entregar material, pero ninguna resuelve a la vez calidad de imagen, protección del contenido y cobro ágil\\
+**Nombre del emprendimiento/estudio:** no especificado (el cliente no menciona una marca propia).
+**Cliente:** Lemuel Swec
+**Rubro:** Fotografía y videografía de eventos (bodas/casamientos, fiestas de 15 años y similares)
+**Ubicación:** No especificado para una única ubicación, se toma en cuenta que es una aplicación web con alcance para cualquier parte del mundo.
+**Tamaño:** fotógrafo/a independiente; el sistema se concibe como una plataforma multi-fotógrafo (varios vendedores), no solo para uso del entrevistado
+**Producción:** fotografías (JPG, sin necesidad de RAW) y videos de eventos, destinados a la venta directa a compradores
+**Nivel tecnológico actual:** medio; el cliente mencionó herramientas como Pixieset o Lumepic para publicar/entregar materi, pero ninguna resuelve a la vez calidad de imagen, protección del contenido y cobro ágil
 **Registro actual:** entrega por WhatsApp (con pérdida notoria de calidad y sin protección del contenido) o por plataformas de terceros que cobran comisión y demoran la liquidación al fotógrafo.
 
 ---
