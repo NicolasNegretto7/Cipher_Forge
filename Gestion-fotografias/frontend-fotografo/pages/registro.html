@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro</title>
+    <link rel="stylesheet" href="../css/estilos.css">
+</head>
+<body>
+
+    <header>
+        <h1>Crear Cuenta</h1>
+        <p>Registrate como fotógrafo o cliente</p>
+    </header>
+
+   
+    <main class="container">
+        <section class="card">
+            <h2>Completa tus datos</h2>
+            <form id="formRegistro" action="" method="">
+                <div class="form-group">
+                    <label for="nombre">Nombre completo</label>
+                    <input type="text" id="nombre" name="nombre" placeholder="Tu nombre" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="correo">Correo electrónico</label>
+                    <input type="email" id="correo" name="correo" placeholder="tugmail@gmail.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="contraseña">Contraseña</label>
+                    <input type="password" id="contraseña" name="contraseña" placeholder="Mínimo 6 caracteres" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="telefono">Número de teléfono (opcional)</label>
+                    <input type="tel" id="telefono" name="telefono" placeholder="Tu número">
+                </div>
+
+                <div class="form-group">
+                <label for="rol">Tipo de usuario</label>
+                <select id="rol" name="rol" required>
+                <option value="">Selecciona tu rol</option>
+                <option value="fotografo">Fotógrafo</option>
+                <option value="cliente">Cliente</option>
+                </select>
+                </div>
+
+                <div class="texto-centrado margen-arriba">
+                    <button type="submit" class="btn btn-principal">Registrarse</button>
+                </div>
+            </form>
+
+            <p class="texto-centrado margen-arriba">
+                ¿Ya tienes cuenta? <a href="login.html">Inicia sesión acá.</a>
+            </p>
+        </section>
+    </main>
+
+    <footer>
+        <p>Políticas de Privacidad.</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
