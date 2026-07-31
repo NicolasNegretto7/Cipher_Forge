@@ -188,6 +188,10 @@ El proyecto incluirá:
 10. Control de espacio de almacenamiento por usuario (la cantidad será propuesta por el cliente más adelante).
 11. Políticas de privacidad y protección de datos.
 12. Generación de un enlace o QR de acceso directo a una colección puntual.
+13. Etiquetado de colecciones públicas mediante hashtags y búsqueda/filtro por hashtag en el buscador de la página.
+14. Selección múltiple de imágenes o videos (vista ampliada) y notificación de confirmación para la descarga en alta calidad.
+15. Marcado de contenido como favorito y visualización posterior desde una sección dedicada del menú.
+16. Aviso legal sobre la Ley N.º 18.331 de Protección de Datos Personales, mostrado al fotógrafo en su primer inicio de sesión.
 
 ---
 
@@ -217,21 +221,32 @@ Quedarán fuera de la primera versión:
 | RF6 | El sistema debe bloquear mediante lógica de backend cualquier intento de acceso directo mediante URL a colecciones privadas por parte de usuarios no autorizados. |
 | RF7 | El sistema debe permitir al fotógrafo subir imágenes (JPG) y videos a su colección. |
 | RF8 | Al subir una imagen, el sistema debe generar automáticamente una versión optimizada y más ligera para su visualización fluida en la galería del cliente (vista previa). |
-| RF9 | El sistema debe aplicar automáticamente una marca de agua sobre las imágenes en su vista previa, y una protección equivalente sobre los videos (marca de agua superpuesta o restricción de descarga), para proteger la propiedad intelectual del fotógrafo antes de que autorice su descarga. |
+| RF9 | El sistema debe aplicar automáticamente, mediante una librería de procesamiento de imágenes, una marca de agua sobre las imágenes en su vista previa, para proteger la propiedad intelectual del fotógrafo antes de que autorice su descarga. Dado que actualmente no existe una forma de aplicar marca de agua sobre videos, la protección equivalente para estos consiste en exigir que el archivo subido sea un recorte (videoclip) del original y no el video completo (ver RF24). |
 | RF10 | El sistema debe permitir al cliente descargar las imágenes autorizadas de forma individual o masiva (comprimiendo la selección en un archivo .zip). |
 | RF11 | El sistema debe permitir a los usuarios visualizar las colecciones públicas con imágenes/videos en vista previa (con marca de agua) y disponer de una opción para solicitar la descarga en alta calidad. |
-| RF12 | El sistema debe enviar una notificación al fotógrafo cuando un usuario solicite la descarga en alta calidad de un contenido, permitiendo al fotógrafo autorizar o denegar dicha solicitud. |
+| RF12 | El sistema debe permitir al usuario seleccionar una o varias imágenes o videos de una colección y enviar, mediante un botón "Enviar confirmación" (parte superior derecha), una única solicitud de descarga en alta calidad para todo lo seleccionado. El fotógrafo debe recibir esta solicitud como una notificación en el apartado de menú lateral izquierdo, pudiendo autorizar o denegar dicha solicitud. |
 | RF13 | El sistema debe permitir al fotógrafo generar un código QR único vinculado a una colección específica para permitir el acceso directo, la descarga o la carga colaborativa de contenido durante un evento. |
-| RF14 | Cualquier invitado del evento debe poder escanear el código QR con su celular para subir fotos y videos directamente a esa colección, sin necesidad de completar un registro de cuenta complejo. |
+| RF14 | Cualquier invitado del evento debe poder escanear el código QR con su celular para subir fotos y videos directamente a esa colección, sin necesidad de completar un registro de cuenta complejo. Estos archivos deben respetar las mismas restricciones de formato de imagen y de video definidas para el fotógrafo (ver RF7, RF24 y RF25). |
 | RF15 | El fotógrafo debe poder visualizar y gestionar (eliminar) todo el material multimedia colaborativo subido por los invitados mediante el QR. |
 | RF16 | El sistema debe permitir al fotógrafo generar un enlace o QR de acceso directo a una colección privada específica, distinto del QR de carga colaborativa. |
-| RF17 | El sistema debe impedir que el fotógrafo suba nuevo contenido si supera su cuota de almacenamiento asignada (la cantidad será propuesta por el cliente más adelante), permitiendo igualmente la descarga del contenido ya existente. |
+| RF17 | El sistema debe impedir que el fotógrafo suba nuevo contenido si supera su cuota de almacenamiento asignada (la cantidad será propuesta por el cliente más adelante), permitiendo igualmente la descarga del contenido ya existente. Al subir varios archivos en una misma operación, el sistema debe cargar los que sí entren dentro de la cuota disponible y mostrar un mensaje de error únicamente para los que la superen, en lugar de cancelar la carga completa. |
 | RF18 | El sistema debe enviar un código de verificación al correo o teléfono (en caso de haber sido proporcionado) para asegurar que realmente exista. |
 | RF19 | El sistema debe permitir editar la información de perfil de los fotógrafos. |
 | RF20 | El sistema debe permitir al fotógrafo modificar los datos básicos de una imagen o video ya subido (título, descripción o colección) sin necesidad de volver a subir el archivo. |
-| RF21 | El sistema debe permitir al cliente marcar y desmarcar como favorita cualquier imagen perteneciente a una colección a la que tenga acceso autorizado, sin exponer esta información a otros usuarios. |
+| RF21 | El sistema debe permitir al usuario marcar y desmarcar como favorita, mediante un ícono de estrella ubicado en la esquina inferior (derecha o izquierda) del contenido, cualquier imagen o video de una colección pública o de una colección privada a la que tenga acceso autorizado, sin exponer esta información a otros usuarios. |
+| RF22 | El sistema debe permitir al fotógrafo asignar hashtags a cada colección pública al editar su información, agregando automáticamente el símbolo "#" a cada palabra clave ingresada. |
+| RF23 | El sistema debe permitir a los usuarios filtrar y encontrar colecciones públicas por hashtag desde el buscador general de la página. |
+| RF24 | El sistema debe exigir que los videos subidos, tanto por el fotógrafo como por un invitado mediante QR, sean un recorte (videoclip) del original y no el archivo completo. Si se sube el video original sin recortar, la plataforma no se responsabiliza por la exposición de su contenido completo; dicha responsabilidad recae exclusivamente en quien lo sube. |
+| RF25 | El sistema debe limitar el tamaño máximo (en MB) de cada video subido, tanto por el fotógrafo como por un invitado mediante QR. |
+| RF26 | Al hacer clic sobre una imagen o video dentro de una colección (pública o privada), el sistema debe mostrar una vista ampliada del archivo mediante un elemento superpuesto, oculto por defecto, con prioridad de visualización sobre el resto del contenido de la página. |
+| RF27 | En la vista ampliada, el sistema debe mostrar en el lateral izquierdo un ícono de selección (circular o cuadrado) que permita marcar la imagen o video como seleccionado; mientras el modo selección esté activo, el usuario podrá seleccionar imágenes o videos adicionales haciendo clic directamente sobre ellas dentro de la colección. |
+| RF28 | Cuando el fotógrafo confirme una solicitud de descarga en alta calidad, el sistema debe notificar al usuario con el mensaje "¡El fotógrafo ha aceptado la descarga en alta calidad!" junto con las opciones "Aceptar descargar archivos" y "Quizás más tarde". |
+| RF29 | El sistema debe permitir al usuario visualizar, en una sección dedicada del menú ("Favoritos"), todas las imágenes y videos que haya marcado como favoritos. |
+| RF30 | El sistema debe mostrar al fotógrafo, únicamente en su primer inicio de sesión, un aviso destacado sobre la política de privacidad y la Ley N.º 18.331 de Protección de Datos Personales, indicando que la responsabilidad legal por publicar imágenes de personas sin su autorización recae exclusivamente en el fotógrafo, y que la plataforma no asume responsabilidad ante reclamos o demandas derivadas de dicho uso. |
 
 > "Exclusión de "Cédula" en RF1 porque esta fuera de nuestro alcance y supera por mucho la complejidad de lo propuesto por el cliente. En cambio se propuso un cambio, solo mantener nombre completo, contraseña, número de celular y correo electrónico."
+
+> "Actualización a partir de las mejoras incorporadas (sd.txt): se agregaron los requerimientos RF22 a RF30 y se modificaron RF9, RF12, RF14, RF17 y RF21, cubriendo hashtags y búsqueda de colecciones públicas, selección múltiple con notificación de confirmación, restricciones de formato/tamaño de video, vista ampliada con modo de selección, sección de favoritos y aviso legal sobre la Ley 18.331 al fotógrafo."
 
 ---
 
@@ -257,12 +272,12 @@ Una épica es una funcionalidad grande o área de trabajo que debe dividirse en 
 
 | Código | Épica | Descripción | Requerimientos vinculados |
 | --- | --- | --- | --- |
-| EP1 | Gestión de usuarios y seguridad | Registro de usuarios, inicio de sesión seguro, asignación de roles y políticas de privacidad. | RF1, RF2, RF3, RF18 |
+| EP1 | Gestión de usuarios y seguridad | Registro de usuarios, inicio de sesión seguro, asignación de roles, políticas de privacidad y aviso legal sobre protección de datos personales (Ley 18.331) al fotógrafo. | RF1, RF2, RF3, RF18, RF30 |
 | EP2 | Perfiles de fotógrafos | Creación, edición y administración de los perfiles profesionales de los fotógrafos. | RF19 |
-| EP3 | Gestión de colecciones | Creación, categorización (públicas/privadas), visualización pública y control de acceso por URL a colecciones de fotos. | RF4, RF5, RF6 |
-| EP4 | Carga y procesamiento multimedia | Subida de imágenes de alta calidad, generación de vistas previas optimizadas y aplicación de marcas de agua. | RF7, RF8, RF9, RF17, RF20 |
-| EP5 | Visualización y descargas | Galería de previsualización para clientes, solicitudes de descarga en alta calidad con notificación al fotógrafo y bajada de imágenes (individual o en .zip). | RF10, RF11, RF12, RF21 |
-| EP6 | Carga colaborativa por QR | Generación de códigos QR para eventos, subida rápida de fotos por invitados y moderación/gestión posterior del material por parte del fotógrafo (ocultar o eliminar). | RF13, RF14, RF15, RF16 |
+| EP3 | Gestión de colecciones | Creación, categorización (públicas/privadas), etiquetado con hashtags, búsqueda por hashtag, visualización pública y control de acceso por URL a colecciones de fotos. | RF4, RF5, RF6, RF22, RF23 |
+| EP4 | Carga y procesamiento multimedia | Subida de imágenes y videos, generación de vistas previas optimizadas, aplicación de marca de agua mediante librería, restricciones de formato y tamaño de video, y control de cuota de almacenamiento. | RF7, RF8, RF9, RF17, RF20, RF24, RF25 |
+| EP5 | Visualización y descargas | Galería de previsualización para clientes, vista ampliada con selección múltiple, solicitudes de descarga en alta calidad con notificación al fotógrafo, bajada de imágenes (individual o en .zip) y gestión de favoritos. | RF10, RF11, RF12, RF21, RF26, RF27, RF28, RF29 |
+| EP6 | Carga colaborativa por QR | Generación de códigos QR para eventos, subida rápida de fotos y videos por invitados (sujeta a las mismas restricciones de formato y tamaño de video definidas en RF24 y RF25) y moderación/gestión posterior del material por parte del fotógrafo (ocultar o eliminar). | RF13, RF14, RF15, RF16 |
 | EP7 | Mantenimiento técnico y respaldo | Configuración de respaldos automáticos diarios, rotación de las últimas tres copias y registro de auditoría. | RNF5, RNF6, RNF7 |
 | EP8 | Capacitación y cierre | Entrega de la guía básica de uso, capacitación al cliente y cierre formal del proyecto de UTU. | — (actividad de entrega/capacitación; no corresponde a una función del sistema) |
 
@@ -282,6 +297,8 @@ En este ejemplo:
 - 5 puntos representan una tarea compleja.
 - 8 puntos representan una tarea grande o riesgosa.
 
+> Actualización del criterio: al incorporar las mejoras de "sd.txt" el esfuerzo total del proyecto aumentaba. Para aligerar ese incremento, se decidió correr un lugar la escala de estimación (eliminando el nivel de 13 puntos y bajando un escalón la descripción de cada valor), de modo que las nuevas historias de usuario se estimaran de forma más liviana.
+
 Se asumirá una velocidad promedio del equipo de **27 puntos por sprint**.
 Cada sprint tendrá una duración de **3 semanas**.
 El proyecto tendrá **5 sprints**, por lo tanto, la duración total estimada será de **15 semanas**.
@@ -292,15 +309,17 @@ El proyecto tendrá **5 sprints**, por lo tanto, la duración total estimada ser
 
 | Código | Épica | Estimación en puntos | Historias asociadas |
 | --- | --- | --- | --- |
-| EP1 | Gestión de usuarios y seguridad | 25 | HU1, HU8, HU19, HU21, HU25 |
+| EP1 | Gestión de usuarios y seguridad | 26 | HU1, HU8, HU19, HU21, HU25, HU32 |
 | EP2 | Perfiles de fotógrafos | 5 | HU18 |
-| EP3 | Gestión de colecciones | 23 | HU2, HU3, HU20, HU24 |
-| EP4 | Carga y procesamiento multimedia | 31 | HU5, HU6, HU14, HU16, HU22 |
-| EP5 | Visualización y descarga | 13 | HU9, HU10, HU23 |
+| EP3 | Gestión de colecciones | 27 | HU2, HU3, HU20, HU24, HU26, HU27 |
+| EP4 | Carga y procesamiento multimedia | 33 | HU5, HU6, HU14, HU16, HU22, HU28, HU29 |
+| EP5 | Visualización y descarga | 19 | HU9, HU10, HU23, HU30, HU31 |
 | EP6 | Carga colaborativa por QR | 28 | HU4, HU7, HU11, HU12, HU17 |
 | EP7 | Mantenimiento técnico y respaldo | 8 | HU13 |
 | EP8 | Capacitación y cierre | 3 | HU15 |
-| **Total** | | **136 puntos** | |
+| **Total** | | **149 puntos** | |
+
+> Nota: el total pasó de 136 a 149 puntos tras incorporar las historias derivadas de "sd.txt" (HU26 a HU32). Se mantiene la planificación original de 5 sprints a 27 puntos/sprint (135 puntos de capacidad nominal); el excedente se reparte entre sprints puntuales (ver Sprint 3 y Sprint 5 en la sección 15), tal como ya ocurría en la planificación original. Se recomienda revisarlo en el Sprint Planning real.
 
 ---
 
@@ -349,23 +368,30 @@ Se utilizará el siguiente formato:
 | HU6 | Como fotógrafo, quiero eliminar imágenes o videos de una colección, para mantener el control sobre el contenido publicado. | 5 | Alta |
 | HU7 | Como fotógrafo, quiero descargar el código QR generado para poder imprimirlo físicamente y exponerlo en el evento. | 5 | Media |
 | HU8 | Como usuario nuevo, quiero poder elegir si registrarme como fotógrafo o como cliente, para acceder a las funciones correctas del sistema. | 5 | Alta |
-| HU9 | Como usuario/cliente, quiero solicitar la descarga en alta calidad de una imagen o video desde la vista previa (con marca de agua), para que al fotógrafo le llegue una notificación y pueda autorizar mi descarga en alta calidad. | 5 | Alta |
+| HU9 | Como usuario/cliente, quiero seleccionar una o varias imágenes o videos de una colección y enviar una única solicitud mediante el botón "Enviar confirmación", para que al fotógrafo le llegue una notificación (en su menú lateral izquierdo) y pueda autorizar mi descarga en alta calidad. | 5 | Alta |
 | HU10 | Como cliente autorizado, quiero descargar mis fotos de forma individual o en un archivo comprimido (.zip), para obtener mi material de manera ágil. | 3 | Media |
-| HU11 | Como invitado de un evento, quiero escanear el código QR para subir directamente mis fotos y videos a la colección sin necesidad de crearme una cuenta compleja. | 5 | Media |
+| HU11 | Como invitado de un evento, quiero escanear el código QR para subir directamente mis fotos (JPG) y videos (en formato de recorte/clip) a la colección, sin necesidad de crearme una cuenta compleja. | 5 | Media |
 | HU12 | Como fotógrafo, quiero visualizar y gestionar (eliminar) el material subido por invitados para tener un control sobre la colección. | 5 | Media |
 | HU13 | Como sistema, quiero realizar un respaldo automático diario de la base de datos y rotar las últimas 3 copias, para mitigar el riesgo de pérdida de datos. | 8 | Media |
 | HU14 | Como cliente, quiero visualizar las fotos de mi evento con una marca de agua integrada automáticamente, para poder previsualizar el trabajo antes de descargarlo en alta calidad. | 8 | Alta |
 | HU15 | Como fotógrafo/cliente, quiero contar con una guía básica de uso y recibir una breve capacitación sobre la plataforma, para poder utilizarla de forma autónoma una vez finalizado el proyecto. | 3 | Media |
-| HU16 | Como sistema, quiero impedir al fotógrafo subir imágenes o videos si supera la cuota de almacenamiento, para no sobrecargar el espacio en el sistema de archivos. | 8 | Media |
+| HU16 | Como sistema, quiero impedir al fotógrafo subir imágenes o videos si supera la cuota de almacenamiento, cargando únicamente los archivos que sí entren en la cuota disponible y mostrando un error para los que la superen, para no sobrecargar el espacio en el sistema de archivos sin bloquear una carga completa por un solo archivo problemático. | 8 | Media |
 | HU17 | Como fotógrafo, quiero generar un código QR único de una colección, para permitir la visualización y descarga de las imágenes (según los permisos habilitados) de la colección, sin necesidad de buscar mi perfil. | 5 | Media |
 | HU18 | Como fotógrafo, quiero editar mi información de perfil y contacto comercial, para que los clientes me reconozcan. | 5 | Media |
 | HU19 | Como sistema, quiero impedir el registro de usuarios duplicados utilizando un mismo correo electrónico ya existente, para que exista solo una única cuenta por correo. | 5 | Media |
 | HU20 | Como sistema, quiero impedir cualquier intento de acceso directo mediante URL a colecciones privadas por parte de usuarios no autorizados, para mantener el orden. | 8 | Media |
 | HU21 | Como sistema, quiero enviar un código de verificación al correo o teléfono (si fue proporcionado), para asegurar si realmente pertenece a esa persona. | 5 | Media |
 | HU22 | Como fotógrafo, quiero editar los datos básicos (título, descripción) de una imagen o video ya subido, para no tener que subirlo de nuevo para cambiar los datos básicos. | 5 | Media |
-| HU23 | Como usuario, quiero marcar como favorita una imagen o video de una colección a la que tenga autorización, para tener una lista de favoritos. | 5 | Baja |
+| HU23 | Como usuario, quiero marcar como favorita, mediante un ícono de estrella, una imagen o video de una colección pública o de una colección privada a la que tenga autorización, para poder encontrarla más tarde en una sección dedicada de "Favoritos" en el menú. | 5 | Baja |
 | HU24 | Como usuario, quiero ingresar a colecciones públicas y explorar sus galerías con imágenes o videos en vista previa protegidos con marca de agua, para conocer el catálogo disponible. | 5 | Media |
 | HU25 | Como sistema, quiero que cada usuario, independientemente de si es Fotógrafo o Cliente, se registre proporcionando su nombre completo, correo electrónico y contraseña de forma obligatoria, dejando el número de teléfono como opcional, para validar e identificar su identidad. | 5 | Media |
+| HU26 | Como fotógrafo, quiero asignar hashtags a mis colecciones públicas al editar su información, para que los usuarios puedan encontrarlas más fácilmente en el buscador. | 1 | Media |
+| HU27 | Como usuario, quiero filtrar colecciones públicas por hashtag desde el buscador de la página, para encontrar contenido de mi interés de forma más rápida. | 3 | Media |
+| HU28 | Como sistema, quiero exigir que los videos subidos por el fotógrafo o por un invitado sean un recorte (videoclip) del original, para proteger el contenido en los casos donde no es posible aplicar marca de agua; si se sube el video completo, la responsabilidad es de quien lo sube. | 1 | Alta |
+| HU29 | Como sistema, quiero limitar el tamaño máximo en MB de cada video subido, para controlar el uso de almacenamiento y mantener la estabilidad de la plataforma. | 1 | Alta |
+| HU30 | Como usuario, quiero abrir una vista ampliada de una imagen o video de la colección y activar un modo de selección múltiple mediante un ícono circular o cuadrado, para elegir varios archivos antes de solicitar su descarga en alta calidad. | 5 | Baja |
+| HU31 | Como usuario, quiero recibir una notificación con las opciones "Aceptar descargar archivos" y "Quizás más tarde" cuando el fotógrafo confirme mi solicitud, para decidir si descargo el contenido en ese momento o más tarde. | 1 | Baja |
+| HU32 | Como fotógrafo, quiero ver, en mi primer inicio de sesión, un aviso sobre la política de privacidad y la Ley 18.331 de protección de datos personales, para conocer que la responsabilidad legal por el uso indebido de imágenes de terceros es exclusivamente mía. | 1 | Alta |
 
 ---
 
@@ -380,22 +406,42 @@ Se utilizará el siguiente formato:
 | 3 | HU5 | Subida de imágenes o videos a colecciones | 5 | Sprint 1 |
 | 4 | HU10 | Descarga individual o comprimida (.zip) | 3 | Sprint 1 |
 | 5 | HU14 | Visualización con marca de agua automática | 8 | Sprint 1 |
-| 6 | HU3 | Autorización manual de clientes a colecciones privadas | 5 | Sprint 2 |
-| 7 | HU8 | Registro con selección de rol (Fotógrafo / Cliente) | 5 | Sprint 2 |
-| 8 | HU25 | Registro obligatorio de campos (Nombre, correo, contraseña y teléfono opcional) | 5 | Sprint 2 |
-| 9 | HU19 | Impedir el registro de usuarios duplicados por correo | 5 | Sprint 2 |
-| 10 | HU21 | Envío de código de verificación al correo/teléfono | 5 | Sprint 2 |
-| 11 | HU20 | Bloqueo de acceso directo por URL a colecciones privadas | 8 | Sprint 3 |
-| 12 | HU4, HU17 | Generación de códigos QR de colección (Acceso directo, descarga y subida colaborativa) | 13 | Sprint 3 |
-| 13 | HU7 | Descarga e impresión física del código QR | 5 | Sprint 3 |
-| 14 | HU24 | Acceso y visualización de galerías en colecciones públicas | 5 | Sprint 3 |
-| 15 | HU11 | Carga de archivos vía QR por invitados (sin cuenta) | 5 | Sprint 4 |
-| 16 | HU12 | Moderación de material de invitados (ocultar/eliminar) | 5 | Sprint 4 |
-| 17 | HU6 | Eliminación regular de imágenes o videos | 5 | Sprint 4 |
-| 18 | HU9 | Solicitud y notificación/aprobación de descarga en alta calidad | 5 | Sprint 4 |
-| 19 | HU16 | Restricción por superación de la cuota de espacio | 8 | Sprint 4 |
-| 20 | HU23 | Marcar como favorita una imagen o video | 5 | Sprint 5 |
-| 21 | HU18 | Edición de información del perfil del fotógrafo | 5 | Sprint 5 |
-| 22 | HU22 | Edición de datos básicos de un archivo ya subido | 5 | Sprint 5 |
-| 23 | HU13 | Respaldo automático diario de base de datos (3 copias) | 8 | Sprint 5 |
-| 24 | HU15 | Entrega de guía de uso, capacitación y cierre | 3 | Sprint 5 |
+| 6 | HU28 | Restricción de video a recorte/clip (sin marca de agua) | 1 | Sprint 1 |
+| 7 | HU29 | Límite de tamaño (MB) por video subido | 1 | Sprint 1 |
+| 8 | HU3 | Autorización manual de clientes a colecciones privadas | 5 | Sprint 2 |
+| 9 | HU8 | Registro con selección de rol (Fotógrafo / Cliente) | 5 | Sprint 2 |
+| 10 | HU25 | Registro obligatorio de campos (Nombre, correo, contraseña y teléfono opcional) | 5 | Sprint 2 |
+| 11 | HU19 | Impedir el registro de usuarios duplicados por correo | 5 | Sprint 2 |
+| 12 | HU21 | Envío de código de verificación al correo/teléfono | 5 | Sprint 2 |
+| 13 | HU32 | Aviso legal de privacidad y Ley 18.331 al fotógrafo | 1 | Sprint 2 |
+| 14 | HU20 | Bloqueo de acceso directo por URL a colecciones privadas | 8 | Sprint 3 |
+| 15 | HU4, HU17 | Generación de códigos QR de colección (Acceso directo, descarga y subida colaborativa) | 13 | Sprint 3 |
+| 16 | HU7 | Descarga e impresión física del código QR | 5 | Sprint 3 |
+| 17 | HU24 | Acceso y visualización de galerías en colecciones públicas | 5 | Sprint 3 |
+| 18 | HU26 | Asignación de hashtags a colecciones públicas | 1 | Sprint 3 |
+| 19 | HU27 | Búsqueda/filtro de colecciones públicas por hashtag | 3 | Sprint 3 |
+| 20 | HU11 | Carga de archivos vía QR por invitados (JPG y recorte de video) | 5 | Sprint 4 |
+| 21 | HU12 | Moderación de material de invitados (ocultar/eliminar) | 5 | Sprint 4 |
+| 22 | HU6 | Eliminación regular de imágenes o videos | 5 | Sprint 4 |
+| 23 | HU9 | Solicitud y notificación/aprobación de descarga en alta calidad (selección múltiple) | 5 | Sprint 4 |
+| 24 | HU16 | Restricción por superación de la cuota de espacio (carga parcial con error puntual) | 8 | Sprint 4 |
+| 25 | HU23 | Marcar como favorita una imagen o video (con sección dedicada) | 5 | Sprint 5 |
+| 26 | HU18 | Edición de información del perfil del fotógrafo | 5 | Sprint 5 |
+| 27 | HU22 | Edición de datos básicos de un archivo ya subido | 5 | Sprint 5 |
+| 28 | HU13 | Respaldo automático diario de base de datos (3 copias) | 8 | Sprint 5 |
+| 29 | HU15 | Entrega de guía de uso, capacitación y cierre | 3 | Sprint 5 |
+| 30 | HU30 | Vista ampliada con selección múltiple de contenido | 5 | Sprint 5 |
+| 31 | HU31 | Notificación de confirmación con opciones de descarga | 1 | Sprint 5 |
+
+---
+
+## Puntos por sprint (resumen)
+
+| Sprint | Puntos totales |
+| --- | --- |
+| Sprint 1 | 28 |
+| Sprint 2 | 26 |
+| Sprint 3 | 35 |
+| Sprint 4 | 28 |
+| Sprint 5 | 32 |
+| **Total** | **149** |
