@@ -13,9 +13,9 @@ if (formRegistro) {
 
 
         if (rol === "fotografo") {
-            window.location.href = "fotografo/panel.html";
+            window.location.href = "panel.html";
         } else {
-            window.location.href = "cliente/galeria.html";
+            window.location.href = "galeria.html";
         }
 
         return false;
@@ -37,9 +37,9 @@ if (formLogin) {
     
 
         if (rol === "fotografo") {
-            window.location.href = "fotografo/panel.html";
+            window.location.href = "panel.html";
         } else {
-            window.location.href = "cliente/galeria.html";
+            window.location.href = "galeria.html";
         }
 
         return false;
