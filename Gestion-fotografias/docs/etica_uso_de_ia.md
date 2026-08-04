@@ -12,7 +12,7 @@
 
 | Herramienta | Etapa / documento | Tipo de uso | Integrante |
 | --- | --- | --- | --- |
-| Gemini, TurboScribe, Claude, Grok, DeepSeek, Kimi | [Requerimientos](01-requerimientos.md), [Backend](backend)|  Investigacion: <br>validacion: <br>transcripcion: <br>relevamiento: <br>correccion de errores: <br>optimizacion: <br>aprendizaje continuo:| Iván Sandoval |
+| Gemini, TurboScribe, Claude, Grok, DeepSeek, Kimi | [Requerimientos](01-requerimientos.md), [Backend](backend)| Validacion: Se valido la documentacion mediante uso de AI para mayor rendimiento y velocidad, estas mismas validaciones fueron corroborada para evitar errores en la misma documentacion. <br>Transcripcion: Se utilizo TurboScribe para transcribir el audio de la entrevista con el cliente. <br>Correccion de errores: Se utilizaron para corregir errores de tipeo y gramatica. <br>Optimizacion: Se utilizaron para optimizar el codigo, mejorar su rendimiento y evitar errores de produccion. <br>Aprendizaje continuo: Se utilizaron para aprender nuevas tecnologias y metodos de desarrollo.| Iván Sandoval |
 | |  |  |  |
 |  |  |  |  |
 
