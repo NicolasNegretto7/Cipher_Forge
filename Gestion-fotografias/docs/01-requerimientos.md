@@ -231,7 +231,7 @@ Quedarán fuera de la primera versión:
 | RF22 | El sistema debe proporcionar un modo de selección visual (símbolo redondo o cuadrado en el lateral izquierdo) dentro de la vista ampliada de una imagen o video; al activarse, un clic sobre otro archivo lo selecciona automáticamente y se habilita un botón "Enviar confirmación" para solicitar la descarga en alta calidad de la selección. |
 | RF23 | Una vez que el fotógrafo autoriza la descarga en alta calidad, el sistema debe notificar al usuario mediante el apartado de notificaciones con el mensaje "El fotógrafo ha aceptado la descarga en alta calidad" en caso contrario "El fotógrafo no ha aceptado la descarga en alta calidad", ofreciendo las opciones "Aceptar descargar archivos" y "Quizás más tarde". |
 | RF24 | Al primer inicio de sesión como fotógrafo, el sistema debe mostrar un modal obligatorio con la política de privacidad y la Ley 18.331 sobre protección de datos personales e intimidad, estableciendo que el fotógrafo asume la responsabilidad legal por el contenido que publica y que la plataforma no se hace responsable ante demandas por publicación no autorizada. |
-| RF25 | El sistema debe validar que los videos subidos (por fotógrafo o invitado) sean clips o recortes del video original, aplicando un límite máximo de MB por video; si el video subido es el original completo, la responsabilidad recae exclusivamente sobre quien lo subió. |
+| RF25 | El sistema debe validar que los videos subidos (por fotógrafo o invitado) sean clips o recortes del video original, aplicando un límite máximo de 800MB por video; si el video subido es el original completo, la responsabilidad recae exclusivamente sobre quien lo subió. |
 
 > **Exclusión de "Cédula" en RF1** porque está fuera de nuestro alcance y supera por mucho la complejidad de lo propuesto por el cliente. En cambio se propuso un cambio, solo mantener nombre completo, contraseña, número de celular y correo electrónico.
 
@@ -395,7 +395,7 @@ Se utilizará el siguiente formato:
 | 7 | HU19 | Impedir el registro de usuarios duplicados por correo | 3 | Sprint 1 |
 | 8 | HU3 | Autorización manual de clientes a colecciones privadas | 3 | Sprint 2 |
 | 9 | HU8 | Registro con selección de rol (Fotógrafo / Cliente) | 3 | Sprint 2 |
-| 10 | HU21 | Envío de código de verificación al correo/teléfono | 3 | Sprint 2 |
+| 10 | HU21 | Envío de código de verificación al correo | 3 | Sprint 2 |
 | 11 | HU20 | Bloqueo de acceso directo por URL a colecciones privadas | 5 | Sprint 2 |
 | 12 | HU24 | Acceso y visualización de galerías en colecciones públicas | 3 | Sprint 2 |
 | 13 | HU26 | Agregar hashtags a colecciones públicas | 3 | Sprint 2 |
