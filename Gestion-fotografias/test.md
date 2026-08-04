@@ -233,8 +233,7 @@ Quedarán fuera de la primera versión:
 | RF23 | Una vez que el fotógrafo autoriza la descarga, el sistema debe notificar al usuario mediante el apartado de notificaciones con el mensaje "El fotógrafo ha aceptado la descarga" (indicando la calidad concedida) o en su defecto "El fotógrafo no ha aceptado la descarga", ofreciendo las opciones "Aceptar descargar archivos" y "Quizás más tarde". |
 | RF24 | Al primer inicio de sesión como fotógrafo, el sistema debe mostrar un modal obligatorio con la política de privacidad y la Ley 18.331 sobre protección de datos personales e intimidad, estableciendo que el fotógrafo asume la responsabilidad legal por el contenido que publica y que la plataforma no se hace responsable ante demandas por publicación no autorizada. |
 | RF25 | El sistema debe validar que los videos subidos (por fotógrafo o invitado) sean clips o recortes del video original con un límite máximo de 80MB por video; si el video subido es el original (límite máximo de 800MB) completo, la responsabilidad recae exclusivamente sobre quien lo subió. |
-| RF26 | El sistema debe identificar por orden la subida de archivos del usuario para identificar cual es el recorte del video y su version original para la descarga.
-| RF27 | El sistema debe filtrar los videos por su duracion para una mejor identificacion de cual es el recorte del video (duracion maxima de hasta 15 segundos para el recorte).
+| RF26 | El sistema debe identificar automáticamente cuál es el recorte de video y cuál es su versión original, basándose en el orden de subida y en la duración del archivo (un recorte no debe superar los 15 segundos de duración), para vincular correctamente la vista previa con el archivo de descarga. |
 
 ---
 
@@ -265,8 +264,8 @@ Una épica es una funcionalidad grande o área de trabajo que debe dividirse en 
 | --- | --- | --- | --- |
 | EP1 | Gestión de usuarios y seguridad | Registro de usuarios, inicio de sesión seguro, asignación de roles, verificación de cuenta y políticas de privacidad con Ley 18.331. | RF1, RF2, RF3, RF18, RF24 |
 | EP2 | Perfiles de fotógrafos y directorio | Creación, edición y administración de perfiles profesionales de fotógrafos, e inclusión en el directorio general de descubrimiento y eventos. | RF19 |
-| EP3 | Gestión de colecciones y accesos | Creación, categorización (públicas/privadas), hashtags, filtrado público, asignación de clientes, control de acceso por URL y generación de QR/enlace de acceso permanente. | RF4, RF5, RF6, RF11, RF16, RF26, RF27 |
-| EP4 | Carga y procesamiento multimedia | Subida de imágenes JPG y videos (clips), generación de vistas previas optimizadas, aplicación de marca de agua, edición/eliminación de archivos y control de cuota de almacenamiento. | RF7, RF8, RF9, RF17, RF20, RF25 |
+| EP3 | Gestión de colecciones y accesos | Creación, categorización (públicas/privadas), hashtags, filtrado público, asignación de clientes, control de acceso por URL y generación de QR/enlace de acceso permanente. | RF4, RF5, RF6, RF11, RF16 |
+| EP4 | Carga y procesamiento multimedia | Subida de imágenes JPG y videos (clips), generación de vistas previas optimizadas, aplicación de marca de agua, edición/eliminación de archivos, control de cuota de almacenamiento e identificación de recortes de video. | RF7, RF8, RF9, RF17, RF20, RF25, RF26 |
 | EP5 | Visualización, selección y descargas | Galería de previsualización para clientes, modo de selección visual, solicitudes de descarga en dos niveles de calidad con notificación al fotógrafo, notificación de aceptación al usuario y bajada de imágenes (individual o en .zip). | RF10, RF11, RF12, RF21, RF22, RF23 |
 | EP6 | Carga colaborativa por QR | Generación de código QR temporal de evento (caducidad 1 día), subida rápida por invitados sin registro complejo, validación de clips y moderación del material por el fotógrafo. | RF13, RF14, RF15, RF25 |
 | EP7 | Mantenimiento técnico y respaldo | Configuración de respaldos automáticos diarios, rotación de las últimas tres copias y registro de auditoría. | RNF5, RNF6, RNF7 |
@@ -288,9 +287,9 @@ En este ejemplo:
 - 5 puntos representan una tarea compleja.
 - 8 puntos representan una tarea grande o riesgosa.
 
-Se asumirá una velocidad promedio del equipo de **20 puntos por sprint** (promedio real: 19.8 puntos).
+Se asumirá una velocidad promedio del equipo de **20 puntos por sprint** (promedio real: 20.0 puntos).
 Cada sprint tendrá una duración de **3 semanas**.
-El proyecto tendrá **5 sprints**, por lo tanto, la duración total estimada será de **15 semanas** para completar un backlog consolidado de **99 puntos de historia**.
+El proyecto tendrá **5 sprints**, por lo tanto, la duración total estimada será de **15 semanas** para completar un backlog consolidado de **100 puntos de historia**.
 
 ---
 
@@ -302,13 +301,13 @@ A continuación se detalla la suma exacta de puntos de historia correspondientes
 | --- | --- | --- | --- |
 | EP1 | Gestión de usuarios y seguridad | 16 | HU1 (3), HU8 (3), HU19 (3), HU21 (3), HU25 (3), HU32 (1) |
 | EP2 | Perfiles de fotógrafos y directorio | 3 | HU18 (3) |
-| EP3 | Gestión de colecciones y accesos | 23 | HU2 (3), HU3 (3), HU17 (3), HU20 (5), HU24 (3), HU26 (3), HU27 (3) |
-| EP4 | Carga y procesamiento multimedia | 19 | HU5 (3), HU6 (3), HU16 (5), HU22 (3), HU28 (5) |
+| EP3 | Gestión de colecciones y accesos | 21 | HU2 (3), HU3 (3), HU17 (3), HU20 (3), HU24 (3), HU26 (3), HU27 (3) |
+| EP4 | Carga y procesamiento multimedia | 22 | HU5 (3), HU6 (3), HU16 (5), HU22 (3), HU28 (5), HU33 (3) |
 | EP5 | Visualización, selección y descargas | 18 | HU9 (3), HU10 (1), HU14 (5), HU23 (3), HU30 (3), HU31 (3) |
 | EP6 | Carga colaborativa por QR | 14 | HU4 (5), HU7 (3), HU11 (3), HU12 (3) |
 | EP7 | Mantenimiento técnico y respaldo | 5 | HU13 (5) |
 | EP8 | Capacitación y cierre | 1 | HU15 (1) |
-| **Total** | | **99 puntos** | **31 Historias de Usuario** |
+| **Total** | | **100 puntos** | **32 Historias de Usuario** |
 
 ---
 
@@ -319,7 +318,7 @@ El equipo presenta la siguiente propuesta:
 | Elemento | Propuesta |
 | --- | --- |
 | Producto | ???, sistema web para fotógrafos y compradores. |
-| Duración | 15 semanas (99 puntos de historia totales). |
+| Duración | 15 semanas (100 puntos de historia totales). |
 | Metodología | Scrum, con 5 sprints de 3 semanas (velocidad promedio: ~20 pts/sprint). |
 | Entregas | Incremento funcional al final de cada sprint. |
 | Presupuesto | Proyecto de Egreso de UTU (sin presupuesto financiero asignado). |
@@ -368,7 +367,7 @@ Se utilizará el siguiente formato:
 | HU17 | Como fotógrafo, quiero generar un enlace o QR de acceso directo permanente a una colección específica, para permitir la visualización y descarga directa de los clientes autorizados sin caducidad. | 3 | Media |
 | HU18 | Como fotógrafo, quiero editar mi información de perfil profesional y figurar en el directorio general de descubrimiento y eventos públicos, para que nuevos clientes puedan encontrarme y contactarme. | 3 | Media |
 | HU19 | Como sistema, quiero impedir el registro de usuarios duplicados utilizando un mismo correo electrónico ya existente, para que exista una única cuenta por correo. | 3 | Media |
-| HU20 | Como sistema, quiero impedir cualquier intento de acceso directo mediante URL a colecciones privadas por parte de usuarios no autorizados, para mantener la privacidad del contenido. | 5 | Media |
+| HU20 | Como sistema, quiero impedir cualquier intento de acceso directo mediante URL a colecciones privadas por parte de usuarios no autorizados, para mantener la privacidad del contenido. | 3 | Media |
 | HU21 | Como sistema, quiero enviar un código de verificación al correo electrónico, para asegurar que la casilla registrada pertenece al usuario. | 3 | Media |
 | HU22 | Como fotógrafo, quiero editar los datos básicos (título, descripción o reasignación de colección) de una imagen o video ya subido, para mantener organizada la galería. | 3 | Media |
 | HU23 | Como usuario, quiero marcar como favorita una imagen o video de una colección pública, para tener una lista de favoritos privada. | 3 | Baja |
@@ -380,58 +379,60 @@ Se utilizará el siguiente formato:
 | HU30 | Como usuario, quiero disponer de un modo de selección visual en la galería para elegir múltiples archivos y enviar una solicitud de descarga indicando la calidad deseada mediante el botón "Enviar confirmación". | 3 | Baja |
 | HU31 | Como sistema, quiero notificar al usuario cuando el fotógrafo apruebe su solicitud de descarga, ofreciendo las opciones "Aceptar descargar archivos" y "Quizás más tarde". | 3 | Baja |
 | HU32 | Como fotógrafo, al iniciar sesión por primera vez quiero aceptar la política de privacidad y la Ley 18.331, para formalizar mi responsabilidad sobre el contenido publicado. | 1 | Alta |
+| HU33 | Como sistema, quiero identificar automáticamente la relación recorte-original de los videos subidos, basándome en el orden de subida y la duración del archivo (máximo 15 segundos para el recorte), para vincular correctamente la vista previa con el archivo de descarga. | 3 | Media |
 
-> **Nota de consolidación:** La antigua HU29 (Manejo de subida múltiple ante exceso de cuota) fue unificada con la HU16 para eliminar la duplicación de concepto en el backlog, consolidando 5 puntos en una única historia de usuario integral.
+> **Nota de consolidación:** La antigua HU29 (Manejo de subida múltiple ante exceso de cuota) fue unificada con la HU16 para eliminar la duplicación de concepto en el backlog, consolidando 5 puntos en una única historia de usuario integral. Asimismo, los antiguos RF26 (identificación por orden de subida) y RF27 (filtro por duración de video) fueron unificados en un único RF26 con su correspondiente HU33, ya que ambos resolvían el mismo problema: distinguir el recorte del video original.
 
 ---
 
 ## 20. Product Backlog inicial
 
-### Backlog priorizado y balanceado por Sprints (99 puntos de historia totales)
+### Backlog priorizado y balanceado por Sprints (100 puntos de historia totales)
 
 El backlog ha sido distribuido equitativamente manteniendo un ritmo de trabajo sostenido de aproximadamente **20 puntos por sprint**:
 
 | Orden | ID | Historia de usuario | Puntos | Sprint estimado |
 | :--- | :--- | :--- | :--- | :--- |
 | 1 | HU1 | Inicio de sesión básico (acceso a paneles) | 3 | Sprint 1 (20 pts) |
-| 2 | HU2 | Creación de colecciones y clasificación de visibilidad | 3 | Sprint 1 (20 pts) |
-| 3 | HU5 | Subida de imágenes o videos a colecciones | 3 | Sprint 1 (20 pts) |
-| 4 | HU10 | Descarga individual o comprimida (.zip) | 1 | Sprint 1 (20 pts) |
-| 5 | HU14 | Visualización con marca de agua automática | 5 | Sprint 1 (20 pts) |
-| 6 | HU25 | Registro obligatorio de campos (Nombre, correo, contraseña y teléfono opcional) | 3 | Sprint 1 (20 pts) |
-| 7 | HU19 | Impedir el registro de usuarios duplicados por correo | 3 | Sprint 1 (20 pts) |
-| 8 | HU3 | Autorización manual de clientes a colecciones privadas | 3 | Sprint 2 (20 pts) |
-| 9 | HU8 | Registro con selección de rol (Fotógrafo / Cliente) | 3 | Sprint 2 (20 pts) |
-| 10 | HU21 | Envío de código de verificación al correo | 3 | Sprint 2 (20 pts) |
-| 11 | HU20 | Bloqueo de acceso directo por URL a colecciones privadas | 5 | Sprint 2 (20 pts) |
-| 12 | HU24 | Acceso y visualización de galerías en colecciones públicas | 3 | Sprint 2 (20 pts) |
-| 13 | HU26 | Agregar hashtags a colecciones públicas | 3 | Sprint 2 (20 pts) |
-| 14 | HU4 | Generación de QR de carga colaborativa de evento (caducidad 1 día) | 5 | Sprint 3 (20 pts) |
-| 15 | HU7 | Descarga e impresión física del QR colaborativo | 3 | Sprint 3 (20 pts) |
-| 16 | HU11 | Carga de archivos vía QR por invitados (sin registro complejo) | 3 | Sprint 3 (20 pts) |
-| 17 | HU12 | Moderación de material de invitados por el fotógrafo | 3 | Sprint 3 (20 pts) |
-| 18 | HU17 | Generación de QR / enlace permanente de acceso directo | 3 | Sprint 3 (20 pts) |
-| 19 | HU32 | Aceptación de política de privacidad y Ley 18.331 en primer login | 1 | Sprint 3 (20 pts) |
-| 20 | HU27 | Filtrado de colecciones públicas por hashtags | 2 -> 3 | Sprint 3 (20 pts) |
-| 21 | HU9 | Solicitud y notificación/aprobación de descarga (buena/alta calidad) | 3 | Sprint 4 (20 pts) |
-| 22 | HU16 | Control de cuota (3GB) y manejo de subida parcial notificando excedentes | 5 | Sprint 4 (20 pts) |
-| 23 | HU28 | Validación de videos (clips/recortes y límite de 800MB) | 5 | Sprint 4 (20 pts) |
-| 24 | HU6 | Eliminación regular de imágenes o videos por el fotógrafo | 3 | Sprint 4 (20 pts) |
-| 25 | HU22 | Edición de datos básicos (título, descripción o reasignación) | 3 | Sprint 4 (20 pts) |
-| 26 | HU18 | Edición de perfil de fotógrafo y presencia en directorio público | 3 | Sprint 5 (19 pts) |
-| 27 | HU23 | Marcar como favorita una imagen o video pública | 3 | Sprint 5 (19 pts) |
-| 28 | HU30 | Modo de selección visual y botón "Enviar confirmación" | 3 | Sprint 5 (19 pts) |
-| 29 | HU31 | Notificación al usuario de aceptación con opciones de descarga | 3 | Sprint 5 (19 pts) |
-| 30 | HU13 | Respaldo automático diario de base de datos (3 copias) | 5 | Sprint 5 (19 pts) |
-| 31 | HU15 | Entrega de guía de uso, capacitación y cierre | 1 | Sprint 5 (19 pts) |
+| 2 | HU8 | Registro con selección de rol (Fotógrafo / Cliente) | 3 | Sprint 1 (20 pts) |
+| 3 | HU25 | Registro obligatorio de campos (Nombre, correo, contraseña y teléfono opcional) | 3 | Sprint 1 (20 pts) |
+| 4 | HU19 | Impedir el registro de usuarios duplicados por correo | 3 | Sprint 1 (20 pts) |
+| 5 | HU2 | Creación de colecciones y clasificación de visibilidad | 3 | Sprint 1 (20 pts) |
+| 6 | HU5 | Subida de imágenes o videos a colecciones | 3 | Sprint 1 (20 pts) |
+| 7 | HU32 | Aceptación de política de privacidad y Ley 18.331 en primer login | 1 | Sprint 1 (20 pts) |
+| 8 | HU10 | Descarga individual o comprimida (.zip) | 1 | Sprint 1 (20 pts) |
+| 9 | HU14 | Visualización con marca de agua automática | 5 | Sprint 2 (20 pts) |
+| 10 | HU3 | Autorización manual de clientes a colecciones privadas | 3 | Sprint 2 (20 pts) |
+| 11 | HU21 | Envío de código de verificación al correo | 3 | Sprint 2 (20 pts) |
+| 12 | HU20 | Bloqueo de acceso directo por URL a colecciones privadas | 3 | Sprint 2 (20 pts) |
+| 13 | HU24 | Acceso y visualización de galerías en colecciones públicas | 3 | Sprint 2 (20 pts) |
+| 14 | HU26 | Agregar hashtags a colecciones públicas | 3 | Sprint 2 (20 pts) |
+| 15 | HU4 | Generación de QR de carga colaborativa de evento (caducidad 1 día) | 5 | Sprint 3 (20 pts) |
+| 16 | HU7 | Descarga e impresión física del QR colaborativo | 3 | Sprint 3 (20 pts) |
+| 17 | HU11 | Carga de archivos vía QR por invitados (sin registro complejo) | 3 | Sprint 3 (20 pts) |
+| 18 | HU12 | Moderación de material de invitados por el fotógrafo | 3 | Sprint 3 (20 pts) |
+| 19 | HU17 | Generación de QR / enlace permanente de acceso directo | 3 | Sprint 3 (20 pts) |
+| 20 | HU27 | Filtrado de colecciones públicas por hashtags | 3 | Sprint 3 (20 pts) |
+| 21 | HU9 | Solicitud y notificación/aprobación de descarga (buena/alta calidad) | 3 | Sprint 4 (19 pts) |
+| 22 | HU16 | Control de cuota (3GB) y manejo de subida parcial notificando excedentes | 5 | Sprint 4 (19 pts) |
+| 23 | HU28 | Validación de videos (clips/recortes y límite de 800MB) | 5 | Sprint 4 (19 pts) |
+| 24 | HU6 | Eliminación regular de imágenes o videos por el fotógrafo | 3 | Sprint 4 (19 pts) |
+| 25 | HU33 | Identificación automática de relación recorte-original de videos | 3 | Sprint 4 (19 pts) |
+| 26 | HU22 | Edición de datos básicos (título, descripción o reasignación) | 3 | Sprint 5 (21 pts) |
+| 27 | HU18 | Edición de perfil de fotógrafo y presencia en directorio público | 3 | Sprint 5 (21 pts) |
+| 28 | HU23 | Marcar como favorita una imagen o video pública | 3 | Sprint 5 (21 pts) |
+| 29 | HU30 | Modo de selección visual y botón "Enviar confirmación" | 3 | Sprint 5 (21 pts) |
+| 30 | HU31 | Notificación al usuario de aceptación con opciones de descarga | 3 | Sprint 5 (21 pts) |
+| 31 | HU13 | Respaldo automático diario de base de datos (3 copias) | 5 | Sprint 5 (21 pts) |
+| 32 | HU15 | Entrega de guía de uso, capacitación y cierre | 1 | Sprint 5 (21 pts) |
 
 ---
 
 ### Balance resumido por Sprints
 
-- **Sprint 1:** HU1, HU2, HU5, HU10, HU14, HU19, HU25 → **21 Puntos**
-- **Sprint 2:** HU3, HU8, HU20, HU21, HU24, HU26 → **20 Puntos**
-- **Sprint 3:** HU4, HU7, HU11, HU12, HU17, HU27, HU32 → **21 Puntos**
-- **Sprint 4:** HU6, HU9, HU16, HU22, HU28 → **19 Puntos**
-- **Sprint 5:** HU13, HU15, HU18, HU23, HU30, HU31 → **18 Puntos**
-- **Total acumulado:** **99 Puntos de Historia** (100% de coherencia matemática con el listado de HUs y Épicas).
+- **Sprint 1:** HU1, HU8, HU25, HU19, HU2, HU5, HU32, HU10 → **20 Puntos**
+- **Sprint 2:** HU14, HU3, HU21, HU20, HU24, HU26 → **20 Puntos**
+- **Sprint 3:** HU4, HU7, HU11, HU12, HU17, HU27 → **20 Puntos**
+- **Sprint 4:** HU9, HU16, HU28, HU6, HU33 → **19 Puntos**
+- **Sprint 5:** HU22, HU18, HU23, HU30, HU31, HU13, HU15 → **21 Puntos**
+- **Total acumulado:** **100 Puntos de Historia** (100% de coherencia matemática con el listado de HUs y Épicas).
