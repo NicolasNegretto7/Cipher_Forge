@@ -12,7 +12,13 @@
 
 | Herramienta | Etapa / documento | Tipo de uso | Integrante |
 | --- | --- | --- | --- |
-| Gemini, Claude, Grok, DeepSeek, Kimi | [Requerimientos](01-requerimientos.md), [Backend](backend)|  Investigacion, validacion, transcripcion, relevamiento, correccion de errores, optimizacion y aprendizaje continuo  | Iván Sandoval |
+| Gemini, TurboScribe, Claude, Grok, DeepSeek, Kimi | [Requerimientos](01-requerimientos.md), [Backend](backend)|  Investigacion:
+ validacion: 
+ transcripcion: 
+ relevamiento: 
+ correccion de errores: 
+ optimizacion: 
+ aprendizaje continuo:| Iván Sandoval |
 | |  |  |  |
 |  |  |  |  |
 
