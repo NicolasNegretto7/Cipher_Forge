@@ -179,10 +179,10 @@ El proyecto incluirá:
 5. Subida de imágenes (JPG) y videos (clips/recortes) con límite de 800MB por video, marca de agua automática en imágenes y control de cuotas.
 6. Aplicación de marca de agua en la vista previa de las imágenes mediante librería especializada.
 7. Restricción de descarga en el contenido no autorizado.
-8. Visualización de imágenes en colecciones públicas/privadas y solicitud de descarga en dos niveles de calidad (buena calidad y alta calidad superior) mediante notificación al fotógrafo, con modo de selección múltiple visual.
+8. Visualización de imágenes en colecciones públicas/privadas y solicitud de descarga en dos niveles de calidad (buena calidad y alta calidad) mediante notificación al fotógrafo, con modo de selección múltiple visual.
 9. Descarga inmediata de imágenes autorizadas (individual o en .zip) con notificación de aceptación al usuario.
 10. Control de espacio de almacenamiento por usuario (cuota inicial de 3 GB) con manejo de subidas parciales ante exceso de cuota.
-11. Generación de un código QR de carga colaborativa para eventos con caducidad de 1 día, permitiendo a invitados subir contenido sin registro complejo (pudiendo ingresar un nombre opcional o de forma anónima).
+11. Generación de un código QR de carga colaborativa para eventos con caducidad de 1 día, permitiendo a invitados subir contenido sin registro complejo, pudiendo ingresar de forma anónima.
 12. Generación de un enlace o QR de acceso directo permanente a una colección específica para visualización y descarga de clientes.
 13. Moderación y gestión (modificación de datos, reasignación o eliminación) por parte del fotógrafo sobre el contenido de sus colecciones y el material aportado por invitados.
 14. Sistema de favoritos sobre colecciones públicas y filtrado de colecciones públicas por hashtags.
@@ -208,7 +208,7 @@ Quedarán fuera de la primera versión:
 
 | Código | Requerimiento funcional |
 | --- | --- |
-| RF1 | El sistema debe permitir el registro de usuarios (fotógrafos y clientes) solicitando nombre completo, correo electrónico, contraseña y, de forma opcional, número de teléfono, aceptando los términos de privacidad del servicio. |
+| RF1 | El sistema debe permitir el registro de usuarios (fotógrafos y clientes) solicitando nombre completo, correo electrónico, contraseña y, de forma opcional, número de teléfono. |
 | RF2 | El sistema debe impedir el registro de usuarios duplicados utilizando un mismo correo electrónico ya existente en la base de datos. |
 | RF3 | El sistema debe proveer una pantalla de inicio de sesión (Login) segura. |
 | RF4 | El sistema debe permitir al fotógrafo crear colecciones de imágenes, clasificarlas manualmente como públicas o privadas y, en caso de ser públicas, agregar hashtags para su posterior filtrado. |
@@ -221,18 +221,18 @@ Quedarán fuera de la primera versión:
 | RF11 | El sistema debe permitir a los usuarios visualizar las colecciones públicas con imágenes/videos en vista previa (en el caso de imágenes con marca de agua), disponer de una opción para solicitar la descarga en el nivel de calidad deseado (buena o alta calidad) y filtrar las colecciones públicas por hashtags. |
 | RF12 | El sistema debe enviar una notificación al fotógrafo en el menú lateral izquierdo cuando un usuario solicite la descarga en buena o alta calidad de uno o varios contenidos, permitiendo al fotógrafo autorizar o denegar dicha solicitud. |
 | RF13 | El sistema debe permitir al fotógrafo generar un código QR de carga colaborativa exclusivo para un evento (imprimible y con fecha de caducidad de 1 día a partir de su creación), para permitir a los invitados subir fotos y videos directamente a esa colección durante el evento. |
-| RF14 | Cualquier invitado del evento debe poder escanear el código QR de carga colaborativa con su celular para subir fotos (JPG) y videos (clips/recortes) directamente a esa colección, de forma anónima o indicando únicamente un nombre opcional, sin necesidad de completar un registro de cuenta complejo. |
-| RF15 | El fotógrafo debe poder visualizar y gestionar (eliminar o modificar) todo el material multimedia colaborativo subido por los invitados mediante el QR. |
+| RF14 | Cualquier invitado del evento debe poder escanear el código QR de carga colaborativa con su celular para subir fotos (JPG) y videos directamente a esa colección, sin necesidad de completar un registro de cuenta complejo. |
+| RF15 | El fotógrafo debe poder visualizar y gestionar (eliminar) todo el material multimedia colaborativo subido por los invitados mediante el QR. |
 | RF16 | El sistema debe permitir al fotógrafo generar un enlace o QR de acceso directo permanente (sin caducidad) a una colección específica, distinto del QR de carga colaborativa, para facilitar la visualización y descarga directa a clientes autorizados. |
 | RF17 | El sistema debe controlar la cuota de almacenamiento del fotógrafo (3GB), impidiendo la subida si se supera el límite; en subidas múltiples, debe completar la subida de los archivos válidos y mostrar un mensaje de notificación únicamente para los archivos que excedan la cuota restante. |
 | RF18 | El sistema debe enviar un código de verificación al correo electrónico del usuario para asegurar que la casilla registrada realmente existe. |
-| RF19 | El sistema debe permitir crear y editar la información de perfil profesional de los fotógrafos e incluir sus perfiles y eventos públicos en un directorio general de descubrimiento para que los clientes puedan contactarlos. |
-| RF20 | El sistema debe permitir al fotógrafo modificar los datos básicos (título, descripción o reasignación de colección) o eliminar cualquier imagen o video previamente subido a sus colecciones. |
+| RF19 | El sistema debe permitir crear y editar la información de perfil profesional de los fotógrafos. |
+| RF20 | El sistema debe permitir al fotógrafo modificar los datos básicos (título, descripción) o eliminar cualquier imagen o recortes de video previamente subido a sus colecciones. |
 | RF21 | El sistema debe permitir al usuario marcar y desmarcar como favorita cualquier imagen o video perteneciente a una colección pública, visualizándose estas en un apartado de favoritos; esta información no se expone a otros usuarios. |
 | RF22 | El sistema debe proporcionar un modo de selección visual (símbolo redondo o cuadrado en el lateral izquierdo) dentro de la vista ampliada de una imagen o video; al activarse, un clic sobre otro archivo lo selecciona automáticamente y se habilita un botón "Enviar confirmación" para solicitar la descarga en la calidad deseada de la selección. |
 | RF23 | Una vez que el fotógrafo autoriza la descarga, el sistema debe notificar al usuario mediante el apartado de notificaciones con el mensaje "El fotógrafo ha aceptado la descarga" (indicando la calidad concedida) o en su defecto "El fotógrafo no ha aceptado la descarga", ofreciendo las opciones "Aceptar descargar archivos" y "Quizás más tarde". |
 | RF24 | Al primer inicio de sesión como fotógrafo, el sistema debe mostrar un modal obligatorio con la política de privacidad y la Ley 18.331 sobre protección de datos personales e intimidad, estableciendo que el fotógrafo asume la responsabilidad legal por el contenido que publica y que la plataforma no se hace responsable ante demandas por publicación no autorizada. |
-| RF25 | El sistema debe validar que los videos subidos (por fotógrafo o invitado) sean clips o recortes del video original con un límite máximo de 800MB por video; si el video subido es el original completo, la responsabilidad recae exclusivamente sobre quien lo subió. |
+| RF25 | El sistema debe validar que los videos subidos (por fotógrafo o invitado) sean clips o recortes del video original con un límite máximo de 80MB por video; si el video subido es el original (límite máximo de 800MB) completo, la responsabilidad recae exclusivamente sobre quien lo subió. |
 
 ---
 
