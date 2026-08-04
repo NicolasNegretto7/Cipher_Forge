@@ -1,16 +1,21 @@
 # Proyecto de Egreso UTU – Enfoque Scrum: Plataforma web para fotógrafos y compradores de material fotográfico
 
-> **Nota de versión (v1.1):** Este documento constituye la versión oficial corregida y consolidada del proyecto. Incorpora las rectificaciones de coherencia funcional, reordenamiento de trazabilidad, fusión de historias de usuario duplicadas (ajustando el backlog total a **99 puntos de historia** distribuidos equitativamente en 5 sprints), precisión sobre los tipos de QR, definición de niveles de calidad de descarga, incorporación del directorio de descubrimiento de fotógrafos y ajuste en la numeración correlativa de secciones.
-
 ---
 
 # Parte 1: Concepción del proyecto
 
 ## 1. Situación inicial del cliente
 
-**Nombre del emprendimiento/estudio:** No especificado (el cliente no menciona una marca propia).**Cliente:** Lemuel Swec**Rubro:** Fotografía y videografía de eventos (bodas/casamientos, fiestas de 15 años y similares)**Ubicación:** No especificado para una única ubicación; se toma en cuenta que es una aplicación web con alcance global.**Tamaño:** Fotógrafo/a independiente; el sistema se concibe como una plataforma multi-fotógrafo (varios vendedores), no solo para uso exclusivo del entrevistado.**Producción:** Fotografías (JPG, sin necesidad de RAW) y videos de eventos, destinados a la venta directa a compradores.**Nivel tecnológico actual:** Medio; el cliente mencionó herramientas como Pixieset o Lumepic para publicar/entregar material, pero ninguna resuelve a la vez calidad de imagen, protección del contenido y cobro ágil.**Registro actual:** Entrega por WhatsApp (con pérdida notoria de calidad y sin protección del contenido) o por plataformas de terceros que cobran comisión y demoran la liquidación al fotógrafo.
+**Nombre del emprendimiento/estudio:** no especificado (el cliente no menciona una marca propia).\
+**Cliente:** Lemuel Swec\
+**Rubro:** Fotografía y videografía de eventos (bodas/casamientos, fiestas de 15 años y similares)\
+**Ubicación:** No especificado para una única ubicación, se toma en cuenta que es una aplicación web con alcance para cualquier parte del mundo.\
+**Tamaño:** fotógrafo/a independiente; el sistema se concibe como una plataforma multi-fotógrafo (varios vendedores), no solo para uso del entrevistado\
+**Producción:** fotografías (JPG, sin necesidad de RAW) y videos de eventos, destinados a la venta directa a compradores\
+**Nivel tecnológico actual:** medio; el cliente mencionó herramientas como Pixieset o Lumepic para publicar/entregar material, pero ninguna resuelve a la vez calidad de imagen, protección del contenido y cobro ágil\
+**Registro actual:** entrega por WhatsApp (con pérdida notoria de calidad y sin protección del contenido) o por plataformas de terceros que cobran comisión y demoran la liquidación al fotógrafo.
 
-> Debido a que el cliente no proporcionó una respuesta exacta y tampoco el equipo de desarrollo tiene una respuesta de su parte, el equipo decidió dedicar esta página web para Uruguay implementando la Ley 18.331 de Protección de Datos Personales. Se le informará al cliente de dicha decisión cuando se concrete la fecha de la próxima entrevista.
+> Debido a que el cliente no proporciono una respuesta exacta y tampoco el equipo de desarrollo tiene una respuesta de su parte; el equipo decidio dedicar esta pagina web para Uruguay implementando la ley 18.331 contra la proteccion de datos. Y se le informara al cliente de dicha decision cuando concuerde la fecha de la proxima entrevista.
 
 ---
 
@@ -116,7 +121,7 @@ Antes de entrevistar al cliente, el equipo identifica que la solicitud contiene 
 
 ---
 
-> Algunas respuestas del cliente fueron resumidas por el equipo de desarrollo para no hacer tan extenso el documento. Todo lo relevante está en la transcripción original.
+> Algunas respuestas del cliente fueron resumidas por el equipo de desarrollo para no hacer tan extenso el documento. Todo lo redundante está en la transcripción original.
 
 ## 6. Información obtenida en la entrevista
 
