@@ -12,9 +12,8 @@
 
 | Herramienta | Etapa / documento | Tipo de uso | Integrante |
 | --- | --- | --- | --- |
-| Gemini, TurboScribe, Claude, Grok, DeepSeek, Kimi | [Requerimientos](01-requerimientos.md), [Backend](backend)|  Investigacion:
- validacion: 
- transcripcion: 
+| Gemini, TurboScribe, Claude, Grok, DeepSeek, Kimi | [Requerimientos](01-requerimientos.md), [Backend](backend)|  Investigacion: <br>validacion: 
+transcripcion: 
  relevamiento: 
  correccion de errores: 
  optimizacion: 
