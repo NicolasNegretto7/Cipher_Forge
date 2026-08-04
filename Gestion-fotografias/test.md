@@ -233,6 +233,8 @@ Quedarán fuera de la primera versión:
 | RF23 | Una vez que el fotógrafo autoriza la descarga, el sistema debe notificar al usuario mediante el apartado de notificaciones con el mensaje "El fotógrafo ha aceptado la descarga" (indicando la calidad concedida) o en su defecto "El fotógrafo no ha aceptado la descarga", ofreciendo las opciones "Aceptar descargar archivos" y "Quizás más tarde". |
 | RF24 | Al primer inicio de sesión como fotógrafo, el sistema debe mostrar un modal obligatorio con la política de privacidad y la Ley 18.331 sobre protección de datos personales e intimidad, estableciendo que el fotógrafo asume la responsabilidad legal por el contenido que publica y que la plataforma no se hace responsable ante demandas por publicación no autorizada. |
 | RF25 | El sistema debe validar que los videos subidos (por fotógrafo o invitado) sean clips o recortes del video original con un límite máximo de 80MB por video; si el video subido es el original (límite máximo de 800MB) completo, la responsabilidad recae exclusivamente sobre quien lo subió. |
+| RF26 | El sistema debe identificar por orden la subida de archivos del usuario para identificar cual es el recorte del video y su version original para la descarga.
+| RF27 | El sistema debe filtrar los videos por su duracion para una mejor identificacion de cual es el recorte del video (duracion maxima de hasta 15 segundos para el recorte).
 
 ---
 
