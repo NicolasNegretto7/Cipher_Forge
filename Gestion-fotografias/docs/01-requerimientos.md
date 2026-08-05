@@ -198,6 +198,7 @@ Quedarán fuera de la primera versión:
 3. Perfil público con acceso libre a todo el material del fotógrafo.
 4. Métodos de pago reales.
 5. Hosting/dominio en producción.
+6. Subida de videos directa a S3/Cloudflare con URLs firmadas con colas asíncronas.
 
 ---
 
