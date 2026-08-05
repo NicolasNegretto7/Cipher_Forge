@@ -176,7 +176,7 @@ El proyecto incluirá:
 2. Verificación de correo electrónico y aceptación obligatoria de políticas de privacidad / Ley 18.331.
 3. Creación y edición de perfiles profesionales de fotógrafo, con inclusión en un directorio general de descubrimiento y eventos.
 4. Creación de colecciones (públicas o privadas) con soporte de hashtags para las públicas.
-5. Subida de imágenes (JPG) y videos (clips/recortes) con límite de 800MB por video, marca de agua automática en imágenes y control de cuotas.
+5. Subida de imágenes (JPG) y videos con procesamiento en backend mediante FFmpeg (Docker) para generar un recorte de 15 segundos en la vista previa y almacenar el archivo completo en Filesystem (límite de 800MB por video original), marca de agua automática en imágenes y control de cuotas.
 6. Aplicación de marca de agua en la vista previa de las imágenes mediante librería especializada.
 7. Restricción de descarga en el contenido no autorizado.
 8. Visualización de imágenes en colecciones públicas/privadas y solicitud de descarga en dos niveles de calidad (buena calidad y alta calidad) mediante notificación al fotógrafo, con modo de selección múltiple visual.
@@ -267,7 +267,7 @@ Una épica es una funcionalidad grande o área de trabajo que debe dividirse en 
 | EP1 | Gestión de usuarios y seguridad | Registro de usuarios, inicio de sesión seguro, asignación de roles, verificación de cuenta y políticas de privacidad con Ley 18.331. | RF1, RF2, RF3, RF18, RF24 |
 | EP2 | Perfiles de fotógrafos y directorio | Creación, edición y administración de perfiles profesionales de fotógrafos, e inclusión en el directorio general de descubrimiento y eventos. | RF19 |
 | EP3 | Gestión de colecciones y accesos | Creación, categorización (públicas/privadas), hashtags, filtrado público, asignación de clientes, control de acceso por URL y generación de QR/enlace de acceso permanente. | RF4, RF5, RF6, RF11, RF16 |
-| EP4 | Carga y procesamiento multimedia | Subida de imágenes JPG y videos (clips), generación de vistas previas optimizadas, aplicación de marca de agua, edición/eliminación de archivos, control de cuota de almacenamiento e identificación de recortes de video. | RF7, RF8, RF9, RF17, RF20, RF25, RF26 |
+| EP4 | Carga y procesamiento multimedia | Subida de imágenes JPG y videos, procesamiento en backend con FFmpeg (Docker) para recortes de 15 segundos, guardado en Filesystem, generación de vistas previas optimizadas, marca de agua, edición/eliminación de archivos y control de cuotas. | RF7, RF8, RF9, RF17, RF20, RF25, RF26 |
 | EP5 | Visualización, selección y descargas | Galería de previsualización para clientes, modo de selección visual, solicitudes de descarga en dos niveles de calidad con notificación al fotógrafo, notificación de aceptación al usuario y bajada de imágenes (individual o en .zip). | RF10, RF11, RF12, RF21, RF22, RF23 |
 | EP6 | Carga colaborativa por QR | Generación de código QR temporal de evento (caducidad 1 día), subida rápida por invitados sin registro complejo, validación de clips y moderación del material por el fotógrafo. | RF13, RF14, RF15, RF25 |
 | EP7 | Mantenimiento técnico y respaldo | Configuración de respaldos automáticos diarios, rotación de las últimas tres copias y registro de auditoría. | RNF5, RNF6, RNF7 |
@@ -381,9 +381,9 @@ Se utilizará el siguiente formato:
 | HU30 | Como usuario, quiero disponer de un modo de selección visual en la galería para elegir múltiples archivos y enviar una solicitud de descarga indicando la calidad deseada mediante el botón "Enviar confirmación". | 3 | Baja |
 | HU31 | Como sistema, quiero notificar al usuario cuando el fotógrafo apruebe su solicitud de descarga, ofreciendo las opciones "Aceptar descargar archivos" y "Quizás más tarde". | 3 | Baja |
 | HU32 | Como fotógrafo, al iniciar sesión por primera vez quiero aceptar la política de privacidad y la Ley 18.331, para formalizar mi responsabilidad sobre el contenido publicado. | 1 | Alta |
-| HU33 | Como sistema, quiero identificar automáticamente la relación recorte-original de los videos subidos, basándome en el orden de subida y la duración del archivo (máximo 15 segundos para el recorte), para vincular correctamente la vista previa con el archivo de descarga. | 3 | Media |
+| HU33 | Como sistema, quiero procesar los videos subidos en el backend mediante FFmpeg (corriendo en Docker) para generar automáticamente un recorte de 15 segundos para la vista previa en la colección y guardar el video completo en el Filesystem, para garantizar la visualización ligera y reservar el archivo original para la descarga. | 3 | Media |
 
-> **Nota de consolidación:** La antigua HU29 (Manejo de subida múltiple ante exceso de cuota) fue unificada con la HU16 para eliminar la duplicación de concepto en el backlog, consolidando 5 puntos en una única historia de usuario integral. Asimismo, los antiguos RF26 (identificación por orden de subida) y RF27 (filtro por duración de video) fueron unificados en un único RF26 con su correspondiente HU33, ya que ambos resolvían el mismo problema: distinguir el recorte del video original.
+> **Nota de consolidación:** La antigua HU29 (Manejo de subida múltiple ante exceso de cuota) fue unificada con la HU16 para eliminar la duplicación de concepto en el backlog, consolidando 5 puntos en una única historia de usuario integral. Asimismo, por recomendación docente, el RF26 fue especificado técnicamente para la generación automática de recortes de video de 15 segundos mediante FFmpeg en Docker y almacenamiento del archivo completo en Filesystem, asociándose de forma directa a la HU33 dentro de la Épica EP4.
 
 ---
 
@@ -419,7 +419,7 @@ El backlog ha sido distribuido equitativamente manteniendo un ritmo de trabajo s
 | 22 | HU16 | Control de cuota (3GB) y manejo de subida parcial notificando excedentes | 5 | Sprint 4 |
 | 23 | HU28 | Validación de videos (clips/recortes y límite de 800MB) | 5 | Sprint 4 |
 | 24 | HU6 | Eliminación regular de imágenes o videos por el fotógrafo | 3 | Sprint 4 |
-| 25 | HU33 | Identificación automática de relación recorte-original de videos | 3 | Sprint 4 |
+| 25 | HU33 | Procesamiento de recortes de video (15s) con FFmpeg en Docker y guardado en Filesystem | 3 | Sprint 4 |
 | 26 | HU22 | Edición de datos básicos (título, descripción o reasignación) | 3 | Sprint 5 |
 | 27 | HU18 | Edición de perfil de fotógrafo y presencia en directorio público | 3 | Sprint 5 |
 | 28 | HU23 | Marcar como favorita una imagen o video pública | 3 | Sprint 5 |
