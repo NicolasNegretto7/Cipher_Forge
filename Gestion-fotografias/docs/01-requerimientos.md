@@ -386,7 +386,6 @@ Se utilizará el siguiente formato:
 | HU31 | Como fotógrafo, al iniciar sesión por primera vez quiero aceptar la política de privacidad y la Ley 18.331, para formalizar mi responsabilidad sobre el contenido publicado. | 1 | Alta |
 | HU32 | Como sistema, quiero procesar los videos subidos en el backend para generar automáticamente un recorte de 15 segundos para la vista previa en la colección y almacenar el video completo para la descarga autorizada, para garantizar la visualización ligera y reservar el archivo original. | 3 | Media |
 
-> **Nota de consolidación:** La antigua HU29 (Manejo de subida múltiple ante exceso de cuota) fue unificada con la HU16 para eliminar la duplicación de concepto en el backlog, consolidando 5 puntos en una única historia de usuario integral. A partir de dicha unificación, las historias posteriores fueron renumeradas secuencialmente (HU28 a HU32) para mantener la continuidad del backlog. Asimismo, por recomendación docente, el RF26 fue redactado como requerimiento funcional orientado al resultado esperado del sistema, asociándose de forma directa a la HU32 dentro de la Épica EP4.
 
 ---
 

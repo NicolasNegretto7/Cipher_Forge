@@ -67,7 +67,7 @@ La primera versión será de subida y bajada de imágenes y videos, y marca de a
 | Rol | Persona / referente | Responsabilidad |
 | --- | --- | --- |
 | Cliente | Lemuel Swec | Describe el problema, valida alcance y prioridades, aprueba decisiones sobre roles y visibilidad de colecciones |
-| Líder / Scrum Master | Nicolás Negretto | Desarrollo frontend, valida la documentación |
+| Líder / Desarrollador | Nicolás Negretto | Desarrollo frontend, valida la documentación |
 | Sub-líder / Desarrollador | Iván Sandoval | Desarrollo backend, transcripción y documentación de la entrevista |
 | Desarrollador | Augusto Fernández | Desarrollo frontend, documentación de la entrevista, protecciones de seguridad |
 
@@ -77,9 +77,9 @@ La primera versión será de subida y bajada de imágenes y videos, y marca de a
 | --- | --- |
 | Falta de experiencia del equipo en PHP, JavaScript y FFmpeg | Retraso en la implementación de módulos complejos (marca de agua, procesamiento de video, QR) |
 | Restricción institucional (UTU): equipo menor de edad | Imposibilidad de contratar hosting, dominio o pasarela de pago real; sistema limitado a entorno local |
-| Caída del servidor durante pruebas o evaluación | Pérdida de datos de prueba y tiempo de trabajo; mitigado con respaldos automáticos (RNF5-RNF7) |
-| Material de riesgo legal (fotos sin autorización) | Responsabilidad legal del fotógrafo; mitigado con política de privacidad obligatoria y Ley 18.331 (RF24) |
-| Pérdida de respaldos o archivos multimedia | Pérdida irrecuperable de material del fotógrafo; mitigado con rotación de 3 copias de BD |
+| Caída del servidor durante pruebas o evaluación | Pérdida de datos de prueba y tiempo de trabajo; mitigado con respaldos automáticos|
+| Material de riesgo legal (fotos sin autorización) | Responsabilidad legal del fotógrafo; mitigado con política de privacidad obligatoria y Ley 18.331 |
+| Pérdida de respaldos o archivos multimedia | Pérdida irrecuperable de material del fotógrafo; mitigado con rotación de 3 copias en la base de datos |
 
 **Plazo y metodología:**
 Scrum, 5 sprints de 3 semanas (15 semanas totales), velocidad promedio de ~20 puntos por sprint, con revisión del incremento junto al cliente al final de cada sprint.
