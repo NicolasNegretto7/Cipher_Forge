@@ -77,8 +77,8 @@ La primera versión será de subida y bajada de imágenes y videos, y marca de a
 | --- | --- |
 | Falta de experiencia del equipo en PHP, JavaScript y FFmpeg | Retraso en la implementación de módulos complejos (marca de agua, procesamiento de video, QR) |
 | Restricción institucional (UTU): equipo menor de edad | Imposibilidad de contratar hosting, dominio o pasarela de pago real; sistema limitado a entorno local |
-| Caída del servidor durante pruebas o evaluación | Pérdida de datos de prueba y tiempo de trabajo; mitigado con respaldos automáticos (RNF5-RNF7) |
-| Material de riesgo legal (fotos sin autorización) | Responsabilidad legal del fotógrafo; mitigado con política de privacidad obligatoria y Ley 18.331 (RF24) |
+| Caída del servidor durante pruebas o evaluación | Pérdida de datos de prueba y tiempo de trabajo; mitigado con respaldos automáticos|
+| Material de riesgo legal (fotos sin autorización) | Responsabilidad legal del fotógrafo; mitigado con política de privacidad obligatoria y Ley 18.331 |
 | Pérdida de respaldos o archivos multimedia | Pérdida irrecuperable de material del fotógrafo; mitigado con rotación de 3 copias de BD |
 
 **Plazo y metodología:**
