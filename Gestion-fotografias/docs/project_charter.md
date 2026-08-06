@@ -67,9 +67,9 @@ La primera versión será de subida y bajada de imágenes y videos, y marca de a
 | Rol | Persona / referente | Responsabilidad |
 | --- | --- | --- |
 | Sponsor / Cliente | Lemuel Swec | Describe el problema, valida alcance y prioridades, aprueba decisiones sobre roles y visibilidad de colecciones |
-| Líder / Scrum Master | Nicolás Negretto | Releva necesidades, gestiona sprints, valida entrevista |
-| Sub-líder / Desarrollador | Iván Sandoval | Desarrollo frontend y backend, transcripción y validación de entrevista |
-| Desarrollador | Augusto Fernández | Desarrollo frontend y backend |
+| Líder / Scrum Master | Nicolás Negretto | Desarrollo frontend, valida la documentación |
+| Sub-líder / Desarrollador | Iván Sandoval | Desarrollo backend, transcripción y documentación de la entrevista |
+| Desarrollador | Augusto Fernández | Desarrollo frontend, documentación de la entrevista, protecciones de seguridad |
 
 **Riesgos iniciales:**
 
