@@ -49,7 +49,7 @@ Antes de entrevistar al cliente, el equipo identifica que la solicitud contiene 
 
 | Rol | Participante | Responsabilidad |
 | --- | --- | --- |
-| Cliente (fotógrafo/videógrafo que solicita el sistema) | Lemuel Swec | Describe el problema, valida alcance y prioridades, aprueba decisiones sobre roles y visibilidad de colecciones |
+| Cliente (solicita el sistema) | Lemuel Swec | Describe el problema, valida alcance y prioridades, aprueba decisiones sobre roles y visibilidad de colecciones |
 | Equipo de desarrollo | Nicolás Negretto (Líder), Iván Sandoval (sub-líder), Augusto Fernández (desarrollador) | Releva necesidades, transcribe y valida la entrevista, transforma la información en backlog |
 
 ---
