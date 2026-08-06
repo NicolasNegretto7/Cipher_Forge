@@ -38,10 +38,8 @@ Antes de entrevistar al cliente, el equipo identifica que la solicitud contiene 
 | Usuarios y roles | ¿Quiénes usarán el sistema? ¿Cómo se diferencian fotógrafos, compradores e invitados a un evento? |
 | Colecciones | ¿Qué es una "colección" para el cliente? ¿Quién decide si es pública o privada? |
 | Contenido multimedia | ¿Qué tipo de archivos se suben (fotos, videos)? ¿En qué calidad? |
-| Almacenamiento | ¿Existe un límite de espacio por usuario? ¿Qué ocurre si se supera? |
 | Seguridad y privacidad | ¿Qué datos personales se solicitan al registrarse? ¿Qué políticas de privacidad aplican? |
 | Colaboración en eventos | ¿Cómo participan los invitados a un evento sin ser clientes registrados? |
-| Plazo | ¿Cuándo se espera contar con una primera versión funcionando? |
 
 ---
 
