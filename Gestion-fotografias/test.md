@@ -154,7 +154,7 @@ Antes de entrevistar al cliente, el equipo identifica que la solicitud contiene 
 
 ## 7. Nombre propuesto del producto
 
-**???**
+**[Nombre de la página web]**
 
 Sistema web para fotógrafos y compradores que permite subir material fotográfico para ser comprado.
 
@@ -162,7 +162,7 @@ Sistema web para fotógrafos y compradores que permite subir material fotográfi
 
 ## 8. Visión del producto
 
-Para fotógrafos y videógrafos que tienen dificultad para entregar su material de forma inmediata, profesional y sin perder calidad, ??? es una plataforma web que permitirá a fotógrafos subir, organizar y comercializar su material fotográfico, protegido con marca de agua, y a sus compradores visualizar, comprar y descargar ese contenido en dos niveles de calidad (buena calidad y alta calidad). A diferencia de WhatsApp o plataformas como Pixieset y Lumepic, nuestro producto combina protección del contenido, alta calidad de imagen y cobro ágil, sin demoras causadas por intermediarios que retienen el dinero. (Esto último se podrá implementar en un futuro por restricción de edad del equipo).
+Para fotógrafos y videógrafos que tienen dificultad para entregar su material de forma inmediata, profesional y sin perder calidad, [Nombre de la página web] es una plataforma web que permitirá a fotógrafos subir, organizar y comercializar su material fotográfico, protegido con marca de agua, y a sus compradores visualizar, comprar y descargar ese contenido en dos niveles de calidad (buena calidad y alta calidad). A diferencia de WhatsApp o plataformas como Pixieset y Lumepic, nuestro producto combina protección del contenido, alta calidad de imagen y cobro ágil, sin demoras causadas por intermediarios que retienen el dinero. (Esto último se podrá implementar en un futuro por restricción de edad del equipo).
 
 La primera versión será de subida y bajada de imágenes y videos, y marca de agua.
 
@@ -235,7 +235,13 @@ Quedarán fuera de la primera versión:
 | RF23 | Una vez que el fotógrafo autoriza la descarga, el sistema debe notificar al usuario mediante el apartado de notificaciones con el mensaje "El fotógrafo ha aceptado la descarga" (indicando la calidad concedida) o en su defecto "El fotógrafo no ha aceptado la descarga", ofreciendo las opciones "Aceptar descargar archivos" y "Quizás más tarde". |
 | RF24 | Al primer inicio de sesión como fotógrafo, el sistema debe mostrar un modal obligatorio con la política de privacidad y la Ley 18.331 sobre protección de datos personales e intimidad, estableciendo que el fotógrafo asume la responsabilidad legal por el contenido que publica y que la plataforma no se hace responsable ante demandas por publicación no autorizada. |
 | RF25 | El sistema debe validar que los videos subidos (por fotógrafo o invitado) sean clips o recortes del video original con un límite máximo de 80MB por video; si el video subido es el original (límite máximo de 800MB) completo, la responsabilidad recae exclusivamente sobre quien lo subió. |
-| RF26 | El sistema debera enviar el video hacia el backend para un recorte (usando la herramienta FFmpeg corriendo en Docker), este mismo recorte se hara con la duracion de quince segundos y se devolvera al frontend mostrandolo en la coleccion subida como recorte, el video completo sera guardado en Filesystem. |
+| RF26 | El sistema deberá generar automáticamente un recorte de vista previa de cada video subido y almacenar el archivo original completo para su posterior descarga autorizada. |
+
+**RF26 – Criterios de aceptación:**
+- El recorte de vista previa tendrá una duración máxima de 15 segundos.
+- El recorte se mostrará en la colección como representación del video.
+- El video original completo quedará disponible para la descarga autorizada.
+- El proceso de recorte se realizará de forma automática sin intervención del usuario.
 
 ---
 
@@ -301,11 +307,11 @@ A continuación se detalla la suma exacta de puntos de historia correspondientes
 
 | Código | Épica | Estimación en puntos | Historias asociadas |
 | --- | --- | --- | --- |
-| EP1 | Gestión de usuarios y seguridad | 16 | HU1 , HU8 , HU19 , HU21 , HU25 , HU32  |
+| EP1 | Gestión de usuarios y seguridad | 16 | HU1 , HU8 , HU19 , HU21 , HU25 , HU31  |
 | EP2 | Perfiles de fotógrafos y directorio | 3 | HU18  |
 | EP3 | Gestión de colecciones y accesos | 21 | HU2 , HU3 , HU17 , HU20 , HU24 , HU26 , HU27  |
-| EP4 | Carga y procesamiento multimedia | 22 | HU5 , HU6 , HU16 , HU22 , HU28 , HU33  |
-| EP5 | Visualización, selección y descargas | 18 | HU9 , HU10 , HU14 , HU23 , HU30 , HU31  |
+| EP4 | Carga y procesamiento multimedia | 22 | HU5 , HU6 , HU16 , HU22 , HU28 , HU32  |
+| EP5 | Visualización, selección y descargas | 18 | HU9 , HU10 , HU14 , HU23 , HU29 , HU30  |
 | EP6 | Carga colaborativa por QR | 14 | HU4 , HU7 , HU11 , HU12  |
 | EP7 | Mantenimiento técnico y respaldo | 5 | HU13  |
 | EP8 | Capacitación y cierre | 1 | HU15 |
@@ -319,7 +325,7 @@ El equipo presenta la siguiente propuesta:
 
 | Elemento | Propuesta |
 | --- | --- |
-| Producto | ???, sistema web para fotógrafos y compradores. |
+| Producto | [Nombre de la página web], sistema web para fotógrafos y compradores. |
 | Duración | 15 semanas (100 puntos de historia totales). |
 | Metodología | Scrum, con 5 sprints de 3 semanas (velocidad promedio: ~20 pts/sprint). |
 | Entregas | Incremento funcional al final de cada sprint. |
@@ -378,12 +384,12 @@ Se utilizará el siguiente formato:
 | HU26 | Como fotógrafo, quiero agregar hashtags al crear o editar una colección pública, para facilitar su descubrimiento por temática en el buscador. | 3 | Media |
 | HU27 | Como usuario, quiero filtrar las colecciones públicas mediante hashtags en el buscador, para encontrar contenido específico de mi interés. | 3 | Media |
 | HU28 | Como sistema, quiero validar que los videos subidos sean clips o recortes con un límite máximo de 800MB, para optimizar el almacenamiento y proteger derechos de autor. | 5 | Alta |
-| HU30 | Como usuario, quiero disponer de un modo de selección visual en la galería para elegir múltiples archivos y enviar una solicitud de descarga indicando la calidad deseada mediante el botón "Enviar confirmación". | 3 | Baja |
-| HU31 | Como sistema, quiero notificar al usuario cuando el fotógrafo apruebe su solicitud de descarga, ofreciendo las opciones "Aceptar descargar archivos" y "Quizás más tarde". | 3 | Baja |
-| HU32 | Como fotógrafo, al iniciar sesión por primera vez quiero aceptar la política de privacidad y la Ley 18.331, para formalizar mi responsabilidad sobre el contenido publicado. | 1 | Alta |
-| HU33 | Como sistema, quiero procesar los videos subidos en el backend mediante FFmpeg (corriendo en Docker) para generar automáticamente un recorte de 15 segundos para la vista previa en la colección y guardar el video completo en el Filesystem, para garantizar la visualización ligera y reservar el archivo original para la descarga. | 3 | Media |
+| HU29 | Como usuario, quiero disponer de un modo de selección visual en la galería para elegir múltiples archivos y enviar una solicitud de descarga indicando la calidad deseada mediante el botón "Enviar confirmación". | 3 | Baja |
+| HU30 | Como sistema, quiero notificar al usuario cuando el fotógrafo apruebe su solicitud de descarga, ofreciendo las opciones "Aceptar descargar archivos" y "Quizás más tarde". | 3 | Baja |
+| HU31 | Como fotógrafo, al iniciar sesión por primera vez quiero aceptar la política de privacidad y la Ley 18.331, para formalizar mi responsabilidad sobre el contenido publicado. | 1 | Alta |
+| HU32 | Como sistema, quiero procesar los videos subidos en el backend para generar automáticamente un recorte de 15 segundos para la vista previa en la colección y almacenar el video completo para la descarga autorizada, para garantizar la visualización ligera y reservar el archivo original. | 3 | Media |
 
-> **Nota de consolidación:** La antigua HU29 (Manejo de subida múltiple ante exceso de cuota) fue unificada con la HU16 para eliminar la duplicación de concepto en el backlog, consolidando 5 puntos en una única historia de usuario integral. Asimismo, por recomendación docente, el RF26 fue especificado técnicamente para la generación automática de recortes de video de 15 segundos mediante FFmpeg en Docker y almacenamiento del archivo completo en Filesystem, asociándose de forma directa a la HU33 dentro de la Épica EP4.
+> **Nota de consolidación:** La antigua HU29 (Manejo de subida múltiple ante exceso de cuota) fue unificada con la HU16 para eliminar la duplicación de concepto en el backlog, consolidando 5 puntos en una única historia de usuario integral. A partir de dicha unificación, las historias posteriores fueron renumeradas secuencialmente (HU28 a HU32) para mantener la continuidad del backlog. Asimismo, por recomendación docente, el RF26 fue redactado como requerimiento funcional orientado al resultado esperado del sistema, asociándose de forma directa a la HU32 dentro de la Épica EP4.
 
 ---
 
@@ -401,7 +407,7 @@ El backlog ha sido distribuido equitativamente manteniendo un ritmo de trabajo s
 | 4 | HU19 | Impedir el registro de usuarios duplicados por correo | 3 | Sprint 1 |
 | 5 | HU2 | Creación de colecciones y clasificación de visibilidad | 3 | Sprint 1 |
 | 6 | HU5 | Subida de imágenes o videos a colecciones | 3 | Sprint 1 |
-| 7 | HU32 | Aceptación de política de privacidad y Ley 18.331 en primer login | 1 | Sprint 1 |
+| 7 | HU31 | Aceptación de política de privacidad y Ley 18.331 en primer login | 1 | Sprint 1 |
 | 8 | HU10 | Descarga individual o comprimida (.zip) | 1 | Sprint 1 |
 | 9 | HU14 | Visualización con marca de agua automática | 5 | Sprint 2 |
 | 10 | HU3 | Autorización manual de clientes a colecciones privadas | 3 | Sprint 2 |
@@ -419,12 +425,12 @@ El backlog ha sido distribuido equitativamente manteniendo un ritmo de trabajo s
 | 22 | HU16 | Control de cuota (3GB) y manejo de subida parcial notificando excedentes | 5 | Sprint 4 |
 | 23 | HU28 | Validación de videos (clips/recortes y límite de 800MB) | 5 | Sprint 4 |
 | 24 | HU6 | Eliminación regular de imágenes o videos por el fotógrafo | 3 | Sprint 4 |
-| 25 | HU33 | Procesamiento de recortes de video (15s) con FFmpeg en Docker y guardado en Filesystem | 3 | Sprint 4 |
+| 25 | HU32 | Procesamiento automático de recortes de video (15s) y almacenamiento del original | 3 | Sprint 4 |
 | 26 | HU22 | Edición de datos básicos (título, descripción o reasignación) | 3 | Sprint 5 |
 | 27 | HU18 | Edición de perfil de fotógrafo y presencia en directorio público | 3 | Sprint 5 |
 | 28 | HU23 | Marcar como favorita una imagen o video pública | 3 | Sprint 5 |
-| 29 | HU30 | Modo de selección visual y botón "Enviar confirmación" | 3 | Sprint 5 |
-| 30 | HU31 | Notificación al usuario de aceptación con opciones de descarga | 3 | Sprint 5 |
+| 29 | HU29 | Modo de selección visual y botón "Enviar confirmación" | 3 | Sprint 5 |
+| 30 | HU30 | Notificación al usuario de aceptación con opciones de descarga | 3 | Sprint 5 |
 | 31 | HU13 | Respaldo automático diario de base de datos (3 copias) | 5 | Sprint 5 |
 | 32 | HU15 | Entrega de guía de uso, capacitación y cierre | 1 | Sprint 5 |
 
