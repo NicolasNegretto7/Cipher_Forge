@@ -79,7 +79,7 @@ La primera versión será de subida y bajada de imágenes y videos, y marca de a
 | Restricción institucional (UTU): equipo menor de edad | Imposibilidad de contratar hosting, dominio o pasarela de pago real; sistema limitado a entorno local |
 | Caída del servidor durante pruebas o evaluación | Pérdida de datos de prueba y tiempo de trabajo; mitigado con respaldos automáticos|
 | Material de riesgo legal (fotos sin autorización) | Responsabilidad legal del fotógrafo; mitigado con política de privacidad obligatoria y Ley 18.331 |
-| Pérdida de respaldos o archivos multimedia | Pérdida irrecuperable de material del fotógrafo; mitigado con rotación de 3 copias de BD |
+| Pérdida de respaldos o archivos multimedia | Pérdida irrecuperable de material del fotógrafo; mitigado con rotación de 3 copias en la base de datos |
 
 **Plazo y metodología:**
 Scrum, 5 sprints de 3 semanas (15 semanas totales), velocidad promedio de ~20 puntos por sprint, con revisión del incremento junto al cliente al final de cada sprint.
