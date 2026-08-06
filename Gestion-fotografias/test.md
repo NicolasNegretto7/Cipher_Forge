@@ -9,7 +9,7 @@
 **Nombre del emprendimiento/estudio:** No especificado (el cliente no menciona una marca propia).\
 **Cliente:** Lemuel Swec.\
 **Rubro:** Fotografía y videografía de eventos (bodas/casamientos, fiestas de 15 años y similares).\
-**Ubicación:** No especificado para una única ubicación, se toma en cuenta que es una aplicación web con alcance para Uruguay.\
+**Ubicación:** No especificado para una única ubicación.\
 **Tamaño:** Fotógrafo/a independiente; el sistema se concibe como una plataforma multi-fotógrafo (varios vendedores).\
 **Producción:** Fotografías (JPG, sin necesidad de RAW) y videos de eventos, destinados a la venta directa a compradores.\
 **Nivel tecnológico actual:** Medio; el cliente mencionó herramientas como Pixieset o Lumepic para publicar/entregar material, pero ninguna resuelve la protección del contenido y cobro ágil.\
@@ -41,7 +41,6 @@ Antes de entrevistar al cliente, el equipo identifica que la solicitud contiene 
 | Almacenamiento | ¿Existe un límite de espacio por usuario? ¿Qué ocurre si se supera? |
 | Seguridad y privacidad | ¿Qué datos personales se solicitan al registrarse? ¿Qué políticas de privacidad aplican? |
 | Colaboración en eventos | ¿Cómo participan los invitados a un evento sin ser clientes registrados? |
-| Restricciones institucionales | ¿Existen limitaciones por tratarse de un proyecto de egreso de UTU (presupuesto, hosting, pagos reales)? |
 | Plazo | ¿Cuándo se espera contar con una primera versión funcionando? |
 
 ---
