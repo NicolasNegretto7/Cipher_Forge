@@ -392,7 +392,7 @@ Se utilizará el siguiente formato:
 
 ## 20. Product Backlog inicial
 
-### Backlog priorizado y balanceado por Sprints (100 puntos de historia totales)
+### Backlog priorizado
 
 El backlog ha sido distribuido equitativamente manteniendo un ritmo de trabajo sostenido de aproximadamente **20 puntos por sprint**:
 
