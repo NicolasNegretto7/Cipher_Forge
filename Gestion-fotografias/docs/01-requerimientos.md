@@ -247,7 +247,7 @@ Quedarán fuera de la primera versión:
 | Código | Requerimiento no funcional |
 | --- | --- |
 | RNF1 | La interfaz de usuario debe ser completamente adaptable (Responsive) para asegurar una experiencia de usuario óptima tanto en computadoras de escritorio como en dispositivos móviles (smartphones y tablets). |
-| RNF2 | Las páginas del portal de clientes y las galerías deben cargar en un tiempo óptimo (tiempo de respuesta menor a 2 segundos bajo condiciones normales de red local). |
+| RNF2 | Las páginas del portal de clientes y las galerías deben cargar en un tiempo óptimo (tiempo de respuesta menor a 3 segundos bajo condiciones normales de red local). |
 | RNF3 | La interfaz de la página web debe ser simple, rápida y formal. |
 | RNF4 | El sistema debe asegurar la estabilidad de la página para soportar el uso constante durante las pruebas en entorno local y estar preparado para un despliegue futuro en producción. |
 | RNF5 | El sistema debe realizar respaldos automáticos diarios de la base de datos (propuesta del equipo de desarrollo para mitigar riesgos de pérdida de información). |
