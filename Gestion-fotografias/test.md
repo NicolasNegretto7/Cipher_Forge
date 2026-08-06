@@ -398,7 +398,7 @@ El backlog ha sido distribuido equitativamente manteniendo un ritmo de trabajo s
 
 | Orden | ID | Historia de usuario | Puntos | Sprint estimado |
 | :--- | :--- | :--- | :--- | :--- |
-| 1 | HU1 | Inicio de sesión básico (acceso a paneles) | 3 | Sprint 1 (20 pts) |
+| 1 | HU1 | Inicio de sesión básico (acceso a paneles) | 3 | Sprint 1 |
 | 2 | HU8 | Registro con selección de rol (Fotógrafo / Cliente) | 3 | Sprint 1 |
 | 3 | HU25 | Registro obligatorio de campos (Nombre, correo, contraseña y teléfono opcional) | 3 | Sprint 1 |
 | 4 | HU19 | Impedir el registro de usuarios duplicados por correo | 3 | Sprint 1 |
