@@ -3,8 +3,7 @@ USE cipher_forge;
 
 CREATE TABLE usuarios(
 id VARCHAR(36) NOT NULL PRIMARY KEY DEFAULT (UUID()),
-nombre VARCHAR(50) NOT NULL,
-apellido VARCHAR(50) NOT NULL,
+nombre_completo VARCHAR(50) NOT NULL,
 email VARCHAR(60) NOT NULL UNIQUE,
 telefono VARCHAR(30),
 email_verificado BOOLEAN DEFAULT FALSE,
@@ -26,6 +25,8 @@ FOREIGN KEY (fotografo_id) REFERENCES usuarios(id) ON DELETE CASCADE
 
 
 CREATE TABLE multimedia (
+titulo VARCHAR(60),
+descripcion VARCHAR(90),
 id_multimedia VARCHAR(36) NOT NULL PRIMARY KEY DEFAULT (UUID()),
 ruta_original VARCHAR(255) NOT NULL,
 coleccion_id VARCHAR(36) NOT NULL,
