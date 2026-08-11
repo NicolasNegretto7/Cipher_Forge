@@ -8,7 +8,8 @@ email VARCHAR(60) NOT NULL UNIQUE,
 telefono VARCHAR(30),
 email_verificado BOOLEAN DEFAULT FALSE,
 password_hash VARCHAR(255) NOT NULL,
-rol ENUM('fotografo', 'cliente') NOT NULL 
+rol ENUM('fotografo', 'cliente') NOT NULL,
+politicas_aceptadas BOOLEAN DEFAULT FALSE NOT NULL
 
 );
 
