@@ -2,7 +2,7 @@ CREATE DATABASE IF NOT EXISTS cipher_forge;
 USE cipher_forge;
 
 CREATE TABLE usuarios(
-id VARCHAR(36) NOT NULL PRIMARY KEY DEFAULT (UUID()),
+id VARCHAR(36) NOT NULL PRIMARY KEY AUTO_INCREMENT,
 nombre_completo VARCHAR(90) NOT NULL,
 email VARCHAR(60) NOT NULL UNIQUE,
 telefono VARCHAR(30),
@@ -14,7 +14,7 @@ politicas_aceptadas BOOLEAN DEFAULT FALSE NOT NULL
 );
 
 CREATE TABLE colecciones(
-id VARCHAR(36) NOT NULL PRIMARY KEY DEFAULT (UUID()),
+id VARCHAR(36) NOT NULL PRIMARY KEY AUTO_INCREMENT,
 fotografo_id VARCHAR(36) NOT NULL, 
 tipo_visibilidad ENUM('privada', 'publica') NOT NULL DEFAULT 'privada',
 titulo VARCHAR(60),
@@ -28,11 +28,11 @@ FOREIGN KEY (fotografo_id) REFERENCES usuarios(id) ON DELETE CASCADE
 CREATE TABLE multimedia (
 titulo VARCHAR(60),
 descripcion VARCHAR(90),
-id_multimedia VARCHAR(36) NOT NULL PRIMARY KEY DEFAULT (UUID()),
+id_multimedia VARCHAR(36) NOT NULL PRIMARY KEY AUTO_INCREMENT,
 ruta_original VARCHAR(255) NOT NULL,
 coleccion_id VARCHAR(36) NOT NULL,
 vista_previa VARCHAR(255) NOT NULL,
-tamanio BIGINT UNSIGNED NOT NULL,
+tamanio INT UNSIGNED NOT NULL,
 es_invitado BOOLEAN NOT NULL DEFAULT FALSE,
 tipo ENUM('videos', 'imagenes') NOT NULL,
 FOREIGN KEY (coleccion_id) REFERENCES colecciones(id) ON DELETE CASCADE
@@ -62,7 +62,7 @@ FOREIGN KEY (coleccion_id) REFERENCES colecciones(id) ON DELETE CASCADE
 );
 
 CREATE TABLE qr_tokens(
-token VARCHAR(36) NOT NULL PRIMARY KEY DEFAULT (UUID()),
+token VARCHAR(36) NOT NULL PRIMARY KEY AUTO_INCREMENT,
 coleccion_id VARCHAR(36) NOT NULL,
 creacion_token TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 tipo ENUM('colaborativo', 'acceso'),
@@ -73,7 +73,7 @@ FOREIGN KEY (coleccion_id) REFERENCES colecciones(id) ON DELETE CASCADE
 );
 
 CREATE TABLE solicitudes_descarga(
-id_solicitud VARCHAR(36) NOT NULL PRIMARY KEY DEFAULT (UUID()),
+id_solicitud VARCHAR(36) NOT NULL PRIMARY KEY AUTO_INCREMENT,
 usuario_id VARCHAR(36) NOT NULL,
 coleccion_id VARCHAR(36) NOT NULL,
 solicitud ENUM('pendiente','aprobada', 'rechazada') DEFAULT 'pendiente',
@@ -84,7 +84,7 @@ FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 
 CREATE TABLE hashtags(
 nombre_hashtags VARCHAR(40) NOT NULL,
-id_hashtags VARCHAR(36) NOT NULL PRIMARY KEY DEFAULT (UUID())
+id_hashtags VARCHAR(36) NOT NULL PRIMARY KEY AUTO_INCREMENT
 
 
 );
@@ -99,8 +99,8 @@ FOREIGN KEY (coleccion_id) REFERENCES colecciones(id) ON DELETE CASCADE
 );
 
 CREATE TABLE backups(
-id_backup VARCHAR(36) NOT NULL PRIMARY KEY DEFAULT (UUID()),
-archivo_backup VARCHAR(255) NOT NULL,
+id_backup INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+archivo_backup INT UNSIGNED NOT NULL,
 fecha_backup TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 
 );
