@@ -33,7 +33,7 @@ coleccion_id VARCHAR(36) NOT NULL,
 vista_previa VARCHAR(255) NOT NULL,
 tamanio INT UNSIGNED NOT NULL,
 es_invitado BOOLEAN NOT NULL DEFAULT FALSE,
-tipo ENUM('videos', 'imagenes') NOT NULL,
+tipo ENUM('video', 'imagen') NOT NULL,
 FOREIGN KEY (coleccion_id) REFERENCES colecciones(id) ON DELETE CASCADE
 );
 
