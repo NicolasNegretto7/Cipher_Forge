@@ -3,8 +3,7 @@ USE cipher_forge;
 
 CREATE TABLE usuarios(
 id VARCHAR(36) NOT NULL PRIMARY KEY DEFAULT (UUID()),
-nombre VARCHAR(25) NOT NULL,
-apellido VARCHAR(25),
+nombre_completo VARCHAR(50) NOT NULL,
 email VARCHAR(60) NOT NULL UNIQUE,
 telefono VARCHAR(30),
 password_hash VARCHAR(255) NOT NULL,
@@ -15,7 +14,7 @@ rol ENUM('fotografo', 'cliente') NOT NULL
 CREATE TABLE colecciones(
 id VARCHAR(36) NOT NULL PRIMARY KEY DEFAULT (UUID()),
 fotografo_id VARCHAR(36) NOT NULL, 
-tipo_visibilidad ENUM('privada', 'publica') NOT NULL,
+tipo_visibilidad ENUM('privada', 'publica') NOT NULL DEFAULT 'privada',
 titulo VARCHAR(40),
 descripcion VARCHAR(90),
 creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
