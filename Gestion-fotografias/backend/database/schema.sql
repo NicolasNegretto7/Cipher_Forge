@@ -14,7 +14,7 @@ rol ENUM('fotografo', 'cliente') NOT NULL
 
 CREATE TABLE colecciones(
 id VARCHAR(36) NOT NULL PRIMARY KEY DEFAULT (UUID()),
-fotografo_id VARCHAR(36) NOT NULL DEFAULT (UUID()), 
+fotografo_id VARCHAR(36) NOT NULL, 
 tipo_visibilidad ENUM('privada', 'publica') NOT NULL,
 titulo VARCHAR(40),
 descripcion VARCHAR(90),
@@ -38,8 +38,8 @@ FOREIGN KEY (coleccion_id) REFERENCES colecciones(id) ON DELETE CASCADE
 
 CREATE TABLE favoritos (
 
-usuarios_id VARCHAR(36) NOT NULL DEFAULT (UUID()),
-favoritos_id VARCHAR(36) NOT NULL DEFAULT (UUID()),
+usuarios_id VARCHAR(36) NOT NULL,
+favoritos_id VARCHAR(36) NOT NULL,
 
 PRIMARY KEY (usuarios_id, favoritos_id),
 FOREIGN KEY (usuarios_id) REFERENCES usuarios(id) ON DELETE CASCADE,
