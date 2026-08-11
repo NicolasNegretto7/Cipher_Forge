@@ -3,7 +3,7 @@ USE cipher_forge;
 
 CREATE TABLE usuarios(
 id VARCHAR(36) NOT NULL PRIMARY KEY DEFAULT (UUID()),
-nombre_completo VARCHAR(50) NOT NULL,
+nombre_completo VARCHAR(90) NOT NULL,
 email VARCHAR(60) NOT NULL UNIQUE,
 telefono VARCHAR(30),
 email_verificado BOOLEAN DEFAULT FALSE,
