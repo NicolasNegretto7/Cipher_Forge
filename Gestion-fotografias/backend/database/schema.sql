@@ -19,7 +19,6 @@ fotografo_id VARCHAR(36) NOT NULL,
 tipo_visibilidad ENUM('privada', 'publica') NOT NULL DEFAULT 'privada',
 titulo VARCHAR(60),
 descripcion VARCHAR(90),
-creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 
 FOREIGN KEY (fotografo_id) REFERENCES usuarios(id) ON DELETE CASCADE
 );
