@@ -5,7 +5,7 @@ CREATE TABLE usuarios(
     nombre_completo VARCHAR(90) NOT NULL,
     email VARCHAR(60) NOT NULL UNIQUE,
     telefono VARCHAR(30),
-    email_verificado BOOLEAN DEFAULT FALSE,
+    email_verificado BOOLEAN DEFAULT FALSE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     rol ENUM('fotografo', 'cliente') NOT NULL,
     politicas_aceptadas BOOLEAN DEFAULT FALSE NOT NULL
