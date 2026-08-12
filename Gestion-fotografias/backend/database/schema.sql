@@ -16,6 +16,7 @@ CREATE TABLE colecciones(
     tipo_visibilidad ENUM('privada', 'publica') NOT NULL DEFAULT 'privada',
     titulo VARCHAR(60),
     descripcion VARCHAR(90),
+    creado_en TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (fotografo_id) REFERENCES usuarios(id) ON DELETE CASCADE
 );
 CREATE TABLE multimedia (
