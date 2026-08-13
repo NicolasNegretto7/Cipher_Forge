@@ -26,7 +26,7 @@ $pdo = new PDO($dsn, $user, $pass, $options);
 return $pdo;
 }catch(PDOException $e){
     error_log("ErrorPDO: " . $e->getMessage());
-    exit("Error de conexión con la base de datos.");
+    exit("Error de conexión.");
 }
     }
 }
