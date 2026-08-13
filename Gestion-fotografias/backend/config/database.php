@@ -1,13 +1,10 @@
 <?php
 class Database{
-
-
-
     public function connect(): PDO{
     $host = getenv("DB_HOST");
     $user = getenv("DB_USER");
     $pass = getenv("DB_PASS");
-    $port = '3306';
+    $port = getenv('DB_PORT');
     $name = getenv("DB_NAME");
     $dsn = "mysql:host=$host;dbname=$name;port=$port;charset=utf8mb4";
 
