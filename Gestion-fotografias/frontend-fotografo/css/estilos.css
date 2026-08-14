@@ -37,7 +37,7 @@ header {
     padding: var(--padding-base);
      text-align: center;
       box-shadow: var(--sombra-header);
-    border-radius: 0 0 30px 30px;
+    
   
   }
 
@@ -184,7 +184,7 @@ footer {
     text-align: center;
     padding: 20px;
     margin-top: auto;
-    border-radius: 30px 30px 0 0;
+    
 }
 
 footer p {

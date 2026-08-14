@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Colección · Subida segura con marca de agua</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   BASE — mismo lenguaje visual de panel.css (moderno y serio)
+   ============================================================ */
+:root {
+    --primary-color: #0f172a;
+    --verde: #1cae7a;
+    --verde-2: #17c48f;
+    --gris-texto: #6b7280;
+    --borde: rgb(230, 230, 230);
+    --fondo: #fafafa;
+    --sombra: 0 4px 14px rgba(15, 23, 42, .08);
+    --radio: 14px;
+}
+* { font-family: 'Inter', Arial, Helvetica, sans-serif; box-sizing: border-box; }
+body { margin: 0; background: var(--fondo); color: var(--primary-color); }
+button { font-family: inherit; }
+
+.Contenedor { display: flex; flex-direction: row; align-items: stretch; min-height: 100vh; }
+
+/* ---------- Sidebar ---------- */
+.Sidebar {
+    width: 240px; height: 100vh; position: sticky; top: 0;
+    background: #fff; border-right: 1px solid var(--borde);
+    display: flex; flex-direction: column; padding: 20px 15px;
+}
+.Logo p { font-size: 16px; font-weight: 700; color: var(--primary-color); }
+.Menu { display: flex; flex-direction: column; gap: 5px; margin-top: 10px; }
+.ItemMenu p, .ItemMenuActivo p { padding: 10px; border-radius: 8px; color: var(--gris-texto); margin: 0; cursor: pointer; }
+.ItemMenuActivo p { background: rgb(240,240,240); color: var(--primary-color); font-weight: 700; }
+.ItemMenu:hover p { background: rgb(245,245,245); transition: background-color .3s ease; }
+.Almacenamiento {
+    margin-top: auto; display: flex; align-items: center; gap: 10px;
+    background: rgb(248,248,248); border-radius: 30px; padding: 8px 12px;
+    font-size: 12px; color: var(--gris-texto);
+}
+.CirculoAlmacenamiento {
+    width: 20px; height: 20px; border-radius: 50%; flex-shrink: 0;
+    background: conic-gradient(var(--verde) 0%, #e5e7eb 0);
+    position: relative;
+}
+.CirculoAlmacenamiento::after {
+    content: ""; position: absolute; inset: 4px; background: rgb(248,248,248); border-radius: 50%;
+}
+.BotonMas {
+    margin-left: auto; width: 20px; height: 20px; border-radius: 50%;
+    background: var(--verde); color: #fff; text-align: center; font-weight: 700;
+    cursor: pointer; line-height: 20px;
+}
+
+/* ---------- Principal ---------- */
+.Principal { flex: 1; padding: 30px 40px 60px; min-width: 0; }
+.Encabezado { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.BotonAtras {
+    width: 40px; height: 40px; border-radius: 12px; border: 1px solid var(--borde);
+    background: #fff; cursor: pointer; font-size: 18px; color: var(--primary-color);
+}
+.Encabezado h1 { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -.5px; }
+.MigaPan { font-size: 13px; color: var(--gris-texto); width: 100%; }
+.MigaPan b { color: var(--primary-color); }
+.Buscador {
+    margin-left: 12px; padding: 10px 16px; border-radius: 22px;
+    border: 1px solid rgb(220,220,220); width: 230px; outline: none; font-size: 14px;
+    transition: border-color .25s, box-shadow .25s;
+}
+.Buscador:focus { border-color: var(--verde); box-shadow: 0 0 0 3px rgba(28,174,122,.15); }
+.BotonPrincipal {
+    margin-left: auto; border: none; cursor: pointer; color: #fff;
+    background: linear-gradient(to right, var(--verde) 0%, var(--verde-2) 100%);
+    padding: 12px 22px; border-radius: 12px; font-size: 14px; font-weight: 600;
+    display: inline-flex; align-items: center; gap: 8px;
+    box-shadow: 0 6px 16px rgba(28,174,122,.35);
+    transition: transform .15s ease, filter .2s;
+}
+.BotonPrincipal:hover { filter: brightness(.95); transform: translateY(-1px); }
+
+/* ---------- Zona de carga (drag & drop) ---------- */
+.ZonaCarga {
+    margin-top: 26px; border: 2px dashed #cbd5e1; border-radius: var(--radio);
+    background: #fff; padding: 42px 20px; text-align: center; cursor: pointer;
+    transition: border-color .25s, background .25s, transform .15s;
+    position: relative;
+}
+.ZonaCarga:hover { border-color: var(--verde); }
+.ZonaCarga.Activa {
+    border-color: var(--verde); background: rgba(28,174,122,.06);
+    transform: scale(1.005);
+}
+.ZonaCarga svg { width: 46px; height: 46px; stroke: var(--verde); }
+.ZonaCarga h2 { margin: 12px 0 4px; font-size: 18px; font-weight: 700; }
+.ZonaCarga p { margin: 0; color: var(--gris-texto); font-size: 13px; }
+.Formatos {
+    display: inline-flex; gap: 8px; margin-top: 14px;
+}
+.Formatos span {
+    font-size: 11px; font-weight: 700; letter-spacing: .5px;
+    padding: 4px 12px; border-radius: 20px; background: #f1f5f9; color: #475569;
+}
+
+/* ---------- Configuración de marca de agua ---------- */
+.ConfigMarca {
+    margin-top: 22px; background: #fff; border: 1px solid var(--borde);
+    border-radius: var(--radio); box-shadow: var(--sombra);
+    padding: 18px 22px; display: flex; flex-wrap: wrap; gap: 22px; align-items: center;
+}
+.ConfigMarca > div { display: flex; flex-direction: column; gap: 6px; }
+.ConfigMarca label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--gris-texto); }
+.ConfigMarca input[type="text"] {
+    padding: 9px 14px; border-radius: 10px; border: 1px solid rgb(220,220,220);
+    font-size: 14px; width: 280px; outline: none;
+}
+.ConfigMarca input[type="text"]:focus { border-color: var(--verde); }
+.ConfigMarca input[type="range"] { accent-color: var(--verde); width: 200px; }
+.Interruptor { position: relative; width: 46px; height: 26px; margin-top: 2px; }
+.Interruptor input { display: none; }
+.Interruptor i {
+    position: absolute; inset: 0; background: #d1d5db; border-radius: 20px;
+    cursor: pointer; transition: background .25s;
+}
+.Interruptor i::after {
+    content: ""; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px;
+    background: #fff; border-radius: 50%; transition: left .25s; box-shadow: 0 1px 3px rgba(0,0,0,.25);
+}
+.Interruptor input:checked + i { background: var(--verde); }
+.Interruptor input:checked + i::after { left: 23px; }
+.NotaConfig { font-size: 12px; color: var(--gris-texto); max-width: 260px; line-height: 1.5; }
+
+/* ---------- Barra de galería / filtros ---------- */
+.BarraGaleria { display: flex; align-items: center; gap: 10px; margin-top: 28px; flex-wrap: wrap; }
+.BarraGaleria h3 { margin: 0; font-size: 16px; font-weight: 700; }
+.ContadorArchivos { font-size: 12px; color: var(--gris-texto); background: #f1f5f9; padding: 4px 10px; border-radius: 20px; }
+.Filtros { margin-left: auto; display: flex; gap: 8px; }
+.Filtro {
+    border: 1px solid var(--borde); background: #fff; color: var(--gris-texto);
+    padding: 7px 16px; border-radius: 20px; font-size: 13px; cursor: pointer; transition: all .2s;
+}
+.Filtro:hover { border-color: var(--verde); color: var(--verde); }
+.Filtro.Activo { background: var(--primary-color); border-color: var(--primary-color); color: #fff; }
+
+/* ---------- Galería de medios ---------- */
+.GaleriaMedia {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+    gap: 22px; margin-top: 20px;
+}
+.TarjetaMedia {
+    background: #fff; border-radius: var(--radio); overflow: hidden;
+    box-shadow: var(--sombra); border: 1px solid var(--borde);
+    animation: aparecer .4s ease both;
+}
+@keyframes aparecer { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+
+.MarcoPreview {
+    position: relative; aspect-ratio: 4 / 3; background: #0b1220;
+    display: flex; align-items: center; justify-content: center; overflow: hidden;
+}
+.MarcoPreview img, .MarcoPreview canvas {
+    width: 100%; height: 100%; object-fit: contain; display: block;
+}
+.CapaAcciones {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 10px;
+    background: linear-gradient(to top, rgba(15,23,42,.55), rgba(15,23,42,0) 60%);
+    opacity: 0; transition: opacity .25s;
+}
+.TarjetaMedia:hover .CapaAcciones { opacity: 1; }
+.BotonCircular {
+    width: 42px; height: 42px; border-radius: 50%; border: none; cursor: pointer;
+    background: rgba(255,255,255,.92); color: var(--primary-color); font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform .15s, background .2s;
+}
+.BotonCircular:hover { transform: scale(1.1); }
+.BotonCircular.Peligro:hover { background: #ef4444; color: #fff; }
+
+.BotonPlay {
+    position: absolute; width: 58px; height: 58px; border-radius: 50%; border: none;
+    background: rgba(255,255,255,.9); cursor: pointer; font-size: 20px; color: var(--primary-color);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 18px rgba(0,0,0,.35); transition: transform .15s;
+}
+.BotonPlay:hover { transform: scale(1.08); }
+.BotonPlay.Oculto { display: none; }
+.Duracion {
+    position: absolute; right: 10px; bottom: 10px; font-size: 11px; font-weight: 600;
+    background: rgba(15,23,42,.75); color: #fff; padding: 3px 9px; border-radius: 8px;
+}
+.ChipProtegido {
+    position: absolute; left: 10px; top: 10px; display: inline-flex; align-items: center; gap: 5px;
+    font-size: 10px; font-weight: 700; letter-spacing: .4px; text-transform: uppercase;
+    background: rgba(28,174,122,.9); color: #fff; padding: 4px 10px; border-radius: 20px;
+}
+
+/* Progreso de subida simulado */
+.ProyectoSubiendo { position: absolute; inset: 0; background: rgba(255,255,255,.96); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
+.BarraProgreso { width: 70%; height: 6px; border-radius: 10px; background: #e5e7eb; overflow: hidden; }
+.BarraProgreso i { display: block; height: 100%; width: 0; border-radius: 10px; background: linear-gradient(to right, var(--verde), var(--verde-2)); transition: width .1s linear; }
+.ProyectoSubiendo small { color: var(--gris-texto); font-size: 12px; }
+
+.InfoMedia { padding: 14px 16px; }
+.NombreArchivo { font-weight: 700; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.MetaMedia { display: flex; align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+.EtiquetaTipo { font-size: 10px; font-weight: 800; letter-spacing: .6px; padding: 3px 9px; border-radius: 6px; }
+.EtiquetaTipo.JPG { background: #e0f2fe; color: #0369a1; }
+.EtiquetaTipo.MP4 { background: #ede9fe; color: #6d28d9; }
+.MetaMedia small { color: var(--gris-texto); font-size: 12px; }
+
+.EstadoVacio {
+    grid-column: 1 / -1; text-align: center; padding: 60px 20px; color: var(--gris-texto);
+    border: 1px dashed var(--borde); border-radius: var(--radio); background: #fff;
+}
+.EstadoVacio svg { width: 40px; height: 40px; stroke: #cbd5e1; margin-bottom: 10px; }
+
+/* ---------- Aviso de seguridad ---------- */
+.AvisoSeguridad {
+    margin-top: 30px; display: flex; gap: 12px; align-items: flex-start;
+    background: #f0fdf7; border: 1px solid #bbf0d8; border-radius: var(--radio);
+    padding: 14px 18px; font-size: 12.5px; color: #14532d; line-height: 1.6;
+}
+.AvisoSeguridad svg { width: 20px; height: 20px; stroke: var(--verde); flex-shrink: 0; margin-top: 2px; }
+
+/* ---------- Toasts ---------- */
+.ContenedorToasts { position: fixed; right: 22px; bottom: 22px; display: flex; flex-direction: column; gap: 10px; z-index: 60; }
+.Toast {
+    min-width: 260px; max-width: 360px; padding: 13px 16px; border-radius: 12px;
+    color: #fff; font-size: 13px; font-weight: 500; box-shadow: 0 10px 26px rgba(0,0,0,.2);
+    animation: aparecer .3s ease both; display: flex; gap: 10px; align-items: center;
+}
+.Toast.Exito { background: #0f9d6a; }
+.Toast.Error { background: #dc2626; }
+.Toast.Info  { background: var(--primary-color); }
+
+/* ---------- Modal / visor ---------- */
+.Visor { position: fixed; inset: 0; background: rgba(2,6,23,.82); display: none; align-items: center; justify-content: center; z-index: 50; padding: 30px; }
+.Visor.Abierto { display: flex; }
+.VisorInterior { position: relative; max-width: min(980px, 95vw); width: 100%; animation: aparecer .25s ease; }
+.VisorInterior img { width: 100%; max-height: 78vh; object-fit: contain; border-radius: 12px; display: block; background: #000; }
+.VisorVideo { position: relative; border-radius: 12px; overflow: hidden; background: #000; }
+.VisorVideo video { width: 100%; max-height: 78vh; display: block; }
+.CapaMarcaCSS { position: absolute; inset: 0; pointer-events: none; background-repeat: repeat; }
+.VisorPie { display: flex; align-items: center; gap: 10px; margin-top: 12px; color: #cbd5e1; font-size: 13px; }
+.VisorPie .Candado { color: var(--verde-2); font-weight: 700; }
+.BotonCerrarVisor {
+    position: absolute; top: -16px; right: -14px; width: 40px; height: 40px; border-radius: 50%;
+    border: none; background: #fff; color: var(--primary-color); font-size: 16px; cursor: pointer;
+    box-shadow: 0 6px 16px rgba(0,0,0,.35);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 900px) {
+    .Sidebar { display: none; }
+    .Principal { padding: 22px 18px 50px; }
+    .Buscador { width: 100%; margin: 8px 0; }
+    .BotonPrincipal { margin-left: 0; }
+}
+</style>
+</head>
+<body>
+
+<div class="Contenedor">
+
+    <!-- ==================== SIDEBAR ==================== -->
+    <div class="Sidebar">
+        <div class="Logo"><p>Galería del Fotógrafo ▾</p></div>
+
+        <div class="Menu">
+            <div class="ItemMenuActivo"><p>Colecciones</p></div>
+            <div class="ItemMenu"><p>Biblioteca</p></div>
+            <div class="ItemMenu"><p>Destacados</p></div>
+            <div class="ItemMenu"><p>Subir Imagen</p></div>
+        </div>
+
+        <hr>
+
+        <div class="Almacenamiento">
+            <div class="CirculoAlmacenamiento" id="anilloAlmacenamiento"></div>
+            <p id="usoAlmacenamiento">0 MB de 3 GB usados</p>
+            <div class="BotonMas" title="Ampliar almacenamiento">+</div>
+        </div>
+    </div>
+
+    <!-- ==================== PRINCIPAL ==================== -->
+    <div class="Principal">
+
+        <div class="Encabezado">
+            <button class="BotonAtras" title="Volver al panel" onclick="history.back()">←</button>
+            <h1>Colección</h1>
+            <input type="text" placeholder="Buscar en esta colección…" class="Buscador" id="buscador">
+            <button class="BotonPrincipal" id="botonSubir">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Subir archivos
+            </button>
+        </div>
+        <div class="MigaPan">Colecciones / <b>Sesión de prueba</b> · Identificador de recurso: <span id="idColeccion"></span></div>
+
+        <!-- Zona de carga -->
+        <div class="ZonaCarga" id="zonaCarga">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M17 8l-5-5-5 5"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <h2>Arrastra tus archivos aquí o haz clic para seleccionarlos</h2>
+            <p>La marca de agua se aplica automáticamente al subir cada archivo</p>
+            <div class="Formatos"><span>JPG</span><span>MP4</span><span>MÁX. 200 MB</span></div>
+        </div>
+        <input type="file" id="selectorArchivos" accept=".jpg,.jpeg,.mp4,image/jpeg,video/mp4" multiple hidden>
+
+        <!-- Configuración de la marca de agua -->
+        <div class="ConfigMarca">
+            <div>
+                <label for="textoMarca">Texto de la marca</label>
+                <input type="text" id="textoMarca" value="Galería del Fotógrafo" maxlength="40">
+            </div>
+            <div>
+                <label for="opacidadMarca">Opacidad · <span id="valorOpacidad">30%</span></label>
+                <input type="range" id="opacidadMarca" min="15" max="60" value="30">
+            </div>
+            <div>
+                <label>Activada</label>
+                <label class="Interruptor"><input type="checkbox" id="marcaActiva" checked><i></i></label>
+            </div>
+            
+        </div>
+
+        <!-- Barra de galería -->
+        <div class="BarraGaleria">
+            <h3>Archivos de la colección</h3>
+            <span class="ContadorArchivos" id="contadorArchivos">0 archivos</span>
+            <div class="Filtros">
+                <button class="Filtro Activo" data-filtro="todos">Todos</button>
+                <button class="Filtro" data-filtro="imagen">Imágenes</button>
+                <button class="Filtro" data-filtro="video">Videos</button>
+            </div>
+        </div>
+
+        <!-- Galería -->
+        <div class="GaleriaMedia" id="galeria">
+            <div class="EstadoVacio" id="estadoVacio">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                <p>Aún no hay archivos en esta colección.<br>Sube tu primer <b>JPG</b> o <b>MP4</b> para comenzar.</p>
+            </div>
+        </div>
+
+        
+    </div>
+</div>
+
+<!-- Visor (lightbox) -->
+<div class="Visor" id="visor">
+    <div class="VisorInterior">
+        <button class="BotonCerrarVisor" id="cerrarVisor">✕</button>
+        <div id="visorContenido"></div>
+        <div class="VisorPie">
+            <span class="Candado">🔒 Original protegido</span>
+            <span>· La descarga solo se habilita con autorización del fotógrafo</span>
+        </div>
+    </div>
+</div>
+
+<div class="ContenedorToasts" id="toasts"></div>
+
+<script>
+/* ================================================================
+   MarcaAgua.js — Librería de generación de marca de agua (cliente)
+   ----------------------------------------------------------------
+   Técnica: Canvas API. Para imágenes se rasteriza una copia
+   optimizada con la marca incrustada en los píxeles. Para videos
+   se renderiza cada fotograma en vivo con la marca superpuesta.
+   El archivo original NUNCA se expone: solo existe la copia
+   marcada (alineado a la buena práctica 3.4 del proyecto).
+   ================================================================ */
+const MarcaAgua = (() => {
+
+    function redondear(ctx, x, y, w, h, r) {
+        if (ctx.roundRect) { ctx.beginPath(); ctx.roundRect(x, y, w, h, r); return; }
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.arcTo(x + w, y, x + w, y + h, r);
+        ctx.arcTo(x + w, y + h, x, y + h, r);
+        ctx.arcTo(x, y + h, x, y, r);
+        ctx.arcTo(x, y, x + w, y, r);
+        ctx.closePath();
+    }
+
+    /* Dibuja la marca sobre un contexto ya dimensionado */
+    function dibujar(ctx, w, h, opts) {
+        if (!opts.activa) return;
+        const texto = opts.texto || "Protegido";
+
+        // --- Patrón diagonal repetido ---
+        const fs = Math.max(16, Math.min(w, h) * 0.055);
+        ctx.save();
+        ctx.globalAlpha = opts.opacidad;
+        ctx.fillStyle = "#ffffff";
+        ctx.shadowColor = "rgba(0,0,0,.45)";
+        ctx.shadowBlur = fs * 0.25;
+        ctx.font = `600 ${fs}px Inter, Arial, sans-serif`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.translate(w / 2, h / 2);
+        ctx.rotate(-Math.PI / 8);
+        const gapX = fs * 7.5, gapY = fs * 4.2;
+        const diag = Math.hypot(w, h);
+        let fila = 0;
+        for (let y = -diag / 2; y <= diag / 2; y += gapY, fila++) {
+            const desfase = (fila % 2) ? gapX / 2 : 0;
+            for (let x = -diag / 2 - desfase; x <= diag / 2; x += gapX) {
+                ctx.fillText(texto, x + desfase, y);
+            }
+        }
+        ctx.restore();
+
+        // --- Insignia inferior derecha ---
+        ctx.save();
+        ctx.globalAlpha = Math.min(1, opts.opacidad * 2);
+        const insignia = "© " + texto;
+        const bfs = Math.max(11, fs * 0.42);
+        ctx.font = `700 ${bfs}px Inter, Arial, sans-serif`;
+        const bw = ctx.measureText(insignia).width + bfs * 1.6;
+        const bh = bfs * 2.1, bx = w - bw - 12, by = h - bh - 12;
+        ctx.fillStyle = "rgba(15,23,42,.62)";
+        redondear(ctx, bx, by, bw, bh, bh / 2);
+        ctx.fill();
+        ctx.fillStyle = "#ffffff";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(insignia, bx + bw / 2, by + bh / 2 + 1);
+        ctx.restore();
+    }
+
+    /* Genera una COPIA marcada y optimizada de una imagen (dataURL) */
+    function aplicarImagen(img, opts, maxLado = 1400) {
+        const escala = Math.min(1, maxLado / Math.max(img.naturalWidth, img.naturalHeight));
+        const w = Math.round(img.naturalWidth * escala);
+        const h = Math.round(img.naturalHeight * escala);
+        const c = document.createElement("canvas");
+        c.width = w; c.height = h;
+        const ctx = c.getContext("2d");
+        ctx.drawImage(img, 0, 0, w, h);
+        dibujar(ctx, w, h, opts);
+        return c.toDataURL("image/jpeg", 0.85); // copia independiente del original
+    }
+
+    /* Renderiza el fotograma actual de un video con marca */
+    function aplicarFotogramaVideo(video, canvas, opts) {
+        if (video.readyState < 2 || !video.videoWidth) return;
+        const escala = Math.min(1, 1280 / video.videoWidth);
+        const w = Math.round(video.videoWidth * escala);
+        const h = Math.round(video.videoHeight * escala);
+        if (canvas.width !== w)  canvas.width = w;
+        if (canvas.height !== h) canvas.height = h;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(video, 0, 0, w, h);
+        dibujar(ctx, w, h, opts);
+    }
+
+    /* Capa CSS (SVG repetido) — usada en el visor de video */
+    function capaCSS(texto, opacidad) {
+        const limpio = texto.replace(/[<>&"']/g, "");
+        const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='360' height='230'>` +
+            `<text x='50%' y='50%' transform='rotate(-22 180 115)' text-anchor='middle' ` +
+            `font-family='Arial' font-size='24' font-weight='600' ` +
+            `fill='rgba(255,255,255,${opacidad})' ` +
+            `style='text-shadow:0 1px 4px rgba(0,0,0,.5)'>${limpio}</text></svg>`;
+        return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
+    }
+
+    return { dibujar, aplicarImagen, aplicarFotogramaVideo, capaCSS };
+})();
+
+
+/* ================================================================
+   Lógica de la interfaz de colección
+   ================================================================ */
+const MAX_IMG = 25  * 1024 * 1024;   // 25 MB
+const MAX_VID = 200 * 1024 * 1024;   // 200 MB
+const CAPACIDAD_MB = 3 * 1024;       // 3 GB
+
+const zonaCarga       = document.getElementById("zonaCarga");
+const selector        = document.getElementById("selectorArchivos");
+const galeria         = document.getElementById("galeria");
+const estadoVacio     = document.getElementById("estadoVacio");
+const contador        = document.getElementById("contadorArchivos");
+const toasts          = document.getElementById("toasts");
+const visor           = document.getElementById("visor");
+const visorContenido  = document.getElementById("visorContenido");
+
+let items = [];          // archivos cargados
+let usadoMB = 0;
+let filtroActivo = "todos";
+
+/* UUID: identificador no predecible del recurso (buena práctica 3.3) */
+const generarUUID = () =>
+    (crypto.randomUUID ? crypto.randomUUID()
+     : "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => {
+         const r = Math.random() * 16 | 0;
+         return (c === "x" ? r : (r & 0x3 | 0x8)).toString(16);
+     }));
+
+document.getElementById("idColeccion").textContent = generarUUID().slice(0, 8) + "…";
+
+function configMarca() {
+    return {
+        texto:    document.getElementById("textoMarca").value.trim() || "Protegido",
+        opacidad: parseInt(document.getElementById("opacidadMarca").value, 10) / 100,
+        activa:   document.getElementById("marcaActiva").checked
+    };
+}
+
+/* ---------- Toasts ---------- */
+function toast(mensaje, tipo = "Info") {
+    const el = document.createElement("div");
+    el.className = "Toast " + tipo;
+    el.textContent = mensaje;
+    toasts.appendChild(el);
+    setTimeout(() => { el.style.opacity = "0"; el.style.transition = "opacity .4s"; }, 3400);
+    setTimeout(() => el.remove(), 3900);
+}
+
+/* ---------- Validación de archivos (lado cliente) ----------
+   NOTA: esta validación DEBE repetirse en el backend (3.1). */
+function validarArchivo(archivo) {
+    const ext = archivo.name.split(".").pop().toLowerCase();
+    const esImagen = archivo.type === "image/jpeg" || ["jpg", "jpeg"].includes(ext);
+    const esVideo  = archivo.type === "video/mp4"   || ext === "mp4";
+    if (!esImagen && !esVideo) return "Formato no permitido: solo se aceptan JPG y MP4.";
+    if (esImagen && archivo.size > MAX_IMG) return `"${archivo.name}" supera los 25 MB permitidos para imágenes.`;
+    if (esVideo  && archivo.size > MAX_VID) return `"${archivo.name}" supera los 200 MB permitidos para video.`;
+    if (usadoMB + archivo.size / 1048576 > CAPACIDAD_MB) return "Almacenamiento lleno. Libera espacio antes de subir más archivos.";
+    return null;
+}
+
+/* ---------- Almacenamiento ---------- */
+function actualizarAlmacenamiento() {
+    const pct = Math.min(100, (usadoMB / CAPACIDAD_MB) * 100);
+    document.getElementById("anilloAlmacenamiento").style.background =
+        `conic-gradient(var(--verde) ${pct}%, #e5e7eb ${pct}%)`;
+    document.getElementById("usoAlmacenamiento").textContent =
+        usadoMB >= 1024
+        ? (usadoMB / 1024).toFixed(2) + " GB de 3 GB usados"
+        : Math.round(usadoMB) + " MB de 3 GB usados";
+}
+
+function formatoTamano(bytes) {
+    if (bytes >= 1048576) return (bytes / 1048576).toFixed(1) + " MB";
+    return Math.round(bytes / 1024) + " KB";
+}
+
+/* ---------- Procesamiento de archivos ---------- */
+function procesarArchivos(lista) {
+    [...lista].forEach(archivo => {
+        const error = validarArchivo(archivo);
+        if (error) { toast(error, "Error"); return; }
+
+        const esImagen = archivo.type === "image/jpeg" || /\.(jpe?g)$/i.test(archivo.name);
+        const item = {
+            id: generarUUID(),
+            archivo,
+            tipo: esImagen ? "imagen" : "video",
+            nombre: archivo.name,
+            fecha: new Date().toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric" })
+        };
+        usadoMB += archivo.size / 1048576;
+        actualizarAlmacenamiento();
+        crearTarjeta(item);
+    });
+    aplicarFiltros();
+}
+
+function crearTarjeta(item) {
+    estadoVacio.style.display = "none";
+
+    const tarjeta = document.createElement("div");
+    tarjeta.className = "TarjetaMedia";
+    tarjeta.dataset.id = item.id;
+    tarjeta.dataset.tipo = item.tipo;
+    tarjeta.dataset.nombre = item.nombre.toLowerCase();
+
+    const marco = document.createElement("div");
+    marco.className = "MarcoPreview";
+
+    // Pantalla de progreso (subida simulada)
+    const cargando = document.createElement("div");
+    cargando.className = "ProyectoSubiendo";
+    cargando.innerHTML = `
+        <div class="BarraProgreso"><i></i></div>
+        <small>Subiendo y aplicando marca de agua…</small>`;
+    marco.appendChild(cargando);
+
+    const info = document.createElement("div");
+    info.className = "InfoMedia";
+    const nombre = document.createElement("div");
+    nombre.className = "NombreArchivo";
+    nombre.textContent = item.nombre;
+    nombre.title = item.nombre;
+    const meta = document.createElement("div");
+    meta.className = "MetaMedia";
+    const tipo = document.createElement("span");
+    tipo.className = "EtiquetaTipo " + (item.tipo === "imagen" ? "JPG" : "MP4");
+    tipo.textContent = item.tipo === "imagen" ? "JPG" : "MP4";
+    const datos = document.createElement("small");
+    datos.textContent = `${formatoTamano(item.archivo.size)} · ${item.fecha}`;
+    meta.append(tipo, datos);
+    info.append(nombre, meta);
+
+    tarjeta.append(marco, info);
+    galeria.appendChild(tarjeta);
+    item.tarjeta = tarjeta;
+    item.marco = marco;
+
+    simularSubida(cargando.querySelector(".BarraProgreso i"), () => {
+        cargando.remove();
+        item.tipo === "imagen" ? montarImagen(item, marco) : montarVideo(item, marco);
+        toast(`"${item.nombre}" subido con marca de agua aplicada.`, "Exito");
+    });
+}
+
+function simularSubida(barra, alTerminar) {
+    const dur = 800 + Math.random() * 800;
+    const t0 = performance.now();
+    (function paso(t) {
+        const p = Math.min(1, (t - t0) / dur);
+        barra.style.width = (p * 100) + "%";
+        p < 1 ? requestAnimationFrame(paso) : setTimeout(alTerminar, 150);
+    })(t0);
+}
+
+/* ----- Imagen: se genera la COPIA marcada (nunca el original) ----- */
+function montarImagen(item, marco) {
+    const url = URL.createObjectURL(item.archivo);
+    const img = new Image();
+    img.onload = () => {
+        item.imgOriginal = img; // solo en memoria, nunca se expone
+        const preview = document.createElement("img");
+        preview.src = MarcaAgua.aplicarImagen(img, configMarca());
+        preview.alt = "Vista previa con marca de agua de " + item.nombre;
+        marco.prepend(preview);
+        agregarAcciones(item, marco);
+        URL.revokeObjectURL(url);
+    };
+    img.onerror = () => { toast(`No se pudo procesar "${item.nombre}".`, "Error"); URL.revokeObjectURL(url); };
+    img.src = url;
+}
+
+/* ----- Video: renderizado en vivo fotograma a fotograma ----- */
+function montarVideo(item, marco) {
+    const video = document.createElement("video");
+    video.src = URL.createObjectURL(item.archivo);
+    video.muted = true;
+    video.playsInline = true;
+    video.preload = "metadata";
+
+    const canvas = document.createElement("canvas");
+    marco.prepend(canvas);
+    item.video = video;
+    item.canvas = canvas;
+
+    const chip = document.createElement("span");
+    chip.className = "ChipProtegido";
+    chip.textContent = "🛡 Marca activa";
+    marco.appendChild(chip);
+
+    const botonPlay = document.createElement("button");
+    botonPlay.className = "BotonPlay";
+    botonPlay.textContent = "▶";
+    marco.appendChild(botonPlay);
+    item.botonPlay = botonPlay;
+
+    const duracion = document.createElement("span");
+    duracion.className = "Duracion";
+    duracion.textContent = "0:00";
+    marco.appendChild(duracion);
+
+    function fotograma() { MarcaAgua.aplicarFotogramaVideo(video, canvas, configMarca()); }
+
+    function bucle() {
+        if (item.eliminado) return;
+        fotograma();
+        if (!video.paused && !video.ended) item.raf = requestAnimationFrame(bucle);
+    }
+
+    video.addEventListener("loadedmetadata", () => {
+        duracion.textContent = formatearDuracion(video.duration);
+        video.currentTime = Math.min(0.1, video.duration || 0.1); // fotograma póster
+    });
+    video.addEventListener("seeked", fotograma);
+    video.addEventListener("play",  () => { botonPlay.classList.add("Oculto"); bucle(); });
+    video.addEventListener("pause", () => { botonPlay.classList.remove("Oculto"); cancelAnimationFrame(item.raf); fotograma(); });
+    video.addEventListener("ended", () => { botonPlay.classList.remove("Oculto"); });
+    video.addEventListener("timeupdate", () => { duracion.textContent = formatearDuracion(video.currentTime); });
+
+    botonPlay.addEventListener("click", e => { e.stopPropagation(); video.play(); });
+    canvas.addEventListener("click", () => video.paused ? video.play() : video.pause());
+
+    agregarAcciones(item, marco);
+}
+
+function formatearDuracion(s) {
+    if (!isFinite(s)) return "0:00";
+    const m = Math.floor(s / 60), seg = Math.floor(s % 60);
+    return `${m}:${seg.toString().padStart(2, "0")}`;
+}
+
+/* ----- Acciones sobre la tarjeta ----- */
+function agregarAcciones(item, marco) {
+    const capa = document.createElement("div");
+    capa.className = "CapaAcciones";
+
+    const ver = document.createElement("button");
+    ver.className = "BotonCircular";
+    ver.title = "Ver vista previa";
+    ver.textContent = "👁";
+    ver.addEventListener("click", e => { e.stopPropagation(); abrirVisor(item); });
+
+    const eliminar = document.createElement("button");
+    eliminar.className = "BotonCircular Peligro";
+    eliminar.title = "Eliminar de la colección";
+    eliminar.textContent = "🗑";
+    eliminar.addEventListener("click", e => { e.stopPropagation(); eliminarItem(item); });
+
+    capa.append(ver, eliminar);
+    marco.appendChild(capa);
+}
+
+function eliminarItem(item) {
+    item.eliminado = true;
+    cancelAnimationFrame(item.raf);
+    if (item.video) { item.video.pause(); URL.revokeObjectURL(item.video.src); }
+    usadoMB -= item.archivo.size / 1048576;
+    actualizarAlmacenamiento();
+    item.tarjeta.remove();
+    items = items.filter(i => i.id !== item.id);
+    if (!galeria.querySelector(".TarjetaMedia")) estadoVacio.style.display = "";
+    aplicarFiltros();
+    toast(`"${item.nombre}" eliminado de la colección.`, "Info");
+}
+
+/* ---------- Visor (lightbox) ---------- */
+function abrirVisor(item) {
+    visorContenido.innerHTML = "";
+    const cfg = configMarca();
+
+    if (item.tipo === "imagen") {
+        const img = document.createElement("img");
+        img.src = MarcaAgua.aplicarImagen(item.imgOriginal, cfg, 1920);
+        visorContenido.appendChild(img);
+    } else {
+        const cont = document.createElement("div");
+        cont.className = "VisorVideo";
+        const video = document.createElement("video");
+        video.src = item.video.src;
+        video.controls = true;
+        video.muted = true;
+        video.playsInline = true;
+        const capa = document.createElement("div");
+        capa.className = "CapaMarcaCSS";
+        capa.style.backgroundImage = MarcaAgua.capaCSS(cfg.texto, cfg.opacidad);
+        if (!cfg.activa) capa.style.display = "none";
+        cont.append(video, capa);
+        visorContenido.appendChild(cont);
+    }
+    visor.classList.add("Abierto");
+}
+document.getElementById("cerrarVisor").addEventListener("click", cerrarVisorFn);
+visor.addEventListener("click", e => { if (e.target === visor) cerrarVisorFn(); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") cerrarVisorFn(); });
+function cerrarVisorFn() {
+    visor.classList.remove("Abierto");
+    const v = visorContenido.querySelector("video");
+    if (v) v.pause();
+    visorContenido.innerHTML = "";
+}
+
+/* ---------- Filtros y búsqueda ---------- */
+document.querySelectorAll(".Filtro").forEach(b => {
+    b.addEventListener("click", () => {
+        document.querySelectorAll(".Filtro").forEach(x => x.classList.remove("Activo"));
+        b.classList.add("Activo");
+        filtroActivo = b.dataset.filtro;
+        aplicarFiltros();
+    });
+});
+document.getElementById("buscador").addEventListener("input", aplicarFiltros);
+
+function aplicarFiltros() {
+    const texto = document.getElementById("buscador").value.trim().toLowerCase();
+    let visibles = 0;
+    galeria.querySelectorAll(".TarjetaMedia").forEach(t => {
+        const pasaTipo = filtroActivo === "todos" || t.dataset.tipo === filtroActivo;
+        const pasaTexto = !texto || t.dataset.nombre.includes(texto);
+        const mostrar = pasaTipo && pasaTexto;
+        t.style.display = mostrar ? "" : "none";
+        if (mostrar) visibles++;
+    });
+    const total = galeria.querySelectorAll(".TarjetaMedia").length;
+    contador.textContent = visibles === total
+        ? `${total} archivo${total !== 1 ? "s" : ""}`
+        : `${visibles} de ${total} archivos`;
+    estadoVacio.style.display = total ? "none" : "";
+}
+
+/* ---------- Reaplicar marca al cambiar la configuración ---------- */
+function reaplicarMarca() {
+    const cfg = configMarca();
+    document.getElementById("valorOpacidad").textContent = document.getElementById("opacidadMarca").value + "%";
+    galeria.querySelectorAll(".TarjetaMedia").forEach(t => {
+        const item = items.find(i => i.id === t.dataset.id);
+        if (!item) return;
+        if (item.tipo === "imagen" && item.imgOriginal) {
+            const img = t.querySelector(".MarcoPreview > img");
+            if (img) img.src = MarcaAgua.aplicarImagen(item.imgOriginal, cfg);
+        } else if (item.tipo === "video" && item.video) {
+            MarcaAgua.aplicarFotogramaVideo(item.video, item.canvas, cfg);
+        }
+    });
+}
+document.getElementById("textoMarca").addEventListener("input", reaplicarMarca);
+document.getElementById("opacidadMarca").addEventListener("input", reaplicarMarca);
+document.getElementById("marcaActiva").addEventListener("change", reaplicarMarca);
+
+/* ---------- Eventos de carga ---------- */
+zonaCarga.addEventListener("click", () => selector.click());
+document.getElementById("botonSubir").addEventListener("click", () => selector.click());
+selector.addEventListener("change", () => { procesarArchivos(selector.files); selector.value = ""; });
+
+["dragenter", "dragover"].forEach(ev =>
+    zonaCarga.addEventListener(ev, e => { e.preventDefault(); zonaCarga.classList.add("Activa"); }));
+["dragleave", "drop"].forEach(ev =>
+    zonaCarga.addEventListener(ev, e => { e.preventDefault(); zonaCarga.classList.remove("Activa"); }));
+zonaCarga.addEventListener("drop", e => procesarArchivos(e.dataTransfer.files));
+
+actualizarAlmacenamiento();
+</script>
+</body>
+</html>
