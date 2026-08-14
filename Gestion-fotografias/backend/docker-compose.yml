@@ -15,6 +15,7 @@ services:
       - DB_NAME=cipher_forge
       - DB_USER=cipher_user
       - DB_PASS=cipher_password
+      - DB_PORT=3306
     depends_on:
       - db
 

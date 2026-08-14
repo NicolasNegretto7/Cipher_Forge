@@ -137,7 +137,13 @@ Antes de entrevistar al cliente, el equipo identifica que la solicitud contiene 
 
 > Información obtenida de la transcripción de la entrevista realizada con el cliente. Parte 1 de la entrevista: "https://turboscribe.ai/es/transcript/share/5521413143271206535/BAQ_YceRsNbt_qSbib6HglsceYdjERFhVwK3hj63kII/screen-recording-2026-07-10-112551", parte 2: "https://turboscribe.ai/es/transcript/share/5845672316447232238/SpD0uFbmbpp-LPeTqhBtjAwON_rYso_hrBSaekkgC_w/lv-0-20260710161346". Esta información se validó con la grabación de la entrevista, ya que la IA que transcribió la entrevista a veces confunde palabras y es necesario reescuchar el audio. Por tanto, se puede decir que esta información es válida, fiel y se puede utilizar para nuestro proyecto.
 
-> **Restricción institucional (UTU):** Por tratarse de un equipo de estudiantes menores de edad, no es posible contratar hosting ni procesar pagos reales para este proyecto. Esta restricción es ajena tanto al pedido del cliente como a una decisión técnica del equipo. El sistema correrá en entorno local para esta entrega, y se recomendará al cliente, una vez el equipo se gradúe, migrar el sistema de un servidor local a uno en la nube, adquiriendo hosting y dominio propio, y habilitando en ese momento un método de pago real.
+### Decisiones técnicas del equipo
+
+Las siguientes decisiones fueron tomadas por el equipo de desarrollo a partir de restricciones institucionales, análisis técnico o definiciones de diseño. Se documentan separadas de la información relevada en la entrevista para mantener la trazabilidad.
+
+> **Restricción institucional (UTU):** Por tratarse de un equipo de estudiantes menores de edad, no es posible contratar hosting ni procesar pagos reales para este proyecto. Esta restricción es ajena tanto al pedido del cliente como a una decisión técnica del equipo. El sistema correrá en entorno local para esta entrega, y se recomendará al cliente, una vez el equipo se gradúe, migrar el sistema de un servidor local a uno en la nube, adquiriendo hosting y dominio propio, y habilitando en ese momento un método de pago real. 
+
+> **Requerimiento técnico (escalabilidad de la base de datos):** Debido a esta misma restricción de los métodos de pagos se creó el requerimiento técnico de implementar una tabla Usuarios en MySQL, la cual actúa como 'Padre' que los hijos 'Fotografo', 'Cliente' heredarán de esa tabla para que sea escalable pensando en un futuro que los datos de cada uno de los roles de usuarios se amplíen.  
 
 > **Roles y Organizadores de Eventos:** El rol "Administrador" propuesto por Polo se implementará bajo el alias comercial propuesto por el cliente como "Fotógrafo" y el rol "Cliente" abarcará a los compradores. Aquel organizador de evento que no contrató fotógrafo profesional utilizará la plataforma registrándose bajo el rol "Fotógrafo" para habilitar la carga colaborativa por QR. Los invitados podrán acceder a subir contenido sin necesidad de ser un "Cliente" registrado, mediante el código QR de carga colaborativa provisto por el "Fotógrafo" / organizador.
 
@@ -179,9 +185,9 @@ El proyecto incluirá:
 8. Visualización de imágenes en colecciones públicas/privadas y solicitud de descarga en dos niveles de calidad (buena calidad y alta calidad) mediante notificación al fotógrafo, con modo de selección múltiple visual.
 9. Descarga inmediata de imágenes autorizadas (individual o en .zip) con notificación de aceptación al usuario.
 10. Control de espacio de almacenamiento por usuario (cuota inicial de 3 GB) con manejo de subidas parciales ante exceso de cuota.
-11. Generación de un código QR de carga colaborativa para eventos con caducidad de 1 día, permitiendo a invitados subir contenido sin registro complejo, pudiendo ingresar de forma anónima.
+11. Generación de un código QR de carga colaborativa para eventos con caducidad de 1 día, permitiendo a invitados subir contenido sin registro complejo, pudiendo ingresar de forma anónima. Los invitados únicamente podrán subir archivos, sin acceso a visualizar el contenido existente de la colección.
 12. Generación de un enlace o QR de acceso directo permanente a una colección específica para visualización y descarga de clientes.
-13. Moderación y gestión (modificación de datos, reasignación o eliminación) por parte del fotógrafo sobre el contenido de sus colecciones y el material aportado por invitados.
+13. Moderación y gestión por parte del fotógrafo sobre el contenido de sus colecciones y el material aportado por invitados, con aprobación selectiva de archivos colaborativos y eliminación automática del material no aprobado tras 24 horas.
 14. Sistema de favoritos sobre colecciones públicas y filtrado de colecciones públicas por hashtags.
 15. Respaldos automáticos diarios de la base de datos con rotación de las últimas tres copias.
 
@@ -220,8 +226,8 @@ Quedarán fuera de la primera versión:
 | RF11 | El sistema debe permitir a los usuarios visualizar las colecciones públicas con imágenes/videos en vista previa (en el caso de imágenes con marca de agua), disponer de una opción para solicitar la descarga en el nivel de calidad deseado (buena o alta calidad) y filtrar las colecciones públicas por hashtags. |
 | RF12 | El sistema debe enviar una notificación al fotógrafo en el menú lateral izquierdo cuando un usuario solicite la descarga en buena o alta calidad de uno o varios contenidos, permitiendo al fotógrafo autorizar o denegar dicha solicitud. |
 | RF13 | El sistema debe permitir al fotógrafo generar un código QR de carga colaborativa exclusivo para un evento (imprimible y con fecha de caducidad de 1 día a partir de su creación), para permitir a los invitados subir fotos y videos directamente a esa colección durante el evento. |
-| RF14 | Cualquier invitado del evento debe poder escanear el código QR de carga colaborativa con su celular para subir fotos (JPG) y videos directamente a esa colección, sin necesidad de completar un registro de cuenta complejo. |
-| RF15 | El fotógrafo debe poder visualizar y gestionar (eliminar) todo el material multimedia colaborativo subido por los invitados mediante el QR. |
+| RF14 | Cualquier invitado del evento debe poder escanear el código QR de carga colaborativa con su celular para subir fotos (JPG) y videos directamente a esa colección, sin necesidad de completar un registro de cuenta complejo. El invitado únicamente podrá subir archivos; no tendrá acceso a visualizar ni descargar otros archivos multimedia de esa misma colección. |
+| RF15 | El fotógrafo debe poder visualizar y gestionar todo el material multimedia colaborativo subido por los invitados mediante el QR. Mediante un modo de selección similar al de RF22, el fotógrafo podrá marcar los archivos como aprobados; al confirmar, los archivos seleccionados se registrarán como aprobados en la base de datos. El sistema mostrará un aviso: "Los archivos no aprobados serán eliminados después de 24 horas". Una tarea automática programada eliminará periódicamente los archivos no aprobados que hayan superado las 24 horas desde su subida. |
 | RF16 | El sistema debe permitir al fotógrafo generar un enlace o QR de acceso directo permanente (sin caducidad) a una colección específica, distinto del QR de carga colaborativa, para facilitar la visualización y descarga directa a clientes autorizados. |
 | RF17 | El sistema debe controlar la cuota de almacenamiento del fotógrafo (3GB), impidiendo la subida si se supera el límite; en subidas múltiples, debe completar la subida de los archivos válidos y mostrar un mensaje de notificación únicamente para los archivos que excedan la cuota restante. |
 | RF18 | El sistema debe enviar un código de verificación al correo electrónico del usuario para asegurar que la casilla registrada realmente existe. |
@@ -272,7 +278,7 @@ Una épica es una funcionalidad grande o área de trabajo que debe dividirse en 
 | EP3 | Gestión de colecciones y accesos | Creación, categorización (públicas/privadas), hashtags, filtrado público, asignación de clientes, control de acceso por URL y generación de QR/enlace de acceso permanente. | RF4, RF5, RF6, RF11, RF16 |
 | EP4 | Carga y procesamiento multimedia | Subida de imágenes JPG y videos, procesamiento en backend con FFmpeg (Docker) para recortes de 15 segundos, guardado en Filesystem, generación de vistas previas optimizadas, marca de agua, edición/eliminación de archivos y control de cuotas. | RF7, RF8, RF9, RF17, RF20, RF25, RF26 |
 | EP5 | Visualización, selección y descargas | Galería de previsualización para clientes, modo de selección visual, solicitudes de descarga en dos niveles de calidad con notificación al fotógrafo, notificación de aceptación al usuario y bajada de imágenes (individual o en .zip). | RF10, RF11, RF12, RF21, RF22, RF23 |
-| EP6 | Carga colaborativa por QR | Generación de código QR temporal de evento (caducidad 1 día), subida rápida por invitados sin registro complejo, validación de clips y moderación del material por el fotógrafo. | RF13, RF14, RF15, RF25 |
+| EP6 | Carga colaborativa por QR | Generación de código QR temporal de evento (caducidad 1 día), subida rápida por invitados sin registro complejo (sin visualización del contenido existente), validación de clips, moderación con aprobación selectiva por el fotógrafo y eliminación automática del material no aprobado tras 24 horas. | RF13, RF14, RF15, RF25 |
 | EP7 | Mantenimiento técnico y respaldo | Configuración de respaldos automáticos diarios, rotación de las últimas tres copias y registro de auditoría. | RNF5, RNF6, RNF7 |
 | EP8 | Capacitación y cierre | Entrega de la guía básica de uso, capacitación al cliente y cierre formal del proyecto de UTU. | — (actividad de entrega/capacitación) |
 
@@ -364,7 +370,7 @@ Se utilizará el siguiente formato:
 | HU9 | Como usuario/cliente, quiero solicitar la descarga en buena calidad o alta calidad de una o varias imágenes o videos desde la vista previa (con marca de agua en imágenes), para que al fotógrafo le llegue una notificación y autorice la descarga. | 3 | Alta |
 | HU10 | Como cliente autorizado, quiero descargar mis fotos autorizadas de forma individual o en un archivo comprimido (.zip) según el nivel de calidad aprobado, para obtener mi material de manera ágil. | 1 | Media |
 | HU11 | Como invitado de un evento, quiero escanear el código QR de carga colaborativa para subir directamente mis fotos y videos (clips) a la colección (pudiendo ingresar un nombre opcional o de forma anónima) sin necesidad de crearme una cuenta compleja. | 3 | Media |
-| HU12 | Como fotógrafo, quiero visualizar y gestionar (eliminar o modificar) el material subido por invitados para tener control total sobre la colección. | 3 | Media |
+| HU12 | Como fotógrafo, quiero visualizar el material subido por invitados, seleccionar los archivos que apruebo mediante un modo de selección visual y confirmar la aprobación, sabiendo que los archivos no aprobados serán eliminados automáticamente tras 24 horas, para mantener el control total sobre la colección. | 3 | Media |
 | HU13 | Como sistema, quiero realizar un respaldo automático diario de la base de datos y rotar las últimas 3 copias, para mitigar el riesgo de pérdida de datos. | 5 | Media |
 | HU14 | Como cliente, quiero visualizar las fotos de mi evento con una marca de agua integrada automáticamente, para poder previsualizar el trabajo antes de solicitar la descarga autorizada. | 5 | Alta |
 | HU15 | Como fotógrafo/cliente, quiero contar con una guía básica de uso y recibir una breve capacitación sobre la plataforma, para poder utilizarla de forma autónoma una vez finalizado el proyecto. | 1 | Media |
@@ -400,21 +406,21 @@ El backlog ha sido distribuido equitativamente manteniendo un ritmo de trabajo s
 | 1 | HU1 | Inicio de sesión básico (acceso a paneles) | 3 | Sprint 1 |
 | 2 | HU8 | Registro con selección de rol (Fotógrafo / Cliente) | 3 | Sprint 1 |
 | 3 | HU25 | Registro obligatorio de campos (Nombre, correo, contraseña y teléfono opcional) | 3 | Sprint 1 |
-| 4 | HU19 | Impedir el registro de usuarios duplicados por correo | 3 | Sprint 1 |
-| 5 | HU2 | Creación de colecciones y clasificación de visibilidad | 3 | Sprint 1 |
-| 6 | HU5 | Subida de imágenes o videos a colecciones | 3 | Sprint 1 |
-| 7 | HU31 | Aceptación de política de privacidad y Ley 18.331 en primer login | 1 | Sprint 1 |
-| 8 | HU10 | Descarga individual o comprimida (.zip) | 1 | Sprint 1 |
-| 9 | HU14 | Visualización con marca de agua automática | 5 | Sprint 2 |
-| 10 | HU3 | Autorización manual de clientes a colecciones privadas | 3 | Sprint 2 |
-| 11 | HU21 | Envío de código de verificación al correo | 3 | Sprint 2 |
-| 12 | HU20 | Bloqueo de acceso directo por URL a colecciones privadas | 3 | Sprint 2 |
-| 13 | HU24 | Acceso y visualización de galerías en colecciones públicas | 3 | Sprint 2 |
-| 14 | HU26 | Agregar hashtags a colecciones públicas | 3 | Sprint 2 |
+| 4 | HU2 | Creación de colecciones y clasificación de visibilidad | 3 | Sprint 1 |
+| 5 | HU5 | Subida de imágenes o videos a colecciones | 3 | Sprint 1 |
+| 6 | HU14 | Visualización con marca de agua automática | 5 | Sprint 1 |
+| 7 | HU3 | Autorización manual de clientes a colecciones privadas | 3 | Sprint 2 |
+| 8 | HU21 | Envío de código de verificación al correo | 3 | Sprint 2 |
+| 9 | HU20 | Bloqueo de acceso directo por URL a colecciones privadas | 3 | Sprint 2 |
+| 10 | HU24 | Acceso y visualización de galerías en colecciones públicas | 3 | Sprint 2 |
+| 11 | HU26 | Agregar hashtags a colecciones públicas | 3 | Sprint 2 |
+| 12 | HU19 | Impedir el registro de usuarios duplicados por correo | 3 | Sprint 2 |
+| 13 | HU31 | Aceptación de política de privacidad y Ley 18.331 en primer login | 1 | Sprint 2 |
+| 14 | HU10 | Descarga individual o comprimida (.zip) | 1 | Sprint 2 |
 | 15 | HU4 | Generación de QR de carga colaborativa de evento (caducidad 1 día) | 5 | Sprint 3 |
 | 16 | HU7 | Descarga e impresión física del QR colaborativo | 3 | Sprint 3 |
 | 17 | HU11 | Carga de archivos vía QR por invitados (sin registro complejo) | 3 | Sprint 3 |
-| 18 | HU12 | Moderación de material de invitados por el fotógrafo | 3 | Sprint 3 |
+| 18 | HU12 | Moderación y aprobación selectiva de material de invitados por el fotógrafo | 3 | Sprint 3 |
 | 19 | HU17 | Generación de QR / enlace permanente de acceso directo | 3 | Sprint 3 |
 | 20 | HU27 | Filtrado de colecciones públicas por hashtags | 3 | Sprint 3 |
 | 21 | HU9 | Solicitud y notificación/aprobación de descarga (buena/alta calidad) | 3 | Sprint 4 |
