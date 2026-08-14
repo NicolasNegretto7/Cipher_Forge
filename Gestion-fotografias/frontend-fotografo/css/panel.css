@@ -43,25 +43,47 @@ body {
 .Menu {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 6px;
     margin-top: 10px;
 }
 
-.ItemMenu p, .ItemMenuActivo p {
-    padding: 10px;
+.ItemMenu,
+.ItemMenuActivo {
+    display: block;
+    text-decoration: none;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+}
+
+.ItemMenu p,
+.ItemMenuActivo p {
+    padding: 12px 14px;
     border-radius: 8px;
     color: var(--gris-texto);
+    margin: 0;
+    font-size: 15px;
+    transition: all 0.2s ease;
+}
+
+.ItemMenuActivo {
+    background-color: rgb(235, 235, 235);
 }
 
 .ItemMenuActivo p {
-    background-color: rgb(240, 240, 240);
+    background-color: rgb(235, 235, 235);
     color: var(--primary-color);
     font-weight: bold;
+    font-size: 16px;
+}
+
+.ItemMenu:hover {
+    background-color: rgb(245, 245, 245);
 }
 
 .ItemMenu:hover p {
-    background-color: rgb(245, 245, 245);
-    transition: background-color 1s ease;
+    color: var(--primary-color);
+    font-size: 16px;
+    transition: all 0.2s ease;
 }
 
 .TituloHerramientas {
