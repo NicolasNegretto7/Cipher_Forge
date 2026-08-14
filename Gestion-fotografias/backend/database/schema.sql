@@ -7,8 +7,16 @@ CREATE TABLE usuarios(
     telefono VARCHAR(30),
     email_verificado BOOLEAN DEFAULT FALSE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
-    rol ENUM('fotografo', 'cliente') NOT NULL,
-    politicas_aceptadas BOOLEAN DEFAULT FALSE NOT NULL
+    rol ENUM('fotografo', 'cliente') NOT NULL
+);
+CREATE TABLE clientes (
+    id_cliente INT NOT NULL PRIMARY KEY,
+    FOREIGN KEY (id_cliente) REFERENCES usuarios(id) ON DELETE CASCADE
+);
+CREATE TABLE fotografos (
+    id_fotografo INT NOT NULL PRIMARY KEY,
+    politicas_aceptadas BOOLEAN DEFAULT FALSE NOT NULL,
+    FOREIGN KEY (id_fotografo) REFERENCES usuarios(id) ON DELETE CASCADE
 );
 CREATE TABLE colecciones(
     id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
