@@ -1,4 +1,10 @@
 <?php
+
+namespace App\config;
+use PDO;
+use PDOException;
+
+
 class Database{
     public function connect(): PDO{
     $host = getenv("DB_HOST");
