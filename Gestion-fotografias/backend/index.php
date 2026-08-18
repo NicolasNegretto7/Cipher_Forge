@@ -14,3 +14,6 @@ $uri = trim($uri, '/');
 }
 
 
+if($metod === 'GET'){
+
+}
