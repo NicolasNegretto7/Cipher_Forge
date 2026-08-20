@@ -32,7 +32,7 @@ services:
       MYSQL_PASSWORD: cipher_password
     volumes:
       - db_data:/var/lib/mysql
-      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      - ./API REST PHP/database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
 
 volumes:
   db_data:

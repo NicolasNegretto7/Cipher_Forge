@@ -28,6 +28,7 @@ body {
     width: 240px;
     height: 100vh;
     background-color: white;
+    background-image: linear-gradient(160deg, transparent 55%, rgb(240, 240, 240) 55%);
     border-right: 1px solid rgb(230, 230, 230);
     display: flex;
     flex-direction: column;
@@ -220,5 +221,3 @@ body {
     font-size: 13px;
     color: var(--gris-texto);
 }
-
-
