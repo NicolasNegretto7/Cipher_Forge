@@ -17,7 +17,7 @@ $uri = trim($uri, '/');
     exit;
 }
 
-    
+    //l
 
 if($method === 'POST' && $uri === 'auth/login'){
     $input = json_decode(file_get_contents('php://input'), true);
