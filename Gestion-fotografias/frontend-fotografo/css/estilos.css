@@ -165,13 +165,13 @@ header p {
     font-weight: bold;
     color: var(--color-negro);
     text-shadow: none;
-    text-align: center;
+    
 }
 
 .form-group input,
 .form-group select,
 .form-group textarea {
-    width: 100%;
+    width: 50%;
     padding: 12px;
     border: 2px solid var(--color-borde);
     border-radius: var(--radio-borde);
@@ -179,7 +179,7 @@ header p {
     font-family: "Open Sans", Helvetica, Arial, sans-serif;
     background-color: #fbfffd;
     color: var(--color-negro);
-    text-align: center;
+   
     text-shadow: none;
     transition: border-color 0.3s ease;
 }
