@@ -33,8 +33,9 @@ public function __construct(
     $this->host = getenv("DB_HOST") ?: $host;
     $this->user = getenv("DB_USER") ?: $user;
     $this->password = getenv("DB_PASS") ?: $password;
-    $this->port = getenv('DB_PORT') ?: $port;
+    $this->port = getenv('DB_PORT') ?: $port;   
     $this->name = getenv("DB_NAME") ?: $name;
+    $this->charset = getenv("DB_CHARSET") ?: $charset;
 }
 public function getConnection(): PDO
     {
