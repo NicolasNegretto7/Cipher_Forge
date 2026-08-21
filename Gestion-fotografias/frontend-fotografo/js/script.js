@@ -12,7 +12,7 @@ function irSegunRol(rol) {
     if (rol === "fotografo") {
         window.location.href = "panel.html";
     } else {
-        window.location.href = "galeria.html";
+        window.location.href = "panelcliente.html";
     }
 }
 

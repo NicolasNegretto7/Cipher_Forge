@@ -1,0 +1,257 @@
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Poppins:wght@600;700;800&display=swap');
+
+:root {
+    /* Paleta verde estilo OBS */
+    --color-principal: #2bb58a;      /* Verde claro del header (más oscuro que el body) */
+    --color-secundario: #23a179;     /* Verde medio (cabeceras de tabla) */
+    --color-acento: #148060;         /* Verde oscuro para botón secundario */
+    --color-destacado: #2bb58a;      /* Acento */
+    --color-fondo: #e9f7f0;          /* Verde muy claro del body (como antes) */
+    --color-fondo-diagonal: #d3ecdf; /* Tono para la diagonal del body */
+    --color-footer: #0d5c44;         /* Verde oscuro del footer */
+    --color-blanco: #ffffff;
+    --color-texto: #21443a;
+    --color-negro: #000000;          /* Negro puro para máxima legibilidad */
+    --color-texto-claro: #567d71;
+    --color-borde: #cde7dc;
+    --sombra-suave: 0px 4px 8px rgba(13, 92, 68, 0.18);
+    --sombra-header: 0px 6px 25px rgba(13, 92, 68, 0.35);
+    --sombra-texto: 0 2px 3px rgba(13, 60, 44, 0.55), 0 0px 2px rgba(13, 60, 44, 0.35);
+    --radio-borde: 12px;
+    --padding-base: 20px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Open Sans", Helvetica, Arial, sans-serif;
+    background-color: var(--color-fondo);
+    background-image: linear-gradient(160deg, transparent 55%, var(--color-fondo-diagonal) 55%);
+    color: var(--color-blanco);
+    text-shadow: var(--sombra-texto);
+    line-height: 1.6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+}
+
+/* ===== HEADER estilo hero de OBS (con corte diagonal) ===== */
+header {
+    background-color: var(--color-principal);
+    background-image: linear-gradient(160deg, transparent 55%, rgba(255, 255, 255, 0.12) 55%);
+    color: var(--color-blanco);
+    padding: calc(var(--padding-base) * 1.5) var(--padding-base);
+    text-align: center;
+    box-shadow: var(--sombra-header);
+}
+
+header h1 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 40px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    margin-bottom: 10px;
+}
+
+header p {
+    font-family: 'Archivo Black', 'Arial Black', Helvetica, sans-serif;
+    font-style: normal;
+    text-transform: capitalize;
+    color: var(--color-blanco);
+    font-size: 19px;
+    letter-spacing: -0.5px;
+    line-height: 1.5;
+}
+
+.container {
+    width: 100%;
+    max-width: 1100px;
+    margin: 30px auto;
+    padding: 0 20px;
+    flex: 1;
+}
+
+.card {
+    padding: 10px 0 30px 0;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.card h2 {
+    font-family: 'Archivo Black', 'Arial Black', Helvetica, sans-serif;
+    font-style: normal;
+    text-transform: capitalize;
+    color: var(--color-negro);
+    text-shadow: none;
+    text-align: center;
+    font-size: 72px;
+    letter-spacing: -2px;
+    margin-bottom: 20px;
+}
+
+.card p {
+    font-family: 'Archivo Black', 'Arial Black', Helvetica, sans-serif;
+    font-style: normal;
+    text-transform: capitalize;
+    font-size: 20px;
+    letter-spacing: -0.3px;
+    line-height: 1.7;
+    text-align: center;
+    color: var(--color-negro);
+    text-shadow: none;
+    margin-bottom: 8px;
+}
+
+/* ===== BOTONES ===== */
+.btn {
+    display: inline-block;
+    padding: 18px 70px;
+    border: none;
+    border-radius: 0;
+    font-family: 'Poppins', sans-serif;
+    font-size: 19px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    box-shadow: var(--sombra-suave);
+    transition: background-color 0.5s ease, transform 0.2s ease;
+}
+
+.btn-principal {
+    background-color: var(--color-principal);
+    color: var(--color-blanco);
+}
+
+.btn-principal:hover {
+    background-color: #1f9a73;
+    transform: translateY(-2px);
+}
+
+.btn-secundario {
+    background-color: var(--color-acento);
+    color: var(--color-blanco);
+}
+
+.btn-secundario:hover {
+    background-color: #0d6a4e;
+    transform: translateY(-2px);
+}
+
+.btn-peligro {
+    background-color: #d32f2f;
+    color: var(--color-blanco);
+}
+
+.btn-peligro:hover {
+    background-color: #b71c1c;
+}
+
+/* ===== FORMULARIOS ===== */
+.form-group {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: var(--color-negro);
+    text-shadow: none;
+    
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 50%;
+    padding: 12px;
+    border: 2px solid var(--color-borde);
+    border-radius: var(--radio-borde);
+    font-size: 16px;
+    font-family: "Open Sans", Helvetica, Arial, sans-serif;
+    background-color: #fbfffd;
+    color: var(--color-negro);
+   
+    text-shadow: none;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: var(--color-destacado);
+    outline: none;
+}
+
+/* ===== TABLAS ===== */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    background-color: var(--color-blanco);
+    border-radius: var(--radio-borde);
+    overflow: hidden;
+    box-shadow: var(--sombra-suave);
+}
+
+th {
+    background-color: var(--color-secundario);
+    color: var(--color-blanco);
+    padding: 14px;
+    text-align: center;
+}
+
+td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid var(--color-borde);
+    color: var(--color-negro);
+    text-shadow: none;
+}
+
+tr:hover {
+    background-color: #d8f0e6;
+}
+
+/* ===== FOOTER ===== */
+footer {
+    background-color: var(--color-footer);
+    background-image: linear-gradient(160deg, transparent 55%, rgba(255, 255, 255, 0.08) 55%);
+    color: var(--color-blanco);
+    text-align: center;
+    padding: 20px;
+    margin-top: auto;
+}
+
+footer p {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: 17px;
+    letter-spacing: 0.3px;
+    text-align: center;
+}
+
+/* ===== UTILIDADES ===== */
+.texto-centrado {
+    text-align: center;
+}
+
+.margen-arriba {
+    margin-top: 20px;
+}
+
+.margen-abajo {
+    margin-bottom: 20px;
+}
+
+.oculto {
+    display: none;
+}
