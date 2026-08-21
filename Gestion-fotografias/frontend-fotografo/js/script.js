@@ -12,7 +12,7 @@ function irSegunRol(rol) {
     if (rol === "fotografo") {
         window.location.href = "panel.html";
     } else {
-        window.location.href = "galeria.html";
+        window.location.href = "panelcliente.html";
     }
 }
 
@@ -25,7 +25,8 @@ if (formRegistro) {
 
         let nombre = document.getElementById("nombre").value;
         let correo = document.getElementById("correo").value;
-        let contrasena = document.getElementById("contraseña").value;
+        
+          let contrasena = document.getElementById("contraseña").value;
         let rol = document.getElementById("rol").value;
 
         try {
@@ -106,7 +107,7 @@ if (formLogin) {
             }
 
         } catch (error) {
-            alert("No se pudo conectar con el servidor. ¿Está corriendo el backend?");
+            alert("No se pudo conecta esto al backend.");
         }
 
         return false;
