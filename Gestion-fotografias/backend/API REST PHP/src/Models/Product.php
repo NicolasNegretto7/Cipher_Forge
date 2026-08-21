@@ -4,47 +4,50 @@ declare(strict_types=1);
 
 namespace App\Models;
 
-use JsonSerializable;
-
 /**
- * Entidad de dominio que representa un Producto.
- * 
- * Modela el estado del recurso y proporciona serialización controlada hacia JSON.
+ * ENTIDAD DE DOMINIO: PRODUCTO
+ * ==============================================================================
+ * WHAT: Modela un producto en el inventario con reglas de integridad en sus setters.
+ * WHY:  El modelo protege sus propios invariantes de negocio: impide que el stock o
+ *       el precio adquieran valores negativos sin importar quién los invoque.
+ * ==============================================================================
  */
-class Product implements JsonSerializable
+class Product
 {
-    public function __construct(
-        private ?int $id,
-        private string $name,
-        private ?string $description,
-        private float $price,
-        private int $stock,
-        private ?string $createdAt = null,
-        private ?string $updatedAt = null
-    ) {}
+    private int $id;
+    private string $name;
+    private string $description;
+    private float $price;
+    private int $stock;
+    private string $category;
+    private bool $active;
 
-    /**
-     * Construye una instancia de Product a partir de un array asociativo (ej. de BD o JSON).
-     * 
-     * @param array<string, mixed> $data Datos crudos.
-     * @return self
-     */
-    public static function fromArray(array $data): self
-    {
-        return new self(
-            id: isset($data['id']) ? (int) $data['id'] : null,
-            name: (string) ($data['name'] ?? ''),
-            description: isset($data['description']) ? (string) $data['description'] : null,
-            price: isset($data['price']) ? (float) $data['price'] : 0.0,
-            stock: isset($data['stock']) ? (int) $data['stock'] : 0,
-            createdAt: $data['created_at'] ?? null,
-            updatedAt: $data['updated_at'] ?? null
-        );
+    public function __construct(
+        int $id,
+        string $name,
+        string $description,
+        float $price,
+        int $stock,
+        string $category,
+        bool $active = true
+    ) {
+        $this->id          = $id;
+        $this->setName($name);
+        $this->setDescription($description);
+        $this->setPrice($price);
+        $this->setStock($stock);
+        $this->setCategory($category);
+        $this->active      = $active;
     }
 
-    public function getId(): ?int
+    public function getId(): int
     {
         return $this->id;
+    }
+
+    public function setId(int $id): void
+    {
+        $this->id = $id;
     }
 
     public function getName(): string
@@ -52,9 +55,19 @@ class Product implements JsonSerializable
         return $this->name;
     }
 
-    public function getDescription(): ?string
+    public function setName(string $name): void
+    {
+        $this->name = trim($name);
+    }
+
+    public function getDescription(): string
     {
         return $this->description;
+    }
+
+    public function setDescription(string $description): void
+    {
+        $this->description = trim($description);
     }
 
     public function getPrice(): float
@@ -62,46 +75,67 @@ class Product implements JsonSerializable
         return $this->price;
     }
 
+    public function setPrice(float $price): void
+    {
+        // Invariante: El precio nunca puede ser negativo
+        $this->price = max(0.0, $price);
+    }
+
     public function getStock(): int
     {
         return $this->stock;
     }
 
-    public function getCreatedAt(): ?string
+    public function setStock(int $stock): void
     {
-        return $this->createdAt;
+        // Invariante: El stock nunca puede ser negativo
+        $this->stock = max(0, $stock);
     }
 
-    public function getUpdatedAt(): ?string
+    public function getCategory(): string
     {
-        return $this->updatedAt;
+        return $this->category;
+    }
+
+    public function setCategory(string $category): void
+    {
+        $this->category = trim($category);
+    }
+
+    public function isActive(): bool
+    {
+        return $this->active;
+    }
+
+    public function setActive(bool $active): void
+    {
+        $this->active = $active;
     }
 
     /**
-     * Exporta la entidad a array asociativo estándar.
-     * 
+     * Regla de dominio: determina si hay unidades disponibles para la venta.
+     */
+    public function hasStock(): bool
+    {
+        return $this->stock > 0;
+    }
+
+    /**
+     * Serializa la entidad a array asociativo con nomenclatura pública para la API.
+     *
      * @return array<string, mixed>
      */
     public function toArray(): array
     {
         return [
             'id'          => $this->id,
-            'name'        => $this->name,
-            'description' => $this->description,
-            'price'       => $this->price,
+            'nombre'      => $this->name,
+            'descripcion' => $this->description,
+            'precio'      => $this->price,
             'stock'       => $this->stock,
-            'created_at'  => $this->createdAt,
-            'updated_at'  => $this->updatedAt,
+            'categoria'   => $this->category,
+            'activo'      => $this->active,
+            'hay_stock'   => $this->hasStock(),
         ];
-    }
-
-    /**
-     * Define la representación del objeto cuando se ejecuta json_encode().
-     * 
-     * @return array<string, mixed>
-     */
-    public function jsonSerialize(): array
-    {
-        return $this->toArray();
     }
 }

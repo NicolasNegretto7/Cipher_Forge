@@ -1,19 +1,48 @@
 <?php
 
-namespace App\config;
+declare(strict_types=1);
+
+namespace Config;
 use PDO;
-use PDOException;
 
 
 class Database{
-    public function connect(): PDO{
-    $host = getenv("DB_HOST");
-    $user = getenv("DB_USER");
-    $pass = getenv("DB_PASS");
-    $port = getenv('DB_PORT');
-    $name = getenv("DB_NAME");
-    $dsn = "mysql:host=$host;dbname=$name;port=$port;charset=utf8mb4";
 
+        private string $host;
+        private string $user;
+        private string $password;
+        private string $port;
+        private string $name;
+        private string $charset;
+        private ?PDO $connection = null;
+
+
+
+public function __construct(
+    string $host= 'db',
+    string $user = 'cipher_user',
+    string $password = '',
+    string $port = '3306',
+    string $name = 'cipher_forge',
+    string $charset = 'utf8mb4',
+    
+    
+)
+
+{
+    $this->host = getenv("DB_HOST") ?: $host;
+    $this->user = getenv("DB_USER") ?: $user;
+    $this->password = getenv("DB_PASS") ?: $password;
+    $this->port = getenv('DB_PORT') ?: $port;
+    $this->name = getenv("DB_NAME") ?: $name;
+}
+public function getConnection(): PDO
+    {
+        if($this->connection !==null){
+            
+            return $this->connection;
+        }
+    $dsn = "mysql:host={$this->host};dbname={$this->name};port={$this->port};charset={$this->charset}";
 
     $options = [
     PDO::ATTR_ERRMODE=> PDO::ERRMODE_EXCEPTION,
@@ -22,15 +51,9 @@ class Database{
     
     PDO::ATTR_EMULATE_PREPARES=> false,
     ];
-
-try{
-$pdo = new PDO($dsn, $user, $pass, $options);
-
-return $pdo;
-}catch(PDOException $e){
-    error_log("ErrorPDO: " . $e->getMessage());
-    exit("Error de conexión.");
-}
+$this->connection = new PDO($dsn, $this->user, $this->password, $options);
+    return $this->connection;
     }
-}
 
+
+}

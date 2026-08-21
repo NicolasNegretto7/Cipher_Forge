@@ -24,7 +24,7 @@ class Database
     private ?PDO $connection = null;
 
     public function __construct(
-        string $host = '127.0.0.1',
+        string $host = 'localhost:8000',
         string $port = '3306',
         string $dbName = 'cipher_forge',
         string $username = 'root',

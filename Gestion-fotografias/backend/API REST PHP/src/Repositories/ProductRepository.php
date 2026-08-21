@@ -5,62 +5,43 @@ declare(strict_types=1);
 namespace App\Repositories;
 
 use App\Models\Product;
-use Config\Database;
 use PDO;
 
 /**
- * Repositorio de acceso a datos para la entidad Product.
- * 
- * Gestiona consultas SQL puras utilizando PDO con Prepared Statements (sentencias preparadas)
- * para evitar inyecciones SQL y garantizar la persistencia de datos.
+ * REPOSITORIO DE PRODUCTOS (ACCESO A DATOS)
+ * ==============================================================================
+ * WHAT: Realiza las operaciones CRUD contra la tabla `productos` mediante PDO.
+ * WHY:  Mantiene create() y update() explícitos con sus sentencias SQL separadas
+ *       (INSERT y UPDATE) usando parámetros vinculados para total seguridad.
+ * ==============================================================================
  */
-class ProductRepository
+class ProductRepository extends Repository
 {
-    private PDO $db;
-
-    public function __construct(?PDO $db = null)
-    {
-        $this->db = $db ?? (new Database())->getConnection();
-    }
-
     /**
-     * Recupera todos los productos, con soporte opcional de búsqueda por nombre.
-     * 
-     * @param string|null $search Término opcional de búsqueda.
-     * @param int $limit Límite de resultados (paginación).
-     * @param int $offset Desplazamiento de resultados.
-     * @return Product[] Lista de objetos Product.
+     * Recupera todos los productos, con soporte opcional de filtro por categoría.
+     *
+     * @param string|null $category
+     * @return Product[]
      */
-    public function findAll(?string $search = null, int $limit = 50, int $offset = 0): array
+    public function findAll(?string $category = null): array
     {
-        $sql = "SELECT id, name, description, price, stock, created_at, updated_at FROM products";
-        $params = [];
-
-        if ($search !== null && trim($search) !== '') {
-            $sql .= " WHERE name LIKE :search OR description LIKE :searchDesc";
-            $params[':search'] = '%' . trim($search) . '%';
-            $params[':searchDesc'] = '%' . trim($search) . '%';
+        if ($category === null) {
+            $sql = 'SELECT id, nombre, descripcion, precio, stock, categoria, activo FROM productos ORDER BY id ASC';
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+        } else {
+            $sql = 'SELECT id, nombre, descripcion, precio, stock, categoria, activo 
+                    FROM productos 
+                    WHERE categoria = :categoria 
+                    ORDER BY id ASC';
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindValue(':categoria', $category, PDO::PARAM_STR);
+            $stmt->execute();
         }
-
-        $sql .= " ORDER BY id DESC LIMIT :limit OFFSET :offset";
-
-        $stmt = $this->db->prepare($sql);
-
-        // Enlaza parámetros de texto
-        foreach ($params as $key => $val) {
-            $stmt->bindValue($key, $val, PDO::PARAM_STR);
-        }
-
-        // Enlaza límites numéricos explícitamente como enteros
-        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-
-        $stmt->execute();
-        $rows = $stmt->fetchAll();
 
         $products = [];
-        foreach ($rows as $row) {
-            $products[] = Product::fromArray($row);
+        foreach ($stmt->fetchAll() as $row) {
+            $products[] = $this->buildProduct($row);
         }
 
         return $products;
@@ -68,121 +49,115 @@ class ProductRepository
 
     /**
      * Busca un producto por su clave primaria ID.
-     * 
-     * @param int $id Identificador único del producto.
-     * @return Product|null Objeto Product si existe, null en caso contrario.
      */
     public function findById(int $id): ?Product
     {
-        $sql = "SELECT id, name, description, price, stock, created_at, updated_at 
-                FROM products 
+        $sql = 'SELECT id, nombre, descripcion, precio, stock, categoria, activo 
+                FROM productos 
                 WHERE id = :id 
-                LIMIT 1";
+                LIMIT 1';
 
         $stmt = $this->db->prepare($sql);
         $stmt->bindValue(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
 
         $row = $stmt->fetch();
-        if (!$row) {
-            return null;
-        }
 
-        return Product::fromArray($row);
+        return $row === false ? null : $this->buildProduct($row);
     }
 
     /**
-     * Busca un producto por su nombre exacto (útil para validar duplicados).
-     * 
-     * @param string $name Nombre a buscar.
-     * @param int|null $excludeId ID que se ignora en la búsqueda (durante updates).
-     * @return Product|null
+     * Busca un producto por su nombre exacto (para evitar duplicados).
      */
-    public function findByName(string $name, ?int $excludeId = null): ?Product
+    public function findByName(string $name): ?Product
     {
-        $sql = "SELECT id, name, description, price, stock, created_at, updated_at 
-                FROM products 
-                WHERE LOWER(name) = LOWER(:name)";
-
-        if ($excludeId !== null) {
-            $sql .= " AND id != :excludeId";
-        }
-
-        $sql .= " LIMIT 1";
+        $sql = 'SELECT id, nombre, descripcion, precio, stock, categoria, activo 
+                FROM productos 
+                WHERE LOWER(nombre) = LOWER(:nombre) 
+                LIMIT 1';
 
         $stmt = $this->db->prepare($sql);
-        $stmt->bindValue(':name', trim($name), PDO::PARAM_STR);
-
-        if ($excludeId !== null) {
-            $stmt->bindValue(':excludeId', $excludeId, PDO::PARAM_INT);
-        }
-
+        $stmt->bindValue(':nombre', trim($name), PDO::PARAM_STR);
         $stmt->execute();
+
         $row = $stmt->fetch();
 
-        return $row ? Product::fromArray($row) : null;
+        return $row === false ? null : $this->buildProduct($row);
     }
 
     /**
-     * Inserta un nuevo producto en la base de datos.
-     * 
-     * @param Product $product Entidad con los datos a persistir.
-     * @return int ID autonumérico generado por MySQL.
+     * Inserta un producto nuevo en la base de datos y asigna su ID autonumérico.
      */
-    public function create(Product $product): int
+    public function create(Product $product): Product
     {
-        $sql = "INSERT INTO products (name, description, price, stock) 
-                VALUES (:name, :description, :price, :stock)";
+        $sql = 'INSERT INTO productos (nombre, descripcion, precio, stock, categoria, activo)
+                VALUES (:nombre, :descripcion, :precio, :stock, :categoria, 1)';
 
         $stmt = $this->db->prepare($sql);
-        $stmt->bindValue(':name', $product->getName(), PDO::PARAM_STR);
-        $stmt->bindValue(':description', $product->getDescription(), $product->getDescription() === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
-        $stmt->bindValue(':price', $product->getPrice());
+        $stmt->bindValue(':nombre', $product->getName(), PDO::PARAM_STR);
+        $stmt->bindValue(':descripcion', $product->getDescription(), PDO::PARAM_STR);
+        $stmt->bindValue(':precio', $product->getPrice());
         $stmt->bindValue(':stock', $product->getStock(), PDO::PARAM_INT);
-
+        $stmt->bindValue(':categoria', $product->getCategory(), PDO::PARAM_STR);
         $stmt->execute();
 
-        return (int) $this->db->lastInsertId();
+        $product->setId((int) $this->db->lastInsertId());
+
+        return $product;
     }
 
     /**
      * Actualiza los datos de un producto existente.
-     * 
-     * @param Product $product Entidad con los datos modificados.
-     * @return bool True si se ejecutó con éxito.
      */
-    public function update(Product $product): bool
+    public function update(Product $product): Product
     {
-        $sql = "UPDATE products 
-                SET name = :name, 
-                    description = :description, 
-                    price = :price, 
-                    stock = :stock 
-                WHERE id = :id";
+        $sql = 'UPDATE productos
+                   SET nombre = :nombre,
+                       descripcion = :descripcion,
+                       precio = :precio,
+                       stock = :stock,
+                       categoria = :categoria
+                 WHERE id = :id';
 
         $stmt = $this->db->prepare($sql);
-        $stmt->bindValue(':id', $product->getId(), PDO::PARAM_INT);
-        $stmt->bindValue(':name', $product->getName(), PDO::PARAM_STR);
-        $stmt->bindValue(':description', $product->getDescription(), $product->getDescription() === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
-        $stmt->bindValue(':price', $product->getPrice());
+        $stmt->bindValue(':nombre', $product->getName(), PDO::PARAM_STR);
+        $stmt->bindValue(':descripcion', $product->getDescription(), PDO::PARAM_STR);
+        $stmt->bindValue(':precio', $product->getPrice());
         $stmt->bindValue(':stock', $product->getStock(), PDO::PARAM_INT);
+        $stmt->bindValue(':categoria', $product->getCategory(), PDO::PARAM_STR);
+        $stmt->bindValue(':id', $product->getId(), PDO::PARAM_INT);
+        $stmt->execute();
 
-        return $stmt->execute();
+        return $product;
     }
 
     /**
-     * Elimina físicamente un registro por su ID.
-     * 
-     * @param int $id ID del producto a eliminar.
-     * @return bool True si una fila fue afectada.
+     * Elimina físicamente un producto de la base de datos.
      */
-    public function delete(int $id): bool
+    public function delete(int $id): void
     {
-        $sql = "DELETE FROM products WHERE id = :id";
+        $sql = 'DELETE FROM productos WHERE id = :id';
+
         $stmt = $this->db->prepare($sql);
         $stmt->bindValue(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
+    }
 
-        return $stmt->rowCount() > 0;
+    /**
+     * Convierte una fila asociativa en una instancia del modelo Product.
+     *
+     * @param array<string, mixed> $row
+     */
+    private function buildProduct(array $row): Product
+    {
+        return new Product(
+            (int) $row['id'],
+            (string) $row['nombre'],
+            (string) ($row['descripcion'] ?? ''),
+            (float) $row['precio'],
+            (int) $row['stock'],
+            (string) $row['categoria'],
+            (bool) ($row['activo'] ?? true)
+        );
     }
 }

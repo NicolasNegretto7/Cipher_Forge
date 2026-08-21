@@ -4,138 +4,100 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
-use App\Core\Request;
 use App\Core\Response;
-use App\Helpers\TokenHelper;
-use App\Repositories\UserRepository;
-use Throwable;
+use App\Core\Token;
+use App\DTOs\LoginDTO;
+use App\DTOs\RegisterDTO;
+use App\Services\AuthService;
+use App\Validators\AuthValidator;
 
 /**
- * Controlador de Autenticación mediante Tokens Bearer y Argon2id.
+ * CONTROLADOR DE AUTENTICACIÓN
+ * ==============================================================================
+ * WHAT: Orquesta el flujo HTTP para registro, inicio de sesión, logout y perfil.
+ * WHY:  El controlador coordina la validación con AuthValidator, encapsula los datos
+ *       en DTOs, delega el trabajo al servicio AuthService y responde JSON.
+ * ==============================================================================
  */
-class AuthController
+class AuthController extends Controller
 {
-    private UserRepository $userRepository;
+    private AuthService $service;
 
-    public function __construct(?UserRepository $userRepository = null)
+    public function __construct(?AuthService $service = null)
     {
-        $this->userRepository = $userRepository ?? new UserRepository();
+        $this->service = $service ?? new AuthService();
     }
 
     /**
-     * POST /api/auth/register
-     * Registra un nuevo usuario con contraseña hasheada en Argon2id.
+     * POST /registro
      */
-    public function register(Request $request): void
+    public function register(): void
     {
-        try {
-            $body = $request->getBody();
+        $data = $this->requestData();
 
-            $name = trim((string) ($body['name'] ?? ''));
-            $email = trim((string) ($body['email'] ?? ''));
-            $password = (string) ($body['password'] ?? '');
-            $role = (string) ($body['role'] ?? 'cliente');
-
-            $errors = [];
-            if ($name === '') {
-                $errors['name'] = 'El nombre es obligatorio.';
-            }
-            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                $errors['email'] = 'El formato de correo electrónico es inválido.';
-            }
-            if (strlen($password) < 8) {
-                $errors['password'] = 'La contraseña debe tener al menos 8 caracteres.';
-            }
-            if (!in_array($role, ['fotografo', 'cliente'], true)) {
-                $errors['role'] = 'El rol debe ser "fotografo" o "cliente".';
-            }
-
-            if (!empty($errors)) {
-                Response::error('Errores de validación.', 422, $errors);
-            }
-
-            if ($this->userRepository->findByEmail($email) !== null) {
-                Response::error('El correo electrónico ya está registrado.', 422, ['email' => 'Correo ya en uso.']);
-            }
-
-            $passwordHash = TokenHelper::hashPassword($password);
-            $userId = $this->userRepository->create($name, $email, $passwordHash, $role);
-
-            $user = $this->userRepository->findById($userId);
-
-            Response::success($user, 'Usuario registrado exitosamente.', 201);
-        } catch (Throwable $e) {
-            Response::error('Error al registrar usuario: ' . $e->getMessage(), 500);
+        // 1. Validar formato de entrada
+        $errors = AuthValidator::validateRegister($data);
+        if (count($errors) > 0) {
+            Response::error('Revisá los datos ingresados.', 400, $errors);
         }
+
+        // 2. Construir DTO inmutable
+        $dto = new RegisterDTO($data);
+
+        // 3. Ejecutar lógica en el servicio
+        $user = $this->service->register($dto);
+
+        Response::success($user, 'Cuenta creada exitosamente.', 201);
     }
 
     /**
-     * POST /api/auth/login
-     * Valida credenciales con password_verify y emite un Token Bearer de 24 horas.
+     * POST /login
      */
-    public function login(Request $request): void
+    public function login(): void
     {
-        try {
-            $body = $request->getBody();
+        $data = $this->requestData();
 
-            $email = trim((string) ($body['email'] ?? ''));
-            $password = (string) ($body['password'] ?? '');
-
-            if ($email === '' || $password === '') {
-                Response::error('Debe proporcionar correo y contraseña.', 400);
-            }
-
-            $user = $this->userRepository->findByEmail($email);
-            if ($user === null || !TokenHelper::verifyPassword($password, $user['password_hash'])) {
-                Response::error('Credenciales incorrectas.', 401);
-            }
-
-            // Genera token seguro y calcula su hash para la BD
-            $plainToken = TokenHelper::generateToken(32);
-            $tokenHash = TokenHelper::hashToken($plainToken);
-            $expiresAt = date('Y-m-d H:i:s', time() + (24 * 3600)); // Vigencia 24 horas
-
-            $this->userRepository->createAuthToken((int) $user['id'], $tokenHash, $expiresAt);
-
-            unset($user['password_hash']);
-
-            Response::success([
-                'user'       => $user,
-                'token'      => $plainToken,
-                'token_type' => 'Bearer',
-                'expires_at' => $expiresAt,
-            ], 'Inicio de sesión exitoso.', 200);
-        } catch (Throwable $e) {
-            Response::error('Error en el servidor al iniciar sesión: ' . $e->getMessage(), 500);
+        // 1. Validar formato
+        $errors = AuthValidator::validateLogin($data);
+        if (count($errors) > 0) {
+            Response::error('Revisá los datos ingresados.', 400, $errors);
         }
+
+        // 2. DTO
+        $dto = new LoginDTO($data);
+
+        // 3. Autenticación en el servicio
+        $session = $this->service->login($dto);
+
+        // 4. Envío de cookie HttpOnly al cliente antes de responder JSON
+        Token::sendCookie($session['token']);
+
+        // Se remueve el token del cuerpo JSON: el navegador ya lo tiene en la cookie protegida
+        unset($session['token']);
+
+        Response::success($session, 'Sesión iniciada correctamente.');
     }
 
     /**
-     * POST /api/auth/logout
-     * Invalida el token actual en la base de datos.
+     * POST /logout
      */
-    public function logout(Request $request): void
+    public function logout(): void
     {
-        try {
-            $token = $request->getBearerToken();
-            if ($token !== null) {
-                $tokenHash = TokenHelper::hashToken($token);
-                $this->userRepository->deleteAuthToken($tokenHash);
-            }
+        Token::clearCookie();
 
-            Response::success(null, 'Sesión cerrada correctamente.', 200);
-        } catch (Throwable $e) {
-            Response::error('Error al cerrar sesión: ' . $e->getMessage(), 500);
-        }
+        Response::success(null, 'Sesión cerrada correctamente.');
     }
 
     /**
-     * GET /api/auth/me
-     * Retorna los datos del usuario autenticado.
+     * GET /perfil (Requiere sesión 'auth')
      */
-    public function me(Request $request): void
+    public function profile(): void
     {
-        $user = $request->getUser();
-        Response::success($user, 'Perfil de usuario obtenido.', 200);
+        $currentUser = $this->user();
+        $userId = (int) ($currentUser['id'] ?? 0);
+
+        $user = $this->service->getProfile($userId);
+
+        Response::success($user, 'Perfil obtenido.');
     }
 }

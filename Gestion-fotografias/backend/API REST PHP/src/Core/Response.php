@@ -5,73 +5,63 @@ declare(strict_types=1);
 namespace App\Core;
 
 /**
- * Gestor de respuestas HTTP con formato JSON estandarizado para Cipher_Forge.
- * 
- * Cumple con el estándar del proyecto:
- * Éxito: {"success": true, "data": ...}
- * Error: {"success": false, "error": "mensaje"}
+ * RESPUESTA HTTP ESTANDARIZADA (JSON)
+ * ==============================================================================
+ * WHAT: Emite respuestas formateadas en JSON con su código de estado HTTP y corta
+ *       la ejecución del script (`exit`).
+ * WHY:  Centraliza la estructura de respuesta JSON de la API. Los métodos estáticos
+ *       permiten responder y terminar la ejecución inmediatamente sin acoplar
+ *       retornos manuales ni excepciones repetitivas en cada capa.
+ * ==============================================================================
  */
 class Response
 {
     /**
-     * Emite una respuesta JSON arbitraria con código de estado HTTP.
-     * 
-     * @param mixed $data Datos a serializar.
-     * @param int $statusCode Código HTTP.
+     * Emite una respuesta de éxito (200 OK, 201 Created).
+     *
+     * @param mixed $data Carga útil de datos serializables a JSON.
+     * @param string $message Mensaje descriptivo opcional.
+     * @param int $status Código de estado HTTP.
      */
-    public static function json(mixed $data, int $statusCode = 200): void
+    public static function success(mixed $data = null, string $message = '', int $status = 200): void
     {
-        if (!headers_sent()) {
-            http_response_code($statusCode);
-            header('Content-Type: application/json; charset=UTF-8');
-        }
+        self::send([
+            'ok'      => true,
+            'mensaje' => $message,
+            'datos'   => $data,
+        ], $status);
+    }
 
-        echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+    /**
+     * Emite una respuesta de error (400 Bad Request, 401 Unauthorized, 403, 404, 500).
+     *
+     * @param string $message Descripción del error principal.
+     * @param int $status Código HTTP de error.
+     * @param array<string, mixed>|array<int, string> $errors Lista detallada de errores de validación.
+     */
+    public static function error(string $message, int $status = 400, array $errors = []): void
+    {
+        self::send([
+            'ok'      => false,
+            'mensaje' => $message,
+            'errores' => $errors,
+        ], $status);
+    }
+
+    /**
+     * Serializa los datos a JSON, define headers HTTP y detiene la ejecución.
+     *
+     * @param array<string, mixed> $body Estructura del cuerpo de respuesta.
+     * @param int $status Código de estado HTTP.
+     */
+    private static function send(array $body, int $status): void
+    {
+        http_response_code($status);
+        header('Content-Type: application/json; charset=utf-8');
+
+        echo json_encode($body, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT);
+
+        // Termina el ciclo de vida de la petición HTTP
         exit;
-    }
-
-    /**
-     * Respuesta estructurada de éxito conforme al estándar del proyecto.
-     * 
-     * @param mixed $data Carga útil de la respuesta.
-     * @param string|null $message Mensaje descriptivo opcional.
-     * @param int $statusCode Código HTTP (200, 201).
-     */
-    public static function success(mixed $data = null, ?string $message = null, int $statusCode = 200): void
-    {
-        $payload = [
-            'success' => true,
-        ];
-
-        if ($message !== null) {
-            $payload['message'] = $message;
-        }
-
-        if ($data !== null) {
-            $payload['data'] = $data;
-        }
-
-        self::json($payload, $statusCode);
-    }
-
-    /**
-     * Respuesta estructurada de error conforme al estándar del proyecto.
-     * 
-     * @param string $message Mensaje principal de error.
-     * @param int $statusCode Código de estado HTTP (400, 401, 403, 404, 422, 500).
-     * @param array<string, mixed>|null $errors Errores específicos de validación por campo.
-     */
-    public static function error(string $message, int $statusCode = 400, ?array $errors = null): void
-    {
-        $payload = [
-            'success' => false,
-            'error'   => $message,
-        ];
-
-        if ($errors !== null) {
-            $payload['errors'] = $errors;
-        }
-
-        self::json($payload, $statusCode);
     }
 }

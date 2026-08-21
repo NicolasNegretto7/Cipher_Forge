@@ -3,119 +3,74 @@
 declare(strict_types=1);
 
 /**
- * Front Controller: Punto de entrada único para la API REST de Cipher_Forge.
- * 
- * Configura CORS, registra el autocargador PSR-4, define rutas con
- * protección por Middlewares y despacha la petición actual.
+ * FRONT CONTROLLER — PUNTO DE ENTRADA ÚNICO
+ * ==============================================================================
+ * WHAT: Todas las peticiones HTTP ingresan por este archivo único.
+ * WHY:  Centraliza la inicialización del entorno, el registro del autocargador PSR-4,
+ *       la política de CORS con credenciales para SPA, y el despacho seguro de rutas.
+ * ==============================================================================
  */
 
-// 1. Encabezados CORS (Cross-Origin Resource Sharing)
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+// 1. Cargar archivo de configuración y variables de entorno
+require_once __DIR__ . '/../config.php';
 
-// Responder de inmediato a las peticiones Preflight (OPTIONS) de los navegadores
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit;
+// 2. Autocargador PSR-4 (Soporta Composer si existe 'vendor/autoload.php' y fallback nativo)
+if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
+    require_once __DIR__ . '/../vendor/autoload.php';
 }
 
-// 2. Autocargador PSR-4 nativo sin Composer
 spl_autoload_register(function (string $class): void {
-    $prefixes = [
-        'App\\'    => __DIR__ . '/../src/',
-        'Config\\' => __DIR__ . '/../config/',
-    ];
+    $prefix = 'App\\';
+    $baseDir = __DIR__ . '/../src/';
 
-    foreach ($prefixes as $prefix => $baseDir) {
-        $len = strlen($prefix);
-        if (strncmp($prefix, $class, $len) === 0) {
-            $relativeClass = substr($class, $len);
-            $file = $baseDir . str_replace('\\', '/', $relativeClass) . '.php';
+    $len = strlen($prefix);
+    if (strncmp($prefix, $class, $len) !== 0) {
+        return;
+    }
 
-            if (file_exists($file)) {
-                require_once $file;
-                return;
-            }
-        }
+    $relativeClass = substr($class, $len);
+    $file = $baseDir . str_replace('\\', '/', $relativeClass) . '.php';
+
+    if (file_exists($file)) {
+        require_once $file;
     }
 });
 
-use App\Controllers\AuthController;
-use App\Controllers\CollectionController;
-use App\Controllers\DownloadController;
-use App\Controllers\FileController;
-use App\Controllers\ImageController;
-use App\Core\Request;
 use App\Core\Response;
-use App\Core\Router;
-use App\Middlewares\AuthMiddleware;
-use App\Middlewares\RoleMiddleware;
 
-// 3. Captura global de excepciones no controladas
-set_exception_handler(function (Throwable $e): void {
-    Response::error(
-        'Error crítico en el servidor: ' . $e->getMessage(),
-        500
-    );
-});
+// 3. Configuración de Seguridad y CORS (Cross-Origin Resource Sharing)
+$origin = $_SERVER['HTTP_ORIGIN'] ?? null;
 
-// 4. Instancias del Núcleo
-$request = new Request();
-$router = new Router();
+if ($origin === FRONTEND_ORIGIN) {
+    header('Access-Control-Allow-Origin: ' . FRONTEND_ORIGIN);
+    header('Access-Control-Allow-Credentials: true');
+    header('Vary: Origin');
+}
 
-// Middleware helpers reutilizables
-$authRequired = new AuthMiddleware(optional: false);
-$authOptional = new AuthMiddleware(optional: true);
-$onlyPhotographer = new RoleMiddleware('fotografo');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
+header('Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS');
 
-// --- RUTAS DE LA API ---
+// Respuesta inmediata a peticiones preflight OPTIONS
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'OPTIONS') {
+    http_response_code(204);
+    exit;
+}
 
-// Health check / Índice de bienvenida
-$router->get('/', function (Request $req): void {
-    Response::success([
-        'system'      => 'Cipher_Forge REST API',
-        'version'     => '1.0.0',
-        'status'      => 'online',
-        'auth_mode'   => 'Stateless Bearer Tokens (No Cookies)',
-        'endpoints'   => [
-            'POST /api/auth/register'            => 'Registro de usuarios (fotografo/cliente)',
-            'POST /api/auth/login'               => 'Login (emite Bearer token de 24h)',
-            'POST /api/auth/logout'              => 'Cierre de sesión / Invalidar token',
-            'GET /api/auth/me'                   => 'Perfil del usuario autenticado',
-            'GET /api/collections'               => 'Listar colecciones accesibles',
-            'GET /api/collections/{uuid}'        => 'Detalle de colección por UUID',
-            'POST /api/collections'              => 'Crear colección (Solo fotógrafo)',
-            'PUT /api/collections/{uuid}'        => 'Actualizar colección (Solo fotógrafo)',
-            'DELETE /api/collections/{uuid}'     => 'Eliminar colección (Solo fotógrafo)',
-            'POST /api/collections/{uuid}/images'=> 'Subir imagen multipart (Solo fotógrafo)',
-            'GET /api/files/{id}'                => 'Servir imagen (preview / watermarked / original)',
-            'GET /api/collections/{uuid}/download'=> 'Descarga masiva de la colección en ZIP',
-        ],
-    ], 'API Cipher_Forge en funcionamiento');
-});
+// 4. Captura del Método y Ruta HTTP solicitada
+$method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
+$uri = $_SERVER['REQUEST_URI'] ?? '/';
+$path = parse_url($uri, PHP_URL_PATH) ?? '/';
 
-// Módulo 1: Autenticación
-$router->post('/api/auth/register', [AuthController::class, 'register']);
-$router->post('/api/auth/login', [AuthController::class, 'login']);
-$router->post('/api/auth/logout', [AuthController::class, 'logout'], [$authRequired]);
-$router->get('/api/auth/me', [AuthController::class, 'me'], [$authRequired]);
+// 5. Despacho seguro de la petición hacia el Router
+try {
+    /** @var \App\Core\Router $router */
+    $router = require __DIR__ . '/../routes.php';
 
-// Módulo 2: Colecciones / Galerías
-$router->get('/api/collections', [CollectionController::class, 'index'], [$authOptional]);
-$router->get('/api/collections/{uuid}', [CollectionController::class, 'show'], [$authOptional]);
-$router->post('/api/collections', [CollectionController::class, 'store'], [$authRequired, $onlyPhotographer]);
-$router->put('/api/collections/{uuid}', [CollectionController::class, 'update'], [$authRequired, $onlyPhotographer]);
-$router->delete('/api/collections/{uuid}', [CollectionController::class, 'destroy'], [$authRequired, $onlyPhotographer]);
-
-// Módulo 3: Subida y procesamiento de imágenes
-$router->post('/api/collections/{uuid}/images', [ImageController::class, 'upload'], [$authRequired, $onlyPhotographer]);
-
-// Módulo 4: Entrega segura de archivos binarios
-$router->get('/api/files/{id}', [FileController::class, 'serve'], [$authOptional]);
-
-// Módulo 5: Descarga masiva ZIP
-$router->get('/api/collections/{uuid}/download', [DownloadController::class, 'downloadZip'], [$authOptional]);
-
-// 5. Despachar la petición entrante
-$router->dispatch($request);
+    $router->dispatch($method, $path);
+} catch (PDOException $exception) {
+    error_log('Error PDO en API REST: ' . $exception->getMessage());
+    Response::error('Ocurrió un error interno con la base de datos.', 500);
+} catch (Throwable $exception) {
+    error_log('Error crítico en API REST: ' . $exception->getMessage());
+    Response::error('Ocurrió un error interno en el servidor.', 500);
+}

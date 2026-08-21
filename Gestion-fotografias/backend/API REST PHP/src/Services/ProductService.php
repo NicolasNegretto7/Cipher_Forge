@@ -4,16 +4,23 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Core\Response;
+use App\DTOs\CreateProductDTO;
+use App\DTOs\SellProductDTO;
+use App\DTOs\UpdateProductDTO;
 use App\Models\Product;
 use App\Repositories\ProductRepository;
-use InvalidArgumentException;
-use RuntimeException;
 
 /**
- * Capa de lógica de negocio para la gestión de productos.
- * 
- * Contiene reglas de dominio, validaciones de integridad y orquesta
- * el flujo de información antes de persistirlo en el repositorio.
+ * SERVICIO DE PRODUCTOS (REGLAS DE NEGOCIO)
+ * ==============================================================================
+ * WHAT: Contiene las reglas operativas y lógica de dominio del catálogo y ventas.
+ * WHY:  Centraliza las reglas del sistema para que puedan ser reutilizadas desde
+ *       la API REST, tareas programadas (CLI) u otros módulos sin duplicar lógica:
+ *       - No se permiten dos productos con el mismo nombre.
+ *       - No se puede vender más stock del disponible.
+ *       - No se puede eliminar un producto si todavía tiene existencias en stock.
+ * ==============================================================================
  */
 class ProductService
 {
@@ -25,175 +32,164 @@ class ProductService
     }
 
     /**
-     * Obtiene una lista de productos paginada y filtrada.
-     * 
-     * @param string|null $search Término de búsqueda opcional.
-     * @param int $limit Cantidad máxima de registros.
-     * @param int $offset Punto de inicio.
-     * @return array<string, mixed> Lista de productos y metadatos de consulta.
+     * Retorna el listado de productos serializados a array.
+     *
+     * @param string|null $category
+     * @return array<int, array<string, mixed>>
      */
-    public function getAllProducts(?string $search = null, int $limit = 50, int $offset = 0): array
+    public function getAll(?string $category = null): array
     {
-        $limit = max(1, min($limit, 100)); // Limita entre 1 y 100 para proteger memoria
-        $offset = max(0, $offset);
+        $products = $this->repository->findAll($category);
 
-        $products = $this->repository->findAll($search, $limit, $offset);
+        $list = [];
+        foreach ($products as $product) {
+            $list[] = $product->toArray();
+        }
+
+        return $list;
+    }
+
+    /**
+     * Obtiene un producto por su ID.
+     *
+     * @param int $id
+     * @return array<string, mixed>
+     */
+    public function getById(int $id): array
+    {
+        $product = $this->repository->findById($id);
+
+        if ($product === null) {
+            Response::error("No existe el producto con ID {$id}.", 404);
+        }
+
+        return $product->toArray();
+    }
+
+    /**
+     * Crea un producto nuevo previa validación de unicidad de nombre.
+     *
+     * @param CreateProductDTO $dto
+     * @return array<string, mixed>
+     */
+    public function create(CreateProductDTO $dto): array
+    {
+        // Regla: No duplicar nombres de productos
+        if ($this->repository->findByName($dto->getName()) !== null) {
+            Response::error('Ya existe un producto con ese nombre.', 400);
+        }
+
+        $product = new Product(
+            0,
+            $dto->getName(),
+            $dto->getDescription(),
+            $dto->getPrice(),
+            $dto->getStock(),
+            $dto->getCategory()
+        );
+
+        $created = $this->repository->create($product);
+
+        return $created->toArray();
+    }
+
+    /**
+     * Modifica selectivamente los campos enviados de un producto.
+     *
+     * @param int $id
+     * @param UpdateProductDTO $dto
+     * @return array<string, mixed>
+     */
+    public function update(int $id, UpdateProductDTO $dto): array
+    {
+        $product = $this->repository->findById($id);
+
+        if ($product === null) {
+            Response::error("No existe el producto con ID {$id}.", 404);
+        }
+
+        if ($dto->has('nombre')) {
+            $product->setName((string) $dto->get('nombre'));
+        }
+
+        if ($dto->has('descripcion')) {
+            $product->setDescription((string) $dto->get('descripcion'));
+        }
+
+        if ($dto->has('precio')) {
+            $product->setPrice((float) $dto->get('precio'));
+        }
+
+        if ($dto->has('stock')) {
+            $product->setStock((int) $dto->get('stock'));
+        }
+
+        if ($dto->has('categoria')) {
+            $product->setCategory((string) $dto->get('categoria'));
+        }
+
+        $updated = $this->repository->update($product);
+
+        return $updated->toArray();
+    }
+
+    /**
+     * Elimina un producto. Falla si todavía queda mercadería en stock.
+     *
+     * @param int $id
+     */
+    public function delete(int $id): void
+    {
+        $product = $this->repository->findById($id);
+
+        if ($product === null) {
+            Response::error("No existe el producto con ID {$id}.", 404);
+        }
+
+        // Regla de negocio: primero debe liquidarse o darse de baja el stock
+        if ($product->hasStock()) {
+            Response::error(
+                "No se puede borrar: todavía quedan {$product->getStock()} unidades en stock.",
+                400
+            );
+        }
+
+        $this->repository->delete($id);
+    }
+
+    /**
+     * Realiza la operación de venta descontando stock de forma atómica.
+     *
+     * @param int $id
+     * @param SellProductDTO $dto
+     * @return array<string, mixed>
+     */
+    public function sell(int $id, SellProductDTO $dto): array
+    {
+        $quantity = $dto->getQuantity();
+        $product = $this->repository->findById($id);
+
+        // Regla 1: El producto debe existir
+        if ($product === null) {
+            Response::error("No existe el producto con ID {$id}.", 404);
+        }
+
+        // Regla 2: Existencia de stock suficiente
+        if ($product->getStock() < $quantity) {
+            Response::error(
+                "No hay stock suficiente. Quedan {$product->getStock()} unidades.",
+                400
+            );
+        }
+
+        // Aplicación del cambio de estado y persistencia
+        $product->setStock($product->getStock() - $quantity);
+        $this->repository->update($product);
 
         return [
-            'items'  => $products,
-            'count'  => count($products),
-            'limit'  => $limit,
-            'offset' => $offset,
+            'vendidas'      => $quantity,
+            'total_a_pagar' => $quantity * $product->getPrice(),
+            'producto'      => $product->toArray(),
         ];
-    }
-
-    /**
-     * Busca y valida la existencia de un producto por ID.
-     * 
-     * @param int $id ID a consultar.
-     * @return Product
-     * @throws RuntimeException Si el recurso no existe.
-     */
-    public function getProductById(int $id): Product
-    {
-        if ($id <= 0) {
-            throw new InvalidArgumentException("El ID del producto debe ser un entero positivo.");
-        }
-
-        $product = $this->repository->findById($id);
-        if ($product === null) {
-            throw new RuntimeException("Producto con ID {$id} no fue encontrado.");
-        }
-
-        return $product;
-    }
-
-    /**
-     * Valida y crea un nuevo producto en el sistema.
-     * 
-     * @param array<string, mixed> $data Datos recibidos desde la petición.
-     * @return Product Producto creado con su ID asignado.
-     * @throws InvalidArgumentException Si los datos violan las reglas de validación.
-     */
-    public function createProduct(array $data): Product
-    {
-        $errors = $this->validateProductData($data, isCreate: true);
-        if (!empty($errors)) {
-            $exception = new InvalidArgumentException("Error de validación de datos.");
-            // Adjuntamos los errores específicos para que el Controller los formatee
-            $exception->validationErrors = $errors;
-            throw $exception;
-        }
-
-        // Regla de negocio: No permitir nombres de productos duplicados
-        $existing = $this->repository->findByName($data['name']);
-        if ($existing !== null) {
-            $exception = new InvalidArgumentException("Ya existe un producto registrado con el nombre '{$data['name']}'.");
-            $exception->validationErrors = ['name' => 'El nombre del producto ya está en uso.'];
-            throw $exception;
-        }
-
-        $product = Product::fromArray($data);
-        $newId = $this->repository->create($product);
-
-        return $this->repository->findById($newId)
-            ?? throw new RuntimeException("Error al recuperar el producto recién creado.");
-    }
-
-    /**
-     * Actualiza la información de un producto existente.
-     * 
-     * @param int $id ID del producto a modificar.
-     * @param array<string, mixed> $data Nuevos datos.
-     * @return Product Producto con los cambios aplicados.
-     */
-    public function updateProduct(int $id, array $data): Product
-    {
-        $existingProduct = $this->getProductById($id);
-
-        $errors = $this->validateProductData($data, isCreate: false);
-        if (!empty($errors)) {
-            $exception = new InvalidArgumentException("Error de validación de datos.");
-            $exception->validationErrors = $errors;
-            throw $exception;
-        }
-
-        // Si se actualiza el nombre, verificar que no colisione con otro producto distinto
-        if (isset($data['name']) && $data['name'] !== $existingProduct->getName()) {
-            $duplicate = $this->repository->findByName($data['name'], excludeId: $id);
-            if ($duplicate !== null) {
-                $exception = new InvalidArgumentException("Ya existe otro producto con el nombre '{$data['name']}'.");
-                $exception->validationErrors = ['name' => 'El nombre ya está registrado en otro producto.'];
-                throw $exception;
-            }
-        }
-
-        // Combinar datos existentes con los nuevos (Patch/Put seguro)
-        $mergedData = [
-            'id'          => $id,
-            'name'        => $data['name'] ?? $existingProduct->getName(),
-            'description' => array_key_exists('description', $data) ? $data['description'] : $existingProduct->getDescription(),
-            'price'       => isset($data['price']) ? (float) $data['price'] : $existingProduct->getPrice(),
-            'stock'       => isset($data['stock']) ? (int) $data['stock'] : $existingProduct->getStock(),
-        ];
-
-        $updatedEntity = Product::fromArray($mergedData);
-        $this->repository->update($updatedEntity);
-
-        return $this->repository->findById($id)
-            ?? throw new RuntimeException("Error al recuperar el producto actualizado.");
-    }
-
-    /**
-     * Elimina un producto previa comprobación de existencia.
-     * 
-     * @param int $id ID del producto.
-     * @return bool
-     */
-    public function deleteProduct(int $id): bool
-    {
-        // Valida que el producto existe antes de intentar eliminarlo (lanza 404 si no existe)
-        $this->getProductById($id);
-
-        return $this->repository->delete($id);
-    }
-
-    /**
-     * Valida tipos de datos, obligatoriedad y límites numéricos.
-     * 
-     * @param array<string, mixed> $data Datos de entrada.
-     * @param bool $isCreate Indica si es operación de creación (campos obligatorios).
-     * @return array<string, string> Mapa de errores [campo => mensaje].
-     */
-    private function validateProductData(array $data, bool $isCreate): array
-    {
-        $errors = [];
-
-        if ($isCreate || array_key_exists('name', $data)) {
-            $name = trim((string) ($data['name'] ?? ''));
-            if ($name === '') {
-                $errors['name'] = 'El nombre del producto es obligatorio.';
-            } elseif (mb_strlen($name) < 3 || mb_strlen($name) > 150) {
-                $errors['name'] = 'El nombre debe tener entre 3 y 150 caracteres.';
-            }
-        }
-
-        if ($isCreate || array_key_exists('price', $data)) {
-            if (!isset($data['price']) || !is_numeric($data['price'])) {
-                $errors['price'] = 'El precio debe ser un número válido.';
-            } elseif ((float) $data['price'] <= 0) {
-                $errors['price'] = 'El precio debe ser mayor a 0.';
-            }
-        }
-
-        if ($isCreate || array_key_exists('stock', $data)) {
-            if (!isset($data['stock']) || !is_numeric($data['stock'])) {
-                $errors['stock'] = 'El stock debe ser un número entero.';
-            } elseif ((int) $data['stock'] < 0) {
-                $errors['stock'] = 'El stock no puede ser negativo.';
-            }
-        }
-
-        return $errors;
     }
 }

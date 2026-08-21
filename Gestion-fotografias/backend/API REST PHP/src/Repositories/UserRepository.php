@@ -4,101 +4,86 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
-use Config\Database;
+use App\Models\User;
 use PDO;
 
 /**
- * Repositorio para gestión de usuarios y tokens de autenticación Bearer.
+ * REPOSITORIO DE USUARIOS (ACCESO A DATOS)
+ * ==============================================================================
+ * WHAT: Ejecuta consultas preparadas (Prepared Statements) con PDO contra la
+ *       tabla `usuarios` y mapea los resultados hacia la entidad User.
+ * WHY:  Aísla por completo el SQL del resto de la aplicación. Previene inyección
+ *       SQL mediante parámetros vinculados nombrados (`:email`, `:id`).
+ * ==============================================================================
  */
-class UserRepository
+class UserRepository extends Repository
 {
-    private PDO $db;
-
-    public function __construct(?PDO $db = null)
+    /**
+     * Busca un usuario por su dirección de email.
+     */
+    public function findByEmail(string $email): ?User
     {
-        $this->db = $db ?? (new Database())->getConnection();
-    }
-
-    public function findByEmail(string $email): ?array
-    {
-        $sql = "SELECT id, name, email, password_hash, role, created_at 
-                FROM users 
-                WHERE LOWER(email) = LOWER(:email) 
-                LIMIT 1";
+        $sql = 'SELECT id, nombre, email, clave_hash, rol, activo FROM usuarios WHERE email = :email LIMIT 1';
 
         $stmt = $this->db->prepare($sql);
         $stmt->bindValue(':email', trim($email), PDO::PARAM_STR);
         $stmt->execute();
 
-        $user = $stmt->fetch();
-        return $user ?: null;
+        $row = $stmt->fetch();
+
+        return $row === false ? null : $this->buildUser($row);
     }
 
-    public function findById(int $id): ?array
+    /**
+     * Busca un usuario por su clave primaria ID.
+     */
+    public function findById(int $id): ?User
     {
-        $sql = "SELECT id, name, email, role, created_at 
-                FROM users 
-                WHERE id = :id 
-                LIMIT 1";
+        $sql = 'SELECT id, nombre, email, clave_hash, rol, activo FROM usuarios WHERE id = :id LIMIT 1';
 
         $stmt = $this->db->prepare($sql);
         $stmt->bindValue(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
 
-        $user = $stmt->fetch();
-        return $user ?: null;
+        $row = $stmt->fetch();
+
+        return $row === false ? null : $this->buildUser($row);
     }
 
-    public function create(string $name, string $email, string $passwordHash, string $role): int
+    /**
+     * Inserta un nuevo usuario en la base de datos con contraseña ya encriptada.
+     */
+    public function create(string $name, string $email, string $passwordHash, string $role = 'usuario'): User
     {
-        $sql = "INSERT INTO users (name, email, password_hash, role) 
-                VALUES (:name, :email, :password_hash, :role)";
+        $sql = 'INSERT INTO usuarios (nombre, email, clave_hash, rol, activo)
+                VALUES (:nombre, :email, :clave_hash, :rol, 1)';
 
         $stmt = $this->db->prepare($sql);
-        $stmt->bindValue(':name', trim($name), PDO::PARAM_STR);
-        $stmt->bindValue(':email', trim($email), PDO::PARAM_STR);
-        $stmt->bindValue(':password_hash', $passwordHash, PDO::PARAM_STR);
-        $stmt->bindValue(':role', $role, PDO::PARAM_STR);
-
-        $stmt->execute();
-        return (int) $this->db->lastInsertId();
-    }
-
-    public function createAuthToken(int $userId, string $tokenHash, string $expiresAt): bool
-    {
-        $sql = "INSERT INTO auth_tokens (user_id, token_hash, expires_at) 
-                VALUES (:user_id, :token_hash, :expires_at)";
-
-        $stmt = $this->db->prepare($sql);
-        $stmt->bindValue(':user_id', $userId, PDO::PARAM_INT);
-        $stmt->bindValue(':token_hash', $tokenHash, PDO::PARAM_STR);
-        $stmt->bindValue(':expires_at', $expiresAt, PDO::PARAM_STR);
-
-        return $stmt->execute();
-    }
-
-    public function findUserByToken(string $tokenHash): ?array
-    {
-        $sql = "SELECT u.id, u.name, u.email, u.role, t.expires_at 
-                FROM auth_tokens t
-                INNER JOIN users u ON u.id = t.user_id
-                WHERE t.token_hash = :token_hash 
-                  AND t.expires_at > NOW() 
-                LIMIT 1";
-
-        $stmt = $this->db->prepare($sql);
-        $stmt->bindValue(':token_hash', $tokenHash, PDO::PARAM_STR);
+        $stmt->bindValue(':nombre', $name, PDO::PARAM_STR);
+        $stmt->bindValue(':email', $email, PDO::PARAM_STR);
+        $stmt->bindValue(':clave_hash', $passwordHash, PDO::PARAM_STR);
+        $stmt->bindValue(':rol', $role, PDO::PARAM_STR);
         $stmt->execute();
 
-        $result = $stmt->fetch();
-        return $result ?: null;
+        $newId = (int) $this->db->lastInsertId();
+
+        return $this->findById($newId) ?? new User($newId, $name, $email, $passwordHash, $role, true);
     }
 
-    public function deleteAuthToken(string $tokenHash): bool
+    /**
+     * Hidrata una fila de la base de datos (array) en un objeto de dominio User.
+     *
+     * @param array<string, mixed> $row
+     */
+    private function buildUser(array $row): User
     {
-        $sql = "DELETE FROM auth_tokens WHERE token_hash = :token_hash";
-        $stmt = $this->db->prepare($sql);
-        $stmt->bindValue(':token_hash', $tokenHash, PDO::PARAM_STR);
-        return $stmt->execute();
+        return new User(
+            (int) $row['id'],
+            (string) $row['nombre'],
+            (string) $row['email'],
+            (string) $row['clave_hash'],
+            (string) $row['rol'],
+            (bool) $row['activo']
+        );
     }
 }

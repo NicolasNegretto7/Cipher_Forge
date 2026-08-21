@@ -5,124 +5,105 @@ declare(strict_types=1);
 namespace App\Core;
 
 /**
- * Enrutador HTTP avanzado con soporte para parámetros dinámicos y cadena de Middlewares.
+ * ENRUTADOR HTTP POR TABLA DECLARATIVA
+ * ==============================================================================
+ * WHAT: Compara el método HTTP y la URI solicitada contra las rutas registradas,
+ *       extrae parámetros dinámicos `{id}`, ejecuta el middleware y despacha al controlador.
+ * WHY:  Reemplaza los switch gigantes en index.php por una estructura orientada a
+ *       objetos escalable y limpia.
+ * ==============================================================================
  */
 class Router
 {
     /**
-     * @var array<int, array{method: string, pattern: string, regex: string, paramNames: array<string>, handler: callable|array, middlewares: array<object>}>
+     * @var array<int, array{method: string, parts: array<int, string>, controller: string, action: string, middleware: ?string}>
      */
     private array $routes = [];
 
-    public function get(string $path, callable|array $handler, array $middlewares = []): void
+    /**
+     * Registra una nueva ruta en la tabla de despacho.
+     *
+     * @param string $method Método HTTP (GET, POST, PUT, DELETE).
+     * @param string $path Patrón de ruta (ej. '/productos' o '/productos/{id}').
+     * @param string $controller Nombre de la clase del controlador (FQN).
+     * @param string $action Nombre del método del controlador.
+     * @param string|null $middleware Requisito de seguridad (null, 'auth', 'admin').
+     */
+    public function add(string $method, string $path, string $controller, string $action, ?string $middleware = null): void
     {
-        $this->addRoute('GET', $path, $handler, $middlewares);
-    }
-
-    public function post(string $path, callable|array $handler, array $middlewares = []): void
-    {
-        $this->addRoute('POST', $path, $handler, $middlewares);
-    }
-
-    public function put(string $path, callable|array $handler, array $middlewares = []): void
-    {
-        $this->addRoute('PUT', $path, $handler, $middlewares);
-    }
-
-    public function delete(string $path, callable|array $handler, array $middlewares = []): void
-    {
-        $this->addRoute('DELETE', $path, $handler, $middlewares);
-    }
-
-    private function addRoute(string $method, string $path, callable|array $handler, array $middlewares = []): void
-    {
-        $normalizedPath = '/' . trim($path, '/');
-        if ($normalizedPath !== '/') {
-            $normalizedPath = rtrim($normalizedPath, '/');
-        }
-
-        preg_match_all('/\{([a-zA-Z0-9_]+)\}/', $normalizedPath, $paramMatches);
-        $paramNames = $paramMatches[1];
-
-        $regexPattern = preg_replace('/\{[a-zA-Z0-9_]+\}/', '([^/]+)', $normalizedPath);
-        $regex = '#^' . $regexPattern . '$#';
-
         $this->routes[] = [
-            'method'      => strtoupper($method),
-            'pattern'     => $normalizedPath,
-            'regex'       => $regex,
-            'paramNames'  => $paramNames,
-            'handler'     => $handler,
-            'middlewares' => $middlewares,
+            'method'     => strtoupper($method),
+            'parts'      => explode('/', trim($path, '/')),
+            'controller' => $controller,
+            'action'     => $action,
+            'middleware' => $middleware,
         ];
     }
 
-    public function dispatch(Request $request): void
+    /**
+     * Busca la ruta coincidente y ejecuta el flujo de middleware y controlador.
+     *
+     * @param string $method Método HTTP de la petición entrante.
+     * @param string $path Ruta URL solicitada.
+     */
+    public function dispatch(string $method, string $path): void
     {
-        $requestMethod = $request->getMethod();
-        $requestUri = $request->getUri();
-        $allowedMethodsForUri = [];
+        $requestedParts = explode('/', trim($path, '/'));
 
         foreach ($this->routes as $route) {
-            if (preg_match($route['regex'], $requestUri, $matches)) {
-                $allowedMethodsForUri[] = $route['method'];
+            if ($route['method'] !== strtoupper($method)) {
+                continue;
+            }
 
-                if ($route['method'] === $requestMethod) {
-                    array_shift($matches);
+            if (count($route['parts']) !== count($requestedParts)) {
+                continue;
+            }
 
-                    $routeParams = [];
-                    foreach ($route['paramNames'] as $index => $name) {
-                        $routeParams[$name] = $matches[$index] ?? null;
-                    }
-                    $request->setRouteParams($routeParams);
+            $matches = true;
+            $parameter = null;
 
-                    // 1. Ejecutar cadena de middlewares asignados a la ruta
-                    foreach ($route['middlewares'] as $middleware) {
-                        if (method_exists($middleware, 'handle')) {
-                            $middleware->handle($request);
-                        }
-                    }
+            foreach ($route['parts'] as $position => $part) {
+                // Comodín {id} para rutas parametrizadas
+                if ($part === '{id}') {
+                    $parameter = $requestedParts[$position];
+                    continue;
+                }
 
-                    // 2. Ejecutar el controlador final
-                    $this->executeHandler($route['handler'], $request, $routeParams);
-                    return;
+                if ($part !== $requestedParts[$position]) {
+                    $matches = false;
+                    break;
                 }
             }
-        }
 
-        if (!empty($allowedMethodsForUri)) {
-            header('Allow: ' . implode(', ', array_unique($allowedMethodsForUri)));
-            Response::error(
-                "Método {$requestMethod} no permitido para {$requestUri}. Permitidos: " . implode(', ', array_unique($allowedMethodsForUri)),
-                405
-            );
-        }
+            if ($matches) {
+                // 1. Ejecutar Middleware antes de instanciar el controlador
+                AuthMiddleware::handle($route['middleware']);
 
-        Response::error("Ruta no encontrada: {$requestMethod} {$requestUri}", 404);
-    }
+                // 2. Instanciación dinámica del controlador
+                $controllerClass = $route['controller'];
+                $actionMethod = $route['action'];
 
-    private function executeHandler(callable|array $handler, Request $request, array $params): void
-    {
-        if (is_array($handler)) {
-            [$controllerClass, $method] = $handler;
-            if (!class_exists($controllerClass)) {
-                Response::error("Controlador {$controllerClass} no encontrado.", 500);
+                if (!class_exists($controllerClass)) {
+                    Response::error("Controlador {$controllerClass} no encontrado.", 500);
+                }
+
+                $controller = new $controllerClass();
+
+                if (!method_exists($controller, $actionMethod)) {
+                    Response::error("Acción {$actionMethod} no existe en el controlador.", 500);
+                }
+
+                // Invoca la acción pasando el parámetro de ruta si existe
+                if ($parameter !== null) {
+                    $controller->$actionMethod($parameter);
+                } else {
+                    $controller->$actionMethod();
+                }
+
+                return;
             }
-
-            $controllerInstance = new $controllerClass();
-            if (!method_exists($controllerInstance, $method)) {
-                Response::error("Acción {$method} no existe en el controlador.", 500);
-            }
-
-            $controllerInstance->$method($request, $params);
-            return;
         }
 
-        if (is_callable($handler)) {
-            call_user_func($handler, $request, $params);
-            return;
-        }
-
-        Response::error("Manejador de ruta inválido.", 500);
+        Response::error("No existe esa dirección, o no se puede usar con el método {$method}.", 404);
     }
 }

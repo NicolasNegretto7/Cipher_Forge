@@ -1,0 +1,10 @@
+{
+    "name": "utu/api-simple",
+    "description": "API REST en PHP orientado a objetos, para aprender la separacion en capas",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "php": ">=8.0",
+        "firebase/php-jwt": "^7.1"
+    }
+}

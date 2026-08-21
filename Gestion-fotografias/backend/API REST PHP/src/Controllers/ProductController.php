@@ -4,20 +4,23 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
-use App\Core\Request;
 use App\Core\Response;
+use App\DTOs\CreateProductDTO;
+use App\DTOs\SellProductDTO;
+use App\DTOs\UpdateProductDTO;
 use App\Services\ProductService;
-use InvalidArgumentException;
-use RuntimeException;
-use Throwable;
+use App\Validators\ProductValidator;
 
 /**
- * Controlador REST para el recurso Productos.
- * 
- * Gestiona el ciclo HTTP: recibe datos de Request, interactúa con ProductService
- * y emite respuestas JSON formateadas con códigos de estado semánticos.
+ * CONTROLADOR DE PRODUCTOS
+ * ==============================================================================
+ * WHAT: Gestiona las peticiones HTTP del catálogo de productos y ventas de inventario.
+ * WHY:  Adopta los métodos estándar REST (index, show, store, update, destroy, sell),
+ *       aplica validación temprana con ProductValidator, mapea a DTOs y delega
+ *       al servicio ProductService.
+ * ==============================================================================
  */
-class ProductController
+class ProductController extends Controller
 {
     private ProductService $service;
 
@@ -27,116 +30,116 @@ class ProductController
     }
 
     /**
-     * GET /api/products
-     * Lista productos con soporte de búsqueda y paginación.
+     * GET /productos
+     * GET /productos?categoria=audio
      */
-    public function index(Request $request): void
+    public function index(): void
     {
-        try {
-            $search = $request->getQueryParam('search');
-            $limit = (int) $request->getQueryParam('limit', 50);
-            $offset = (int) $request->getQueryParam('offset', 0);
+        $category = $_GET['categoria'] ?? null;
 
-            $result = $this->service->getAllProducts($search, $limit, $offset);
-
-            Response::success($result, 'Listado de productos obtenido exitosamente.', 200);
-        } catch (Throwable $e) {
-            Response::error('Error al consultar productos: ' . $e->getMessage(), 500);
+        $errors = ProductValidator::validateIndex($category);
+        if (count($errors) > 0) {
+            Response::error('Revisá los parámetros de búsqueda.', 400, $errors);
         }
+
+        $products = $this->service->getAll($category);
+
+        Response::success($products, 'Listado de productos obtenido.');
     }
 
     /**
-     * GET /api/products/{id}
-     * Obtiene el detalle de un único producto por su ID.
+     * GET /productos/{id}
      */
-    public function show(Request $request, array $params): void
+    public function show(mixed $id = null): void
     {
-        try {
-            $id = (int) ($params['id'] ?? 0);
-            $product = $this->service->getProductById($id);
-
-            Response::success($product, 'Producto encontrado.', 200);
-        } catch (InvalidArgumentException $e) {
-            Response::error($e->getMessage(), 400);
-        } catch (RuntimeException $e) {
-            Response::error($e->getMessage(), 404);
-        } catch (Throwable $e) {
-            Response::error('Error interno del servidor: ' . $e->getMessage(), 500);
+        $errors = ProductValidator::validateShow($id);
+        if (count($errors) > 0) {
+            Response::error('Revisá el ID del producto.', 400, $errors);
         }
+
+        $product = $this->service->getById((int) $id);
+
+        Response::success($product, 'Producto encontrado.');
     }
 
     /**
-     * POST /api/products
-     * Crea un nuevo producto a partir de un cuerpo JSON.
+     * POST /productos (Requiere sesión 'auth')
      */
-    public function store(Request $request): void
+    public function store(): void
     {
-        try {
-            $body = $request->getBody();
+        $data = $this->requestData();
 
-            if (empty($body)) {
-                Response::error('El cuerpo de la petición no contiene un JSON válido o está vacío.', 400);
-            }
-
-            $createdProduct = $this->service->createProduct($body);
-
-            Response::success(
-                $createdProduct,
-                'Producto creado exitosamente.',
-                201 // 201 Created es el código estándar REST para recursos nuevos
-            );
-        } catch (InvalidArgumentException $e) {
-            $validationErrors = property_exists($e, 'validationErrors') ? $e->validationErrors : null;
-            Response::error($e->getMessage(), 422, $validationErrors);
-        } catch (Throwable $e) {
-            Response::error('Error al registrar producto: ' . $e->getMessage(), 500);
+        // 1. Validar formato de entrada
+        $errors = ProductValidator::validateStore($data);
+        if (count($errors) > 0) {
+            Response::error('Revisá los datos ingresados.', 400, $errors);
         }
+
+        // 2. DTO
+        $dto = new CreateProductDTO($data);
+
+        // 3. Reglas de negocio en el servicio
+        $product = $this->service->create($dto);
+
+        Response::success($product, 'Producto creado exitosamente.', 201);
     }
 
     /**
-     * PUT /api/products/{id}
-     * Actualiza un producto existente.
+     * PUT /productos/{id} (Requiere sesión 'auth')
      */
-    public function update(Request $request, array $params): void
+    public function update(mixed $id = null): void
     {
-        try {
-            $id = (int) ($params['id'] ?? 0);
-            $body = $request->getBody();
+        $data = $this->requestData();
 
-            if (empty($body)) {
-                Response::error('Debe enviar campos a actualizar en el cuerpo JSON.', 400);
-            }
-
-            $updatedProduct = $this->service->updateProduct($id, $body);
-
-            Response::success($updatedProduct, 'Producto actualizado exitosamente.', 200);
-        } catch (InvalidArgumentException $e) {
-            $validationErrors = property_exists($e, 'validationErrors') ? $e->validationErrors : null;
-            Response::error($e->getMessage(), 422, $validationErrors);
-        } catch (RuntimeException $e) {
-            Response::error($e->getMessage(), 404);
-        } catch (Throwable $e) {
-            Response::error('Error al actualizar producto: ' . $e->getMessage(), 500);
+        // 1. Validar ID y campos recibidos
+        $errors = ProductValidator::validateUpdate($id, $data);
+        if (count($errors) > 0) {
+            Response::error('Revisá los datos a modificar.', 400, $errors);
         }
+
+        // 2. DTO
+        $dto = new UpdateProductDTO($data);
+
+        // 3. Modificación en el servicio
+        $product = $this->service->update((int) $id, $dto);
+
+        Response::success($product, 'Producto actualizado exitosamente.');
     }
 
     /**
-     * DELETE /api/products/{id}
-     * Elimina un producto por su ID.
+     * DELETE /productos/{id} (Requiere rol 'admin')
      */
-    public function destroy(Request $request, array $params): void
+    public function destroy(mixed $id = null): void
     {
-        try {
-            $id = (int) ($params['id'] ?? 0);
-            $this->service->deleteProduct($id);
-
-            Response::success(null, "Producto con ID {$id} eliminado correctamente.", 200);
-        } catch (InvalidArgumentException $e) {
-            Response::error($e->getMessage(), 400);
-        } catch (RuntimeException $e) {
-            Response::error($e->getMessage(), 404);
-        } catch (Throwable $e) {
-            Response::error('Error al eliminar producto: ' . $e->getMessage(), 500);
+        $errors = ProductValidator::validateDestroy($id);
+        if (count($errors) > 0) {
+            Response::error('Revisá el ID del producto.', 400, $errors);
         }
+
+        $this->service->delete((int) $id);
+
+        Response::success(null, 'Producto eliminado correctamente.');
+    }
+
+    /**
+     * POST /productos/{id}/vender (Requiere sesión 'auth')
+     */
+    public function sell(mixed $id = null): void
+    {
+        $data = $this->requestData();
+
+        // 1. Validar ID y cantidad a vender
+        $errors = ProductValidator::validateSell($id, $data);
+        if (count($errors) > 0) {
+            Response::error('Revisá los datos de la venta.', 400, $errors);
+        }
+
+        // 2. DTO
+        $dto = new SellProductDTO($data);
+
+        // 3. Descontar stock y registrar venta en el servicio
+        $sale = $this->service->sell((int) $id, $dto);
+
+        Response::success($sale, 'Venta registrada exitosamente.');
     }
 }
