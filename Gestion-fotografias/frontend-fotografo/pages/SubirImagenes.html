@@ -3,23 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Colecciones</title>
+    <title>Subir Imágenes</title>
     <link rel="stylesheet" href="../css/panel.css">
 </head>
 <body>
 
-    
-       <div class="Contenedor">
+    <div class="Contenedor">
 
-        
         <div class="Sidebar">
 
             <div class="Logo">
                 <p>Galería del Fotógrafo ▾</p>
-              
-                 </div>
+            </div>
 
-            <Div class="Menu">
+            <div class="Menu">
                 <a class="ItemMenu" href="panel.html">
                     <p>Colecciones Publicas</p>
                 </a>
@@ -35,13 +32,9 @@
                 <a class="ItemMenuActivo" href="SubirImagenes.html">
                     <p>Subir Imagenes</p>
                 </a>
+            </div>
 
-                
-                 </Div>
- 
             <hr>
-
-            
 
             <div class="Almacenamiento">
                 <div class="CirculoAlmacenamiento"></div>
@@ -51,17 +44,61 @@
 
         </div>
 
-        
         <div class="Principal">
 
             <div class="Encabezado">
-                <h1>Subir Imagenes</h1>
-
-                <input type="text" placeholder=" Buscar" class="Buscador">
+                <h1>Subir Imágenes</h1>
 
                 
+
+                <button class="BotonNuevaColeccion" id="botonSubir">Subir archivos</button>
             </div>
 
-           
+          
+            <div class="ZonaCarga" id="zonaCarga">
+                
+                
+                
+                
+                  <P><strong>Arrastra tus archivos aquí o haz clic para seleccionarlos</strong></P>
 
+                    
+                   
+                     
+                <p class="Formatos">Formatos permitidos: JPG y MP4</p>
+            </div>
+            <input type="file" id="selectorArchivos" accept=".jpg,.jpeg,.mp4,image/jpeg,video/mp4" multiple hidden>
+
+           
+            <div class="FiltrosTipo">
+                <button class="FiltroTipo FiltroTipoActivo" data-filtro="todos">Todos</button>
+                <button class="FiltroTipo" data-filtro="imagen">Imágenes</button>
+                
+                  
+                  <Button class="FiltroTipo" data-filtro="video">Videos</Button>
+                <span class="ContadorArchivos" id="contadorArchivos">0 archivos</span>
+            </div>
+
+            
+            <div class="GaleriaMedia" id="galeria">
+                <div class="EstadoVacio" id="estadoVacio">
+                    <P>Aún no hay archivos subidos.<br>Sube tu primer JPG o MP4 para comenzar.</P>
+                </div>
+            </div>
+
+        </div>
     </div>
+
+    <!-- Visor simple para ver el archivo en grande -->
+    <div class="Visor" id="visor">
+        <div class="VisorInterior">
+            <button class="BotonCerrarVisor" id="cerrarVisor">✕</button>
+            <div id="visorContenido"></div>
+        </div>
+    </div>
+
+    <div class="ContenedorToasts" id="toasts"></div>
+
+    <script src="../js/upload.js"></script>
+</body>
+</html>
