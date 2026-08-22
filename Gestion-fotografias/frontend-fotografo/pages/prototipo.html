@@ -560,8 +560,7 @@ function procesarArchivos(lista) {
             id: generarUUID(),
             archivo,
             tipo: esImagen ? "imagen" : "video",
-            nombre: archivo.name,
-            fecha: new Date().toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric" })
+            nombre: archivo.name
         };
         usadoMB += archivo.size / 1048576;
         actualizarAlmacenamiento();

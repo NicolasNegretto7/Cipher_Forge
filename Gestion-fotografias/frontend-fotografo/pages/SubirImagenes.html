@@ -4,34 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Subir Imágenes</title>
-    <link rel="stylesheet" href="../css/panel.css">
+    <link rel="stylesheet" href="../css/tuscolecciones.css">
 </head>
 <body>
 
     <div class="Contenedor">
-
         <div class="Sidebar">
 
-            <div class="Logo">
-                <p>Galería del Fotógrafo ▾</p>
-            </div>
-
-            <div class="Menu">
-                <a class="ItemMenu" href="panel.html">
-                    <p>Colecciones Publicas</p>
-                </a>
-
-                <a class="ItemMenu" href="tuscolecciones.html">
-                    <p>Tus Colecciones</p>
-                </a>
-
-                <a class="ItemMenu" href="favoritos.html">
-                    <p>Favoritos</p>
-                </a>
-
-                <a class="ItemMenuActivo" href="SubirImagenes.html">
-                    <p>Subir Imagenes</p>
-                </a>
+            <div class="DatosNuevaColeccion">
+                <h2 id="nombreColeccion">Nombre de la colección</h2>
             </div>
 
             <hr>
@@ -41,7 +22,6 @@
                 <p>0 GB de 3 GB usados</p>
                 <div class="BotonMas">+</div>
             </div>
-
         </div>
 
         <div class="Principal">
@@ -49,47 +29,26 @@
             <div class="Encabezado">
                 <h1>Subir Imágenes</h1>
 
-                
-
-                <button class="BotonNuevaColeccion" id="botonSubir">Subir archivos</button>
+                <button class="BotonPublicar" id="botonPublicar">Publicar</button>
             </div>
 
-          
             <div class="ZonaCarga" id="zonaCarga">
-                
-                
-                
-                
-                  <P><strong>Arrastra tus archivos aquí o haz clic para seleccionarlos</strong></P>
 
-                    
-                   
-                     
+                <P><strong>Arrastra tus archivos aquí o haz clic para seleccionarlos</strong></P>
+
                 <p class="Formatos">Formatos permitidos: JPG y MP4</p>
             </div>
             <input type="file" id="selectorArchivos" accept=".jpg,.jpeg,.mp4,image/jpeg,video/mp4" multiple hidden>
 
-           
-            <div class="FiltrosTipo">
-                <button class="FiltroTipo FiltroTipoActivo" data-filtro="todos">Todos</button>
-                <button class="FiltroTipo" data-filtro="imagen">Imágenes</button>
-                
-                  
-                  <Button class="FiltroTipo" data-filtro="video">Videos</Button>
-                <span class="ContadorArchivos" id="contadorArchivos">0 archivos</span>
-            </div>
-
-            
             <div class="GaleriaMedia" id="galeria">
                 <div class="EstadoVacio" id="estadoVacio">
-                    <P>Aún no hay archivos subidos.<br>Sube tu primer JPG o MP4 para comenzar.</P>
+                    <P>Aún no hay archivos subidos.<br>Sube tu primer JPG o MP4 para comenzar. <br> Tu coleccion sera privada hasta que la publiques.</P>
                 </div>
             </div>
 
         </div>
     </div>
 
-    <!-- Visor simple para ver el archivo en grande -->
     <div class="Visor" id="visor">
         <div class="VisorInterior">
             <button class="BotonCerrarVisor" id="cerrarVisor">✕</button>
@@ -99,6 +58,22 @@
 
     <div class="ContenedorToasts" id="toasts"></div>
 
-    <script src="../js/upload.js"></script>
+    <div class="BarraAcciones" id="barraAcciones">
+        <button id="agregarFavoritos" type="button">&#10084; Agregar a favoritos</button>
+        <button id="eliminarSeleccionados" type="button">&#128465; Eliminar</button>
+    </div>
+
+    <div class="DetalleMedia" id="detalleMedia">
+        <button class="CerrarDetalle" id="cerrarDetalle" type="button">&#10005;</button>
+        <div class="VistaGrande" id="vistaGrande"></div>
+        <div class="PanelTags">
+            <h2>Tags de la imagen</h2>
+            <input id="tagInput" type="text" placeholder="Escribe un tag y presione Enter">
+            <div class="ListaTags" id="listaTags"></div>
+            <button id="guardarTags" class="BotonPublicar" type="button">Guardar tags</button>
+        </div>
+    </div>
+
+    <script src="../js/subirimagenes.js"></script>
 </body>
 </html>

@@ -32,10 +32,7 @@
                     <p>Favoritos</p>
                 </a>
 
-                <a class="ItemMenu" href="SubirImagenes.html">
-                    <p>Subir Imagenes</p>
-                </a>
-
+                
                 
                  </Div>
  
@@ -56,13 +53,27 @@
 
             <div class="Encabezado">
                 <h1>Favoritos</h1>
+            </div>
 
-                <div class="Sinfavoritos">
+            <div class="GaleriaColecciones" id="galeriaFavoritos">
+                <div class="Sinfavoritos" id="sinFavoritos">
                     <p>No tienes favoritos aún.</p>
                 </div>
-
-                
             </div>
+
+            <div class="DetalleColeccion" id="detalleColeccion">
+                <button class="CerrarDetalle" id="cerrarColeccion" type="button">&#10005;</button>
+                <button class="FlechaColeccion Izquierda" id="imagenAnterior" type="button">&#10094;</button>
+                <div class="ImagenColeccionGrande" id="imagenColeccionGrande"></div>
+                <button class="FlechaColeccion Derecha" id="imagenSiguiente" type="button">&#10095;</button>
+                <div class="InfoColeccion" id="infoColeccion"></div>
+            </div>
+        </div>
+            </div>
+
+    <script src="../js/favoritos.js"></script>
+</body>
+</html>
 
            
 

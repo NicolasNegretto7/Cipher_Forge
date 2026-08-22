@@ -191,6 +191,63 @@ header p {
     outline: none;
 }
 
+/* ===== FORMULARIO DE COLECCIONES ===== */
+.tarjeta-coleccion {
+    max-width: 760px;
+    margin: 0 auto;
+}
+
+.formulario-coleccion {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.campo-coleccion {
+    text-align: left;
+}
+
+.campo-coleccion h2 {
+    font-size: 28px;
+    letter-spacing: 0;
+    text-align: left;
+    margin-bottom: 8px;
+}
+
+.campo-coleccion label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--color-texto-claro);
+    text-shadow: none;
+}
+
+.campo-coleccion input {
+    width: 100%;
+    min-height: 54px;
+    padding: 14px 16px;
+    border: 2px solid var(--color-borde);
+    border-radius: var(--radio-borde);
+    font-size: 17px;
+    font-family: "Open Sans", Helvetica, Arial, sans-serif;
+    background-color: #fbfffd;
+    color: var(--color-negro);
+    text-shadow: none;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.campo-coleccion input:focus {
+    border-color: var(--color-destacado);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(43, 181, 138, 0.16);
+}
+
+.acciones-coleccion {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 8px;
+}
+
 /* ===== TABLAS ===== */
 table {
     width: 100%;

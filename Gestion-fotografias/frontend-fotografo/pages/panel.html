@@ -32,10 +32,6 @@
                     <p>Favoritos</p>
                 </a>
 
-                <a class="ItemMenu" href="SubirImagenes.html">
-                    <p>Subir Imagenes</p>
-                </a>
-
                 
                  </Div>
  
@@ -56,13 +52,23 @@
 
             <div class="Encabezado">
                 <h1>Colecciones Publicas</h1>
-
-                <input type="text" placeholder=" Buscar con tags" class="Buscador">
-
-                
+                <div class="ZonaBuscadorTags">
+                    <input id="tagBusqueda" type="text" placeholder="Escribe un tag y presiona Enter">
+                    <div class="BuscadorTags" id="buscadorTags">
+                        <div class="ListaTags" id="tagsBusqueda"></div>
+                        <p id="contadorTags">0 tags seleccionados</p>
+                    </div>
+                </div>
             </div>
 
-           
+            <div class="GaleriaColecciones" id="galeriaPublica"></div>
+                <div class="DetalleColeccion" id="detalleColeccion">
+                    <button class="CerrarDetalle" id="cerrarColeccion" type="button">&#10005;</button>
+                    <button class="FlechaColeccion Izquierda" id="imagenAnterior" type="button">&#10094;</button>
+                    <div class="ImagenColeccionGrande" id="imagenColeccionGrande"></div>
+                    <button class="FlechaColeccion Derecha" id="imagenSiguiente" type="button">&#10095;</button>
+                    <div class="InfoColeccion" id="infoColeccion"></div>
+                </div>
 
     </div>
 
@@ -71,5 +77,6 @@
     
     
 
+    <script src="../js/panel.js"></script>
 </body>
 </html>
