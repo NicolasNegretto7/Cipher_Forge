@@ -42,7 +42,7 @@ class Database
 
                 // Desactiva la emulación en PHP y fuerza sentencias preparadas nativas en MySQL
                 PDO::ATTR_EMULATE_PREPARES   => false,
-            ]);
+            ]);//ds
         }
 
         return self::$connection;
