@@ -201,6 +201,60 @@ body {
     background-color: #158f64;
 }
 
+.TagsColeccion {
+    position: relative;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-left: 0;
+}
+
+.TagsColeccion input {
+    width: 230px;
+    padding: 9px 12px;
+    border: 1px solid rgb(220, 220, 220);
+    border-radius: 6px;
+}
+
+.TagsColeccion .ListaTags {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 10;
+    display: none;
+    min-width: 230px;
+    padding: 12px;
+    border-radius: 8px;
+    background-color: white;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+}
+
+.TagsColeccion:focus-within .ListaTags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.FavoritoArchivo {
+    position: absolute;
+    top: 8px;
+    left: 44px;
+    z-index: 2;
+    width: 30px;
+    height: 30px;
+    border: 2px solid white;
+    border-radius: 50%;
+    color: #d9365f;
+    background-color: rgba(255, 255, 255, 0.9);
+    font-size: 19px;
+    cursor: pointer;
+}
+
+.FavoritoArchivo.Activo {
+    color: white;
+    background-color: #d9365f;
+}
+
 .ZonaCarga {
     margin: 25px 30px 0 30px;
     border: 2px dashed rgb(220, 220, 220);
@@ -318,16 +372,8 @@ body {
 .BarraAcciones button { padding: 9px 14px; border: 0; border-radius: 5px; color: white; background: transparent; cursor: pointer; }
 .BarraAcciones button:hover { background: #374151; }
 
-.DetalleMedia { position: fixed; inset: 0; z-index: 20; display: none; grid-template-columns: minmax(0, 1.5fr) minmax(280px, 1fr); gap: 24px; align-items: center; padding: 50px; background: rgba(15, 23, 42, 0.92); }
-.DetalleMedia.Visible { display: grid; }
-.VistaGrande { display: flex; align-items: center; justify-content: center; min-height: 65vh; }
-.VistaGrande img, .VistaGrande video { max-width: 100%; max-height: 75vh; }
-.PanelTags { padding: 28px; background: white; color: var(--primary-color); }
-.PanelTags h2 { margin-top: 0; }
-.PanelTags input { width: 100%; margin-bottom: 12px; padding: 12px; border: 1px solid rgb(220, 220, 220); border-radius: 6px; }
 .ListaTags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
 .EtiquetaTag { padding: 7px 10px; border: 0; border-radius: 4px; color: white; background-color: var(--verde); cursor: pointer; }
-.CerrarDetalle { position: absolute; top: 18px; right: 24px; z-index: 1; border: 0; color: white; background: transparent; font-size: 25px; cursor: pointer; }
 
 .TarjetaMedia {
     width: 220px;

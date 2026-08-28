@@ -13,10 +13,8 @@ function mostrarColecciones() {
     colecciones.filter(function (coleccion) {
         if (coleccion.publicada !== true || coleccion.imagenes.length === 0) return false;
         return tagsSeleccionados.every(function (tagBuscado) {
-            return coleccion.imagenes.some(function (imagen) {
-                return (imagen.tags || []).some(function (tag) {
-                    return tag.toLowerCase() === tagBuscado.toLowerCase();
-                });
+            return (coleccion.tags || []).some(function (tag) {
+                return tag.toLowerCase() === tagBuscado.toLowerCase();
             });
         });
     }).forEach(function (coleccion) {
@@ -102,8 +100,8 @@ function mostrarImagenColeccion() {
     vista.controls = imagen.tipo.startsWith("video");
     contenedor.appendChild(vista);
     info.innerHTML = "<h2>Nombre: " + coleccionAbierta.nombre + "</h2>";
-    info.innerHTML += "<h3>Tags de esta imagen:</h3>";
-    (imagen.tags || []).forEach(function (tag) { info.innerHTML += "<span class=\"EtiquetaTag\">" + tag + "</span> "; });
+    info.innerHTML += "<h3>Tags de la colección:</h3>";
+    (coleccionAbierta.tags || []).forEach(function (tag) { info.innerHTML += "<span class=\"EtiquetaTag\">" + tag + "</span> "; });
     document.getElementById("imagenAnterior").style.display = posicionImagen > 0 ? "block" : "none";
     document.getElementById("imagenSiguiente").style.display = posicionImagen < coleccionAbierta.imagenes.length - 1 ? "block" : "none";
 }

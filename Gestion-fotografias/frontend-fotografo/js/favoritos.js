@@ -3,10 +3,16 @@ const sinFavoritos = document.getElementById("sinFavoritos");
 const colecciones = JSON.parse(localStorage.getItem("colecciones") || "[]");
 let coleccionAbierta = null;
 let posicionImagen = 0;
-const favoritas = colecciones.filter(function (coleccion) { return coleccion.favorita && coleccion.imagenes.length > 0; });
+const favoritas = colecciones.filter(function (coleccion) {
+    return (coleccion.favorita || coleccion.imagenes.some(function (imagen) {
+        return imagen.favorita;
+    })) && coleccion.imagenes.length > 0;
+});
 sinFavoritos.style.display = favoritas.length === 0 ? "block" : "none";
 
-favoritas.forEach(function (coleccion) {
+
+
+     favoritas.forEach(function (coleccion) {
     const tarjeta = document.createElement("div");
     tarjeta.className = "TarjetaColeccion";
     tarjeta.addEventListener("click", function () { abrirColeccion(coleccion); });
@@ -21,14 +27,18 @@ favoritas.forEach(function (coleccion) {
     galeria.appendChild(tarjeta);
 });
 
-function abrirColeccion(coleccion) {
+
+    function abrirColeccion(coleccion) {
     coleccionAbierta = coleccion;
     posicionImagen = 0;
     mostrarImagen();
     document.getElementById("detalleColeccion").classList.add("Visible");
 }
 
-function mostrarImagen() {
+
+
+       
+        function mostrarImagen() {
     const imagen = coleccionAbierta.imagenes[posicionImagen];
     const vista = document.createElement(imagen.tipo.startsWith("video") ? "video" : "img");
     vista.src = imagen.src;
@@ -38,8 +48,8 @@ function mostrarImagen() {
     contenedor.innerHTML = "";
     contenedor.appendChild(vista);
     info.innerHTML = "<h2>Nombre: " + coleccionAbierta.nombre + "</h2>";
-    info.innerHTML += "<h3>Tags de esta imagen:</h3>";
-    (imagen.tags || []).forEach(function (tag) { info.innerHTML += "<span class=\"EtiquetaTag\">" + tag + "</span> "; });
+    info.innerHTML += "<h3>Tags de la colección:</h3>";
+    (coleccionAbierta.tags || []).forEach(function (tag) { info.innerHTML += "<span class=\"EtiquetaTag\">" + tag + "</span> "; });
     document.getElementById("imagenAnterior").style.display = posicionImagen > 0 ? "block" : "none";
     document.getElementById("imagenSiguiente").style.display = posicionImagen < coleccionAbierta.imagenes.length - 1 ? "block" : "none";
 }

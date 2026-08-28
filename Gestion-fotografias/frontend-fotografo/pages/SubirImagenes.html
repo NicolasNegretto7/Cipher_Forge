@@ -29,12 +29,17 @@
             <div class="Encabezado">
                 <h1>Subir Imágenes</h1>
 
+                <div class="TagsColeccion">
+                    <input id="tagInput" type="text" placeholder="Escribe un tag">
+                    <div class="ListaTags" id="listaTags"></div>
+                </div>
+
                 <button class="BotonPublicar" id="botonPublicar">Publicar</button>
             </div>
 
             <div class="ZonaCarga" id="zonaCarga">
 
-                <P><strong>Arrastra tus archivos aquí o haz clic para seleccionarlos</strong></P>
+                <P><strong>Haz clic para seleccionar tus imagenes</strong></P>
 
                 <p class="Formatos">Formatos permitidos: JPG y MP4</p>
             </div>
@@ -61,17 +66,6 @@
     <div class="BarraAcciones" id="barraAcciones">
         <button id="agregarFavoritos" type="button">&#10084; Agregar a favoritos</button>
         <button id="eliminarSeleccionados" type="button">&#128465; Eliminar</button>
-    </div>
-
-    <div class="DetalleMedia" id="detalleMedia">
-        <button class="CerrarDetalle" id="cerrarDetalle" type="button">&#10005;</button>
-        <div class="VistaGrande" id="vistaGrande"></div>
-        <div class="PanelTags">
-            <h2>Tags de la imagen</h2>
-            <input id="tagInput" type="text" placeholder="Escribe un tag y presione Enter">
-            <div class="ListaTags" id="listaTags"></div>
-            <button id="guardarTags" class="BotonPublicar" type="button">Guardar tags</button>
-        </div>
     </div>
 
     <script src="../js/subirimagenes.js"></script>
