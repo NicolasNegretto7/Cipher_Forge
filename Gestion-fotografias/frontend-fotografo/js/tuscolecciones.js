@@ -1,6 +1,14 @@
 const galeria = document.getElementById("galeriaColecciones");
 const sinColecciones = document.getElementById("sinColecciones");
-const colecciones = JSON.parse(localStorage.getItem("colecciones") || "[]");
+let colecciones = JSON.parse(localStorage.getItem("colecciones") || "[]");
+const coleccionesConArchivos = colecciones.filter(function (coleccion) {
+    return coleccion.imagenes && coleccion.imagenes.length > 0;
+});
+
+if (coleccionesConArchivos.length !== colecciones.length) {
+    colecciones = coleccionesConArchivos;
+    localStorage.setItem("colecciones", JSON.stringify(colecciones));
+}
 
 sinColecciones.style.display = colecciones.length === 0 ? "block" : "none";
 
