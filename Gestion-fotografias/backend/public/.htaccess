@@ -1,0 +1,17 @@
+# QUÉ: Reglas de reescritura para Apache (mod_rewrite).
+# POR QUÉ: Desvía todas las peticiones hacia index.php manteniendo la ruta solicitada.
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Si la petición busca un archivo o carpeta real que existe, la sirve tal cual
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+
+    # Todo lo demás se envía a index.php
+    RewriteRule ^ index.php [QSA,L]
+
+    # Conserva la cabecera Authorization (para los tokens JWT/Bearer)
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+</IfModule>

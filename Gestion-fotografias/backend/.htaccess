@@ -1,0 +1,7 @@
+# QUÉ: Redirección raíz hacia la carpeta pública.
+# POR QUÉ: Protege el código fuente (src, config) y envía el tráfico a public/index.php.
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(.*)$ public/index.php [QSA,L]
+</IfModule>

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Config;
+namespace App\Core;
 use PDO;
 
 
@@ -21,7 +21,7 @@ class Database{
 public function __construct(
     string $host= 'db',
     string $user = 'cipher_user',
-    string $password = '',
+    string $password = 'cipher_password',
     string $port = '3306',
     string $name = 'cipher_forge',
     string $charset = 'utf8mb4',
