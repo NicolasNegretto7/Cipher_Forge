@@ -1,2 +1,0 @@
-# Prohibir acceso directo HTTP a todos los archivos dentro de este directorio
-Deny from all

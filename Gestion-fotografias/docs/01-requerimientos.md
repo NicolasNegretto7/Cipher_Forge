@@ -217,7 +217,7 @@ Quedarán fuera de la primera versión:
 | RF2 | El sistema debe impedir el registro de usuarios duplicados utilizando un mismo correo electrónico ya existente en la base de datos. |
 | RF3 | El sistema debe proveer una pantalla de inicio de sesión (Login) segura. |
 | RF4 | El sistema debe permitir al fotógrafo crear colecciones de imágenes, clasificarlas manualmente como públicas o privadas y, en caso de ser públicas, agregar hashtags para su posterior filtrado. |
-| RF5 | Las colecciones marcadas como privadas no cambian por sí solas por la cantidad de clientes asignados y solo son visibles para los clientes que el fotógrafo asigne de manera explícita. |
+| RF5 | Las colecciones privadas deben conservar su privacidad de forma permanente sin cambiar su estado por el tiempo ni por la cantidad de usuarios vinculados, permitiendo el acceso únicamente mediante un enlace de invitación que redirige al usuario a la colección si ya inició sesión, o a la pantalla de registro si aún no tiene cuenta. |
 | RF6 | El sistema debe bloquear mediante lógica de backend cualquier intento de acceso directo mediante URL a colecciones privadas por parte de usuarios no autorizados. |
 | RF7 | El sistema debe permitir al fotógrafo subir imágenes en formato JPG y videos (clips o recortes) a su colección, aplicando un límite máximo de 800MB por archivo de video. |
 | RF8 | Al subir una imagen, el sistema debe generar automáticamente una versión optimizada y más ligera para su visualización fluida en la galería del cliente (vista previa). |
@@ -275,7 +275,7 @@ Una épica es una funcionalidad grande o área de trabajo que debe dividirse en 
 | --- | --- | --- | --- |
 | EP1 | Gestión de usuarios y seguridad | Registro de usuarios, inicio de sesión seguro, asignación de roles, verificación de cuenta y políticas de privacidad con Ley 18.331. | RF1, RF2, RF3, RF18, RF24 |
 | EP2 | Perfiles de fotógrafos y directorio | Creación, edición y administración de perfiles profesionales de fotógrafos, e inclusión en el directorio general de descubrimiento y eventos. | RF19 |
-| EP3 | Gestión de colecciones y accesos | Creación, categorización (públicas/privadas), hashtags, filtrado público, asignación de clientes, control de acceso por URL y generación de QR/enlace de acceso permanente. | RF4, RF5, RF6, RF11, RF16 |
+| EP3 | Gestión de colecciones y accesos | Creación, categorización (públicas/privadas), hashtags, filtrado público, acceso a colecciones privadas por enlace con permisos (y redirección a registro/login), control de acceso por URL y generación de QR/enlace permanente. | RF4, RF5, RF6, RF11, RF16 |
 | EP4 | Carga y procesamiento multimedia | Subida de imágenes JPG y videos, procesamiento en backend con FFmpeg (Docker) para recortes de 15 segundos, guardado en Filesystem, generación de vistas previas optimizadas, marca de agua, edición/eliminación de archivos y control de cuotas. | RF7, RF8, RF9, RF17, RF20, RF25, RF26 |
 | EP5 | Visualización, selección y descargas | Galería de previsualización para clientes, modo de selección visual, solicitudes de descarga en dos niveles de calidad con notificación al fotógrafo, notificación de aceptación al usuario y bajada de imágenes (individual o en .zip). | RF10, RF11, RF12, RF21, RF22, RF23 |
 | EP6 | Carga colaborativa por QR | Generación de código QR temporal de evento (caducidad 1 día), subida rápida por invitados sin registro complejo (sin visualización del contenido existente), validación de clips, moderación con aprobación selectiva por el fotógrafo y eliminación automática del material no aprobado tras 24 horas. | RF13, RF14, RF15, RF25 |
@@ -361,7 +361,7 @@ Se utilizará el siguiente formato:
 | --- | --- | --- | --- |
 | HU1 | Como usuario, quiero iniciar sesión en el sistema, para acceder de forma segura a mi panel según mi rol. | 3 | Alta |
 | HU2 | Como fotógrafo, quiero crear colecciones y asignarles visibilidad (privada o pública), para controlar quién puede acceder a cada una. | 3 | Alta |
-| HU3 | Como fotógrafo, quiero autorizar de forma explícita a un cliente mediante sus datos principales para que acceda a una colección privada. | 3 | Alta |
+| HU3 | Como usuario/cliente, quiero acceder a una colección privada mediante un enlace de invitación (ingresando directo si ya inicié sesión o registrándome si aún no tengo cuenta), para ver el material exclusivo manteniendo la colección en su estado privado. | 3 | Alta |
 | HU4 | Como fotógrafo u organizador, quiero generar un código QR único de carga colaborativa para un evento (con caducidad de 1 día), para permitir a los invitados subir fotos o videos directamente durante la jornada. | 5 | Media |
 | HU5 | Como fotógrafo, quiero subir imágenes (JPG) y videos (clips/recortes) a mi colección, para ponerlas a disposición de mis clientes. | 3 | Alta |
 | HU6 | Como fotógrafo, quiero eliminar imágenes o videos de una colección, para mantener el control sobre el contenido publicado. | 3 | Alta |
@@ -409,11 +409,11 @@ El backlog ha sido distribuido equitativamente manteniendo un ritmo de trabajo s
 | 4 | HU2 | Creación de colecciones y clasificación de visibilidad | 3 | Sprint 1 |
 | 5 | HU5 | Subida de imágenes o videos a colecciones | 3 | Sprint 1 |
 | 6 | HU14 | Visualización con marca de agua automática | 5 | Sprint 1 |
-| 7 | HU3 | Autorización manual de clientes a colecciones privadas | 3 | Sprint 2 |
-| 8 | HU21 | Envío de código de verificación al correo | 3 | Sprint 2 |
+| 7 | HU17 | Generación de QR / enlace permanente de acceso directo | 3 | Sprint 2 |
+| 8 | HU3 | Acceso a colección privada vía enlace de invitación (con validación de sesión/registro) | 3 | Sprint 2 |
 | 9 | HU20 | Bloqueo de acceso directo por URL a colecciones privadas | 3 | Sprint 2 |
-| 10 | HU24 | Acceso y visualización de galerías en colecciones públicas | 3 | Sprint 2 |
-| 11 | HU26 | Agregar hashtags a colecciones públicas | 3 | Sprint 2 |
+| 10 | HU21 | Envío de código de verificación al correo | 3 | Sprint 2 |
+| 11 | HU24 | Acceso y visualización de galerías en colecciones públicas | 3 | Sprint 2 |
 | 12 | HU19 | Impedir el registro de usuarios duplicados por correo | 3 | Sprint 2 |
 | 13 | HU31 | Aceptación de política de privacidad y Ley 18.331 en primer login | 1 | Sprint 2 |
 | 14 | HU10 | Descarga individual o comprimida (.zip) | 1 | Sprint 2 |
@@ -421,7 +421,7 @@ El backlog ha sido distribuido equitativamente manteniendo un ritmo de trabajo s
 | 16 | HU7 | Descarga e impresión física del QR colaborativo | 3 | Sprint 3 |
 | 17 | HU11 | Carga de archivos vía QR por invitados (sin registro complejo) | 3 | Sprint 3 |
 | 18 | HU12 | Moderación y aprobación selectiva de material de invitados por el fotógrafo | 3 | Sprint 3 |
-| 19 | HU17 | Generación de QR / enlace permanente de acceso directo | 3 | Sprint 3 |
+| 19 | HU26 | Agregar hashtags a colecciones públicas | 3 | Sprint 3 |
 | 20 | HU27 | Filtrado de colecciones públicas por hashtags | 3 | Sprint 3 |
 | 21 | HU9 | Solicitud y notificación/aprobación de descarga (buena/alta calidad) | 3 | Sprint 4 |
 | 22 | HU16 | Control de cuota (3GB) y manejo de subida parcial notificando excedentes | 5 | Sprint 4 |
