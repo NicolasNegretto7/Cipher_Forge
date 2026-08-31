@@ -242,10 +242,10 @@ body {
     inset: 0;
     z-index: 30;
     display: none;
-    grid-template-columns: 40px minmax(0, 1.5fr) 40px minmax(260px, 1fr);
+    grid-template-columns: minmax(0, 1fr) 320px;
     gap: 20px;
     align-items: center;
-    padding: 50px;
+    padding: 30px;
     background-color: rgba(15, 23, 42, 0.94);
 }
 
@@ -254,37 +254,63 @@ body {
 }
 
 .ImagenColeccionGrande {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    min-height: 70vh;
+    width: 100%;
+    height: 90vh;
 }
 
 .ImagenColeccionGrande img,
 .ImagenColeccionGrande video {
-    max-width: 100%;
-    max-height: 75vh;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 10px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    transition: opacity 0.15s ease;
 }
 
 .FlechaColeccion {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
     border: 0;
     color: white;
-    background: transparent;
-    font-size: 32px;
+    background-color: rgba(15, 23, 42, 0.5);
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    font-size: 24px;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+    transition: background-color 0.2s ease;
+}
+
+.FlechaColeccion:hover {
+    background-color: rgba(15, 23, 42, 0.8);
+}
+
+#imagenAnterior {
+    left: 16px;
+}
+
+#imagenSiguiente {
+    right: 16px;
 }
 
 .InfoColeccion {
     padding: 26px;
     color: var(--primary-color);
     background-color: white;
+    border-radius: 10px;
+    max-height: 90vh;
+    overflow-y: auto;
 }
-
-.InfoColeccion h2,
-.InfoColeccion h3 {
-    margin-top: 0;
-}
-
 
 /* ============================================================
    Página "Subir Imagenes" — zona de carga, filtro por tipo,

@@ -79,8 +79,7 @@ function mostrarTags() {
         });
         tagsBusqueda.appendChild(etiqueta);
     });
-    contadorTags.textContent = tagsSeleccionados.length + " tags seleccionados";
-    contadorTags.style.display = tagsSeleccionados.length > 0 ? "block" : "none";
+
 }
 
 function abrirColeccion(coleccion) {
@@ -108,7 +107,11 @@ function mostrarImagenColeccion() {
 
 document.getElementById("imagenAnterior").addEventListener("click", function () { posicionImagen--; mostrarImagenColeccion(); });
 document.getElementById("imagenSiguiente").addEventListener("click", function () { posicionImagen++; mostrarImagenColeccion(); });
-document.getElementById("cerrarColeccion").addEventListener("click", function () { document.getElementById("detalleColeccion").classList.remove("Visible"); });
+document.getElementById("detalleColeccion").addEventListener("click", function (evento) {
 
+    if (evento.target.id === "detalleColeccion") {
+        document.getElementById("detalleColeccion").classList.remove("Visible");
+    }
+});
 mostrarTags();
 mostrarColecciones();
