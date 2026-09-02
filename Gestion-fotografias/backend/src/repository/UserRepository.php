@@ -40,6 +40,25 @@ class UserRepository
     }
 
     /**
+     * Busca un usuario por su ID.
+     * Retorna un array asociativo con los datos del usuario o null si no existe.
+     */
+    public function findById(int $id): ?array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT id, nombre_completo, email, telefono, email_verificado, rol
+             FROM usuarios
+             WHERE id = :id
+             LIMIT 1'
+        );
+        $stmt->execute(['id' => $id]);
+
+        $user = $stmt->fetch();
+
+        return $user ?: null;
+    }
+
+    /**
      * Inserta un usuario en 'usuarios' y en la tabla hija según su rol.
      * Usa transacción para garantizar que ambas inserciones sean atómicas.
      * Retorna el ID del usuario creado.
