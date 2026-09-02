@@ -253,6 +253,95 @@ body {
     display: grid;
 }
 
+.modal-privacidad {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+    padding: 30px;
+}
+
+.modal-privacidad.oculto {
+    display: none;
+}
+
+.modal-privacidad__caja {
+    width: min(820px, 92vw);
+    max-height: 88vh;
+    background: white;
+    border-radius: 18px;
+    box-shadow: 0 25px 60px rgba(15, 23, 42, 0.25);
+    padding: 28px 28px 22px 28px;
+    border: 1px solid #e5e7eb;
+}
+
+.modal-privacidad__caja h2 {
+    margin: 0 0 8px 0;
+    color: var(--primary-color);
+    text-align: center;
+    font-size: 28px;
+}
+
+.modal-privacidad__subtitulo {
+    margin: 0 0 18px 0;
+    text-align: center;
+    color: var(--gris-texto);
+    font-size: 14px;
+}
+
+.modal-privacidad__ley {
+    background: #f8fafc;
+    border: 1px solid #dfe6ee;
+    border-radius: 12px;
+    height: 360px;
+    padding: 20px 18px;
+    overflow-y: auto;
+    line-height: 1.7;
+    color: #1f2937;
+    text-align: justify;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+}
+
+.modal-privacidad__ley h3 {
+    margin-top: 0;
+    color: var(--primary-color);
+    text-align: center;
+    font-size: 20px;
+}
+
+.modal-privacidad__ley p {
+    margin: 0 0 14px 0;
+}
+
+.btn-aceptar {
+    display: block;
+    margin: 20px auto 0 auto;
+    width: 220px;
+    padding: 14px 18px;
+    border: none;
+    border-radius: 10px;
+    background: var(--verde);
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.btn-aceptar:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-aceptar:not(:disabled):hover {
+    opacity: 0.92;
+    transform: translateY(-1px);
+}
+
 .ImagenColeccionGrande {
     position: relative;
     display: flex;

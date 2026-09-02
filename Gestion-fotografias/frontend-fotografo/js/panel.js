@@ -4,9 +4,34 @@ const tagsBusqueda = document.getElementById("tagsBusqueda");
 const contadorTags = document.getElementById("contadorTags");
 const zonaBuscador = document.querySelector(".ZonaBuscadorTags");
 const colecciones = JSON.parse(localStorage.getItem("colecciones") || "[]");
+const modalPrivacidad = document.getElementById("modalPrivacidad");
+const textoLey = document.getElementById("textoLey");
+const botonAceptar = document.getElementById("aceptarPolitica");
 let tagsSeleccionados = [];
 let coleccionAbierta = null;
 let posicionImagen = 0;
+
+function verificarModalPrivacidad() {
+    if (!modalPrivacidad || !textoLey || !botonAceptar) return;
+
+    const usuario = JSON.parse(localStorage.getItem("usuario") || "{}");
+    const rol = usuario.rol || usuario.role;
+    const yaAcepto = localStorage.getItem("acepto-politica-fotografo") === "true";
+
+    if (rol === "fotografo" && !yaAcepto) {
+        modalPrivacidad.classList.remove("oculto");
+    }
+
+    textoLey.addEventListener("scroll", function () {
+        const llegoAlFinal = textoLey.scrollTop + textoLey.clientHeight >= textoLey.scrollHeight - 10;
+        botonAceptar.disabled = !llegoAlFinal;
+    });
+
+    botonAceptar.addEventListener("click", function () {
+        localStorage.setItem("acepto-politica-fotografo", "true");
+        modalPrivacidad.classList.add("oculto");
+    });
+}
 
 function mostrarColecciones() {
     galeria.innerHTML = "";
@@ -113,5 +138,7 @@ document.getElementById("detalleColeccion").addEventListener("click", function (
         document.getElementById("detalleColeccion").classList.remove("Visible");
     }
 });
+
+verificarModalPrivacidad();
 mostrarTags();
 mostrarColecciones();
