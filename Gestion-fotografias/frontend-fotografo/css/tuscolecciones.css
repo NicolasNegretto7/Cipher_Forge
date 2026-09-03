@@ -186,7 +186,6 @@ body {
 }
 
 .BotonPublicar {
-    margin-left: auto;
     background-color: var(--verde);
     color: white;
     border: none;
@@ -195,6 +194,58 @@ body {
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
+}
+
+.ControlPublicar {
+    position: relative;
+    margin-left: auto;
+}
+
+.BotonPublicar .FlechaPublicar {
+    display: inline-block;
+    margin-left: 8px;
+    font-size: 16px;
+    transition: transform 0.2s ease;
+}
+
+.BotonPublicar[aria-expanded="true"] .FlechaPublicar {
+    transform: rotate(180deg);
+}
+
+.MenuVisibilidad {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 10;
+    width: 250px;
+    padding: 6px;
+    border: 1px solid rgb(225, 225, 225);
+    border-radius: 8px;
+    background-color: white;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.MenuVisibilidad button {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 3px;
+    padding: 10px;
+    border: 0;
+    border-radius: 6px;
+    background-color: transparent;
+    color: var(--primary-color);
+    text-align: left;
+    cursor: pointer;
+}
+
+.MenuVisibilidad button:hover {
+    background-color: rgb(240, 250, 246);
+}
+
+.MenuVisibilidad button span {
+    color: var(--gris-texto);
+    font-size: 12px;
 }
 
 .BotonPublicar:hover {

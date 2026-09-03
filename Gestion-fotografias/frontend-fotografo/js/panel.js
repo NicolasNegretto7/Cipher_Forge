@@ -36,7 +36,7 @@ function verificarModalPrivacidad() {
 function mostrarColecciones() {
     galeria.innerHTML = "";
     colecciones.filter(function (coleccion) {
-        if (coleccion.publicada !== true || coleccion.imagenes.length === 0) return false;
+        if (coleccion.publicada !== true || coleccion.tipo_visibilidad !== "publica" || coleccion.imagenes.length === 0) return false;
         return tagsSeleccionados.every(function (tagBuscado) {
             return (coleccion.tags || []).some(function (tag) {
                 return tag.toLowerCase() === tagBuscado.toLowerCase();

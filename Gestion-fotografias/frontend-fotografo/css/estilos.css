@@ -221,7 +221,8 @@ header p {
     text-shadow: none;
 }
 
-.campo-coleccion input {
+.campo-coleccion input,
+.campo-coleccion textarea {
     width: 100%;
     min-height: 54px;
     padding: 14px 16px;
@@ -233,9 +234,11 @@ header p {
     color: var(--color-negro);
     text-shadow: none;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    resize: vertical;
 }
 
-.campo-coleccion input:focus {
+.campo-coleccion input:focus,
+.campo-coleccion textarea:focus {
     border-color: var(--color-destacado);
     outline: none;
     box-shadow: 0 0 0 3px rgba(43, 181, 138, 0.16);
