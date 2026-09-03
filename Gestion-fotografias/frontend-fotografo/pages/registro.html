@@ -25,7 +25,7 @@
 
                 <div class="form-group">
                     <label for="correo">Correo electrónico</label>
-                    <input type="email" id="correo" name="correo" placeholder="tugmail@gmail.com" required>
+                    <input type="email" id="correo" name="correo" placeholder="tugmail@gmail.com" pattern=".+@gmail\.com" title="Usa un correo válido que termine en @gmail.com" required>
                 </div>
 
                 <div class="form-group">
@@ -35,7 +35,7 @@
 
                 <div class="form-group">
                     <label for="telefono">Número de teléfono (opcional)</label>
-                    <input type="tel" id="telefono" name="telefono" placeholder="Tu número">
+                    <input type="tel" id="telefono" name="telefono" placeholder="Tu número" pattern="[0-9]+" inputmode="numeric" title="El teléfono solo puede contener números">
                     </div>
 
                 <div class="form-group">
