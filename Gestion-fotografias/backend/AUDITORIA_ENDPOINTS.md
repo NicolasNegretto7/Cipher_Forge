@@ -241,3 +241,313 @@ Documento de registro técnico y auditoría para documentar el flujo de ejecuci�
 14. Cliente
     │ Recibe la respuesta HTTP 201 con los datos de la colección creada.
 ```
+
+---
+
+# Sprint 2 — Nuevas funcionalidades (JWT, subida multimedia, marca de agua y bloqueo de acceso)
+
+> Nota de introducción: hasta aquí la API sólo devolvía JSON para autenticación y colecciones,
+> sin identificar al usuario en cada petición (el `AuthMiddleware` era un stub). Para habilitar la
+> subida a colecciones (HU5), la marca de agua (HU14), el **bloqueo de acceso directo por URL a
+> colecciones privadas (HU20)** y documentar el **impedimento de registros duplicados (HU19)**, se
+> incorporó una capa de autenticación basada en **tokens JWT** (HS256, PHP puro, sin librerías).
+
+## 5. Capa de autenticación JWT (transversal a todos los endpoints protegidos)
+
+### Resumen Técnico
+* **Propósito:** Identificar de forma fiable al usuario que realiza cada petición protegida.
+* **Emisión:** `POST /auth/login` ahora devuelve campo `token` (JWT firmado con HMAC-SHA256).
+* **Transporte:** El frontend envía el token en la cabecera `Authorization: Bearer <token>`.
+* **Validación:** `AuthMiddleware` lee la cabecera, verifica la firma con clave secreta y
+  comprueba la expiración (`exp`) antes de permitir el acceso al controlador.
+
+### Archivos nuevos / modificados
+* `src/helpers/Jwt.php` *(nuevo)* — `encode()` y `decode()` de JWT HS256 con PHP puro.
+* `src/Core/Config.php` *(nuevo)* — clave secreta JWT, cantidad de horas de validez y rutas de uploads.
+* `src/Core/AuthMiddleware.php` *(modificado)* — autentica rutas protegidas y opcionales.
+* `src/services/AuthService.php` *(modificado)* — `login()` emite el token JWT.
+* `routes.php` *(modificado)* — pasa el requisito de seguridad como 5º argumento del Router.
+
+### Ciclo de vida de una petición autenticada
+
+```
+1. Cliente
+   │ Envía HTTP con cabecera: Authorization: Bearer <token>
+   ▼
+2. .htaccess (Apache)
+   │ Conserva la cabecera Authorization (sino Apache la descarta) y redirige a public/index.php.
+   ▼
+3. public/index.php (Front Controller)
+   │ Carga autoloader, CORS y despacha hacia routes.php.
+   ▼
+4. routes.php
+   │ Asocia la ruta con su requisito: 'null' (pública), 'auth' (obligatoria) u 'optional'.
+   ▼
+5. src/Core/Router.php
+   │ Llama AuthMiddleware::handle($requirement) antes de instanciar el controlador.
+   ▼
+6. src/Core/AuthMiddleware.php
+   │ - 'auth'    : exige Bearer; si falta o es inválido -> 401.
+   │ - 'optional': autentica si hay token; si no, continúa como anónimo (colecciones públicas).
+   │ - valida el token con Jwt::decode($token, Config::jwtSecret()).
+   │ - si es válido, carga el usuario vigente en AuthMiddleware::$user.
+   ▼
+7. src/helpers/Jwt.php
+   │ - Desglosa header.payload.signature y re-firma con hash_hmac('sha256').
+   │ - Compara firmas con hash_equals (tiempo constante).
+   │ - Rechaza tokens vencidos (time() >= exp).
+   ▼
+8. src/repository/UserRepository.php
+   │ Carga el usuario por el id del token (sub) para usar datos vigentes (no caché en el token).
+   ▼
+9. Controlador
+   │ Puede leer AuthMiddleware::user() para saber quién hace la petición.
+```
+
+### Códigos de error de autenticación
+* `401 Unauthorized`: falta la cabecera Bearer, token inválido, firma incorrecta o vencido.
+* `500 Internal Server Error`: no se pudo cargar el usuario asociado al token.
+
+---
+
+## 6. `POST /auth/register` — verificación de duplicado (HU19)
+
+### Resumen Técnico
+* **Propósito:** Impedir el registro de usuarios duplicados con el mismo correo (RF2 / HU19).
+* **Autenticación requerida:** Ninguna (ruta pública).
+* **Códigos de respuesta:**
+  * `201 Created`: Usuario creado exitosamente.
+  * `409 Conflict`: El correo ya está registrado (se corta el flujo antes de insertar).
+  * `400 Bad Request`: Validación fallida.
+
+### Flujo de control de duplicado
+
+```
+1. src/services/AuthService.php -> register($dto)
+   │
+   ▼
+2. UserRepository->findByEmail($dto->email)   // SELECT preparado por email, LIMIT 1
+   │
+   ├── Si existe usuario  -> Response::error('El correo electrónico ya está registrado.', 409)
+   │                        (nunca llega a insertar; se impide el duplicado)
+   │
+   └── Si no existe       -> password_hash() + UserRepository->create() dentro de transacción
+```
+
+### Doble barrera de integridad
+* **A nivel de aplicación:** `AuthService` verifica el correo antes de insertar (respuesta `409`).
+* **A nivel de base de datos:** la columna `usuarios.email` tiene restricción `UNIQUE`, por lo que
+  un duplicado concurrente sería rechazado igualmente por MySQL.
+
+> **Verificado en pruebas:** registrar dos veces `foto@test.com` devuelve `201` la primera vez
+> y `409` la segunda, sin crear una fila duplicada en `usuarios`.
+
+---
+
+## 7. `POST /colecciones/{id}/multimedia` — Subida de imágenes o videos (HU5)
+
+### Resumen Técnico
+* **Propósito:** Subir uno o más archivos (JPG/PNG o video) a una colección del fotógrafo (HU5/RF7).
+* **Autenticación requerida:** Sí (`auth`). Solo el fotógrafo **dueño** de la colección puede subir.
+* **Formato:** `multipart/form-data`, campo `archivos` (uno o un array). Opcionales: `titulo`, `descripcion`.
+* **Códigos de respuesta:**
+  * `201 Created`: Archivo(s) subido(s) y procesado(s). Devuelve id, tipo y ruta de vista previa.
+  * `400 Bad Request`: No llegó el archivo, formato no permitido o tamaño excedido.
+  * `401 Unauthorized`: Token faltante/vencido.
+  * `403 Forbidden`: El usuario autenticado no es el dueño de la colección.
+  * `404 Not Found`: La colección no existe.
+
+### Diagrama de Secuencia y Ciclo de Vida
+
+```
+1. Fotógrafo (Frontend / Insomnia)
+   │ POST /colecciones/{id}/multimedia (multipart) + Authorization: Bearer <token>
+   ▼
+2. .htaccess -> public/index.php -> routes.php (requisito 'auth')
+   ▼
+3. src/Core/AuthMiddleware.php
+   │ Autentica el token y carga el usuario (ver sección 5).
+   ▼
+4. src/controllers/MultimediaController.php -> upload($coleccionId)
+   │ 1. Lee $_FILES['archivos'] (acepta array o un único archivo).
+   │ 2. Llama MultimediaValidator->validateUpload() por archivo.
+   │ 3. Llama MultimediaService->upload() por archivo.
+   │ 4. Response::success($subidos, 201).
+   ▼
+5. src/validators/MultimediaValidator.php
+   │ - Verifica que $_FILES['archivos'] tenga error UPLOAD_ERR_OK.
+   │ - Detecta el MIME real con mime_content_type() (imagen JPG/PNG | video MP4/MOV/WEBM/AVI).
+   │ - Valida tamaño: imagen <= 20 MB, video <= 800 MB (RF7).
+   │ - Valida título (<=60) y descripción (<=90).
+   ▼
+6. src/services/MultimediaService.php -> upload()
+   │ 1. Verifica que la colección exista (404).
+   │ 2. Verifica que el usuario autenticado sea el DUEÑO (fotografo_id == usuario.id) -> 403 si no.
+   │ 3. MediaProcessor::guardarOriginal()  -> uploads/originals/<aleatorio>.<ext>
+   │ 4. Genera la vista previa (ver sección 8).
+   │ 5. MultimediaRepository->create()  -> fila en tabla 'multimedia'.
+   ▼
+7. src/helpers/MediaProcessor.php
+   │ - guardarOriginal(): mueve el archivo temporal con move_uploaded_file() a uploads/originals.
+   │ - genera nombre único con random_bytes() (no predecible, evita colisiones y enumeración).
+   ▼
+8. src/repository/MultimediaRepository.php
+   │ INSERT preparado en multimedia (coleccion_id, ruta_original, vista_previa, tamanio, tipo).
+   ▼
+9. src/Core/Database.php -> MySQL
+   ▼
+10. Response::success(..., 201)
+    │ Devuelve: [{ id_multimedia, coleccion_id, tipo, titulo, descripcion, vista_previa, tamanio }]
+```
+
+### Detalle de seguridad en la subida
+* **MIME real** (no sólo la extensión) verificado con `mime_content_type()` para rechazar binarios
+  disfrazados (mitiga subida de ejecutables).
+* **`is_uploaded_file()`** comprueba que el archivo provenga de una carga HTTP legítima.
+* **Nombre aleatorio** para los archivos: evita path traversal y enumeración de recursos.
+* **Control de propiedad**: un cliente u otro fotógrafo no pueden subir a una colección ajena (403).
+
+---
+
+## 8. Marca de agua y vista previa (HU14 / RF8, RF9)
+
+### Resumen Técnico
+* **Propósito:** Al subir una imagen, el backend genera automáticamente una **vista previa optimizada
+  con marca de agua**, separada del archivo original (RF8/RF9). Para videos genera un **recorte de
+  15 s** con FFmpeg (RF26/32).
+* **Archivo resultante:** se guarda en `uploads/previews/` y se referencia en `multimedia.vista_previa`.
+
+### Diagrama de procesamiento
+
+```
+MultimediaService->upload()
+   │
+   ├── Si tipo == 'imagen'  -> MediaProcessor::generarPreviewImagen($rutaOriginal)
+   │     1. getimagesize() valida que sea una imagen real.
+   │     2. imagecreatefromjpeg() / imagecreatefrompng().
+   │     3. Redimensiona a máx. 1280 px de ancho (vista previa ligera, RNF2).
+   │     4. Superpone texto "Cipher Forge" semitransparente en diagonal repetido
+   │        (imagecolorallocatealpha + imagestring) -> dificulta removerla (amenaza A5).
+   │     5. imagejpeg($destino, 85) guarda la copia.
+   │
+   └── Si tipo == 'video'   -> MediaProcessor::generarPreviewVideo($rutaOriginal)
+         1. Ejecuta FFmpeg: -t 15 (recorta los primeros 15 segundos).
+         2. Guarda el clip en uploads/previews/<aleatorio>.mp4 (preserva audio/video).
+         3. El video ORIGINAL completo queda en uploads/originals para la descarga directa.
+```
+
+> **Verificado en pruebas:** una imagen JPG de 2 KB original generó una preview de ~23 KB con marca
+> de agua; un video de 30 s generó un clip de preview de exactamente **15.0 s** (ffprobe).
+
+### Decisiones de diseño
+* El archivo **original** (alta calidad) **nunca** es la vista previa: se mantienen rutas separadas
+  (`ruta_original` vs `vista_previa`) tal como define el modelo de datos, protegiendo el objetivo de
+  negocio (la vista previa va con marca de agua, el original va sin ella sólo tras autorización).
+
+---
+
+## 9. `GET /multimedia/{id}/vista-previa` y `GET /multimedia/{id}/original` — Bloqueo de acceso directo por URL (HU20 / RF6)
+
+### Resumen Técnico
+* **Propósito:** Servir la vista previa (con marca de agua) y el archivo original de una pieza
+  multimedia, **validando el acceso a la colección en el backend** en cada solicitud. Esto bloquea
+  el acceso directo por URL a contenido de colecciones privadas por usuarios no autorizados (HU20).
+* **Autenticación requerida:** Opcional (`optional`). Si la colección es privada se exige usuario.
+* **Códigos de respuesta:**
+  * `200 OK`: Contenido servido (Content-Type correcto; original se sirve como `attachment`).
+  * `401 Unauthorized`: Colección privada y no hay token de sesión.
+  * `403 Forbidden`: Colección privada y el usuario autenticado no tiene permisos.
+  * `404 Not Found`: La pieza multimedia no existe, o el archivo no está disponible.
+
+### Diagrama de Secuencia y Ciclo de Vida (acceso de lectura)
+
+```
+1. Cliente
+   │ GET /multimedia/{id}/vista-previa  (o /original) + opcional: Bearer <token>
+   ▼
+2. .htaccess -> public/index.php -> routes.php (requisito 'optional')
+   ▼
+3. AuthMiddleware (modo 'optional')
+   │ Si hay token lo valida y carga al usuario; si no, continúa como anónimo.
+   ▼
+4. src/controllers/MultimediaController.php
+   │ - vistaPrevia($id) -> MultimediaService->obtenerVistaPrevia($id)  (usa ruta $vista_previa)
+   │ - original($id)    -> MultimediaService->obtenerOriginal($id)     (usa ruta $ruta_original)
+   ▼
+5. src/services/MultimediaService.php -> rutaServible()
+   │ 1. MultimediaRepository->findById()  (JOIN con colecciones: trae visibilidad y dueño).
+   │ 2. verificarAccesoALaColeccion() -> regla central de acceso (ver abajo).
+   │ 3. Elige ruta (preview u original) y comprueba que el archivo exista en disco.
+   ▼
+6. MultimediaController->emitirArchivo()
+   │ - Vista previa: Content-Disposition: inline (se muestra en el navegador).
+   │ - Original:     Content-Disposition: attachment (descarga directa).
+   │ - Cache-Control: no-store (evita reutilización de caché del original).
+   │ - readfile() envía el binario y hace exit.
+```
+
+### Regla central de acceso (verificarAccesoALaColeccion)
+
+```
+if (coleccion.tipo_visibilidad == 'publica'):
+    >>> PERMITIDO (libre visualización, RF11)
+else:  # colección privada (RF5/RF6)
+    si no hay usuario autenticado        -> 401 Debes iniciar sesión
+    si es el dueño (fotografo_id == id)  -> PERMITIDO
+    si está en tabla acceso_colecciones  -> PERMITIDO
+    si no                                -> 403 No tienes permisos
+```
+
+### Bloqueo del archivo físico en disco
+Además del control a nivel de endpoint, los archivos de `uploads/` **no se sirven por una ruta
+estática**: el `.htaccess` raíz redirige toda petición a `public/index.php` y existe un
+`uploads/.htaccess` con `Require all denied` (defensa en profundidad). Verificado: acceder
+directamente a `http://localhost:8080/uploads/originals/<archivo>.jpg` devuelve **404**.
+
+> **Verificado en pruebas:**
+> * Colección privada sin token -> `401` (vista previa y original).
+> * Colección privada con token de cliente **sin acceso** -> `403`.
+> * Colección privada con token del **dueño** -> `200` (vista previa y original).
+> * Colección **pública** sin token -> `200` (vista previa, original y listado).
+
+---
+
+## 10. `GET /colecciones/{id}/multimedia` — Listado de contenidos (galería)
+
+### Resumen Técnico
+* **Propósito:** Listar los archivos multimedia de una colección para la galería, respetando la
+  visibilidad y el control de acceso (no expone `ruta_original` en la respuesta).
+* **Autenticación requerida:** Opcional (`optional`).
+* **Salida:** array de piezas con `id_multimedia`, `titulo`, `descripcion`, `vista_previa`,
+  `tamanio`, `tipo` y `es_invitado`. **No** se incluye `ruta_original` (protección del original).
+
+### Flujo
+```
+MultimediaController->listar() 
+   -> MultimediaService->listarColeccion($coleccionId)
+       1. Verifica que la colección exista (404).
+       2. verificarAccesoALaColeccion()   (misma regla que la sección 9)
+       3. MultimediaRepository->findByColeccionId()  -> SELECT ordenado por id DESC
+   -> Response::success(...)
+```
+
+---
+
+## Archivos modificados/creados en este sprint (referencia rápida)
+
+| Archivo | Tipo | Acción |
+| :--- | :--- | :--- |
+| `src/helpers/Jwt.php` | Nuevo | Tokens JWT HS256 (encode/decode) |
+| `src/Core/Config.php` | Nuevo | Clave JWT, horas de validez y rutas de uploads |
+| `src/Core/AuthMiddleware.php` | Modificado | Auth obligatoria y opcional a partir del token |
+| `src/services/AuthService.php` | Modificado | `login()` emite token JWT |
+| `routes.php` | Modificado | Rutas multimedia y requisitos de seguridad |
+| `src/controllers/MultimediaController.php` | Nuevo | Subida, vista previa, original y listado |
+| `src/services/MultimediaService.php` | Nuevo | Reglas de negocio y control de acceso (HU20) |
+| `src/validators/MultimediaValidator.php` | Nuevo | Validación MIME, tamaño y metadatos |
+| `src/dtos/MultimediaDto.php` | Nuevo | DTO de metadatos multimedia |
+| `src/repository/MultimediaRepository.php` | Nuevo | Persistencia multimedia + acceso a colecciones |
+| `src/helpers/MediaProcessor.php` | Nuevo | Procesamiento binario (gd / ffmpeg) |
+| `uploads/.htaccess` | Nuevo | Deniega acceso estático directo a uploads |
+| `docker-entrypoint.sh` | Nuevo | Crea y da permisos a las carpetas de uploads |
+| `Dockerfile` | Modificado | Copia el entrypoint personalizado |

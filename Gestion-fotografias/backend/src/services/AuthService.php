@@ -7,10 +7,12 @@ declare(strict_types=1);
 
 namespace App\services;
 
+use App\Core\Config;
 use App\Core\Database;
 use App\Core\Response;
 use App\dtos\RegisterDto;
 use App\dtos\LoginDto;
+use App\helpers\Jwt;
 use App\repository\UserRepository;
 
 class AuthService
@@ -72,7 +74,14 @@ class AuthService
             Response::error('Credenciales incorrectas.', 401);
         }
 
-        // 3. Retornar datos del usuario (sin el hash de contraseña)
+        // 3. Emitir un token JWT firmado para las peticiones autenticadas posteriores.
+        $token = Jwt::encode(
+            ['sub' => (int) $user['id'], 'rol' => $user['rol'], 'email' => $user['email']],
+            Config::jwtSecret(),
+            Config::tokenHoras()
+        );
+
+        // 4. Retornar datos del usuario (sin el hash) junto con el token de acceso.
         return [
             'id'               => $user['id'],
             'nombre_completo'  => $user['nombre_completo'],
@@ -80,6 +89,7 @@ class AuthService
             'telefono'         => $user['telefono'],
             'rol'              => $user['rol'],
             'email_verificado' => (bool) $user['email_verificado'],
+            'token'            => $token,
         ];
     }
 }

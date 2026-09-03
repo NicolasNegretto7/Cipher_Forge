@@ -1,0 +1,11 @@
+# QUÉ: Niega el acceso directo por URL a los archivos almacenados.
+# POR QUÉ: Los archivos originales (alta calidad) nunca deben servirse por una ruta estática
+#          predecible (RF11 / HU20); solo el backend, tras validar permisos, los entrega a través
+#          del endpoint protegido /multimedia/{id}/original.
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+</IfModule>

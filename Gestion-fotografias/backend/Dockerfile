@@ -19,3 +19,9 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     RUN a2enmod rewrite
 
     WORKDIR /var/www/html
+
+    # Copia el script de entrada que prepara las carpetas de uploads y arranca Apache.
+    COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+    RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+    ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
