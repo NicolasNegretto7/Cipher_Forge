@@ -1,6 +1,9 @@
 const parametros = new URLSearchParams(window.location.search);
+const API_URL = "http://localhost:8080";
 const coleccionId = parametros.has("coleccionId") ? Number(parametros.get("coleccionId")) : null;
 const nombreTexto = document.getElementById("nombreColeccion");
+const descripcionTexto = document.getElementById("descripcionColeccionTexto");
+const estadoVisibilidad = document.getElementById("estadoVisibilidad");
 const zonaCarga = document.getElementById("zonaCarga");
 const selectorArchivos = document.getElementById("selectorArchivos");
 const galeria = document.getElementById("galeria");
@@ -16,12 +19,16 @@ let esColeccionNueva = false;
 if (!coleccion) {
     coleccion = {
         id: Date.now() + Math.random(),
+        localId: null,
         nombre: parametros.get("nombre") || "Nueva colección",
+        descripcion: "",
+        tipo_visibilidad: "privada",
         tags: [],
         favorita: false,
         publicada: false,
         imagenes: []
     };
+    coleccion.localId = coleccion.id;
     esColeccionNueva = true;
 }
 
@@ -31,6 +38,10 @@ let archivos = coleccion.imagenes;
 let seleccionados = [];
 
 nombreTexto.textContent = coleccion.nombre;
+descripcionTexto.textContent = coleccion.descripcion || "";
+estadoVisibilidad.textContent = coleccion.tipo_visibilidad === "publica"
+    ? "Visible en colecciones públicas"
+    : "Privada: no aparece en colecciones públicas";
 
 function guardarColeccion() {
     coleccion.imagenes = archivos;
@@ -40,7 +51,7 @@ function guardarColeccion() {
         esColeccionNueva = false;
     } else {
         colecciones = colecciones.map(function (item) {
-            return item.id === coleccion.id ? coleccion : item;
+            return item.id === coleccion.id || item.id === coleccion.localId || item.localId === coleccion.localId ? coleccion : item;
         });
     }
 
@@ -175,10 +186,77 @@ function eliminarColeccionVacia() {
     localStorage.setItem("colecciones", JSON.stringify(colecciones));
 }
 
-document.getElementById("botonPublicar").addEventListener("click", function () {
-    if (archivos.length === 0) return;
-    coleccion.publicada = true;
-    guardarColeccion();
+const botonPublicar = document.getElementById("botonPublicar");
+const menuVisibilidad = document.getElementById("menuVisibilidad");
+
+botonPublicar.addEventListener("click", function () {
+    const menuAbierto = botonPublicar.getAttribute("aria-expanded") === "true";
+    botonPublicar.setAttribute("aria-expanded", String(!menuAbierto));
+    menuVisibilidad.hidden = menuAbierto;
+});
+
+async function publicarColeccion(tipoVisibilidad) {
+    if (archivos.length === 0) {
+        alert("Agrega al menos una imagen antes de publicar la colección.");
+        return;
+    }
+
+    const usuario = JSON.parse(localStorage.getItem("usuario") || "null");
+    const rol = usuario && (usuario.rol || usuario.role);
+    const fotografoId = Number(usuario && (usuario.id || usuario.id_fotografo));
+
+    if (!usuario || rol !== "fotografo" || !Number.isInteger(fotografoId) || fotografoId <= 0) {
+        alert("Solo los usuarios con rol fotógrafo pueden publicar colecciones.");
+        return;
+    }
+
+    const botonSeleccionado = menuVisibilidad.querySelector("[data-visibilidad='" + tipoVisibilidad + "']");
+    const idBorrador = coleccion.id;
+    botonSeleccionado.disabled = true;
+
+    try {
+        const respuesta = await fetch(API_URL + "/colecciones", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                fotografo_id: fotografoId,
+                titulo: coleccion.nombre,
+                tipo_visibilidad: tipoVisibilidad,
+                descripcion: coleccion.descripcion || ""
+            })
+        });
+
+        const json = await respuesta.json();
+        if (!respuesta.ok) {
+            throw new Error(json.mensaje || "No se pudo publicar la colección.");
+        }
+
+        coleccion.id = Number(json.datos.id);
+        coleccion.tipo_visibilidad = tipoVisibilidad;
+        coleccion.publicada = true;
+        coleccion.localId = coleccion.localId || idBorrador;
+        guardarColeccion();
+        estadoVisibilidad.textContent = tipoVisibilidad === "publica"
+            ? "Visible en colecciones públicas"
+            : "Privada: no aparece en colecciones públicas";
+        menuVisibilidad.hidden = true;
+        botonPublicar.setAttribute("aria-expanded", "false");
+        alert(tipoVisibilidad === "publica"
+            ? "Colección publicada y visible en colecciones públicas."
+            : "Colección publicada como privada.");
+    } catch (error) {
+        alert(error.message);
+    } finally {
+        botonSeleccionado.disabled = false;
+    }
+}
+
+menuVisibilidad.querySelectorAll("[data-visibilidad]").forEach(function (opcion) {
+    opcion.addEventListener("click", function () {
+        publicarColeccion(opcion.dataset.visibilidad);
+    });
 });
 
 mostrarTags();

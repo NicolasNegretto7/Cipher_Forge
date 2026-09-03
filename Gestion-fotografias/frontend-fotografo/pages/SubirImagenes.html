@@ -13,6 +13,8 @@
 
             <div class="DatosNuevaColeccion">
                 <h2 id="nombreColeccion">Nombre de la colección</h2>
+                <p id="descripcionColeccionTexto"></p>
+                <p id="estadoVisibilidad"></p>
             </div>
 
             <hr>
@@ -34,7 +36,21 @@
                     <div class="ListaTags" id="listaTags"></div>
                 </div>
 
-                <button class="BotonPublicar" id="botonPublicar">Publicar</button>
+                <div class="ControlPublicar">
+                    <button class="BotonPublicar" id="botonPublicar" type="button" aria-expanded="false" aria-controls="menuVisibilidad">
+                        Publicar <span class="FlechaPublicar" aria-hidden="true">▾</span>
+                    </button>
+                    <div class="MenuVisibilidad" id="menuVisibilidad" hidden>
+                        <button type="button" data-visibilidad="privada">
+                            <strong>Privada</strong>
+                            <span>No aparece en colecciones públicas</span>
+                        </button>
+                        <button type="button" data-visibilidad="publica">
+                            <strong>Pública</strong>
+                            <span>Aparece en colecciones públicas</span>
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <div class="ZonaCarga" id="zonaCarga">
