@@ -46,13 +46,15 @@ estadoVisibilidad.textContent = coleccion.tipo_visibilidad === "publica"
 function guardarColeccion() {
     coleccion.imagenes = archivos;
 
-    if (esColeccionNueva) {
+    const indiceColeccion = colecciones.findIndex(function (item) {
+        return item.id === coleccion.id || item.id === coleccion.localId || item.localId === coleccion.localId;
+    });
+
+    if (esColeccionNueva || indiceColeccion === -1) {
         colecciones.push(coleccion);
         esColeccionNueva = false;
     } else {
-        colecciones = colecciones.map(function (item) {
-            return item.id === coleccion.id || item.id === coleccion.localId || item.localId === coleccion.localId ? coleccion : item;
-        });
+        colecciones[indiceColeccion] = coleccion;
     }
 
     localStorage.setItem("colecciones", JSON.stringify(colecciones));
@@ -93,22 +95,42 @@ tagInput.addEventListener("keydown", function (evento) {
 });
 
 zonaCarga.addEventListener("click", function () { selectorArchivos.click(); });
-selectorArchivos.addEventListener("change", function () {
-    Array.from(selectorArchivos.files).forEach(function (archivo) {
+function leerArchivoComoDataUrl(archivo) {
+    return new Promise(function (resolver, rechazar) {
         const lector = new FileReader();
-        lector.onload = function (evento) {
-            archivos.push({
-                id: Date.now() + Math.random(),
-                nombre: archivo.name,
-                tipo: archivo.type,
-                src: evento.target.result,
-                favorita: false
-            });
-            guardarColeccion();
-            mostrarGaleria();
-        };
+        lector.onload = function () { resolver(lector.result); };
+        lector.onerror = rechazar;
         lector.readAsDataURL(archivo);
     });
+}
+
+selectorArchivos.addEventListener("change", async function () {
+    const excedidos = [];
+
+    for (const archivo of Array.from(selectorArchivos.files)) {
+        const tamanoArchivo = Number(archivo.size) || 0;
+        if (obtenerAlmacenamientoUsado() + tamanoArchivo > CAPACIDAD_ALMACENAMIENTO) {
+            excedidos.push(archivo.name);
+            continue;
+        }
+
+        const src = await leerArchivoComoDataUrl(archivo);
+        archivos.push({
+            id: Date.now() + Math.random(),
+            nombre: archivo.name,
+            tipo: archivo.type,
+            tamano: tamanoArchivo,
+            src: src,
+            favorita: false
+        });
+        guardarColeccion();
+        actualizarAlmacenamiento();
+        mostrarGaleria();
+    }
+
+    if (excedidos.length > 0) {
+        alert("No se pudieron subir por superar el espacio restante: " + excedidos.join(", "));
+    }
     selectorArchivos.value = "";
 });
 
@@ -125,19 +147,6 @@ function mostrarGaleria() {
         vista.src = archivo.src;
         vista.className = "VistaMiniatura";
         tarjeta.appendChild(vista);
-
-        const favorito = document.createElement("button");
-        favorito.type = "button";
-        favorito.className = "FavoritoArchivo";
-        favorito.textContent = archivo.favorita ? "♥" : "♡";
-        favorito.classList.toggle("Activo", archivo.favorita);
-        favorito.addEventListener("click", function (evento) {
-            evento.stopPropagation();
-            archivo.favorita = !archivo.favorita;
-            guardarColeccion();
-            mostrarGaleria();
-        });
-        tarjeta.appendChild(favorito);
 
         const selector = document.createElement("button");
         selector.type = "button";
@@ -156,15 +165,11 @@ function mostrarGaleria() {
         galeria.appendChild(tarjeta);
     });
 
-    barraAcciones.classList.toggle("Visible", seleccionados.length > 0);
+    barraAcciones.classList.toggle("Visible", archivos.length > 0);
 }
 
-document.getElementById("agregarFavoritos").addEventListener("click", function () {
-    archivos.forEach(function (archivo) {
-        if (seleccionados.includes(archivo.id)) archivo.favorita = true;
-    });
-    guardarColeccion();
-    seleccionados = [];
+document.getElementById("seleccionarTodas").addEventListener("click", function () {
+    seleccionados = archivos.map(function (archivo) { return archivo.id; });
     mostrarGaleria();
 });
 
@@ -176,14 +181,15 @@ document.getElementById("eliminarSeleccionados").addEventListener("click", funct
     } else {
         guardarColeccion();
     }
+    actualizarAlmacenamiento();
     mostrarGaleria();
 });
 
 function eliminarColeccionVacia() {
-    colecciones = colecciones.filter(function (item) {
-        return item.id !== coleccion.id;
-    });
-    localStorage.setItem("colecciones", JSON.stringify(colecciones));
+    // Se conserva como borrador para permitir nuevas subidas en esta colección.
+    coleccion.imagenes = [];
+    guardarColeccion();
+    actualizarAlmacenamiento();
 }
 
 const botonPublicar = document.getElementById("botonPublicar");
