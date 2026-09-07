@@ -73,9 +73,7 @@ A diferencia del control de cambios (que es una bitácora técnica de decisiones
 4. **Inspección de Archivos:** Se demostró que en el sistema de archivos del servidor conviven la copia original limpia y la copia reducida con marca de agua.
 
 ### Feedback y Observaciones del Cliente (Lemuel Swec)
-* **Aprobación de Calidad Visual:** El cliente expresó conformidad con la nitidez de la vista previa con marca de agua: destacó que supera ampliamente la calidad de compresión destructiva de WhatsApp.
-* **Comentarios sobre el Flujo:** Preguntó cómo compartirá la colección privada con sus clientes sin exponerla en la web general. El equipo explicó que ese módulo corresponde al Sprint 2 mediante enlaces de invitación y tokens de acceso directo (HU3 y HU17).
-* **Definición de Pagos/Descargas:** El cliente reiteró su conformidad con que la descarga sea directa en dos niveles de calidad (Buena y Alta) sin trabas de notificaciones, ajustándose a la restricción de pagos de UTU acordada previamente.
+**Respuesta ausente:** No fue posible contactar al cliente y mostrarle el avance para obtener su retroalimentación.
 
 ### Acuerdos y Plan para el Sprint 2
 1. **Objetivo del Sprint 2:** Habilitar el acceso a colecciones privadas vía enlace de invitación (HU3), bloqueo por URL a usuarios no autorizados (HU20), generación de QR permanente (HU17), aceptación formal de Ley 18.331 en primer login (HU31), verificación de correo electrónico (HU21) y habilitación de la descarga directa individual en dos calidades (HU10).
@@ -114,8 +112,7 @@ A diferencia del control de cambios (que es una bitácora técnica de decisiones
 3. **Modal de Responsabilidad Legal (Ley 18.331):** Se dio de alta una cuenta nueva de fotógrafo. Al iniciar sesión, la pantalla se bloqueó con el texto legal; se verificó que el botón "Aceptar" permaneció inhabilitado hasta que el usuario desplazó la barra de desplazamiento hasta el final del texto.
 
 ### Feedback y Observaciones del Cliente (Lemuel Swec)
-* **Conformidad con la Descarga Inmediata:** El cliente celebró que la descarga en dos calidades no requiera confirmación manual de su parte por cada foto: destacó que esto le ahorra tiempo operativo frente a clientes ansiosos.
-* **Consulta sobre Eventos:** Preguntó de qué forma los invitados a un casamiento o cumpleaños de 15 podrán subir fotos tomadas con sus celulares sin tener que crearse una cuenta formal ni ver las fotos privadas del cliente principal.
+**Respuesta ausente:** No fue posible contactar al cliente y mostrarle el avance para obtener su retroalimentación.
 
 ### Acuerdos y Plan para el Sprint 3
 1. **Objetivo del Sprint 3:** Desarrollar el ecosistema de carga colaborativa por código QR efímero (HU4), plantilla imprimible para eventos (HU7), subida rápida anónima de invitados (HU11), panel de moderación con aprobación selectiva (HU12) y categorización con filtrado por hashtags en colecciones públicas (HU26 y HU27).
@@ -153,9 +150,7 @@ A diferencia del control de cambios (que es una bitácora técnica de decisiones
 4. **Buscador Temático:** Se probaron los filtros `#Casamiento` y `#Exteriores` en el catálogo público, respondiendo de forma instantánea.
 
 ### Feedback y Observaciones del Cliente (Lemuel Swec)
-* **Entusiasmo con el QR Imprimible:** El cliente destacó que la hoja imprimible es una herramienta comercial excelente para ofrecer a sus clientes de eventos como valor agregado.
-* **Privacidad de Invitados:** Celebró que el invitado no tenga acceso a mirar las fotos ajenas al subir las suyas, lo cual previene filtraciones antes de que el trabajo esté terminado.
-* **Consulta sobre Almacenamiento:** Preguntó qué ocurre si en una fiesta 100 personas suben videos pesados y se agota el espacio del fotógrafo.
+**Respuesta ausente:** No fue posible contactar al cliente y mostrarle el avance para obtener su retroalimentación.
 
 ### Acuerdos y Plan para el Sprint 4
 1. **Objetivo del Sprint 4:** Implementar el control estricto de cuota de almacenamiento (3 GB por fotógrafo) con manejo de cargas parciales (HU16), procesamiento de videos con FFmpeg para generar vistas previas de 15 segundos (HU32), validación de límites de archivo de video de hasta 800 MB (HU28) y eliminación de archivos multimedia (HU6).
@@ -190,8 +185,7 @@ A diferencia del control de cambios (que es una bitácora técnica de decisiones
 3. **Eliminación y Recuperación de Espacio:** Se eliminaron 4 fotos pesadas desde el panel de colecciones. Se constató la eliminación física de los archivos en el volumen Docker y la barra de almacenamiento del panel se actualizó inmediatamente reflejando el nuevo espacio libre disponible.
 
 ### Feedback y Observaciones del Cliente (Lemuel Swec)
-* **Excelente Desempeño en Video:** El cliente quedó sumamente conforme con la velocidad de generación del recorte de 15 segundos: destacó que enviar muestras cortas es ideal para que los clientes aprecien el trabajo sin saturar su conexión de datos.
-* **Claridad en la Cuota:** Valoró positivamente que el sistema no descarte todo el lote de subida cuando solo uno de los archivos se pasa de los 3 GB.
+**Respuesta ausente:** No fue posible contactar al cliente y mostrarle el avance para obtener su retroalimentación.
 
 ### Acuerdos y Plan para el Sprint 5
 1. **Objetivo del Sprint 5:** Completar la edición de datos básicos de archivos (HU22), perfil profesional de fotógrafo con directorio público (HU18), favoritos de clientes (HU23), respaldos diarios automáticos con rotación de 3 copias (HU13) y entrega de guía de usuario con capacitación final (HU15).
@@ -219,20 +213,22 @@ A diferencia del control de cambios (que es una bitácora técnica de decisiones
 | **HU18** | Como fotógrafo, quiero editar mi información de perfil profesional y figurar en el directorio general de descubrimiento y eventos públicos. | 3 | **Aceptada** | Pantalla de perfil con biografía, teléfono y especialidad, visible en el directorio público de fotógrafos (`GET /fotografos`). |
 | **HU23** | Como usuario, quiero marcar como favorita una imagen o video de una colección pública, para tener una lista de favoritos privada. | 3 | **Aceptada** | Toggle interactivo de favoritos persistido en tabla `favoritos`, accesible desde la vista privada de usuario. |
 | **HU13** | Como sistema, quiero realizar un respaldo automático diario de la base de datos y rotar las últimas 3 copias, para mitigar el riesgo de pérdida de datos. | 5 | **Aceptada** | Script de respaldo con `mysqldump` comprimido en gzip, rotación automática eliminando el cuarto respaldo más antiguo y registro en tabla `backups`. |
-| **HU15** | Como fotógrafo/cliente, quiero contar con una guía básica de uso y recibir una breve capacitación sobre la plataforma, para utilizarla de forma autónoma. | 1 | **Aceptada** | Entrega de manual de usuario en PDF/Markdown, capacitación presencial de 45 minutos y entrega de credenciales maestras. |
+| **HU15** | Como fotógrafo/cliente, quiero contar con una guía básica de uso y recibir una breve capacitación sobre la plataforma, para utilizarla de forma autónoma. | 1 | **INCOMPLETO** | Entrega de manual de usuario en PDF, capacitación presencial de 45 minutos y entrega de credenciales maestras. |
 
 ### Demostración del Incremento Funcional
 1. **Directorio y Perfil Profesional:** Se editó el perfil de Lemuel Swec agregando biografía (*"Especialista en fotografía de bodas y 15 años con más de 8 años de trayectoria en Uruguay"*). Se abrió el directorio general desde el portal de clientes y se comprobó que el perfil figura disponible con sus colecciones públicas asociadas.
 2. **Favoritos del Comprador:** Desde la cuenta de cliente se marcaron con el icono de favorito 4 imágenes de diferentes colecciones públicas. Se ingresó a la sección "Mis Favoritos" y se constató que solo dicho usuario puede ver esa selección privada.
 3. **Mecanismo de Respaldo y Rotación:** Se ejecutó el proceso de respaldo automático diario (`cron-backup.php`). Se demostró la creación del archivo `.sql.gz` con fecha y hora en la carpeta de respaldos y su registro en la tabla `backups`. Se forzó un cuarto respaldo consecutivo y se verificó que el sistema purgó automáticamente el archivo más antiguo, manteniendo exactamente 3 copias en disco.
-4. **Capacitación:** Se guió al cliente a través de todos los módulos del sistema, validando que pudiera crear colecciones, generar QRs para eventos, moderar archivos y gestionar descargas sin asistencia del equipo.
+
 
 ### Feedback y Observaciones del Cliente (Lemuel Swec)
-* **Satisfacción Integral:** El cliente manifestó su plena satisfacción con el software desarrollado: destacó que la plataforma resuelve con creces los tres problemas planteados en la primera reunión (evitar la pixelación de WhatsApp, proteger su trabajo con marcas de agua y contar con un mecanismo ágil de entrega en dos calidades).
-* **Valoración de la Autonomía:** Felicitó al equipo por la claridad de la guía de uso y la facilidad para levantar la plataforma completa mediante Docker.
-* **Proyección a Futuro:** Reiteró su compromiso de mantener el contacto con el equipo una vez culminado el egreso de UTU para estudiar la puesta en marcha comercial en un servidor en la nube con métodos de pago reales.
+**Respuesta ausente:** No fue posible contactar al cliente y mostrarle el avance para obtener su retroalimentación.
+
 
 ### Acuerdos y Cierre Formal del Proyecto
+**Hasta la confirmacion del cliente no se puede dar por cerrado este proyecto, pero se puede considerar entregado.**
+<!--
 1. **Balance Final del Backlog:** Se completaron exitosamente los **91 puntos de historia** comprometidos a lo largo de los **5 sprints** de 3 semanas (15 semanas de desarrollo en total), con una velocidad promedio real de **18.2 puntos por sprint** y un cumplimiento del 100%.
 2. **Entrega de Artefactos:** Se hizo entrega formal del repositorio de código fuente, la configuración Docker (`docker-compose.yml`, `Dockerfile`), la base de datos relacional inicializada con su esquema en `database/schema.sql` y el paquete documental de requerimientos, arquitectura, seguridad y pruebas.
 3. **Firma de Conformidad:** El cliente Lemuel Swec dio por finalizado el proyecto de software conforme a los requerimientos aprobados.
+>
