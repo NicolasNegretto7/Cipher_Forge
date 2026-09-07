@@ -46,12 +46,12 @@ graph TD
 
     subgraph Persistencia ["Capa de Datos y Mantenimiento"]
         MYSQL[("MySQL 8.0 (Docker cipher_forge_db)\n(Puerto 3306 - volumen db_data)")]
-        BACKUP["Sistema de Respaldos Diarios\n(cron-backup.php / mysqldump / gzip / rotación 3 copias)"]
+        BACKUP["Sistema de Respaldos Diarios\n(cron-backup.php / BackupService / PDO / rotación 3 copias)"]
     end
 
-    FC -->|HTTP REST / JSON| APACHE
+    FC -->|HTTP REST / JSON / Multipart| APACHE
     FU -->|HTTP REST / JSON| APACHE
-    INV -->|HTTP REST / JSON| APACHE
+    INV -->|HTTP REST / Multipart| APACHE
     
     APACHE --> ROUTER
     ROUTER --> AUTH_MID
@@ -70,7 +70,7 @@ graph TD
     GD --> FS
     FFMPEG --> FS
     REPO -->|Conexión PDO / Sentencias preparadas| MYSQL
-    BACKUP -.->|mysqldump y rotación automática| MYSQL
+    BACKUP -.->|PDO SQL Dump y rotación automática| MYSQL
 ```
 
 ### 1.2 Descripción Detallada de Capas
@@ -106,7 +106,7 @@ graph TD
    - **Librería GD:** Imprime marcas de agua semitransparentes en diagonal de forma repetida sobre copias de previsualización en JPG en el instante de la subida, redimensionando la imagen a un ancho óptimo de 1280 px para visualización rápida en galería. Para la descarga en "Buena Calidad", genera una copia limpia optimizada a un ancho máximo de 1920 px (Full HD).
    - **FFmpeg CLI en Docker:** Se ejecuta desde PHP mediante llamadas seguras por consola (`escapeshellarg`) sobre el binario preinstalado en el contenedor Linux, generando automáticamente un clip representativo de 15 segundos (`-t 15 -preset veryfast`) para la galería de previsualización, reteniendo el archivo original de hasta 800 MB para la descarga autorizada.
    - **Filesystem persistente:** Montaje desacoplado en el volumen de Docker `uploads_data`, organizado en los subdirectorios `/uploads/originals/`, `/uploads/previews/` y `/uploads/standard/`.
-   - **Respaldos y Rotación Diaria:** El script `cron-backup.php` y el controlador `SistemaController` interactúan con la utilidad `mysqldump`, comprimen los volcados SQL con `gzencode` (gzip), registran la traza de auditoría en la tabla `backups` y aplican rotación FIFO para conservar estrictamente las últimas 3 copias diarias, purgando las copias más antiguas (RNF5, RNF6, RNF7 / HU13).
+   - **Respaldos y Rotación Diaria:** El script `cron-backup.php` y el controlador `SistemaController` orquestan a `BackupService`, el cual genera el volcado DDL y DML de la base de datos vía PDO directamente en `backend/backups/`, registra la traza de auditoría en la tabla `backups` y aplica rotación FIFO conservando estrictamente las últimas 3 copias más recientes y eliminando las más antiguas tanto en disco como en la base de datos (RNF5, RNF6, RNF7 / HU13).
 
 ---
 
@@ -221,7 +221,7 @@ erDiagram
 
     BACKUPS {
         int id_backup PK "Identificador único autoincremental"
-        string ruta_backup "Ruta del archivo .sql.gz en disco"
+        string ruta_backup "Ruta del archivo .sql en disco"
         string nombre_backup "Nombre con marca de tiempo del backup"
         timestamp fecha_backup "Fecha y hora exacta del respaldo"
     }

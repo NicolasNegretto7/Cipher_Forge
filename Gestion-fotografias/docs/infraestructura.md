@@ -127,30 +127,60 @@ Define la estructura DDL para las 11 entidades del sistema:
 - Índices únicos sobre correos electrónicos (`email`), nombres de hashtags y tokens QR.
 
 ### 4.2 Mecanismo de Respaldo Diario y Rotación (RNF5, RNF6, RNF7)
-Para satisfacer los requerimientos no funcionales de respaldo diario de la base de datos conservando las últimas 3 copias, el sistema utiliza el binario `mysqldump` ejecutado sobre el contenedor `cipher_forge_db`.
 
-**Script de Respaldo (`scripts/backup_db.sh`):**
-```bash
-#!/bin/bash
-# WHAT: Genera un volcado diario de la BD y elimina respaldos que superen el límite de 3 copias
-# WHY: Cumple con RNF5, RNF6 y RNF7 para prevención de pérdida de información
-# HOW: Ejecuta mysqldump dentro del contenedor y rota mediante ordenamiento cronológico
+Para satisfacer los requerimientos no funcionales de respaldo diario de la base de datos conservando las últimas 3 copias de forma persistente y portable, el sistema prescinde de scripts bash externos o dependencias del sistema operativo host. En su lugar, implementa una solución autocontenida y desacoplada en PHP nativo mediante `App\services\BackupService`, orquestada por el script de consola `backend/cron-backup.php` o invocable vía API REST mediante `POST /sistema/backup`.
 
-TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-BACKUP_DIR="./backups"
-BACKUP_FILE="${BACKUP_DIR}/cipher_forge_${TIMESTAMP}.sql"
+Todos los archivos de volcado se almacenan físicamente en el directorio del proyecto:
+`backend/backups/` con la nomenclatura `backup_cipher_forge_{YYYY-MM-DD_HH-mm-ss}.sql`.
 
-mkdir -p "${BACKUP_DIR}"
+#### Componentes de la Arquitectura de Respaldo
 
-# 1. Generar volcado con mysqldump
-docker exec cipher_forge_db mysqldump -u cipher_user -pcipher_password cipher_forge > "${BACKUP_FILE}"
+1. **Directorio de Persistencia (`backend/backups/`):**
+   - Aloja los volcados SQL generados por el sistema.
+   - Es resuelto dinámicamente mediante la clase de configuración (`App\Core\Config::backupsDir()`).
 
-# 2. Registrar metadatos en la tabla backups (RNF7)
-docker exec -i cipher_forge_db mysql -u cipher_user -pcipher_password cipher_forge <<EOF
-INSERT INTO backups (ruta_backup, nombre_backup, fecha_backup) 
-VALUES ('${BACKUP_FILE}', 'cipher_forge_${TIMESTAMP}.sql', NOW());
-EOF
+2. **Servicio Nuclear de Respaldo (`backend/src/services/BackupService.php`):**
+   - **Extracción de Esquema y Datos con PDO:** Consulta la base de datos mediante `SHOW FULL TABLES WHERE Table_type = 'BASE TABLE'`, extrae la estructura DDL con `SHOW CREATE TABLE` y vuelca los registros DML con sentencias SQL preparadas y entrecomillado seguro (`$pdo->quote()`).
+   - **Aislamiento de la tabla de auditoría:** Excluye deliberadamente la tabla `backups` durante el volcado para evitar referencias circulares o inconsistencias de estado.
+   - **Rotación automática FIFO (RNF6):** Consulta los registros existentes en la tabla `backups` ordenados por `fecha_backup ASC`. Cuando se alcanzan 3 o más copias, calcula los excedentes y elimina tanto el archivo físico en `backend/backups/` (`unlink()`) como su fila correspondiente en la base de datos (`DELETE FROM backups WHERE id_backup = :id`) antes de registrar el nuevo volcado.
+   - **Registro de auditoría (RNF7):** Inserta en la tabla `backups` la ruta relativa (`backups/backup_cipher_forge_...sql`), el nombre del archivo y la marca de tiempo exacta (`NOW()`).
 
-# 3. Rotación: mantener únicamente las 3 copias más recientes (RNF6)
-ls -1tr ${BACKUP_DIR}/cipher_forge_*.sql | head -n -3 | xargs -r rm --
+3. **Script CLI de Mantenimiento Automatizado (`backend/cron-backup.php`):**
+
+```php
+<?php
+// WHAT: Script CLI ejecutable para tareas programadas de mantenimiento y respaldo de base de datos.
+// WHY: Automatiza el cumplimiento de RNF5, RNF6, RNF7 y la purga colaborativa (RF15) sin intervención manual ni dependencias del host.
+// HOW: Inicializa el autoloader PSR-4 nativo, ejecuta BackupService con rotación en backend/backups/ y purga archivos expirados.
+
+declare(strict_types=1);
+
+require_once __DIR__ . '/public/index.php'; // Carga autoloader de clases
+
+use App\services\BackupService;
+use App\services\MultimediaService;
+
+echo "[" . date('Y-m-d H:i:s') . "] Iniciando tareas programadas de mantenimiento...\n";
+
+try {
+    // 1. Respaldo de base de datos con rotación (HU13 / RNF5, RNF6, RNF7)
+    $backupService = new BackupService();
+    $backup = $backupService->generarBackup();
+    echo "[OK] Respaldo generado en backend/backups/: {$backup['nombre_backup']} ({$backup['tamanio_kb']} KB)\n";
+
+    // 2. Limpieza de archivos colaborativos no aprobados con más de 24h (HU12 / RF15)
+    $multimediaService = new MultimediaService();
+    $purgados = $multimediaService->purgarExpirados();
+    echo "[OK] Archivos colaborativos expirados purgados: {$purgados}\n";
+
+    echo "[" . date('Y-m-d H:i:s') . "] Tareas finalizadas exitosamente.\n";
+    exit(0);
+} catch (Throwable $e) {
+    echo "[ERROR] Fallo en tareas programadas: " . $e->getMessage() . "\n";
+    exit(1);
+}
 ```
+
+4. **Endpoints de Control vía API REST (`backend/routes.php`):**
+   - `POST /sistema/backup`: Permite disparar manualmente el proceso de respaldo y rotación desde el panel administrativo o herramientas de prueba, retornando el estado y tamaño del archivo en formato JSON.
+   - `GET /sistema/backups`: Retorna el historial de los respaldos vigentes registrados en la tabla `backups`.
