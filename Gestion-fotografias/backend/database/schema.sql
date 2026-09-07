@@ -70,15 +70,6 @@ CREATE TABLE qr_tokens(
     expiracion DATETIME DEFAULT NULL,
     FOREIGN KEY (coleccion_id) REFERENCES colecciones(id) ON DELETE CASCADE
 );
-CREATE TABLE solicitudes_descarga(
-    id_solicitud INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    usuario_id INT NOT NULL,
-    coleccion_id INT NOT NULL,
-    solicitud ENUM('pendiente', 'aprobada', 'rechazada') DEFAULT 'pendiente',
-    calidad_descarga ENUM('buena', 'alta') NOT NULL,
-    FOREIGN KEY (coleccion_id) REFERENCES colecciones(id) ON DELETE CASCADE,
-    FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
-);
 CREATE TABLE hashtags(
     nombre_hashtags VARCHAR(40) NOT NULL UNIQUE,
     id_hashtags INT NOT NULL PRIMARY KEY AUTO_INCREMENT

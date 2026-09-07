@@ -123,13 +123,11 @@ erDiagram
     USUARIOS ||--o{ COLECCIONES : "crea y administra"
     USUARIOS ||--o{ FAVORITOS : "marca"
     USUARIOS ||--o{ ACCESO_COLECCIONES : "tiene acceso asignado"
-    USUARIOS ||--o{ SOLICITUDES_DESCARGA : "genera (historico)"
     
     COLECCIONES ||--o{ MULTIMEDIA : "contiene recursos"
     COLECCIONES ||--o{ QR_TOKENS : "emite tokens"
     COLECCIONES ||--o{ COLECCION_HASHTAGS : "clasificada en"
     COLECCIONES ||--o{ ACCESO_COLECCIONES : "asigna permisos a"
-    COLECCIONES ||--o{ SOLICITUDES_DESCARGA : "recibe solicitudes"
     
     HASHTAGS ||--o{ COLECCION_HASHTAGS : "asocia temas a"
     MULTIMEDIA ||--o{ FAVORITOS : "es guardada en"
@@ -201,14 +199,6 @@ erDiagram
         datetime expiracion "Fecha de caducidad (24h para colaborativo, NULL para acceso)"
     }
 
-    SOLICITUDES_DESCARGA {
-        int id_solicitud PK "Identificador único (Registro heredado CC-01)"
-        int usuario_id FK "Usuario solicitante (usuarios.id)"
-        int coleccion_id FK "Colección solicitada (colecciones.id)"
-        enum solicitud "Estado: 'pendiente', 'aprobada', 'rechazada'"
-        enum calidad_descarga "Calidad: 'buena' o 'alta'"
-    }
-
     HASHTAGS {
         int id_hashtags PK "Identificador único autoincremental"
         string nombre_hashtags UK "Nombre unívoco del tag (máx 40 car)"
@@ -233,7 +223,7 @@ erDiagram
 * **Separación de Archivo Original y Vista Previa:** La entidad `multimedia` mantiene dos rutas físicas diferenciadas: `ruta_original` (archivo fuente de máxima resolución, inaccesible directamente por URL para evitar robo de contenido) y `vista_previa` (copia optimizada con marca de agua semitransparente o videoclip de 15 segundos para la visualización en el navegador).
 * **Ciclo de Vida y Moderación Colaborativa (RF14, RF15):** Los atributos `es_invitado` y `aprobado` en `multimedia` permiten que las cargas de invitados ingresen con `aprobado = FALSE`. El fotógrafo puede auditar estos archivos en su panel de moderación; los archivos no aprobados que superen las 24 horas desde `creado_en` son depurados automáticamente por la rutina del sistema.
 * **Tokens QR Efímeros vs. Permanentes:** La entidad `qr_tokens` gestiona tanto el QR colaborativo de eventos (tipo `'colaborativo'`, con expiración a las 24 horas para subida anónima) como el QR de acceso permanente (tipo `'acceso'`, con expiración nula) que permite a clientes autorizados acceder a colecciones privadas.
-* **Trazabilidad de `solicitudes_descarga` (Control de Cambios CC-01):** La tabla persiste en la base de datos como registro técnico heredado, pero el flujo operativo activo fue sustituido por la **descarga directa individual e inmediata** en dos calidades mediante `GET /multimedia/{id}/descargar?calidad={buena|alta}`, agilizando la experiencia de usuario y acoplándose a las restricciones institucionales de UTU.
+* **Descarga Directa en Dos Calidades (Control de Cambios CC-01):** Conforme al Control de Cambios CC-01, se eliminó del modelo de base de datos la persistencia de solicitudes intermedias y notificaciones de autorización. La descarga opera de manera directa e individual en dos calidades ("Buena Calidad" reescalada a 1920 px y "Alta Calidad" original) mediante `GET /multimedia/{id}/descargar?calidad={buena|alta}`, simplificando el modelo relacional y optimizando la experiencia de usuario sin fricciones.
 
 ---
 
