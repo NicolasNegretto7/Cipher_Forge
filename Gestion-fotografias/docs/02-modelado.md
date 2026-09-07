@@ -4,47 +4,54 @@
 
 ## 1. Arquitectura Propuesta del Sistema
 
-El sistema **Cipher_Forge** adopta una **arquitectura en capas (Layered Architecture)** basada en el patrón **Cliente-Servidor desacoplado**, donde el frontend (interfaz de usuario) interactúa con el backend exclusivamente a través de una **API RESTful** sobre HTTP, persistiendo datos en un motor relacional y almacenando archivos multimedia en el sistema de archivos protegido del contenedor.
+El sistema **Cipher_Forge** adopta una **arquitectura en capas (Layered Architecture)** basada en el patrón **Cliente-Servidor desacoplado**, donde el frontend (interfaz de usuario) interactúa con el backend exclusivamente a través de una **API RESTful** sobre HTTP emitiendo y recibiendo cargas en formato JSON o binarios multipart. La persistencia de datos reside en un motor relacional MySQL 8.0 y los archivos multimedia se almacenan de forma estructurada en un volumen de almacenamiento persistente montado en el contenedor de la aplicación.
 
 ### 1.1 Diagrama de Arquitectura Global
 
 ```mermaid
 graph TD
     subgraph Clientes ["Capa de Presentación (Frontend)"]
-        FC["Frontend Fotógrafo\n(HTML5 / CSS3 / Vanilla JS / Bootstrap)"]
-        FU["Frontend Cliente\n(HTML5 / CSS3 / Vanilla JS / Bootstrap)"]
-        INV["Invitado móvil\n(Escaneo QR / Carga rápida)"]
+        FC["Frontend Fotógrafo\n(HTML5 Semántico / Vanilla CSS3 / Vanilla JS ES6+)"]
+        FU["Frontend Cliente\n(HTML5 Semántico / Vanilla CSS3 / Vanilla JS ES6+)"]
+        INV["Invitado móvil\n(HTML5 / Escaneo QR / Carga rápida colaborativa)"]
     end
 
-    subgraph Red ["Capa de Entrada y Red"]
-        APACHE["Servidor Web Apache 2.4\n(Puerto 8080 - mod_rewrite)"]
+    subgraph Red ["Capa de Entrada y Servidor Web"]
+        APACHE["Servidor Web Apache 2.4\n(Puerto 8080 - mod_rewrite a public/index.php)"]
     end
 
-    subgraph Backend ["Capa de Aplicación (PHP 8.2 Backend)"]
-        ROUTER["Enrutador Front Controller\n(Router.php / Request / Response)"]
-        AUTH_MID["Middleware de Autenticación\n(AuthMiddleware / Sesiones / Tokens)"]
+    subgraph Backend ["Capa de Aplicación (PHP 8.2 Backend Puro - Sin Composer)"]
+        ROUTER["Front Controller & Enrutador\n(public/index.php / Router.php / Request / Response)"]
+        AUTH_MID["Middleware de Autenticación\n(AuthMiddleware / Validación Bearer JWT)"]
         
-        subgraph Modulos ["Controladores y Servicios"]
-            CTRL["Controladores (Controllers)\n(AuthController, ColeccionController, etc.)"]
-            VAL["Validadores (Validators) & DTOs"]
-            SERV["Servicios de Negocio (Services)\n(AuthService, ColeccionService)"]
-            REPO["Repositorios (Repositories - PDO)\n(UserRepository, ColeccionRepository)"]
+        subgraph Modulos ["Controladores, Validadores y Servicios"]
+            CTRL["Controladores (Controllers)\n(AuthController, ColeccionController, MultimediaController,\nColaborativoController, FavoritoController, FotografoController, SistemaController)"]
+            VAL["Validadores (Validators) & DTOs Inmutables\n(AuthValidator, RegisterDto, MultimediaDto, etc.)"]
+            SERV["Servicios de Negocio (Services)\n(AuthService, ColeccionService, MultimediaService, BackupService)"]
+            REPO["Repositorios de Persistencia (Repositories - PDO)\n(UserRepository, ColeccionRepository, MultimediaRepository)"]
+        end
+
+        subgraph HelpersNativos ["Helpers Nativos Especializados"]
+            JWT_HELP["Jwt.php\n(Generación/Validación HS256 nativa)"]
+            QR_HELP["QrGenerator.php\n(Matriz QR 25x25 SVG e HTML Imprimible)"]
+            MEDIA_PROC["MediaProcessor.php\n(Gestión de archivos, marcas de agua y transcodificación)"]
         end
     end
 
     subgraph Multimedia ["Procesamiento y Almacenamiento Multimedia"]
-        GD["Librería GD (PHP)\n(Marca de agua en imágenes)"]
-        FFMPEG["FFmpeg (Docker)\n(Recorte de 15s para vista previa de videos)"]
-        FS[("Volumen uploads_data\n(/var/www/html/uploads)")]
+        GD["Extensión GD (PHP 8.2)\n(Marca de agua diagonal repetida y redimensión Web)"]
+        FFMPEG["FFmpeg CLI (Docker Debian)\n(Extracción de clips de 15s para vista previa)"]
+        FS[("Volumen Docker uploads_data\n(/var/www/html/uploads)\n├── originals/\n├── previews/\n└── standard/")]
     end
 
-    subgraph Persistencia ["Capa de Datos"]
-        MYSQL[("MySQL 8.0 (Docker db)\n(Puerto 3306 - db_data)")]
+    subgraph Persistencia ["Capa de Datos y Mantenimiento"]
+        MYSQL[("MySQL 8.0 (Docker cipher_forge_db)\n(Puerto 3306 - volumen db_data)")]
+        BACKUP["Sistema de Respaldos Diarios\n(cron-backup.php / mysqldump / gzip / rotación 3 copias)"]
     end
 
-    FC -->|HTTP / JSON / Multipart| APACHE
-    FU -->|HTTP / JSON| APACHE
-    INV -->|HTTP / Multipart| APACHE
+    FC -->|HTTP REST / JSON / Multipart| APACHE
+    FU -->|HTTP REST / JSON| APACHE
+    INV -->|HTTP REST / Multipart| APACHE
     
     APACHE --> ROUTER
     ROUTER --> AUTH_MID
@@ -52,147 +59,181 @@ graph TD
     CTRL --> VAL
     CTRL --> SERV
     SERV --> REPO
-    SERV --> GD
-    SERV --> FFMPEG
+    
+    SERV --> JWT_HELP
+    SERV --> QR_HELP
+    SERV --> MEDIA_PROC
+    
+    MEDIA_PROC --> GD
+    MEDIA_PROC --> FFMPEG
     
     GD --> FS
     FFMPEG --> FS
-    REPO -->|PDO MySQL| MYSQL
+    REPO -->|Conexión PDO / Sentencias preparadas| MYSQL
+    BACKUP -.->|mysqldump y rotación automática| MYSQL
 ```
 
-### 1.2 Descripción de Capas
+### 1.2 Descripción Detallada de Capas
 
 1. **Capa de Presentación (Frontend):**
-   - Dividida en portales especializados según el rol de negocio: `frontend-fotografo` (gestión de colecciones, subida de medios, códigos QR y panel de moderación) y `frontend-cliente` (exploración de colecciones públicas, acceso privado por enlace y descarga directa individual).
-   - Consumo asíncrono de la API mediante la API nativa `fetch` de JavaScript, procesando respuestas en formato JSON.
+   - **Estructura desacoplada:** Dividida en dos portales independientes según el rol del usuario: `frontend-fotografo` (gestión de colecciones, panel de subida con control de cuota de 3 GB, generación de códigos QR y moderación de invitados) y `frontend-cliente` (exploración de colecciones públicas por hashtags, favoritos, acceso privado por token y descarga directa en dos calidades).
+   - **HTML5 Semántico:** Marcado riguroso utilizando elementos contextuales (`header`, `main`, `section`, `table`, `form`, `footer`) garantizando accesibilidad y una estructura de código limpia.
+   - **Vanilla CSS3 (Sin frameworks externos):** Se descartó expresamente el uso de Bootstrap u otros frameworks CSS. La interfaz se construye con un sistema de diseño propio implementado mediante **Variables CSS (`:root`)** (paleta con acentos verde esmeralda inspirada en OBS Studio), **Flexbox** y **CSS Grid** para la distribución de tarjetas y galerías, cortes angulares con gradientes lineales (`linear-gradient(160deg, ...)`) y **Media Queries** nativas para adaptabilidad total (Responsive) en dispositivos móviles y de escritorio.
+   - **Vanilla JavaScript (ES6+):** Programación asíncrona mediante la API nativa `fetch` con `async/await`, manipulación directa del DOM sin intermediarios (sin jQuery ni frameworks SPA), almacenamiento local con `localStorage` (sesión del usuario, estado de la política de privacidad de la Ley 18.331 y caché de colecciones) y consumo de APIs estándar del navegador (`URLSearchParams`, `FileReader` para carga preliminar).
 
 2. **Capa de Enrutamiento y Control de Acceso (Front Controller & Middleware):**
-   - Apache redirige todas las peticiones entrantes hacia `public/index.php` utilizando `mod_rewrite`.
-   - El componente `Router` despacha la solicitud hacia el controlador correspondiente basándose en el método HTTP (GET, POST, etc.) y la URI.
-   - `AuthMiddleware` intercepta peticiones protegidas para validar autenticación y pertenencia de roles antes de ejecutar la lógica de negocio.
+   - Apache redirige todas las peticiones entrantes hacia `public/index.php` utilizando la directiva `mod_rewrite` del archivo `.htaccess`.
+   - **Autoloading PSR-4 nativo:** En `public/index.php`, una función `spl_autoload_register` mapea dinámicamente los namespaces bajo `App\` a la jerarquía física de `src/`, prescindiendo de Composer y evitando carpetas `vendor/` pesadas.
+   - El componente `Router` inspecciona el método HTTP (GET, POST, PUT, DELETE) y la URI normalizada, despachando la ejecución al controlador correspondiente.
+   - `AuthMiddleware` intercepta peticiones protegidas (`'auth'`) u opcionales (`'optional'`), validando el encabezado HTTP `Authorization: Bearer <token>` mediante tokens JWT firmados, rechazando peticiones no autorizadas con código `401 Unauthorized` antes de alcanzar los controladores.
 
-3. **Capa de Negocio y Dominio (Services, DTOs, Validators):**
-   - **DTOs (Data Transfer Objects):** Encapsulan y tipan los datos de entrada evitando el manejo de arrays asociativos genéricos.
-   - **Validators:** Verifican reglas de integridad (formatos de correo, complejidad de contraseña, tipos MIME de archivos y pesos máximos).
-   - **Services:** Implementan las reglas de negocio (procesamiento de imágenes con marca de agua, generación de tokens QR con expiración, y reglas de cuota de 3 GB).
+3. **Capa de Negocio y Dominio (Services, DTOs, Validators & Helpers):**
+   - **DTOs (Data Transfer Objects):** Clases inmutables con propiedades fuertemente tipadas (`readonly`) que estructuran la carga de datos (`RegisterDto`, `LoginDto`, `CreateColeccionDto`, `MultimediaDto`), garantizando la integridad de datos desde la entrada del sistema.
+   - **Validators:** Clases especializadas (`AuthValidator`, `ColeccionValidator`, `MultimediaValidator`) que verifican reglas de negocio y restricciones técnicas (formatos RFC de correo electrónico, longitud de claves, extensiones MIME permitidas, límite de 800 MB en video y 3 GB en cuota global).
+   - **Services:** Implementan la lógica de negocio nuclear (`AuthService`, `ColeccionService`, `MultimediaService`, `BackupService`), coordinando la persistencia con repositorios y la manipulación binaria con helpers.
+   - **Helpers Nativos en PHP 8.2 (Sin librerías de terceros):**
+     * `Jwt.php`: Generador y validador de tokens HS256 basado en `hash_hmac('sha256', ...)` y codificación Base64Url estándar.
+     * `QrGenerator.php`: Algoritmo nativo que calcula la matriz modular QR (25x25 Versión 2) y genera directamente el código en formato vectorial SVG y plantillas HTML con estilos de impresión para eventos (HU4, HU7, HU17).
+     * `MediaProcessor.php`: Centraliza la persistencia física de archivos, el cálculo de nombres criptográficos unívocos (`bin2hex(random_bytes(16))`), el estampado de marcas de agua con GD y la transcodificación de video con FFmpeg.
 
 4. **Capa de Acceso a Datos (Repositories):**
-   - Centraliza las consultas SQL hacia MySQL mediante `PDO` (PHP Data Objects).
-   - Utiliza exclusivamente consultas preparadas (`prepared statements`) con vinculación de parámetros, mitigando ataques de inyección SQL (alineado con [04-seguridad.md](04-seguridad.md)).
+   - Implementa el patrón Repository (`UserRepository`, `ColeccionRepository`, `MultimediaRepository`), aislando las sentencias SQL de la lógica de dominio.
+   - Conexión relacional gestionada mediante `PDO` (`App\Core\Database`) en modo de reporte de errores `ERRMODE_EXCEPTION`.
+   - Utilización estricta de consultas preparadas (`prepared statements`) con vinculación de parámetros tipados, erradicando cualquier vector de Inyección SQL.
+   - Soporte transaccional ACID (`beginTransaction()`, `commit()`, `rollBack()`) en operaciones atómicas compuestas (como el registro de usuarios con tablas hijas o la eliminación de colecciones en cascada).
 
-5. **Capa de Almacenamiento y Procesamiento de Medios:**
-   - **Librería GD:** Imprime marcas de agua diagonales sobre copias de previsualización de imágenes JPG en el momento de la subida.
-   - **FFmpeg:** Genera un clip de 15 segundos para la vista previa del video, preservando el archivo original de hasta 800 MB para la descarga directa.
-   - **Filesystem montado:** Almacenamiento persistente desacoplado en el volumen de Docker `uploads_data`.
+5. **Capa de Almacenamiento, Procesamiento Multimedia y Mantenimiento:**
+   - **Librería GD:** Imprime marcas de agua semitransparentes en diagonal de forma repetida sobre copias de previsualización en JPG en el instante de la subida, redimensionando la imagen a un ancho óptimo de 1280 px para visualización rápida en galería. Para la descarga en "Buena Calidad", genera una copia limpia optimizada a un ancho máximo de 1920 px (Full HD).
+   - **FFmpeg CLI en Docker:** Se ejecuta desde PHP mediante llamadas seguras por consola (`escapeshellarg`) sobre el binario preinstalado en el contenedor Linux, generando automáticamente un clip representativo de 15 segundos (`-t 15 -preset veryfast`) para la galería de previsualización, reteniendo el archivo original de hasta 800 MB para la descarga autorizada.
+   - **Filesystem persistente:** Montaje desacoplado en el volumen de Docker `uploads_data`, organizado en los subdirectorios `/uploads/originals/`, `/uploads/previews/` y `/uploads/standard/`.
+   - **Respaldos y Rotación Diaria:** El script `cron-backup.php` y el controlador `SistemaController` interactúan con la utilidad `mysqldump`, comprimen los volcados SQL con `gzencode` (gzip), registran la traza de auditoría en la tabla `backups` y aplican rotación FIFO para conservar estrictamente las últimas 3 copias diarias, purgando las copias más antiguas (RNF5, RNF6, RNF7 / HU13).
 
 ---
 
 ## 2. Modelado de Datos (Diagrama Entidad-Relación)
 
-La base de datos relacional en MySQL 8.0 estructura los datos del sistema implementando herencia de roles (tabla padre `usuarios` con extensiones `fotografos` y `clientes`), colecciones, recursos multimedia y control de seguridad.
+La base de datos relacional MySQL 8.0 estructura la información del sistema garantizando integridad referencial estricta, restricciones unívocas y herencia de roles.
 
 ### 2.1 Diagrama Entidad-Relación (Mermaid ERD)
 
 ```mermaid
 erDiagram
-    USUARIOS ||--o| CLIENTES : "es un"
-    USUARIOS ||--o| FOTOGRAFOS : "es un"
-    USUARIOS ||--o{ COLECCIONES : "posee (fotografo)"
+    USUARIOS ||--o| CLIENTES : "es un (hereda)"
+    USUARIOS ||--o| FOTOGRAFOS : "es un (hereda)"
+    USUARIOS ||--o{ COLECCIONES : "crea y administra"
     USUARIOS ||--o{ FAVORITOS : "marca"
-    USUARIOS ||--o{ ACCESO_COLECCIONES : "tiene acceso"
+    USUARIOS ||--o{ ACCESO_COLECCIONES : "tiene acceso asignado"
+    USUARIOS ||--o{ SOLICITUDES_DESCARGA : "genera (historico)"
     
-    COLECCIONES ||--o{ MULTIMEDIA : "contiene"
-    COLECCIONES ||--o{ QR_TOKENS : "genera"
-    COLECCIONES ||--o{ COLECCION_HASHTAGS : "clasificada por"
-    COLECCIONES ||--o{ ACCESO_COLECCIONES : "asignada a"
+    COLECCIONES ||--o{ MULTIMEDIA : "contiene recursos"
+    COLECCIONES ||--o{ QR_TOKENS : "emite tokens"
+    COLECCIONES ||--o{ COLECCION_HASHTAGS : "clasificada en"
+    COLECCIONES ||--o{ ACCESO_COLECCIONES : "asigna permisos a"
+    COLECCIONES ||--o{ SOLICITUDES_DESCARGA : "recibe solicitudes"
     
-    HASHTAGS ||--o{ COLECCION_HASHTAGS : "agrupa"
-    MULTIMEDIA ||--o{ FAVORITOS : "es marcado en"
+    HASHTAGS ||--o{ COLECCION_HASHTAGS : "asocia temas a"
+    MULTIMEDIA ||--o{ FAVORITOS : "es guardada en"
 
     USUARIOS {
-        int id PK
-        string nombre_completo
-        string email UK
-        string telefono
-        boolean email_verificado
-        string password_hash
-        enum rol "fotografo, cliente"
+        int id PK "Identificador único autoincremental"
+        string nombre_completo "Nombre del usuario (máx 90 car)"
+        string email UK "Correo único para login (máx 60 car)"
+        string telefono "Teléfono de contacto opcional (máx 30 car)"
+        boolean email_verificado "Estado de verificación de casilla"
+        string codigo_verificacion "Código numérico temporal de validación"
+        datetime codigo_expiracion "Fecha y hora límite del código"
+        string password_hash "Contraseña hasheada con bcrypt"
+        enum rol "Rol asignado: 'fotografo' o 'cliente'"
     }
 
     CLIENTES {
-        int id_cliente PK,FK
+        int id_cliente PK,FK "Referencia a usuarios.id (ON DELETE CASCADE)"
     }
 
     FOTOGRAFOS {
-        int id_fotografo PK,FK
-        boolean politicas_aceptadas
+        int id_fotografo PK,FK "Referencia a usuarios.id (ON DELETE CASCADE)"
+        boolean politicas_aceptadas "Aceptación formal Ley 18.331"
+        text biografia "Descripción profesional del fotógrafo"
+        string especialidad "Especialidad fotográfica (máx 60 car)"
     }
 
     COLECCIONES {
-        int id PK
-        int fotografo_id FK
-        enum tipo_visibilidad "privada, publica"
-        string titulo
-        string descripcion
-        timestamp creado_en
+        int id PK "Identificador único autoincremental"
+        int fotografo_id FK "Dueño de la colección (usuarios.id)"
+        enum tipo_visibilidad "Visibilidad: 'privada' o 'publica'"
+        string titulo "Título de la colección (máx 60 car)"
+        string descripcion "Descripción del evento (máx 90 car)"
+        timestamp creado_en "Fecha y hora de creación automática"
     }
 
     MULTIMEDIA {
-        int id_multimedia PK
-        int coleccion_id FK
-        string titulo
-        string descripcion
-        string ruta_original
-        string vista_previa
-        bigint tamanio
-        boolean es_invitado
-        enum tipo "video, imagen"
+        int id_multimedia PK "Identificador único autoincremental"
+        int coleccion_id FK "Colección contenedora (colecciones.id)"
+        string titulo "Título del recurso (máx 60 car)"
+        string descripcion "Detalle del recurso (máx 90 car)"
+        string ruta_original "Ruta del archivo original en disco"
+        string vista_previa "Ruta de la vista previa procesada"
+        bigint tamanio "Tamaño exacto del archivo original en bytes"
+        boolean es_invitado "Indica si fue aportada vía QR por un invitado"
+        boolean aprobado "Estado de moderación (TRUE aprobado, FALSE pendiente)"
+        enum tipo "Tipo de recurso: 'video' o 'imagen'"
+        timestamp creado_en "Fecha y hora de subida"
     }
 
     ACCESO_COLECCIONES {
-        int usuario_id PK,FK
-        int coleccion_id PK,FK
-        boolean permitir_alta_calidad
-        boolean permitir_buena_calidad
+        int usuario_id PK,FK "Usuario con acceso (usuarios.id)"
+        int coleccion_id PK,FK "Colección asignada (colecciones.id)"
+        boolean permitir_alta_calidad "Permiso de descarga original"
+        boolean permitir_buena_calidad "Permiso de descarga media"
     }
 
     FAVORITOS {
-        int usuario_id PK,FK
-        int favorito_id PK,FK
+        int usuario_id PK,FK "Usuario que marca (usuarios.id)"
+        int favorito_id PK,FK "Archivo multimedia marcado (multimedia.id_multimedia)"
     }
 
     QR_TOKENS {
-        int id_token PK
-        int coleccion_id FK
-        string token UK
-        enum tipo "colaborativo, acceso"
-        datetime expiracion
-        timestamp creacion_token
+        int id_token PK "Identificador único autoincremental"
+        int coleccion_id FK "Colección asociada (colecciones.id)"
+        string token UK "Cadena alfanumérica única (máx 100 car)"
+        enum tipo "Tipo de token: 'colaborativo' o 'acceso'"
+        timestamp creacion_token "Fecha y hora de generación"
+        datetime expiracion "Fecha de caducidad (24h para colaborativo, NULL para acceso)"
+    }
+
+    SOLICITUDES_DESCARGA {
+        int id_solicitud PK "Identificador único (Registro heredado CC-01)"
+        int usuario_id FK "Usuario solicitante (usuarios.id)"
+        int coleccion_id FK "Colección solicitada (colecciones.id)"
+        enum solicitud "Estado: 'pendiente', 'aprobada', 'rechazada'"
+        enum calidad_descarga "Calidad: 'buena' o 'alta'"
     }
 
     HASHTAGS {
-        int id_hashtags PK
-        string nombre_hashtags UK
+        int id_hashtags PK "Identificador único autoincremental"
+        string nombre_hashtags UK "Nombre unívoco del tag (máx 40 car)"
     }
 
     COLECCION_HASHTAGS {
-        int id_hashtags PK,FK
-        int coleccion_id PK,FK
+        int id_hashtags PK,FK "Hashtag asociado (hashtags.id_hashtags)"
+        int coleccion_id PK,FK "Colección vinculada (colecciones.id)"
     }
 
     BACKUPS {
-        int id_backup PK
-        string ruta_backup
-        string nombre_backup
-        timestamp fecha_backup
+        int id_backup PK "Identificador único autoincremental"
+        string ruta_backup "Ruta del archivo .sql.gz en disco"
+        string nombre_backup "Nombre con marca de tiempo del backup"
+        timestamp fecha_backup "Fecha y hora exacta del respaldo"
     }
 ```
 
 ### 2.2 Decisiones de Diseño en el Modelo
 
-* **Jerarquía de Usuarios (Herencia de Tablas):** La tabla `usuarios` concentra las credenciales y atributos comunes (autenticación segura, verificación de correo, rol). Las tablas hijas `fotografos` y `clientes` referencian a `usuarios.id` con eliminación en cascada (`ON DELETE CASCADE`). Esto previene duplicidad de cuentas y permite escalar datos específicos de cada rol en fases futuras.
-* **Separación de Original y Vista Previa:** En `multimedia`, se almacenan `ruta_original` (archivo de máxima resolución para descarga directa) y `vista_previa` (copia optimizada con marca de agua o clip de 15 segundos). La ruta original no se expone directamente en el cliente.
-* **Tokens QR Efímeros vs Permanentes:** La tabla `qr_tokens` gestiona tanto el QR de carga colaborativa (con caducidad de 24 horas mediante el campo `expiracion`) como el enlace permanente de acceso a colecciones privadas.
+* **Jerarquía de Usuarios (Herencia de Tablas):** La tabla `usuarios` concentra las credenciales de acceso, la verificación por código y el rol. Las tablas especializadas `fotografos` (que incorpora biografía, especialidad y la bandera de consentimiento de la Ley 18.331) y `clientes` referencian a `usuarios.id` con eliminación en cascada (`ON DELETE CASCADE`). Esta estructura elimina redundancias y garantiza que una cuenta no pueda duplicar su correo electrónico en roles simultáneos.
+* **Separación de Archivo Original y Vista Previa:** La entidad `multimedia` mantiene dos rutas físicas diferenciadas: `ruta_original` (archivo fuente de máxima resolución, inaccesible directamente por URL para evitar robo de contenido) y `vista_previa` (copia optimizada con marca de agua semitransparente o videoclip de 15 segundos para la visualización en el navegador).
+* **Ciclo de Vida y Moderación Colaborativa (RF14, RF15):** Los atributos `es_invitado` y `aprobado` en `multimedia` permiten que las cargas de invitados ingresen con `aprobado = FALSE`. El fotógrafo puede auditar estos archivos en su panel de moderación; los archivos no aprobados que superen las 24 horas desde `creado_en` son depurados automáticamente por la rutina del sistema.
+* **Tokens QR Efímeros vs. Permanentes:** La entidad `qr_tokens` gestiona tanto el QR colaborativo de eventos (tipo `'colaborativo'`, con expiración a las 24 horas para subida anónima) como el QR de acceso permanente (tipo `'acceso'`, con expiración nula) que permite a clientes autorizados acceder a colecciones privadas.
+* **Trazabilidad de `solicitudes_descarga` (Control de Cambios CC-01):** La tabla persiste en la base de datos como registro técnico heredado, pero el flujo operativo activo fue sustituido por la **descarga directa individual e inmediata** en dos calidades mediante `GET /multimedia/{id}/descargar?calidad={buena|alta}`, agilizando la experiencia de usuario y acoplándose a las restricciones institucionales de UTU.
 
 ---
 
@@ -200,63 +241,86 @@ erDiagram
 
 ### 3.1 Flujo de Subida y Procesamiento de Imágenes
 
+El siguiente diagrama detalla la secuencia exacta desde que el fotógrafo selecciona una imagen hasta que la vista previa con marca de agua queda disponible en la galería:
+
 ```mermaid
 sequenceDiagram
     autonumber
     actor F as Fotógrafo
-    participant Front as Frontend (UI)
-    participant API as Backend (PHP Router / Service)
-    participant GD as Motor GD
-    participant FS as Filesystem (uploads/)
-    participant DB as MySQL Database
+    participant Front as Frontend Fotógrafo (Vanilla JS)
+    participant API as Backend (Router / AuthMiddleware)
+    participant Ctrl as MultimediaController & Validator
+    participant Serv as MultimediaService
+    participant MP as MediaProcessor (Helper)
+    participant GD as Extensión GD (PHP)
+    participant FS as Volumen uploads_data
+    participant DB as MySQL Database (PDO)
 
     F->>Front: Selecciona imagen JPG y confirma subida
-    Front->>API: POST /colecciones/{id}/multimedia (multipart/form-data + JWT/Cookie)
-    API->>API: Valida cuota de almacenamiento (< 3 GB) y formato JPG
-    API->>FS: Guarda archivo original en /uploads/originals/
-    API->>GD: Procesa copia y superpone marca de agua en diagonal
-    GD->>FS: Guarda vista previa optimizada en /uploads/previews/
-    API->>DB: INSERT INTO multimedia (ruta_original, vista_previa, tamanio, ...)
-    DB-->>API: Confirmación de registro (ID generado)
-    API-->>Front: HTTP 201 Created (JSON con datos y URL de preview)
-    Front-->>F: Renderiza miniatura en la galería
+    Front->>Front: Valida cuota local y extensiones en cliente
+    Front->>API: POST /colecciones/{id}/multimedia (multipart/form-data + Authorization: Bearer JWT)
+    API->>API: AuthMiddleware valida firma y vigencia del JWT
+    API->>Ctrl: Despacha petición a MultimediaController->upload()
+    Ctrl->>Ctrl: MultimediaValidator comprueba formato JPG y cuota disponible (< 3 GB)
+    Ctrl->>Serv: Invoca MultimediaService->subirArchivo()
+    Serv->>MP: MediaProcessor::guardarOriginal(tmp_file, 'jpg')
+    MP->>FS: Persiste archivo original en /uploads/originals/{hash}.jpg
+    Serv->>MP: MediaProcessor::generarPreviewImagen(ruta_original)
+    MP->>GD: Carga imagen en memoria y superpone marca de agua diagonal repetida
+    GD->>FS: Persiste copia ligera (1280px) en /uploads/previews/{hash}.jpg
+    Serv->>DB: INSERT INTO multimedia (ruta_original, vista_previa, tamanio, aprobado, ...)
+    DB-->>Serv: Confirmación de inserción con ID generado
+    Serv-->>Ctrl: Retorna DTO con información del recurso
+    Ctrl-->>API: Response::success(..., 201 Created)
+    API-->>Front: HTTP 201 Created (JSON con URLs relativas de preview)
+    Front-->>F: Actualiza visualmente la galería e incrementa el contador de cuota
 ```
 
 ### 3.2 Flujo de Descarga Directa en Dos Calidades (Post-CC-01)
 
-Tras la decisión del equipo documentada en [08_control_de_cambios.md](08_control_de_cambios.md) (CC-01 y CC-02), se eliminó el ciclo de solicitudes por notificación:
+Conforme a las decisiones del equipo registradas en [08_control_de_cambios.md](08_control_de_cambios.md) (CC-01 y CC-02), la descarga opera de forma directa e individual sin requerir aprobación diferida:
 
 ```mermaid
 sequenceDiagram
     autonumber
     actor C as Cliente
-    participant Front as Frontend Galería
-    participant API as Backend Download Controller
-    participant FS as Filesystem
+    participant Front as Frontend Cliente (Vanilla JS)
+    participant API as Backend (Router / AuthMiddleware)
+    participant Ctrl as MultimediaController
+    participant Serv as MultimediaService
+    participant MP as MediaProcessor (Helper)
+    participant FS as Volumen uploads_data
 
-    C->>Front: Elige "Buena Calidad" o "Alta Calidad" en imagen individual
-    Front->>API: GET /multimedia/{id}/download?calidad={buena|alta}
-    API->>API: Valida permiso de acceso a la colección (pública o token privado)
-    alt Calidad = Buena
-        API->>FS: Obtiene versión estándar/media procesada
-    else Calidad = Alta
-        API->>FS: Obtiene archivo original de alta resolución
+    C->>Front: Presiona botón "Buena Calidad" o "Alta Calidad" en una imagen
+    Front->>API: GET /multimedia/{id}/descargar?calidad={buena|alta} (con Bearer opcional)
+    API->>Ctrl: Despacha a MultimediaController->descargar(id)
+    Ctrl->>Serv: MultimediaService->obtenerDescarga(id, calidad)
+    Serv->>Serv: Valida permisos de la colección (pública o acceso privado autorizado)
+    alt Calidad solicitada = "buena"
+        Serv->>MP: MediaProcessor::generarBuenaCalidadImagen(ruta_original)
+        MP->>FS: Comprueba/Genera copia limpia optimizada a 1920px en /uploads/standard/
+        FS-->>Ctrl: Retorna ruta del archivo estándar
+    else Calidad solicitada = "alta"
+        Serv->>FS: Obtiene archivo original de máxima resolución desde /uploads/originals/
+        FS-->>Ctrl: Retorna ruta del archivo original
     end
-    API-->>Front: HTTP 200 OK (Content-Type: image/jpeg, Content-Disposition: attachment)
-    Front-->>C: Descarga directa del archivo en el navegador
+    Ctrl->>Ctrl: Configura cabeceras (Content-Type: image/jpeg, Content-Disposition: attachment)
+    Ctrl-->>Front: Emisión de flujo binario (readfile) con HTTP 200 OK
+    Front-->>C: Descarga directa e inmediata del archivo en el navegador del cliente
 ```
 
 ---
 
 ## 4. Justificación Tecnológica
 
-A continuación se fundamenta la selección de cada tecnología que compone el stack de **Cipher_Forge**, evaluando ventajas técnicas, viabilidad dentro del marco curricular de UTU y alternativas descartadas.
+A continuación se fundamenta la selección técnica del stack de **Cipher_Forge**, analizando sus ventajas de arquitectura, la portabilidad del entorno y los motivos pedagógicos y técnicos por los cuales se descartaron tecnologías alternativas.
 
 | Componente | Tecnología Seleccionada | Justificación Técnica | Alternativas Descartadas y Motivo |
 | :--- | :--- | :--- | :--- |
-| **Backend** | **PHP 8.2 (Vanilla OOP)** | Tipado estricto (`declare(strict_types=1)`), manejo robusto de excepciones, soporte nativo de extensiones para manipulación de streams y binarios. Curva de aprendizaje óptima para estudiantes y portabilidad sin dependencias externas pesadas. | **Node.js / Express:** Mayor complejidad en el manejo de streams binarios pesados en entornos locales sin colas dedicadas.<br>**Laravel:** Sobrecarga de dependencias y magia sintáctica innecesaria para los requerimientos evaluables de UTU. |
-| **Servidor Web** | **Apache 2.4 con mod_rewrite** | Compatibilidad nativa con PHP vía `mod_php` en la imagen oficial, estabilidad comprobada para redirección centralizada hacia Front Controller mediante `.htaccess` o configuración de VirtualHost. | **Nginx + PHP-FPM:** Excelente rendimiento, pero requiere configurar dos servicios o procesos independientes, aumentando la fricción de configuración en entorno local. |
-| **Frontend** | **HTML5 Semántico, CSS3, Bootstrap 5 y Vanilla JavaScript** | Estructura accesible y limpia (HTML semántico), diseño adaptable e interactivo mediante Bootstrap 5 sin sobrecarga de frameworks, y JavaScript nativo moderno (ES6+, `fetch`, `async/await`) que garantiza comprensión línea por línea del código. | **React / Vue:** Requeriría tooling de compilación (Vite, Webpack, Node.js local), alejando el foco del proyecto de la lógica de negocio y arquitectura base. |
-| **Base de Datos** | **MySQL 8.0** | Motor relacional estándar de la industria, soporte completo para integridad referencial (`FOREIGN KEY`, transacciones ACID), tipos ENUM para roles y estados, y funciones de agregación para cálculo de cuotas en bytes. | **PostgreSQL:** Prestaciones similares, pero MySQL ofrece mayor compatibilidad directa con las herramientas didácticas y el stack PHP habitual de UTU.<br>**MongoDB:** Inadecuado por la naturaleza fuertemente relacional de permisos, colecciones y usuarios. |
-| **Procesamiento de Video** | **FFmpeg en Contenedor** | Herramienta líder para transcodificación y extracción de recortes de video. Permite generar previews de 15 segundos sin saturar memoria RAM, aislando códecs en el contenedor Linux. | **Librerías JS en cliente:** Imposibilitadas de manejar archivos de 800 MB sin colapsar el navegador del cliente. |
-| **Contenedores y Despliegue** | **Docker & Docker Compose** | Garantiza paridad absoluta entre los entornos de desarrollo de los tres integrantes del equipo y la mesa de evaluación de UTU. Una única orden (`docker compose up`) levanta backend, base de datos, extensiones y dependencias compiladas. | **XAMPP / WampServer local:** Problemas frecuentes de incompatibilidad de versiones de PHP/MySQL entre sistemas operativos Windows de los alumnos, además de carecer de FFmpeg preinstalado. |
+| **Backend** | **PHP 8.2 (Vanilla OOP con PSR-4 nativo)** | Tipado estricto (`declare(strict_types=1)`), manejo robusto de excepciones y soporte nativo de extensiones para flujos de datos binarios y procesamiento de imágenes. Un autoloader PSR-4 escrito desde cero mediante `spl_autoload_register` garantiza portabilidad total y despliegue rápido sin requerir herramientas intermedias. | **Node.js / Express:** Mayor complejidad para el manejo eficiente de streams binarios pesados (imágenes de alta resolución y videos de hasta 800 MB) en entornos locales sin colas dedicadas.<br>**Laravel / Symfony:** Sobrecarga innecesaria de dependencias y abstracción mágica excesiva que oculta el funcionamiento de los protocolos web ante el tribunal evaluador de UTU. |
+| **Servidor Web** | **Apache 2.4 con mod_rewrite** | Integración nativa con PHP vía `mod_php` en la imagen oficial de Docker, alta estabilidad y configuración directa mediante directivas en `.htaccess` para canalizar todas las rutas de la API hacia el Front Controller (`public/index.php`). | **Nginx + PHP-FPM:** Excelente desempeño en alta concurrencia, pero requiere administrar y coordinar dos procesos/contenedores separados, aumentando la fricción operativa durante las demostraciones locales del equipo. |
+| **Frontend** | **HTML5 Semántico, Vanilla CSS3 y Vanilla JavaScript (ES6+)** | **HTML5 Semántico:** Estructuración accesible y limpia de la interfaz.<br>**Vanilla CSS3:** Control milimétrico de la apariencia mediante Variables CSS (`:root`), Flexbox y Grid, evitando conflictos de especificidad o carga de estilos innecesarios.<br>**Vanilla JS:** Empleo nativo de `fetch`, Promesas, `async/await`, manipulación directa del DOM y `localStorage`, garantizando comprensión integral del código línea por línea sin intermediarios. | **Bootstrap 5 / Tailwind:** Descartados para evitar el peso muerto de hojas de estilo prefabricadas con clases genéricas y dependencias externas que restan mérito a la maquetación propia del equipo.<br>**React / Vue / Angular:** Requerirían un entorno de compilación adicional (Node.js, Vite, npm) que desvía el foco del proyecto de los fundamentos de red, seguridad y arquitectura cliente-servidor. |
+| **Helpers Nativos (Seguridad y QR)** | **PHP Puro sin Composer (`Jwt.php` y `QrGenerator.php`)** | Máxima independencia tecnológica: la generación de tokens JWT HS256 mediante `hash_hmac` y la construcción de la matriz modular QR en SVG vectorial se programaron algorítmicamente en PHP puro, logrando un backend liviano, seguro y sin dependencias de paquetes externos. | **Librerías Composer (`firebase/php-jwt`, `endroid/qr-code`):** Descartadas para eliminar riesgos asociados a la cadena de suministros, evitar dependencias de Composer en la entrega y demostrar solvencia algorítmica ante UTU. |
+| **Base de Datos** | **MySQL 8.0 Relacional** | Soporte estricto para transacciones ACID, integridad referencial (`FOREIGN KEY` con `ON DELETE CASCADE`), tipos ENUM para roles y visibilidad, y funciones de agregación para el cómputo exacto de cuotas de almacenamiento en bytes. | **PostgreSQL:** Prestaciones similares, pero MySQL ofrece mayor compatibilidad directa con las herramientas didácticas y el entorno curricular de UTU.<br>**MongoDB:** Descartado categóricamente debido a la naturaleza estrictamente relacional de las colecciones, permisos de usuario y auditoría de eventos. |
+| **Procesamiento de Video** | **FFmpeg en Contenedor Docker** | Herramienta líder a nivel industrial para manipulación y transcodificación audiovisual. Permite recortar clips ligeros de 15 segundos sin saturar la memoria RAM del servidor web, aislando los códecs en la capa del contenedor Linux. | **Librerías JavaScript en el cliente:** Técnicamente incapaces de procesar videos de hasta 800 MB sin bloquear el hilo principal y saturar la memoria del navegador del usuario. |
+| **Contenedores y Despliegue** | **Docker & Docker Compose** | Garantiza paridad absoluta e inmediata entre los entornos de desarrollo de los tres integrantes del equipo y la computadora de evaluación del tribunal de UTU. Un solo comando (`docker compose up`) levanta la base de datos, el servidor Apache con PHP 8.2 y los binarios de FFmpeg. | **Instalaciones locales con XAMPP / WampServer:** Fuente constante de conflictos por discrepancias entre versiones de PHP/MySQL en los sistemas Windows de los alumnos, sumado a la carencia de FFmpeg preinstalado. |
