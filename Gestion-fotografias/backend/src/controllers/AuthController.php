@@ -62,4 +62,43 @@ class AuthController
         // 4. Responder con 200 OK
         Response::success($userData, 'Inicio de sesión exitoso.');
     }
+
+    /**
+     * POST /auth/verificar-email
+     * Valida el código de verificación enviado al correo electrónico (HU21).
+     */
+    public function verificarEmail(): void
+    {
+        $request = new Request();
+        $data    = $request->getBody();
+
+        $email  = trim((string) ($data['email'] ?? ''));
+        $codigo = trim((string) ($data['codigo'] ?? ''));
+
+        if ($email === '' || $codigo === '') {
+            Response::error('Se requieren los campos "email" y "codigo".', 400);
+        }
+
+        $resultado = $this->authService->verificarEmail($email, $codigo);
+        Response::success($resultado, 'Correo electrónico verificado exitosamente.');
+    }
+
+    /**
+     * POST /auth/reenviar-codigo
+     * Genera y envía un nuevo código de verificación (HU21).
+     */
+    public function reenviarCodigo(): void
+    {
+        $request = new Request();
+        $data    = $request->getBody();
+
+        $email = trim((string) ($data['email'] ?? ''));
+
+        if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            Response::error('Se requiere un correo electrónico válido en el campo "email".', 400);
+        }
+
+        $resultado = $this->authService->reenviarCodigo($email);
+        Response::success($resultado, 'Nuevo código de verificación enviado correctamente.');
+    }
 }

@@ -36,4 +36,20 @@ class Request
     {
         return $this->body[$key] ?? $default;
     }
+
+    /**
+     * Retorna un parámetro de la URL (query string en $_GET).
+     */
+    public function getQuery(string $key, mixed $default = null): mixed
+    {
+        return $_GET[$key] ?? $default;
+    }
+
+    /**
+     * Retorna todos los query params como array asociativo.
+     */
+    public function getQueryParams(): array
+    {
+        return $_GET;
+    }
 }

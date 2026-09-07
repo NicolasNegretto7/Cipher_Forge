@@ -32,7 +32,7 @@ class MultimediaValidator
      * Valida el archivo subido ($_FILES['archivo']) y los metadatos para una colección.
      * Retorna un MultimediaDto si todo es correcto; de lo contrario corta con un error HTTP.
      */
-    public function validateUpload(array $archivo, array $data, int $coleccionId): MultimediaDto
+    public function validateUpload(array $archivo, array $data, int $coleccionId, bool $esInvitado = false): MultimediaDto
     {
         $errores = [];
 
@@ -58,8 +58,13 @@ class MultimediaValidator
             Response::error('Error de validación.', 400, $errores);
         }
 
-        // 3. Validar el tamaño según el tipo.
-        $limite = $tipo === 'imagen' ? self::MAX_IMAGEN : self::MAX_VIDEO;
+        // 3. Validar el tamaño según el tipo y rol (RF7: 800MB video original; RF25: 80MB clips de invitados).
+        if ($tipo === 'imagen') {
+            $limite = self::MAX_IMAGEN;
+        } else {
+            $limite = $esInvitado ? (80 * 1024 * 1024) : self::MAX_VIDEO;
+        }
+
         if ($tamano <= 0 || $tamano > $limite) {
             $errores[] = 'El archivo excede el tamaño máximo permitido (' . ($limite / (1024 * 1024)) . ' MB).';
             Response::error('Error de validación.', 400, $errores);
@@ -91,6 +96,7 @@ class MultimediaValidator
             tipo:        $tipo,
             titulo:      $titulo,
             descripcion: $descripcion,
+            esInvitado:  $esInvitado,
         );
     }
 }

@@ -22,11 +22,11 @@ class MultimediaRepository
     /**
      * Inserta un registro multimedia y retorna el id generado.
      */
-    public function create(MultimediaDto $dto, string $rutaOriginal, string $vistaPrevia, int $tamanio): int
+    public function create(MultimediaDto $dto, string $rutaOriginal, string $vistaPrevia, int $tamanio, bool $aprobado = true): int
     {
         $stmt = $this->pdo->prepare(
-            'INSERT INTO multimedia (coleccion_id, titulo, descripcion, ruta_original, vista_previa, tamanio, tipo, es_invitado)
-             VALUES (:coleccion_id, :titulo, :descripcion, :ruta_original, :vista_previa, :tamanio, :tipo, :es_invitado)'
+            'INSERT INTO multimedia (coleccion_id, titulo, descripcion, ruta_original, vista_previa, tamanio, tipo, es_invitado, aprobado)
+             VALUES (:coleccion_id, :titulo, :descripcion, :ruta_original, :vista_previa, :tamanio, :tipo, :es_invitado, :aprobado)'
         );
 
         $stmt->execute([
@@ -38,6 +38,7 @@ class MultimediaRepository
             'tamanio'       => $tamanio,
             'tipo'          => $dto->tipo,
             'es_invitado'   => (int) $dto->esInvitado,
+            'aprobado'      => (int) $aprobado,
         ]);
 
         return (int) $this->pdo->lastInsertId();
@@ -50,7 +51,7 @@ class MultimediaRepository
     {
         $stmt = $this->pdo->prepare(
             'SELECT m.id_multimedia, m.coleccion_id, m.titulo, m.descripcion, m.ruta_original,
-                    m.vista_previa, m.tamanio, m.tipo, m.es_invitado,
+                    m.vista_previa, m.tamanio, m.tipo, m.es_invitado, m.aprobado, m.creado_en,
                     c.tipo_visibilidad, c.fotografo_id
              FROM multimedia m
              INNER JOIN colecciones c ON c.id = m.coleccion_id
@@ -63,19 +64,155 @@ class MultimediaRepository
     }
 
     /**
-     * Retorna todos los archivos multimedia de una colección (para una galería).
+     * Retorna todos los archivos multimedia aprobados de una colección (para una galería).
      */
-    public function findByColeccionId(int $coleccionId): array
+    public function findByColeccionId(int $coleccionId, bool $soloAprobados = true): array
     {
+        $filtroAprobados = $soloAprobados ? 'AND aprobado = 1' : '';
         $stmt = $this->pdo->prepare(
-            'SELECT id_multimedia, coleccion_id, titulo, descripcion, vista_previa, tamanio, tipo, es_invitado
+            "SELECT id_multimedia, coleccion_id, titulo, descripcion, vista_previa, tamanio, tipo, es_invitado, aprobado, creado_en
              FROM multimedia
-             WHERE coleccion_id = :coleccion_id
-             ORDER BY id_multimedia DESC'
+             WHERE coleccion_id = :coleccion_id {$filtroAprobados}
+             ORDER BY id_multimedia DESC"
         );
         $stmt->execute(['coleccion_id' => $coleccionId]);
 
         return $stmt->fetchAll();
+    }
+
+    /**
+     * Calcula la suma total de bytes consumidos por un fotógrafo en todas sus colecciones (HU16).
+     */
+    public function espacioUsadoPorFotografo(int $fotografoId): int
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT COALESCE(SUM(m.tamanio), 0) AS total_bytes
+             FROM multimedia m
+             INNER JOIN colecciones c ON c.id = m.coleccion_id
+             WHERE c.fotografo_id = :fotografo_id'
+        );
+        $stmt->execute(['fotografo_id' => $fotografoId]);
+        return (int) $stmt->fetchColumn();
+    }
+
+    /**
+     * Elimina un registro de multimedia por su ID (HU6).
+     */
+    public function delete(int $id): bool
+    {
+        $stmt = $this->pdo->prepare('DELETE FROM multimedia WHERE id_multimedia = :id');
+        return $stmt->execute(['id' => $id]);
+    }
+
+    /**
+     * Actualiza metadatos básicos y opcionalmente reasigna la colección (HU22).
+     */
+    public function actualizarMetadatos(int $id, string $titulo, ?string $descripcion, ?int $nuevaColeccionId = null): bool
+    {
+        if ($nuevaColeccionId !== null) {
+            $stmt = $this->pdo->prepare(
+                'UPDATE multimedia
+                 SET titulo = :titulo, descripcion = :descripcion, coleccion_id = :coleccion_id
+                 WHERE id_multimedia = :id'
+            );
+            return $stmt->execute([
+                'titulo'       => $titulo,
+                'descripcion'  => $descripcion,
+                'coleccion_id' => $nuevaColeccionId,
+                'id'           => $id,
+            ]);
+        }
+
+        $stmt = $this->pdo->prepare(
+            'UPDATE multimedia
+             SET titulo = :titulo, descripcion = :descripcion
+             WHERE id_multimedia = :id'
+        );
+        return $stmt->execute([
+            'titulo'      => $titulo,
+            'descripcion' => $descripcion,
+            'id'          => $id,
+        ]);
+    }
+
+    /**
+     * Lista archivos subidos por invitados que están pendientes de moderación (HU12).
+     */
+    public function listarPendientes(int $coleccionId): array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT id_multimedia, coleccion_id, titulo, descripcion, vista_previa, tamanio, tipo, creado_en
+             FROM multimedia
+             WHERE coleccion_id = :coleccion_id AND es_invitado = 1 AND aprobado = 0
+             ORDER BY id_multimedia ASC'
+        );
+        $stmt->execute(['coleccion_id' => $coleccionId]);
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Aprueba un conjunto de archivos multimedia colaborativos (HU12).
+     */
+    public function aprobarMultiples(array $ids, int $coleccionId): int
+    {
+        if (empty($ids)) {
+            return 0;
+        }
+
+        $inClause = implode(',', array_map('intval', $ids));
+        $stmt = $this->pdo->prepare(
+            "UPDATE multimedia
+             SET aprobado = 1
+             WHERE coleccion_id = :coleccion_id AND id_multimedia IN ({$inClause})"
+        );
+        $stmt->execute(['coleccion_id' => $coleccionId]);
+        return $stmt->rowCount();
+    }
+
+    /**
+     * Retorna las rutas de archivos de un lote de IDs para su eliminación física en disco (HU12 / HU6).
+     */
+    public function obtenerRutasPorIds(array $ids, int $coleccionId): array
+    {
+        if (empty($ids)) {
+            return [];
+        }
+
+        $inClause = implode(',', array_map('intval', $ids));
+        $stmt = $this->pdo->prepare(
+            "SELECT id_multimedia, ruta_original, vista_previa
+             FROM multimedia
+             WHERE coleccion_id = :coleccion_id AND id_multimedia IN ({$inClause})"
+        );
+        $stmt->execute(['coleccion_id' => $coleccionId]);
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Busca y elimina archivos colaborativos no aprobados con más de 24 horas de antigüedad (RF15 / HU12).
+     * Retorna los registros eliminados para permitir desvincular sus archivos físicos.
+     */
+    public function purgarNoAprobadosExpirados(): array
+    {
+        // 1. Obtener los archivos que han superado las 24 horas
+        $stmt = $this->pdo->prepare(
+            'SELECT id_multimedia, ruta_original, vista_previa
+             FROM multimedia
+             WHERE es_invitado = 1 AND aprobado = 0 AND creado_en < (NOW() - INTERVAL 24 HOUR)'
+        );
+        $stmt->execute();
+        $expirados = $stmt->fetchAll();
+
+        if (empty($expirados)) {
+            return [];
+        }
+
+        // 2. Eliminar registros de la base de datos
+        $ids = array_column($expirados, 'id_multimedia');
+        $inClause = implode(',', array_map('intval', $ids));
+        $this->pdo->exec("DELETE FROM multimedia WHERE id_multimedia IN ({$inClause})");
+
+        return $expirados;
     }
 
     /**

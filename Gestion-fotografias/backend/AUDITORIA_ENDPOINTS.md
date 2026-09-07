@@ -533,21 +533,405 @@ MultimediaController->listar()
 
 ---
 
-## Archivos modificados/creados en este sprint (referencia rápida)
+# Sprints 3, 4 y 5 — Finalización Integral del Backlog Priorizado (PHP Vanilla)
 
-| Archivo | Tipo | Acción |
-| :--- | :--- | :--- |
-| `src/helpers/Jwt.php` | Nuevo | Tokens JWT HS256 (encode/decode) |
-| `src/Core/Config.php` | Nuevo | Clave JWT, horas de validez y rutas de uploads |
-| `src/Core/AuthMiddleware.php` | Modificado | Auth obligatoria y opcional a partir del token |
-| `src/services/AuthService.php` | Modificado | `login()` emite token JWT |
-| `routes.php` | Modificado | Rutas multimedia y requisitos de seguridad |
-| `src/controllers/MultimediaController.php` | Nuevo | Subida, vista previa, original y listado |
-| `src/services/MultimediaService.php` | Nuevo | Reglas de negocio y control de acceso (HU20) |
-| `src/validators/MultimediaValidator.php` | Nuevo | Validación MIME, tamaño y metadatos |
-| `src/dtos/MultimediaDto.php` | Nuevo | DTO de metadatos multimedia |
-| `src/repository/MultimediaRepository.php` | Nuevo | Persistencia multimedia + acceso a colecciones |
-| `src/helpers/MediaProcessor.php` | Nuevo | Procesamiento binario (gd / ffmpeg) |
-| `uploads/.htaccess` | Nuevo | Deniega acceso estático directo a uploads |
-| `docker-entrypoint.sh` | Nuevo | Crea y da permisos a las carpetas de uploads |
-| `Dockerfile` | Modificado | Copia el entrypoint personalizado |
+Este bloque completa y documenta todas las historias de usuario y requerimientos funcionales faltantes del backend según el backlog priorizado de `docs/01-requerimientos.md`.
+
+---
+
+## 11. Arquitectura del Backend en PHP Vanilla
+
+El backend está diseñado bajo una **Arquitectura en Capas desacoplada**, utilizando exclusivamente **PHP 8.x nativo** sin librerías de Composer ni frameworks:
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                          1. Cliente HTTP                                │
+│        (Frontend React / Vue / Vanilla JS, Postman, Insomnia)           │
+└────────────────────────────────────┬────────────────────────────────────┘
+                                     │ HTTP Request
+                                     ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                2. Servidor Web Apache + .htaccess                       │
+│    Reenvía todas las peticiones dinámicas a public/index.php            │
+│    Bloquea acceso estático directo a uploads/ (.htaccess con Deny all)  │
+└────────────────────────────────────┬────────────────────────────────────┘
+                                     │
+                                     ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    3. Front Controller (public/index.php)               │
+│    - Autoloader PSR-4 para App\...                                      │
+│    - Emisión de cabeceras CORS permisivas para SPA                      │
+│    - Normalización de método HTTP y URI (parse_url sin query strings)   │
+│    - Despacho global con captura de excepciones Throwable (HTTP 500)    │
+└────────────────────────────────────┬────────────────────────────────────┘
+                                     │
+                                     ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                 4. Enrutador Dinámico (src/Core/Router.php)             │
+│    - Comparación por método y conteo de partes                          │
+│    - Extracción de parámetros dinámicos genéricos: {id}, {token}, etc.  │
+│    - Invocación previa de AuthMiddleware::handle($requirement)          │
+│    - Desempaquetado seguro de argumentos: $controller->$action(...$arg) │
+└───────────────────┬─────────────────────────────────────────────────────┘
+                    │
+                    ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│            5. Middleware de Autenticación (src/Core/AuthMiddleware.php) │
+│    - 'auth'    : Exige cabecera Authorization: Bearer <jwt> (401 si no) │
+│    - 'optional': Autentica si existe token, tolera clientes anónimos   │
+│    - Carga de usuario vigente en base de datos (evita caché en token)   │
+└───────────────────┬─────────────────────────────────────────────────────┘
+                    │
+                    ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│                       6. Capa de Controladores                          │
+│        (AuthController, ColeccionController, MultimediaController,      │
+│         FotografoController, ColaborativoController, FavoritoController,│
+│         SistemaController, HomeController)                              │
+│    - Lee entrada HTTP mediante Request (JSON body, $_FILES, $_GET)      │
+│    - Delega validación a Validators y lógica a Services                 │
+│    - Emite respuestas uniformes mediante Response::success / error      │
+└───────────────────┬─────────────────────────────────────────────────────┘
+                    │
+                    ▼
+┌──────────────────────────────────────┬──────────────────────────────────┐
+│      7. Validadores & DTOs           │      8. Capa de Servicios        │
+│   - AuthValidator / LoginDto         │   - AuthService                  │
+│   - ColeccionValidator / ColeccionDto│   - ColeccionService             │
+│   - MultimediaValidator / MultiDto   │   - MultimediaService            │
+│     Valida MIME real, límites 3GB /  │   - BackupService                │
+│     800MB / 80MB clips, tipos        │     Reglas de negocio, cuotas,   │
+│                                      │     canje de tokens, moderación  │
+└──────────────────────────────────────┴──────────────────┬───────────────┘
+                                                          │
+                                                          ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│            9. Capa de Persistencia / Repositorios (PDO)                 │
+│        (UserRepository, ColeccionRepository, MultimediaRepository)      │
+│    - Consultas preparadas contra inyección SQL                          │
+│    - Transacciones atómicas ($pdo->beginTransaction())                  │
+│    - MySQL 8.x: base de datos relacional cipher_forge                   │
+└────────────────────────────────────┬────────────────────────────────────┘
+                                     │
+                                     ▼
+┌─────────────────────────────────────────────────────────────────────────┐
+│          10. Capa de Procesamiento Binario & Helpers Nativos            │
+│   - MediaProcessor: GD (vistas previas, marca de agua diagonal, buena   │
+│     calidad 1920px limpia sin marca de agua) + FFmpeg (clip 15s)        │
+│   - QrGenerator: generación nativa de códigos QR SVG y carteles HTML    │
+│   - Jwt: codificación / decodificación HMAC-SHA256 en PHP puro          │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 12. Nuevos Endpoints — Especificación y Auditoría
+
+### 12.1 `POST /auth/verificar-email` (HU21 / RF18)
+* **Propósito:** Validar el código de 6 dígitos enviado al registrarse o reenviado a la casilla del usuario.
+* **Autenticación:** Ninguna (Ruta pública).
+* **Entrada (JSON):**
+  ```json
+  {
+    "email": "juan@example.com",
+    "codigo": "481920"
+  }
+  ```
+* **Códigos HTTP:**
+  * `200 OK`: Correo verificado con éxito (`email_verificado = true`).
+  * `400 Bad Request`: Código incorrecto, expirado (> 1 hora) o usuario ya verificado.
+  * `404 Not Found`: No existe usuario registrado con ese correo.
+
+### 12.2 `POST /auth/reenviar-codigo` (HU21 / RF18)
+* **Propósito:** Generar y reenviar un nuevo código de verificación con vigencia de 1 hora.
+* **Autenticación:** Ninguna (Ruta pública).
+* **Entrada (JSON):** `{ "email": "juan@example.com" }`
+* **Códigos HTTP:** `200 OK`, `400 Bad Request`, `404 Not Found`.
+
+### 12.3 `POST /fotografos/aceptar-politicas` (HU31 / RF24)
+* **Propósito:** Registrar la aceptación formal y obligatoria de las políticas de privacidad y Ley 18.331 de Uruguay en el primer inicio de sesión del fotógrafo.
+* **Autenticación:** Obligatoria (`auth`, rol `fotografo`).
+* **Códigos HTTP:**
+  * `200 OK`: Políticas marcadas como aceptadas (`politicas_aceptadas = true`).
+  * `401 Unauthorized`: Token no proporcionado o inválido.
+  * `403 Forbidden`: El usuario autenticado es un cliente, no fotógrafo.
+
+### 12.4 `GET /fotografos` (HU18 / RF19)
+* **Propósito:** Directorio público de fotógrafos profesionales con biografía, especialidad y cantidad de colecciones públicas.
+* **Autenticación:** Ninguna (Ruta pública).
+* **Códigos HTTP:** `200 OK`.
+
+### 12.5 `GET /fotografos/{id}` (HU18)
+* **Propósito:** Perfil detallado de un fotógrafo profesional.
+* **Autenticación:** Ninguna (Ruta pública).
+* **Códigos HTTP:** `200 OK`, `404 Not Found`.
+
+### 12.6 `PUT /fotografo/perfil` (HU18 / RF19)
+* **Propósito:** Permite al fotógrafo autenticado actualizar su información profesional (nombre, teléfono, biografía, especialidad).
+* **Autenticación:** Obligatoria (`auth`, rol `fotografo`).
+* **Entrada (JSON):**
+  ```json
+  {
+    "nombre_completo": "Nicolás Fotografía",
+    "telefono": "+598 99 123 456",
+    "biografia": "Especialista en bodas y eventos sociales en Montevideo y Punta del Este.",
+    "especialidad": "Bodas y 15 Años"
+  }
+  ```
+* **Códigos HTTP:** `200 OK`, `400 Bad Request`, `401 Unauthorized`, `403 Forbidden`.
+
+### 12.7 `GET /fotografos/cuota` (HU16 / RF17)
+* **Propósito:** Monitorear en tiempo real el espacio de almacenamiento utilizado, espacio disponible y porcentaje sobre la cuota máxima permitida de 3 GB.
+* **Autenticación:** Obligatoria (`auth`, rol `fotografo`).
+* **Salida (JSON):**
+  ```json
+  {
+    "espacio_usado_bytes": 104857600,
+    "espacio_usado_mb": 100.0,
+    "espacio_total_bytes": 3221225472,
+    "espacio_total_gb": 3.0,
+    "espacio_disponible_bytes": 3116367872,
+    "espacio_disponible_mb": 2972.0,
+    "porcentaje_utilizado": 3.25
+  }
+  ```
+* **Códigos HTTP:** `200 OK`, `401 Unauthorized`, `403 Forbidden`.
+
+### 12.8 `GET /colecciones/publicas` (HU24 / HU27 / RF11)
+* **Propósito:** Listar el catálogo de colecciones públicas con imagen de portada y filtro opcional por hashtag.
+* **Autenticación:** Ninguna (Ruta pública).
+* **Parámetros URL:** `?hashtag=bodas`
+* **Salida (JSON):** Array de colecciones públicas con `id`, `titulo`, `descripcion`, `fotografo_nombre`, `portada_preview`, `total_archivos`, `hashtags`.
+* **Códigos HTTP:** `200 OK`.
+
+### 12.9 `GET /colecciones/{id}` (HU24 / HU20 / RF5, RF6)
+* **Propósito:** Obtener detalle de una colección. Si la colección es privada, bloquea el acceso si el solicitante no es el dueño ni cuenta con invitación canjeada en `acceso_colecciones`.
+* **Autenticación:** Opcional (`optional`).
+* **Códigos HTTP:**
+  * `200 OK`: Colección pública o colección privada autorizada.
+  * `401 Unauthorized`: Colección privada sin token de sesión.
+  * `403 Forbidden`: Colección privada solicitada por usuario no autorizado.
+  * `404 Not Found`: Colección no encontrada.
+
+### 12.10 `POST /colecciones/{id}/qr-acceso` (HU17 / RF16)
+* **Propósito:** Generar o consultar el token y código QR de acceso directo permanente (sin caducidad) a una colección específica para clientes autorizados.
+* **Autenticación:** Obligatoria (`auth`, fotógrafo dueño).
+* **Salida (JSON):**
+  ```json
+  {
+    "coleccion_id": 5,
+    "titulo": "Casamiento Martín & Sofía",
+    "token": "a1f9e2b83c7d4e5f...",
+    "tipo": "acceso_permanente",
+    "url_acceso": "http://localhost:8080/invitacion/a1f9e2b83c7d4e5f...",
+    "svg_qr": "<svg xmlns=...></svg>"
+  }
+  ```
+* **Códigos HTTP:** `200 OK`, `401 Unauthorized`, `403 Forbidden`, `404 Not Found`.
+
+### 12.11 `GET /invitaciones/{token}` (HU3 / RF5)
+* **Propósito:** Validar el enlace de invitación de una colección privada antes de canjear. Indica al frontend si el usuario ya inició sesión o si debe registrarse/loguearse primero.
+* **Autenticación:** Opcional (`optional`).
+* **Códigos HTTP:** `200 OK`, `404 Not Found`.
+
+### 12.12 `POST /invitaciones/{token}/canjear` (HU3 / RF5)
+* **Propósito:** Otorga y vincula formalmente el acceso permanente a la colección privada para el cliente autenticado en la tabla `acceso_colecciones`.
+* **Autenticación:** Obligatoria (`auth`).
+* **Códigos HTTP:** `200 OK`, `401 Unauthorized`, `404 Not Found`.
+
+### 12.13 `GET /hashtags` (HU27)
+* **Propósito:** Lista todos los hashtags existentes con la cantidad de colecciones asociadas para autocompletado y exploración temática.
+* **Autenticación:** Ninguna (Ruta pública).
+* **Códigos HTTP:** `200 OK`.
+
+### 12.14 `GET /multimedia/{id}/descargar` (HU10 / RF10)
+* **Propósito:** Descarga directa e individual en dos calidades:
+  * `calidad=alta`: Archivo original íntegro sin procesar.
+  * `calidad=buena`: Versión optimizada Full HD (1920px) limpia **sin marca de agua** (RF136).
+* **Autenticación:** Opcional (`optional`), sujeta a las reglas de acceso de la colección.
+* **Parámetros URL:** `?calidad=buena` o `?calidad=alta` (por defecto: `alta`).
+* **Cabeceras:** `Content-Disposition: attachment; filename="..."`, `Cache-Control: no-store`.
+* **Códigos HTTP:** `200 OK` (binario descargado), `401 Unauthorized`, `403 Forbidden`, `404 Not Found`.
+
+### 12.15 `DELETE /multimedia/{id}` (HU6 / RF20)
+* **Propósito:** Elimina definitivamente un archivo multimedia de una colección. Borra tanto la fila en la BD como los archivos físicos en disco (`uploads/originals`, `uploads/previews`, `uploads/standard`).
+* **Autenticación:** Obligatoria (`auth`, fotógrafo dueño).
+* **Códigos HTTP:** `200 OK`, `401 Unauthorized`, `403 Forbidden`, `404 Not Found`.
+
+### 12.16 `PUT /multimedia/{id}` (HU22 / RF20)
+* **Propósito:** Modifica título, descripción o reasigna una imagen/video a otra colección del mismo fotógrafo.
+* **Autenticación:** Obligatoria (`auth`, fotógrafo dueño).
+* **Entrada (JSON):**
+  ```json
+  {
+    "titulo": "Vals de los novios",
+    "descripcion": "Momento emotivo",
+    "coleccion_id": 8
+  }
+  ```
+* **Códigos HTTP:** `200 OK`, `400 Bad Request`, `401 Unauthorized`, `403 Forbidden`, `404 Not Found`.
+
+### 12.17 `POST /colecciones/{id}/qr-colaborativo` (HU4 / RF13)
+* **Propósito:** Genera un código QR de carga colaborativa único para un evento, con **fecha de caducidad estricta de 24 horas (1 día)** a partir de su creación.
+* **Autenticación:** Obligatoria (`auth`, fotógrafo dueño).
+* **Salida (JSON):**
+  ```json
+  {
+    "token": "7c8d9e0f1a2b...",
+    "coleccion_id": 3,
+    "evento": "Fiesta de 15 Camila",
+    "expiracion": "2026-09-05 16:00:00",
+    "url_acceso": "http://localhost:8080/colaborativo/7c8d9e0f1a2b...",
+    "url_imprimir": "http://localhost:8080/colecciones/3/qr-colaborativo/imprimir",
+    "svg_qr": "<svg xmlns=...></svg>"
+  }
+  ```
+* **Códigos HTTP:** `201 Created`, `401 Unauthorized`, `403 Forbidden`, `404 Not Found`.
+
+### 12.18 `GET /colecciones/{id}/qr-colaborativo/imprimir` (HU7)
+* **Propósito:** Renderiza una plantilla HTML formal y profesional con el código QR vectorizado, título del evento, instrucciones para los invitados y estilos `@media print` para ser impreso físicamente por el fotógrafo y expuesto en mesas o atriles durante el evento.
+* **Autenticación:** Ninguna (Ruta pública imprimible).
+* **Formato de respuesta:** `text/html; charset=utf-8`.
+* **Códigos HTTP:** `200 OK`, `404 Not Found`.
+
+### 12.19 `GET /qr/{token}/svg` (HU7)
+* **Propósito:** Emite la imagen vectorial del código QR directamente como archivo gráfico SVG (`image/svg+xml`) sin pérdidas de calidad a cualquier resolución.
+* **Autenticación:** Ninguna (Ruta pública).
+* **Códigos HTTP:** `200 OK`, `404 Not Found`.
+
+### 12.20 `GET /colaborativo/{token}` (HU11 / RF14)
+* **Propósito:** Punto de entrada para el invitado al escanear el QR con su celular. Valida que el código esté activo (no expirado) y devuelve los metadatos mínimos del evento para la pantalla de subida.
+* **Seguridad (RF14):** **NO** devuelve fotos ni videos de la colección; el invitado únicamente tiene permiso para cargar contenido.
+* **Códigos HTTP:** `200 OK`, `404 Not Found`, `410 Gone` (si superó las 24 horas).
+
+### 12.21 `POST /colaborativo/{token}/subir` (HU11 / RF14 / RF25)
+* **Propósito:** Permite a los invitados subir fotos (JPG/PNG) y videos (clips) de forma anónima o con nombre opcional sin registrarse.
+* **Restricciones:**
+  * Clips de video: límite máximo de **80 MB** (RF25).
+  * Persistencia: se registra en `multimedia` con `es_invitado = 1` y `aprobado = 0` (pendiente de aprobación).
+* **Códigos HTTP:** `201 Created`, `400 Bad Request`, `404 Not Found`, `410 Gone`.
+
+### 12.22 `GET /colecciones/{id}/colaborativo/pendientes` (HU12 / RF15)
+* **Propósito:** Panel de moderación del fotógrafo para inspeccionar el material subido por invitados pendiente de aprobación.
+* **Autenticación:** Obligatoria (`auth`, fotógrafo dueño).
+* **Códigos HTTP:** `200 OK`, `401 Unauthorized`, `403 Forbidden`, `404 Not Found`.
+
+### 12.23 `POST /colecciones/{id}/colaborativo/aprobar` (HU12 / RF15)
+* **Propósito:** Aprueba de forma selectiva un conjunto de archivos multimedia subidos por invitados. Los archivos aprobados pasan a integrarse formalmente en la galería de la colección.
+* **Autenticación:** Obligatoria (`auth`, fotógrafo dueño).
+* **Entrada (JSON):** `{ "ids": [10, 11, 14] }`
+* **Códigos HTTP:** `200 OK`, `400 Bad Request`, `401 Unauthorized`, `403 Forbidden`.
+
+### 12.24 `POST /colecciones/{id}/colaborativo/rechazar` (HU12 / RF15)
+* **Propósito:** Rechaza y elimina inmediatamente los archivos seleccionados (eliminando sus archivos físicos en disco y su fila en BD).
+* **Autenticación:** Obligatoria (`auth`, fotógrafo dueño).
+* **Entrada (JSON):** `{ "ids": [12, 13] }`
+* **Códigos HTTP:** `200 OK`, `400 Bad Request`, `401 Unauthorized`, `403 Forbidden`.
+
+### 12.25 `POST /favoritos/{id}` (HU23 / RF21)
+* **Propósito:** Agrega una foto o video perteneciente a una colección pública a la lista privada de favoritos del usuario autenticado.
+* **Autenticación:** Obligatoria (`auth`).
+* **Códigos HTTP:** `201 Created`, `401 Unauthorized`, `403 Forbidden` (si la colección no es pública), `404 Not Found`.
+
+### 12.26 `DELETE /favoritos/{id}` (HU23 / RF21)
+* **Propósito:** Quita un archivo de la lista de favoritos del usuario.
+* **Autenticación:** Obligatoria (`auth`).
+* **Códigos HTTP:** `200 OK`, `401 Unauthorized`.
+
+### 12.27 `GET /favoritos` (HU23 / RF21)
+* **Propósito:** Lista los elementos favoritos guardados por el usuario autenticado (información privada, no expuesta a otros usuarios).
+* **Autenticación:** Obligatoria (`auth`).
+* **Códigos HTTP:** `200 OK`, `401 Unauthorized`.
+
+### 12.28 `POST /sistema/backup` (HU13 / RNF5, RNF6, RNF7)
+* **Propósito:** Ejecuta un respaldo SQL completo de la base de datos MySQL en PHP puro y rota automáticamente los respaldos conservando exactamente las últimas 3 copias. Registra la auditoría en la tabla `backups`.
+* **Códigos HTTP:** `201 Created`.
+
+### 12.29 `GET /sistema/backups` (HU13 / RNF7)
+* **Propósito:** Consulta el historial de respaldos almacenados en el sistema con su nombre, ruta y fecha/hora.
+* **Códigos HTTP:** `200 OK`.
+
+### 12.30 `POST /sistema/limpiar-colaborativos` (HU12 / RF15)
+* **Propósito:** Tarea programada para purgar y eliminar definitivamente del disco y de la base de datos todos los archivos colaborativos no aprobados con más de 24 horas de antigüedad.
+* **Códigos HTTP:** `200 OK`.
+
+---
+
+## 13. Matriz de Trazabilidad: Backlog Priorizado (29 Historias de Usuario)
+
+| Orden | ID | Historia de Usuario | Sprint | Estado Backend | Endpoint(s) / Mecanismo Técnico |
+| :---: | :--- | :--- | :---: | :---: | :--- |
+| 1 | HU1 | Inicio de sesión básico (acceso a paneles) | Sprint 1 | ✅ Completo | `POST /auth/login` (emite token JWT y rol) |
+| 2 | HU8 | Registro con selección de rol (Fotógrafo / Cliente) | Sprint 1 | ✅ Completo | `POST /auth/register` (crea en usuarios + tabla hija) |
+| 3 | HU25 | Registro obligatorio de campos (Nombre, correo, pass, tel) | Sprint 1 | ✅ Completo | `AuthValidator` y `UserRepository::create` |
+| 4 | HU2 | Creación de colecciones y clasificación de visibilidad | Sprint 1 | ✅ Completo | `POST /colecciones` (privada o pública) |
+| 5 | HU5 | Subida de imágenes o videos a colecciones | Sprint 1 | ✅ Completo | `POST /colecciones/{id}/multimedia` |
+| 6 | HU14 | Visualización con marca de agua automática | Sprint 1 | ✅ Completo | `GET /multimedia/{id}/vista-previa` (GD diagonal) |
+| 7 | HU17 | Generación de QR / enlace permanente de acceso directo | Sprint 2 | ✅ Completo | `POST /colecciones/{id}/qr-acceso` (`qr_tokens`) |
+| 8 | HU3 | Acceso a colección privada vía enlace de invitación | Sprint 2 | ✅ Completo | `GET /invitaciones/{token}` y `POST .../canjear` |
+| 9 | HU20 | Bloqueo de acceso directo por URL a colecciones privadas | Sprint 2 | ✅ Completo | `MultimediaService::verificarAccesoALaColeccion` |
+| 10 | HU21 | Envío de código de verificación al correo | Sprint 2 | ✅ Completo | `POST /auth/verificar-email`, `.../reenviar-codigo` |
+| 11 | HU24 | Acceso y visualización de galerías en colecciones públicas | Sprint 2 | ✅ Completo | `GET /colecciones/publicas`, `GET /colecciones/{id}` |
+| 12 | HU19 | Impedir el registro de usuarios duplicados por correo | Sprint 2 | ✅ Completo | `AuthService` (código HTTP 409 Conflict) |
+| 13 | HU31 | Aceptación de política de privacidad y Ley 18.331 | Sprint 2 | ✅ Completo | `POST /fotografos/aceptar-politicas` |
+| 14 | HU10 | Descarga directa e individual en dos calidades | Sprint 2 | ✅ Completo | `GET /multimedia/{id}/descargar?calidad=buena\|alta` |
+| 15 | HU4 | Generación de QR colaborativo de evento (caducidad 1 día)| Sprint 3 | ✅ Completo | `POST /colecciones/{id}/qr-colaborativo` (24h) |
+| 16 | HU7 | Descarga e impresión física del QR colaborativo | Sprint 3 | ✅ Completo | `GET .../imprimir` y `GET /qr/{token}/svg` |
+| 17 | HU11 | Carga de archivos vía QR por invitados (sin cuenta) | Sprint 3 | ✅ Completo | `GET /colaborativo/{token}` y `POST .../subir` |
+| 18 | HU12 | Moderación y aprobación selectiva de material de invitados | Sprint 3 | ✅ Completo | `GET .../pendientes`, `POST .../aprobar`, `.../rechazar` |
+| 19 | HU26 | Agregar hashtags a colecciones públicas | Sprint 3 | ✅ Completo | `POST /colecciones` (tabla `coleccion_hashtags`) |
+| 20 | HU27 | Filtrado de colecciones públicas por hashtags | Sprint 3 | ✅ Completo | `GET /colecciones/publicas?hashtag=...`, `GET /hashtags` |
+| 21 | HU16 | Control de cuota (3 GB) y subida parcial con excedentes | Sprint 4 | ✅ Completo | `MultimediaService::uploadMultiple`, `GET /fotografos/cuota` |
+| 22 | HU28 | Validación de videos (clips y límite de 800MB) | Sprint 4 | ✅ Completo | `MultimediaValidator` (800MB fotógrafo, 80MB clips) |
+| 23 | HU6 | Eliminación regular de imágenes o videos por fotógrafo | Sprint 4 | ✅ Completo | `DELETE /multimedia/{id}` (físico y BD) |
+| 24 | HU32 | Procesamiento de recortes de video 15s y original | Sprint 4 | ✅ Completo | `MediaProcessor::generarPreviewVideo` (FFmpeg) |
+| 25 | HU22 | Edición de datos básicos y reasignación de colección | Sprint 5 | ✅ Completo | `PUT /multimedia/{id}` |
+| 26 | HU18 | Edición de perfil de fotógrafo y directorio público | Sprint 5 | ✅ Completo | `GET /fotografos`, `GET .../{id}`, `PUT .../perfil` |
+| 27 | HU23 | Marcar como favorita una imagen o video pública | Sprint 5 | ✅ Completo | `POST /favoritos/{id}`, `DELETE .../{id}`, `GET /favoritos` |
+| 28 | HU13 | Respaldo automático diario de base de datos (3 copias) | Sprint 5 | ✅ Completo | `BackupService`, `POST /sistema/backup`, `cron-backup.php` |
+| 29 | HU15 | Entrega de guía de uso, capacitación y cierre | Sprint 5 | ✅ Completo | Documentado en `AUDITORIA_ENDPOINTS.md` |
+
+---
+
+## 14. Registro Consolidado de Archivos del Backend
+
+| Archivo | Tipo | Capa | Responsabilidad / Historias de Usuario |
+| :--- | :---: | :---: | :--- |
+| `public/index.php` | Modificado | Front Controller | Autoloader, CORS, normalización de rutas y despacho |
+| `routes.php` | Modificado | Rutas | Mapeo de los 30+ endpoints con sus requisitos de seguridad |
+| `cron-backup.php` | Nuevo | CLI / Cron | Ejecución desatendida de respaldos SQL (HU13) y purga (HU12) |
+| `database/schema.sql` | Modificado | Base de Datos | Esquema relacional completo en MySQL |
+| `database/migration.sql` | Nuevo | Base de Datos | Script de migración incremental no destructivo |
+| `src/Core/Router.php` | Modificado | Core | Despacho dinámico con múltiples parámetros `{param}` |
+| `src/Core/Request.php` | Modificado | Core | Lectura de bodies JSON y query params en `$_GET` |
+| `src/Core/Response.php` | Existente | Core | Emisión estandarizada de respuestas JSON (200, 201, 400, etc.) |
+| `src/Core/Config.php` | Modificado | Core | Cuota 3 GB, límites de video 800MB/80MB, rutas y claves JWT |
+| `src/Core/AuthMiddleware.php` | Existente | Core | Validación de tokens Bearer JWT y carga de usuario |
+| `src/Core/Database.php` | Existente | Core | Conexión singleton PDO configurada para UTF-8 y excepciones |
+| `src/helpers/Jwt.php` | Existente | Helper | Firma y verificación HMAC-SHA256 en PHP puro |
+| `src/helpers/MediaProcessor.php` | Modificado | Helper | Marca de agua GD, clip 15s FFmpeg, buena calidad 1920px y borrado físico |
+| `src/helpers/QrGenerator.php` | Nuevo | Helper | Generador de matriz QR en SVG nativo y plantilla imprimible HTML (HU7) |
+| `src/dtos/RegisterDto.php` | Existente | DTO | DTO tipado inmutable de registro de usuarios |
+| `src/dtos/LoginDto.php` | Existente | DTO | DTO tipado inmutable de inicio de sesión |
+| `src/dtos/CreateColeccionDto.php` | Existente | DTO | DTO tipado inmutable de colecciones |
+| `src/dtos/MultimediaDto.php` | Modificado | DTO | DTO con soporte para metadatos y flag `esInvitado` |
+| `src/validators/AuthValidator.php` | Existente | Validador | Valida datos de registro y login |
+| `src/validators/ColeccionValidator.php` | Modificado | Validador | Valida colecciones y autocompleta `fotografo_id` si hay sesión |
+| `src/validators/MultimediaValidator.php`| Modificado | Validador | Valida MIME real, 800MB (fotógrafo) y 80MB clips (invitado) |
+| `src/repository/UserRepository.php` | Modificado | Repositorio | CRUD usuarios, verificación de email (HU21), políticas (HU31) y perfiles (HU18) |
+| `src/repository/ColeccionRepository.php`| Modificado | Repositorio | Consultas colecciones, hashtags (HU26/27), `qr_tokens` y `acceso_colecciones` |
+| `src/repository/MultimediaRepository.php`| Modificado| Repositorio | Persistencia multimedia, cuota (HU16), moderación (HU12), borrado (HU6), edición (HU22) |
+| `src/services/AuthService.php` | Modificado | Servicio | Lógica de registro, login, códigos de verificación (HU21) y token JWT |
+| `src/services/ColeccionService.php` | Modificado | Servicio | Reglas de colecciones públicas, hashtags, invitaciones privadas (HU3) y QR (HU17) |
+| `src/services/MultimediaService.php` | Modificado | Servicio | Subida con cuota 3GB, descargas en 2 calidades, moderación y purga 24h |
+| `src/services/BackupService.php` | Nuevo | Servicio | Respaldo SQL de base de datos y rotación estricta de 3 copias (HU13) |
+| `src/controllers/AuthController.php` | Modificado | Controlador | Endpoints de register, login, verificar email y reenviar código |
+| `src/controllers/ColeccionController.php`| Modificado| Controlador | Endpoints de colecciones públicas, invitaciones, QR permanente y hashtags |
+| `src/controllers/MultimediaController.php`| Modificado| Controlador | Endpoints de subida múltiple, descarga directa, borrado, edición y moderación |
+| `src/controllers/FotografoController.php`| Nuevo | Controlador | Endpoints de directorio, perfil profesional, políticas y cuota de almacenamiento |
+| `src/controllers/ColaborativoController.php`| Nuevo | Controlador | Endpoints de QR colaborativo, hoja de impresión HTML, SVG y subida de invitados |
+| `src/controllers/FavoritoController.php`| Nuevo | Controlador | Endpoints de marcar, desmarcar y listar favoritos privados de contenido público |
+| `src/controllers/SistemaController.php` | Nuevo | Controlador | Endpoints de respaldos SQL y limpieza programada |
+| `src/controllers/HomeController.php` | Existente | Controlador | Endpoint diagnóstico `/api/ping` |
+| `uploads/.htaccess` | Existente | Seguridad | Denegación estricta de acceso HTTP estático a binarios originales y vistas previas |
+

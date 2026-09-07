@@ -39,6 +39,36 @@ class Config
         return self::uploadsDir() . '/previews';
     }
 
+    // Subcarpeta para versiones de buena calidad (sin marca de agua, optimizadas).
+    public static function standardDir(): string
+    {
+        return self::uploadsDir() . '/standard';
+    }
+
+    // Directorio de respaldos de base de datos (rotación máx 3 copias).
+    public static function backupsDir(): string
+    {
+        return __DIR__ . '/../../backups';
+    }
+
+    // Límite de cuota de almacenamiento por fotógrafo (3 GB = 3221225472 bytes, RF17/HU16).
+    public static function maxStorageBytes(): int
+    {
+        return 3 * 1024 * 1024 * 1024;
+    }
+
+    // Límite máximo para video original (800 MB, RF7/HU28).
+    public static function maxVideoSizeBytes(): int
+    {
+        return 800 * 1024 * 1024;
+    }
+
+    // Límite máximo para clip de video de invitado (80 MB, RF25/HU28).
+    public static function maxClipSizeBytes(): int
+    {
+        return 80 * 1024 * 1024;
+    }
+
     // Texto que se incrusta como marca de agua sobre las vistas previas de imágenes.
     public static function watermarkText(): string
     {

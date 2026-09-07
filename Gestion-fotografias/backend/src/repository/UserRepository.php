@@ -106,4 +106,147 @@ class UserRepository
             throw $e;
         }
     }
+
+    /**
+     * Guarda el código temporal de verificación de correo con fecha de expiración (HU21).
+     */
+    public function guardarCodigoVerificacion(string $email, string $codigo, string $expiracion): bool
+    {
+        $stmt = $this->pdo->prepare(
+            'UPDATE usuarios
+             SET codigo_verificacion = :codigo, codigo_expiracion = :expiracion
+             WHERE email = :email'
+        );
+        return $stmt->execute([
+            'codigo'     => $codigo,
+            'expiracion' => $expiracion,
+            'email'      => $email,
+        ]);
+    }
+
+    /**
+     * Recupera el código de verificación y su expiración para un email (HU21).
+     */
+    public function obtenerCodigoVerificacion(string $email): ?array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT codigo_verificacion, codigo_expiracion, email_verificado
+             FROM usuarios
+             WHERE email = :email
+             LIMIT 1'
+        );
+        $stmt->execute(['email' => $email]);
+        $row = $stmt->fetch();
+        return $row ?: null;
+    }
+
+    /**
+     * Marca el correo del usuario como verificado y limpia el código temporal (HU21).
+     */
+    public function marcarEmailVerificado(string $email): bool
+    {
+        $stmt = $this->pdo->prepare(
+            'UPDATE usuarios
+             SET email_verificado = 1, codigo_verificacion = NULL, codigo_expiracion = NULL
+             WHERE email = :email'
+        );
+        return $stmt->execute(['email' => $email]);
+    }
+
+    /**
+     * Marca las políticas de privacidad y Ley 18.331 como aceptadas por el fotógrafo (HU31).
+     */
+    public function aceptarPoliticas(int $fotografoId): bool
+    {
+        $stmt = $this->pdo->prepare(
+            'UPDATE fotografos
+             SET politicas_aceptadas = 1
+             WHERE id_fotografo = :id'
+        );
+        return $stmt->execute(['id' => $fotografoId]);
+    }
+
+    /**
+     * Retorna si el fotógrafo ha aceptado las políticas (HU31).
+     */
+    public function politicasAceptadas(int $fotografoId): bool
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT politicas_aceptadas FROM fotografos WHERE id_fotografo = :id LIMIT 1'
+        );
+        $stmt->execute(['id' => $fotografoId]);
+        $val = $stmt->fetchColumn();
+        return $val !== false && (bool) $val;
+    }
+
+    /**
+     * Actualiza la información de perfil profesional del fotógrafo (HU18).
+     */
+    public function actualizarPerfilFotografo(int $fotografoId, string $nombre, ?string $telefono, ?string $biografia, ?string $especialidad): bool
+    {
+        $this->pdo->beginTransaction();
+        try {
+            // Actualizar tabla padre usuarios
+            $stmtUser = $this->pdo->prepare(
+                'UPDATE usuarios SET nombre_completo = :nombre, telefono = :telefono WHERE id = :id'
+            );
+            $stmtUser->execute([
+                'nombre'   => $nombre,
+                'telefono' => $telefono,
+                'id'       => $fotografoId,
+            ]);
+
+            // Actualizar tabla hija fotografos
+            $stmtFoto = $this->pdo->prepare(
+                'UPDATE fotografos SET biografia = :biografia, especialidad = :especialidad WHERE id_fotografo = :id'
+            );
+            $stmtFoto->execute([
+                'biografia'    => $biografia,
+                'especialidad' => $especialidad,
+                'id'           => $fotografoId,
+            ]);
+
+            $this->pdo->commit();
+            return true;
+        } catch (\Throwable $e) {
+            $this->pdo->rollBack();
+            throw $e;
+        }
+    }
+
+    /**
+     * Directorio público de fotógrafos (HU18).
+     */
+    public function listarFotografos(): array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT u.id, u.nombre_completo, u.email, u.telefono,
+                    f.biografia, f.especialidad,
+                    (SELECT COUNT(*) FROM colecciones c WHERE c.fotografo_id = u.id AND c.tipo_visibilidad = "publica") AS colecciones_publicas
+             FROM usuarios u
+             INNER JOIN fotografos f ON f.id_fotografo = u.id
+             WHERE u.rol = "fotografo"
+             ORDER BY u.nombre_completo ASC'
+        );
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Perfil público detallado de un fotógrafo (HU18).
+     */
+    public function obtenerPerfilFotografo(int $id): ?array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT u.id, u.nombre_completo, u.email, u.telefono,
+                    f.biografia, f.especialidad
+             FROM usuarios u
+             INNER JOIN fotografos f ON f.id_fotografo = u.id
+             WHERE u.id = :id AND u.rol = "fotografo"
+             LIMIT 1'
+        );
+        $stmt->execute(['id' => $id]);
+        $row = $stmt->fetch();
+        return $row ?: null;
+    }
 }

@@ -19,6 +19,11 @@ class ColeccionValidator
     {
         $errores = [];
 
+        // Si fotografo_id no viene en el body, autocompletar desde el usuario autenticado
+        if ((!isset($data['fotografo_id']) || empty($data['fotografo_id'])) && \App\Core\AuthMiddleware::user() !== null) {
+            $data['fotografo_id'] = \App\Core\AuthMiddleware::user()['id'];
+        }
+
         // Validar fotografo_id
         if (!isset($data['fotografo_id']) || !is_numeric($data['fotografo_id']) || (int) $data['fotografo_id'] <= 0) {
             $errores[] = 'El identificador del fotógrafo (fotografo_id) es obligatorio y debe ser un entero positivo.';

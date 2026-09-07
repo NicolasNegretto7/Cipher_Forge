@@ -139,6 +139,71 @@ class MediaProcessor
     }
 
     /**
+     * Genera una versión limpia (sin marca de agua) a resolución estándar (máx 1920px) para descarga en 'Buena Calidad' (HU10).
+     */
+    public static function generarBuenaCalidadImagen(string $rutaOriginalAbsoluta): string
+    {
+        $dir = Config::standardDir();
+        self::asegurarDirectorio($dir);
+
+        $info = getimagesize($rutaOriginalAbsoluta);
+        if ($info === false) {
+            return '';
+        }
+
+        $mime = $info['mime'];
+        $origen = match ($mime) {
+            'image/jpeg' => imagecreatefromjpeg($rutaOriginalAbsoluta),
+            'image/png'  => imagecreatefrompng($rutaOriginalAbsoluta),
+            default      => false,
+        };
+
+        if (!$origen) {
+            return '';
+        }
+
+        $ancho = imagesx($origen);
+        $alto  = imagesy($origen);
+        $anchoMax = 1920; // Estándar Full HD para Buena Calidad
+
+        if ($ancho > $anchoMax) {
+            $nuevoAlto = (int) round($alto * ($anchoMax / $ancho));
+            $redim = imagecreatetruecolor($anchoMax, $nuevoAlto);
+            imagecopyresampled($redim, $origen, 0, 0, 0, 0, $anchoMax, $nuevoAlto, $ancho, $alto);
+        } else {
+            $redim = $origen;
+        }
+
+        $nombre = self::nombreUnico('jpg');
+        $destino = $dir . '/' . $nombre;
+
+        imagejpeg($redim, $destino, 80); // Compresión estándar limpia sin marca de agua
+        if ($redim !== $origen) {
+            imagedestroy($redim);
+        }
+        imagedestroy($origen);
+
+        return 'uploads/standard/' . $nombre;
+    }
+
+    /**
+     * Elimina con seguridad un archivo físico en disco a partir de su ruta relativa (HU6).
+     */
+    public static function eliminarArchivoFisico(?string $rutaRelativa): bool
+    {
+        if ($rutaRelativa === null || $rutaRelativa === '') {
+            return false;
+        }
+
+        $rutaAbsoluta = self::aRutaAbsoluta($rutaRelativa);
+        if (file_exists($rutaAbsoluta) && is_file($rutaAbsoluta)) {
+            return @unlink($rutaAbsoluta);
+        }
+
+        return false;
+    }
+
+    /**
      * Convierte una ruta relativa guardada en la BD en una ruta absoluta dentro del contenedor.
      */
     public static function aRutaAbsoluta(string $rutaRelativa): string

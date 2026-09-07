@@ -34,7 +34,7 @@ class MultimediaController
 
     /**
      * POST /colecciones/{id}/multimedia
-     * Sube uno o varios archivos multimedia a una colección (HU5).
+     * Sube uno o varios archivos multimedia a una colección controlando la cuota de 3 GB (HU5 / HU16).
      */
     public function upload(string $coleccionId): void
     {
@@ -46,22 +46,14 @@ class MultimediaController
             Response::error('Debes enviar al menos un archivo en el campo "archivos".', 400);
         }
 
-        $subidos = [];
-
-        // Permitir array de archivos (multi-subida) o un único archivo.
         $archivos = $this->normalizarArchivos($_FILES['archivos']);
+        $resultado = $this->multimediaService->uploadMultiple($coleccionId, $archivos, $data, self::EXTENSION_POR_MIME);
 
-        foreach ($archivos as $archivo) {
-            // Validar tipo, tamaño y metadatos de cada archivo.
-            $dto = $this->multimediaValidator->validateUpload($archivo, $data, $coleccionId);
+        $mensaje = !empty($resultado['excedentes'])
+            ? 'Subida parcial completada: algunos archivos excedieron la cuota de 3 GB.'
+            : 'Archivos subidos correctamente.';
 
-            $mime = mime_content_type($archivo['tmp_name']);
-            $extension = self::EXTENSION_POR_MIME[$mime] ?? 'bin';
-
-            $subidos[] = $this->multimediaService->upload($dto, $archivo, $extension, $mime);
-        }
-
-        Response::success($subidos, 'Archivos subidos correctamente.', 201);
+        Response::success($resultado, $mensaje, 201);
     }
 
     /**
@@ -85,8 +77,100 @@ class MultimediaController
     }
 
     /**
+     * GET /multimedia/{id}/descargar
+     * Descarga directa individual en dos calidades ('buena' o 'alta') sin marcas de agua (HU10 / RF10).
+     */
+    public function descargar(string $idMultimedia): void
+    {
+        $request = new Request();
+        $calidad = (string) $request->getQuery('calidad', 'alta');
+
+        $ruta = $this->multimediaService->obtenerDescarga((int) $idMultimedia, $calidad);
+        $this->emitirArchivo($ruta, true);
+    }
+
+    /**
+     * DELETE /multimedia/{id}
+     * Elimina una imagen o video por el fotógrafo dueño de la colección (HU6 / RF20).
+     */
+    public function eliminar(string $idMultimedia): void
+    {
+        $this->multimediaService->eliminar((int) $idMultimedia);
+        Response::success(null, 'Archivo multimedia eliminado correctamente.');
+    }
+
+    /**
+     * PUT /multimedia/{id}
+     * Modifica los metadatos (título, descripción) o reasigna de colección (HU22 / RF20).
+     */
+    public function actualizar(string $idMultimedia): void
+    {
+        $request = new Request();
+        $data    = $request->getBody();
+
+        $actualizado = $this->multimediaService->actualizarMetadatos((int) $idMultimedia, $data);
+        Response::success($actualizado, 'Datos del archivo actualizados exitosamente.');
+    }
+
+    /**
+     * GET /colecciones/{id}/colaborativo/pendientes
+     * Visualiza el material subido por invitados pendiente de aprobación (HU12 / RF15).
+     */
+    public function listarPendientes(string $coleccionId): void
+    {
+        $pendientes = $this->multimediaService->listarPendientes((int) $coleccionId);
+        Response::success($pendientes, 'Archivos colaborativos pendientes de moderación.');
+    }
+
+    /**
+     * POST /colecciones/{id}/colaborativo/aprobar
+     * Aprueba una lista de archivos seleccionados por el fotógrafo (HU12 / RF15).
+     */
+    public function aprobarColaborativo(string $coleccionId): void
+    {
+        $request = new Request();
+        $data    = $request->getBody();
+        $ids     = $data['ids'] ?? [];
+
+        if (!is_array($ids) || empty($ids)) {
+            Response::error('Debes proporcionar un array con los "ids" a aprobar.', 400);
+        }
+
+        $aprobados = $this->multimediaService->aprobarColaborativo((int) $coleccionId, $ids);
+        Response::success(['aprobados' => $aprobados], "Se han aprobado {$aprobados} archivos exitosamente.");
+    }
+
+    /**
+     * POST /colecciones/{id}/colaborativo/rechazar
+     * Rechaza y elimina archivos no deseados (HU12 / RF15).
+     */
+    public function rechazarColaborativo(string $coleccionId): void
+    {
+        $request = new Request();
+        $data    = $request->getBody();
+        $ids     = $data['ids'] ?? [];
+
+        if (!is_array($ids) || empty($ids)) {
+            Response::error('Debes proporcionar un array con los "ids" a rechazar.', 400);
+        }
+
+        $rechazados = $this->multimediaService->rechazarColaborativo((int) $coleccionId, $ids);
+        Response::success(['eliminados' => $rechazados], "Se han rechazado y eliminado {$rechazados} archivos.");
+    }
+
+    /**
+     * POST /sistema/limpiar-colaborativos
+     * Tarea programada para purgar archivos no aprobados tras 24 horas (HU12 / RF15).
+     */
+    public function limpiarExpirados(): void
+    {
+        $total = $this->multimediaService->purgarExpirados();
+        Response::success(['eliminados_expirados' => $total], "Se han purgado {$total} archivos no aprobados con más de 24h.");
+    }
+
+    /**
      * GET /colecciones/{id}/multimedia
-     * Lista los contenidos de una colección tras validar acceso (para la galería).
+     * Lista los contenidos aprobados de una colección tras validar acceso (para la galería).
      */
     public function listar(string $coleccionId): void
     {

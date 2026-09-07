@@ -45,12 +45,19 @@ class AuthService
         // 3. Insertar usuario + tabla hija dentro de transacción
         $userId = $this->userRepository->create($dto, $hashedPassword);
 
+        // 4. Generar código de verificación de 6 dígitos con expiración a 1 hora (HU21 / RF18)
+        $codigo = (string) random_int(100000, 999999);
+        $expiracion = date('Y-m-d H:i:s', time() + 3600);
+        $this->userRepository->guardarCodigoVerificacion($dto->email, $codigo, $expiracion);
+
         return [
-            'id'               => $userId,
-            'nombre_completo'  => $dto->nombreCompleto,
-            'email'            => $dto->email,
-            'telefono'         => $dto->telefono,
-            'rol'              => $dto->rol,
+            'id'                  => $userId,
+            'nombre_completo'     => $dto->nombreCompleto,
+            'email'               => $dto->email,
+            'telefono'            => $dto->telefono,
+            'rol'                 => $dto->rol,
+            'email_verificado'    => false,
+            'codigo_verificacion' => $codigo, // Expuesto en dev/entorno local para testing ágil
         ];
     }
 
@@ -81,15 +88,77 @@ class AuthService
             Config::tokenHoras()
         );
 
-        // 4. Retornar datos del usuario (sin el hash) junto con el token de acceso.
+        // 4. Comprobar si aceptó las políticas obligatorias si es fotógrafo (HU31)
+        $politicasAceptadas = $user['rol'] === 'fotografo'
+            ? $this->userRepository->politicasAceptadas((int) $user['id'])
+            : true;
+
+        // 5. Retornar datos del usuario (sin el hash) junto con el token de acceso.
         return [
-            'id'               => $user['id'],
-            'nombre_completo'  => $user['nombre_completo'],
-            'email'            => $user['email'],
-            'telefono'         => $user['telefono'],
-            'rol'              => $user['rol'],
-            'email_verificado' => (bool) $user['email_verificado'],
-            'token'            => $token,
+            'id'                  => $user['id'],
+            'nombre_completo'     => $user['nombre_completo'],
+            'email'               => $user['email'],
+            'telefono'            => $user['telefono'],
+            'rol'                 => $user['rol'],
+            'email_verificado'    => (bool) $user['email_verificado'],
+            'politicas_aceptadas' => $politicasAceptadas,
+            'token'               => $token,
+        ];
+    }
+
+    /**
+     * Valida el código de verificación recibido por email (HU21).
+     */
+    public function verificarEmail(string $email, string $codigo): array
+    {
+        $registro = $this->userRepository->obtenerCodigoVerificacion($email);
+
+        if ($registro === null) {
+            Response::error('No existe ningún usuario con ese correo.', 404);
+        }
+
+        if ((bool) $registro['email_verificado']) {
+            Response::error('El correo electrónico ya se encuentra verificado.', 400);
+        }
+
+        if ($registro['codigo_verificacion'] !== trim($codigo)) {
+            Response::error('El código de verificación es incorrecto.', 400);
+        }
+
+        if (strtotime($registro['codigo_expiracion']) < time()) {
+            Response::error('El código de verificación ha expirado. Solicita uno nuevo.', 400);
+        }
+
+        $this->userRepository->marcarEmailVerificado($email);
+
+        return [
+            'email'            => $email,
+            'email_verificado' => true,
+        ];
+    }
+
+    /**
+     * Genera y reenvía un nuevo código de verificación al email (HU21).
+     */
+    public function reenviarCodigo(string $email): array
+    {
+        $user = $this->userRepository->findByEmail($email);
+
+        if ($user === null) {
+            Response::error('No existe ningún usuario con ese correo.', 404);
+        }
+
+        if ((bool) $user['email_verificado']) {
+            Response::error('El correo electrónico ya se encuentra verificado.', 400);
+        }
+
+        $codigo = (string) random_int(100000, 999999);
+        $expiracion = date('Y-m-d H:i:s', time() + 3600);
+        $this->userRepository->guardarCodigoVerificacion($email, $codigo, $expiracion);
+
+        return [
+            'email'               => $email,
+            'codigo_verificacion' => $codigo,
         ];
     }
 }

@@ -33,12 +33,12 @@ $requestedParts = explode('/', trim($path, '/'));
             }
 
             $matches = true;
-            $parameter = null;
+            $parameters = [];
 
             foreach ($route['parts'] as $position => $part) {
-
-                if ($part === '{id}') {
-                    $parameter = $requestedParts[$position];
+                // Si el segmento es un parámetro dinámico tipo {id}, {token}, etc.
+                if (str_starts_with($part, '{') && str_ends_with($part, '}')) {
+                    $parameters[] = $requestedParts[$position];
                     continue;
                 }
 
@@ -49,7 +49,6 @@ $requestedParts = explode('/', trim($path, '/'));
             }
 
             if ($matches) {
-
                 AuthMiddleware::handle($route['middleware']);
 
                 $controllerClass = $route['controller'];
@@ -65,11 +64,8 @@ $requestedParts = explode('/', trim($path, '/'));
                     Response::error("Acción {$actionMethod} no existe en el controlador.", 500);
                 }
 
-                if ($parameter !== null) {
-                    $controller->$actionMethod($parameter);
-                } else {
-                    $controller->$actionMethod();
-                }
+                // Desempaquetar parámetros dinámicos si existen
+                $controller->$actionMethod(...$parameters);
 
                 return;
             }

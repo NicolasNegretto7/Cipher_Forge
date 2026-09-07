@@ -6,6 +6,8 @@ CREATE TABLE usuarios(
     email VARCHAR(60) NOT NULL UNIQUE,
     telefono VARCHAR(30),
     email_verificado BOOLEAN DEFAULT FALSE NOT NULL,
+    codigo_verificacion VARCHAR(10) DEFAULT NULL,
+    codigo_expiracion DATETIME DEFAULT NULL,
     password_hash VARCHAR(255) NOT NULL,
     rol ENUM('fotografo', 'cliente') NOT NULL
 );
@@ -16,6 +18,8 @@ CREATE TABLE clientes (
 CREATE TABLE fotografos (
     id_fotografo INT NOT NULL PRIMARY KEY,
     politicas_aceptadas BOOLEAN DEFAULT FALSE NOT NULL,
+    biografia TEXT DEFAULT NULL,
+    especialidad VARCHAR(60) DEFAULT NULL,
     FOREIGN KEY (id_fotografo) REFERENCES usuarios(id) ON DELETE CASCADE
 );
 CREATE TABLE colecciones(
@@ -36,7 +40,9 @@ CREATE TABLE multimedia (
     vista_previa VARCHAR(255) NOT NULL,
     tamanio BIGINT UNSIGNED NOT NULL,
     es_invitado BOOLEAN NOT NULL DEFAULT FALSE,
+    aprobado BOOLEAN NOT NULL DEFAULT TRUE,
     tipo ENUM('video', 'imagen') NOT NULL,
+    creado_en TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (coleccion_id) REFERENCES colecciones(id) ON DELETE CASCADE
 );
 CREATE TABLE favoritos (
