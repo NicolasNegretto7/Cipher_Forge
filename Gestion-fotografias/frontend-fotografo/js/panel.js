@@ -35,14 +35,27 @@ function verificarModalPrivacidad() {
 
 function mostrarColecciones() {
     galeria.innerHTML = "";
-    colecciones.filter(function (coleccion) {
+    const coleccionesPublicas = colecciones.filter(function (coleccion) {
         if (coleccion.publicada !== true || coleccion.tipo_visibilidad !== "publica" || coleccion.imagenes.length === 0) return false;
-        return tagsSeleccionados.every(function (tagBuscado) {
-            return (coleccion.tags || []).some(function (tag) {
-                return tag.toLowerCase() === tagBuscado.toLowerCase();
+        return true;
+    });
+
+    const coleccionesOrdenadas = coleccionesPublicas
+        .map(function (coleccion, indice) {
+            const coincide = tagsSeleccionados.length > 0 && tagsSeleccionados.every(function (tagBuscado) {
+                return (coleccion.tags || []).some(function (tag) {
+                    return tag.toLowerCase() === tagBuscado.toLowerCase();
+                });
             });
-        });
-    }).forEach(function (coleccion) {
+            return { coleccion: coleccion, coincide: coincide, indice: indice };
+        })
+        .sort(function (a, b) {
+            if (a.coincide !== b.coincide) return a.coincide ? -1 : 1;
+            return a.indice - b.indice;
+        })
+        .map(function (item) { return item.coleccion; });
+
+    coleccionesOrdenadas.forEach(function (coleccion) {
         const tarjeta = document.createElement("div");
         tarjeta.className = "TarjetaColeccion";
         tarjeta.addEventListener("click", function () { abrirColeccion(coleccion); });

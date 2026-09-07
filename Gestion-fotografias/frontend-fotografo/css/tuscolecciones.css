@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap');
+
 :root {
     --primary-color: #0f172a;
     --secondary-color: white;
@@ -113,13 +115,6 @@ body {
     color: var(--gris-texto);
 }
 
-.CirculoAlmacenamiento {
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    border: 3px solid var(--verde);
-}
-
 .BotonMas {
     margin-left: auto;
     width: 20px;
@@ -186,14 +181,20 @@ body {
 }
 
 .BotonPublicar {
-    background-color: var(--verde);
-    color: white;
-    border: none;
-    border-radius: 8px;
+    display: inline-block;
     padding: 10px 20px;
+    border: none;
+    border-radius: 0;
+    font-family: 'Poppins', sans-serif;
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-align: center;
+    color: white;
+    background-color: #2bb58a;
+    box-shadow: 0 4px 8px rgba(13, 92, 68, 0.18);
     cursor: pointer;
+    transition: background-color 0.5s ease, transform 0.2s ease;
 }
 
 .ControlPublicar {
@@ -249,7 +250,8 @@ body {
 }
 
 .BotonPublicar:hover {
-    background-color: #158f64;
+    background-color: #1f9a73;
+    transform: translateY(-2px);
 }
 
 .TagsColeccion {
@@ -284,26 +286,6 @@ body {
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
-}
-
-.FavoritoArchivo {
-    position: absolute;
-    top: 8px;
-    left: 44px;
-    z-index: 2;
-    width: 30px;
-    height: 30px;
-    border: 2px solid white;
-    border-radius: 50%;
-    color: #d9365f;
-    background-color: rgba(255, 255, 255, 0.9);
-    font-size: 19px;
-    cursor: pointer;
-}
-
-.FavoritoArchivo.Activo {
-    color: white;
-    background-color: #d9365f;
 }
 
 .ZonaCarga {
