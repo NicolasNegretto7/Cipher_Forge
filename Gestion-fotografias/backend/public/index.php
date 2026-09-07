@@ -3,6 +3,32 @@
 
 declare(strict_types=1);
 
+// No exponer warnings/notices de PHP en el body de la respuesta (rompen el JSON y las cabeceras).
+ini_set('display_errors', '0');
+ini_set('log_errors', '1');
+
+// Capturar errores fatales (ej. max_execution_time) que escapan al try/catch
+// y emitir una respuesta JSON con código 500 en lugar de HTML con 200.
+register_shutdown_function(function (): void {
+    $error = error_get_last();
+
+    // Solo intervenir ante errores fatales (E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR)
+    if ($error !== null && in_array($error['type'], [E_ERROR, E_CORE_ERROR, E_COMPILE_ERROR], true)) {
+        // Limpiar cualquier output previo parcial que PHP haya emitido
+        if (ob_get_length()) {
+            ob_end_clean();
+        }
+
+        http_response_code(500);
+        header('Content-Type: application/json; charset=utf-8');
+
+        echo json_encode([
+            'ok'      => false,
+            'mensaje' => 'Error interno del servidor.',
+        ], JSON_UNESCAPED_UNICODE);
+    }
+});
+
 spl_autoload_register(function (string $class): void {
     $prefix = 'App\\';
     $baseDir = __DIR__ . '/../src/';

@@ -20,8 +20,8 @@ class ColeccionValidator
         $errores = [];
 
         // Si fotografo_id no viene en el body, autocompletar desde el usuario autenticado
-        if ((!isset($data['fotografo_id']) || empty($data['fotografo_id'])) && \App\Core\AuthMiddleware::user() !== null) {
-            $data['fotografo_id'] = \App\Core\AuthMiddleware::user()['id'];
+        if ((!isset($data['fotografo_id']) || empty($data['fotografo_id'])) && \App\middlewares\AuthMiddleware::user() !== null) {
+            $data['fotografo_id'] = \App\middlewares\AuthMiddleware::user()['id'];
         }
 
         // Validar fotografo_id

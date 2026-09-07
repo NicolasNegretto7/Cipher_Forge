@@ -29,10 +29,10 @@ $router->add('POST', '/auth/reenviar-codigo', AuthController::class, 'reenviarCo
 // 2. Fotógrafos, Perfiles, Políticas y Cuotas (HU18, HU31, HU16)
 // -------------------------------------------------------------
 $router->add('GET', '/fotografos', FotografoController::class, 'directorio');
+$router->add('GET', '/fotografos/cuota', FotografoController::class, 'cuota', 'auth');
 $router->add('GET', '/fotografos/{id}', FotografoController::class, 'perfil');
 $router->add('PUT', '/fotografo/perfil', FotografoController::class, 'actualizarPerfil', 'auth');
 $router->add('POST', '/fotografos/aceptar-politicas', FotografoController::class, 'aceptarPoliticas', 'auth');
-$router->add('GET', '/fotografos/cuota', FotografoController::class, 'cuota', 'auth');
 
 // -------------------------------------------------------------
 // 3. Colecciones, Hashtags e Invitaciones (HU2, HU3, HU17, HU24, HU26, HU27)

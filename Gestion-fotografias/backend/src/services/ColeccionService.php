@@ -6,7 +6,7 @@ declare(strict_types=1);
 
 namespace App\services;
 
-use App\Core\AuthMiddleware;
+use App\middlewares\AuthMiddleware;
 use App\Core\Database;
 use App\Core\Response;
 use App\dtos\CreateColeccionDto;

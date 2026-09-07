@@ -47,15 +47,15 @@ class MediaProcessor
         $dir = Config::previewsDir();
         self::asegurarDirectorio($dir);
 
-        $info = getimagesize($rutaOriginalAbsoluta);
+        $info = @getimagesize($rutaOriginalAbsoluta);
         if ($info === false) {
             return '';
         }
 
         $mime = $info['mime'];
         $origen = match ($mime) {
-            'image/jpeg' => imagecreatefromjpeg($rutaOriginalAbsoluta),
-            'image/png'  => imagecreatefrompng($rutaOriginalAbsoluta),
+            'image/jpeg' => @imagecreatefromjpeg($rutaOriginalAbsoluta),
+            'image/png'  => @imagecreatefrompng($rutaOriginalAbsoluta),
             default      => false,
         };
 
@@ -86,7 +86,7 @@ class MediaProcessor
         $tamLetra = 1;
         $xIni = (int) ($ancho * 0.05);
         $yIni = (int) ($alto * 0.05);
-        $paso = (int) ($alto * 0.18);
+        $paso = max(1, (int) ($alto * 0.18));
 
         // Recorre la imagen en diagonal repetidas veces para dificultar su remoción.
         $y = $yIni;
@@ -146,15 +146,15 @@ class MediaProcessor
         $dir = Config::standardDir();
         self::asegurarDirectorio($dir);
 
-        $info = getimagesize($rutaOriginalAbsoluta);
+        $info = @getimagesize($rutaOriginalAbsoluta);
         if ($info === false) {
             return '';
         }
 
         $mime = $info['mime'];
         $origen = match ($mime) {
-            'image/jpeg' => imagecreatefromjpeg($rutaOriginalAbsoluta),
-            'image/png'  => imagecreatefrompng($rutaOriginalAbsoluta),
+            'image/jpeg' => @imagecreatefromjpeg($rutaOriginalAbsoluta),
+            'image/png'  => @imagecreatefrompng($rutaOriginalAbsoluta),
             default      => false,
         };
 

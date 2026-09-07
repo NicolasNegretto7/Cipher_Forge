@@ -408,7 +408,7 @@ class MultimediaService
 
     private function usuarioAutenticado(): array
     {
-        $usuario = \App\Core\AuthMiddleware::user();
+        $usuario = \App\middlewares\AuthMiddleware::user();
         if ($usuario === null) {
             Response::error('Debes iniciar sesión.', 401);
         }
@@ -417,6 +417,6 @@ class MultimediaService
 
     private function usuarioOpcional(): ?array
     {
-        return \App\Core\AuthMiddleware::user();
+        return \App\middlewares\AuthMiddleware::user();
     }
 }

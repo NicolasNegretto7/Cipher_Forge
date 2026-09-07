@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Core;
 
+use App\middlewares\AuthMiddleware;
+
 class Router{
     private array $routes=[];
 

@@ -6,8 +6,11 @@
 
 declare(strict_types=1);
 
-namespace App\Core;
+namespace App\middlewares;
 
+use App\Core\Config;
+use App\Core\Database;
+use App\Core\Response;
 use App\helpers\Jwt;
 use App\repository\UserRepository;
 
