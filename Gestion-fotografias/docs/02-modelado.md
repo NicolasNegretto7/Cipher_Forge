@@ -13,7 +13,7 @@ graph TD
     subgraph Clientes ["Capa de Presentación (Frontend)"]
         FC["Frontend Fotógrafo\n(HTML5 Semántico / Vanilla CSS / Vanilla JS)"]
         FU["Frontend Cliente\n(HTML5 Semántico / Vanilla CSS / Vanilla JS)"]
-        INV["Invitado móvil\n(HTML5 / Escaneo QR / Carga rápida colaborativa)"]
+        INV["Invitado móvil\n(HTML5 / Escaneo QR / Carga colaborativa)"]
     end
 
     subgraph Red ["Capa de Entrada y Servidor Web"]
