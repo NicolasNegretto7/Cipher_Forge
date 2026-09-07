@@ -11,13 +11,13 @@ El sistema **Cipher_Forge** adopta una **arquitectura en capas (Layered Architec
 ```mermaid
 graph TD
     subgraph Clientes ["Capa de Presentación (Frontend)"]
-        FC["Frontend Fotógrafo\n(HTML5 Semántico / Vanilla CSS3 / Vanilla JS ES6+)"]
-        FU["Frontend Cliente\n(HTML5 Semántico / Vanilla CSS3 / Vanilla JS ES6+)"]
+        FC["Frontend Fotógrafo\n(HTML5 Semántico / Vanilla CSS / Vanilla JS)"]
+        FU["Frontend Cliente\n(HTML5 Semántico / Vanilla CSS / Vanilla JS)"]
         INV["Invitado móvil\n(HTML5 / Escaneo QR / Carga rápida colaborativa)"]
     end
 
     subgraph Red ["Capa de Entrada y Servidor Web"]
-        APACHE["Servidor Web Apache 2.4\n(Puerto 8080 - mod_rewrite a public/index.php)"]
+        APACHE["Servidor Web Apache 2.4\n(Puerto 8080 - .htaccess a public/index.php)"]
     end
 
     subgraph Backend ["Capa de Aplicación (PHP 8.2 Backend Puro - Sin Composer)"]
@@ -49,9 +49,9 @@ graph TD
         BACKUP["Sistema de Respaldos Diarios\n(cron-backup.php / mysqldump / gzip / rotación 3 copias)"]
     end
 
-    FC -->|HTTP REST / JSON / Multipart| APACHE
+    FC -->|HTTP REST / JSON| APACHE
     FU -->|HTTP REST / JSON| APACHE
-    INV -->|HTTP REST / Multipart| APACHE
+    INV -->|HTTP REST / JSON| APACHE
     
     APACHE --> ROUTER
     ROUTER --> AUTH_MID
