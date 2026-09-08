@@ -15,8 +15,22 @@
         <div class="Sidebar">
 
             <div class="Logo">
-                <p>Galería del Fotógrafo ▾</p>
-              
+                <p>Galería del Fotógrafo</p>
+                <div class="CuentaPerfil">
+                    <button class="BotonCuenta" type="button" aria-expanded="false" aria-label="Abrir menú de cuenta">
+                        <span class="AvatarPerfil">F</span>
+                        <span class="FlechaCuenta">▾</span>
+                    </button>
+                    <div class="MenuCuenta" hidden>
+                        <div class="CabeceraCuenta">
+                            <span class="AvatarPerfil">F</span>
+                            <div><strong class="NombreCuenta">Fotógrafo</strong><small class="EmailCuenta">Sin correo</small></div>
+                        </div>
+                        <a class="OpcionCuenta OpcionDestacada" href="editarperfil.html">Editar perfil</a>
+                        <div class="SeparadorCuenta"></div>
+                        <button class="OpcionCuenta CerrarSesion" type="button">Cerrar sesión</button>
+                    </div>
+                </div>
                  </div>
 
             <Div class="Menu">
@@ -136,6 +150,7 @@
     </div>
 
     <script src="../js/almacenamiento.js"></script>
+    <script src="../js/menu-perfil.js"></script>
     <script src="../js/panel.js"></script>
 </body>
 </html>

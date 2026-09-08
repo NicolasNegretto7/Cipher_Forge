@@ -41,6 +41,123 @@ body {
     color: var(--primary-color);
 }
 
+.Logo {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.CuentaPerfil {
+    position: relative;
+}
+
+.BotonCuenta {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+}
+
+.AvatarPerfil {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #2bb58a;
+    color: white;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+.FlechaCuenta {
+    color: var(--gris-texto);
+    font-size: 12px;
+}
+
+.MenuCuenta {
+    position: absolute;
+    top: 42px;
+    left: 0;
+    z-index: 20;
+    width: 245px;
+    padding: 10px;
+    border: 1px solid #eeeeee;
+    border-radius: 10px;
+    background: white;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+}
+
+.MenuCuenta[hidden] {
+    display: none;
+}
+
+.CabeceraCuenta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 4px 12px;
+}
+
+.CabeceraCuenta div {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.NombreCuenta {
+    overflow: hidden;
+    color: #202124;
+    font-size: 14px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.EmailCuenta {
+    overflow: hidden;
+    color: #80868b;
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.OpcionCuenta {
+    display: block;
+    width: 100%;
+    padding: 9px 8px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: #5f6368;
+    font: inherit;
+    font-size: 13px;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.OpcionCuenta:hover {
+    background: #f1faf7;
+    color: #202124;
+}
+
+.OpcionDestacada {
+    color: #202124;
+    font-weight: bold;
+}
+
+.SeparadorCuenta {
+    height: 1px;
+    margin: 7px 0;
+    background: #eeeeee;
+}
+
 .Menu {
     display: flex;
     flex-direction: column;

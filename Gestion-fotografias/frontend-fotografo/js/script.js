@@ -111,7 +111,7 @@ if (formLogin) {
                 password: contrasena
             });
 
-            guardarSesion("token-temporal", usuario);
+            guardarSesion(usuario.token, usuario);
             irSegunRol(usuario.rol || usuario.role);
         } catch (error) {
             alert(error.message);
