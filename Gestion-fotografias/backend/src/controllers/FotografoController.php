@@ -87,14 +87,12 @@ class FotografoController
 
         $telefono     = isset($data['telefono']) ? trim((string) $data['telefono']) : $usuario['telefono'];
         $biografia    = isset($data['biografia']) ? trim((string) $data['biografia']) : null;
-        $especialidad = isset($data['especialidad']) ? trim((string) $data['especialidad']) : null;
 
         $this->userRepository->actualizarPerfilFotografo(
             (int) $usuario['id'],
             $nombre,
             $telefono,
-            $biografia,
-            $especialidad
+            $biografia
         );
 
         Response::success([
@@ -102,7 +100,6 @@ class FotografoController
             'nombre_completo' => $nombre,
             'telefono'        => $telefono,
             'biografia'       => $biografia,
-            'especialidad'    => $especialidad,
         ], 'Perfil actualizado exitosamente.');
     }
 

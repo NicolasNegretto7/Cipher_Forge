@@ -19,7 +19,6 @@ CREATE TABLE fotografos (
     id_fotografo INT NOT NULL PRIMARY KEY,
     politicas_aceptadas BOOLEAN DEFAULT FALSE NOT NULL,
     biografia TEXT DEFAULT NULL,
-    especialidad VARCHAR(60) DEFAULT NULL,
     FOREIGN KEY (id_fotografo) REFERENCES usuarios(id) ON DELETE CASCADE
 );
 CREATE TABLE colecciones(
