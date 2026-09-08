@@ -182,7 +182,7 @@ class UserRepository
     /**
      * Actualiza la información de perfil profesional del fotógrafo (HU18).
      */
-    public function actualizarPerfilFotografo(int $fotografoId, string $nombre, ?string $telefono, ?string $biografia): bool
+    public function actualizarPerfilFotografo(int $fotografoId, string $nombre, ?string $telefono): bool
     {
         $this->pdo->beginTransaction();
         try {
@@ -194,15 +194,6 @@ class UserRepository
                 'nombre'   => $nombre,
                 'telefono' => $telefono,
                 'id'       => $fotografoId,
-            ]);
-
-            // Actualizar tabla hija fotografos
-            $stmtFoto = $this->pdo->prepare(
-                'UPDATE fotografos SET biografia = :biografia WHERE id_fotografo = :id'
-            );
-            $stmtFoto->execute([
-                'biografia'    => $biografia,
-                'id'           => $fotografoId,
             ]);
 
             $this->pdo->commit();
@@ -220,7 +211,6 @@ class UserRepository
     {
         $stmt = $this->pdo->prepare(
             'SELECT u.id, u.nombre_completo, u.email, u.telefono,
-                    f.biografia,
                     (SELECT COUNT(*) FROM colecciones c WHERE c.fotografo_id = u.id AND c.tipo_visibilidad = "publica") AS colecciones_publicas
              FROM usuarios u
              INNER JOIN fotografos f ON f.id_fotografo = u.id
@@ -237,8 +227,7 @@ class UserRepository
     public function obtenerPerfilFotografo(int $id): ?array
     {
         $stmt = $this->pdo->prepare(
-            'SELECT u.id, u.nombre_completo, u.email, u.telefono,
-                    f.biografia
+            'SELECT u.id, u.nombre_completo, u.email, u.telefono
              FROM usuarios u
              INNER JOIN fotografos f ON f.id_fotografo = u.id
              WHERE u.id = :id AND u.rol = "fotografo"

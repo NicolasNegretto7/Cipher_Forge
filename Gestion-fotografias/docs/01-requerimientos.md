@@ -177,7 +177,7 @@ El proyecto incluirá:
 
 1. Gestión de usuarios y roles (Fotógrafo y Cliente), con registro e inicio de sesión seguro.
 2. Verificación de correo electrónico y aceptación obligatoria de políticas de privacidad / Ley 18.331.
-3. Creación y edición de perfiles profesionales de fotógrafo, con inclusión en un directorio general de descubrimiento y eventos.
+3. Creación y edición de perfiles de fotógrafos.
 4. Creación de colecciones (públicas o privadas) con soporte de hashtags para las públicas.
 5. Subida de imágenes (JPG) y videos con procesamiento en backend mediante FFmpeg (Docker) para generar un recorte de 15 segundos en la vista previa y almacenar el archivo completo en Filesystem (límite de 800MB por video original), marca de agua automática en imágenes y control de cuotas.
 6. Aplicación de marca de agua en la vista previa de las imágenes mediante librería especializada.
@@ -275,7 +275,7 @@ Una épica es una funcionalidad grande o área de trabajo que debe dividirse en 
 | Código | Épica | Descripción | Requerimientos vinculados |
 | --- | --- | --- | --- |
 | EP1 | Gestión de usuarios y seguridad | Registro de usuarios, inicio de sesión seguro, asignación de roles, verificación de cuenta y políticas de privacidad con Ley 18.331. | RF1, RF2, RF3, RF18, RF24 |
-| EP2 | Perfiles de fotógrafos y directorio | Creación, edición y administración de perfiles profesionales de fotógrafos, e inclusión en el directorio general de descubrimiento y eventos. | RF19 |
+| EP2 | Perfiles de fotógrafos | Modificacion de perfiles de fotógrafos. | RF19 |
 | EP3 | Gestión de colecciones y accesos | Creación, categorización (públicas/privadas), hashtags, filtrado público, acceso a colecciones privadas por enlace con permisos (y redirección a registro/login), control de acceso por URL y generación de QR/enlace permanente. | RF4, RF5, RF6, RF11, RF16 |
 | EP4 | Carga y procesamiento multimedia | Subida de imágenes JPG y videos, procesamiento en backend con FFmpeg (Docker) para recortes de 15 segundos, guardado en Filesystem, generación de vistas previas optimizadas, marca de agua, edición/eliminación de archivos y control de cuotas. | RF7, RF8, RF9, RF17, RF20, RF25, RF26 |
 | EP5 | Visualización y descargas | Galería de previsualización para clientes, visualización de colecciones y descarga directa individual de imágenes o videos en dos niveles de calidad (buena calidad y alta calidad). | RF10, RF11, RF21 |
@@ -312,7 +312,7 @@ A continuación se detalla la suma exacta de puntos de historia correspondientes
 | Código | Épica | Estimación en puntos | Historias asociadas |
 | --- | --- | --- | --- |
 | EP1 | Gestión de usuarios y seguridad | 16 | HU1 , HU8 , HU19 , HU21 , HU25 , HU31  |
-| EP2 | Perfiles de fotógrafos y directorio | 3 | HU18  |
+| EP2 | Perfiles de fotógrafos | 3 | HU18  |
 | EP3 | Gestión de colecciones y accesos | 21 | HU2 , HU3 , HU17 , HU20 , HU24 , HU26 , HU27  |
 | EP4 | Carga y procesamiento multimedia | 22 | HU5 , HU6 , HU16 , HU22 , HU28 , HU32  |
 | EP5 | Visualización y descargas | 9 | HU10 , HU14 , HU23 |
@@ -335,7 +335,7 @@ El equipo presenta la siguiente propuesta:
 | Entregas | Incremento funcional al final de cada sprint. |
 | Presupuesto | Proyecto de Egreso de UTU (sin presupuesto financiero asignado). |
 | Forma de trabajo | Revisión con el cliente al cierre de cada sprint. |
-| Primera versión | Subida y descarga directa de imágenes/videos en dos calidades (buena y alta), marca de agua, directorio de fotógrafos, QR colaborativo y de acceso directo, hashtags y políticas de privacidad conforme a Ley 18.331. |
+| Primera versión | Subida y descarga directa de imágenes/videos en dos calidades (buena y alta), marca de agua, QR colaborativo y de acceso directo, hashtags y políticas de privacidad conforme a Ley 18.331. |
 | Exclusiones | Aplicación móvil nativa, plantillas de exposición, perfil público con acceso libre a colecciones privadas, pasarelas de pago reales, hosting/dominio en producción, descargas masivas en .zip y notificaciones de autorización de descarga. |
 
 ---
@@ -376,7 +376,7 @@ Se utilizará el siguiente formato:
 | HU15 | Como fotógrafo/cliente, quiero contar con una guía básica de uso y recibir una breve capacitación sobre la plataforma, para poder utilizarla de forma autónoma una vez finalizado el proyecto. | 1 | Media |
 | HU16 | Como sistema, quiero controlar el límite de almacenamiento del fotógrafo (3 GB), impidiendo subidas si se supera la cuota y, en subidas múltiples, completar los archivos válidos notificando únicamente los que excedan la cuota restante. | 5 | Media |
 | HU17 | Como fotógrafo, quiero generar un enlace o QR de acceso directo permanente a una colección específica, para permitir la visualización y descarga directa de los clientes autorizados sin caducidad. | 3 | Media |
-| HU18 | Como fotógrafo, quiero editar mi información de perfil profesional y figurar en el directorio general de descubrimiento y eventos públicos, para que nuevos clientes puedan encontrarme y contactarme. | 3 | Media |
+| HU18 | Como fotógrafo, quiero editar mi información de perfil, para tener siempre mis datos actualizados. | 3 | Media |
 | HU19 | Como sistema, quiero impedir el registro de usuarios duplicados utilizando un mismo correo electrónico ya existente, para que exista una única cuenta por correo. | 3 | Media |
 | HU20 | Como sistema, quiero impedir cualquier intento de acceso directo mediante URL a colecciones privadas por parte de usuarios no autorizados, para mantener la privacidad del contenido. | 3 | Media |
 | HU21 | Como sistema, quiero enviar un código de verificación al correo electrónico, para asegurar que la casilla registrada pertenece al usuario. | 3 | Media |
@@ -426,7 +426,7 @@ El backlog ha sido distribuido equitativamente manteniendo un ritmo de trabajo s
 | 23 | HU6 | Eliminación regular de imágenes o videos por el fotógrafo | 3 | Sprint 4 |
 | 24 | HU32 | Procesamiento automático de recortes de video (15s) y almacenamiento del original | 3 | Sprint 4 |
 | 25 | HU22 | Edición de datos básicos (título, descripción o reasignación) | 3 | Sprint 5 |
-| 26 | HU18 | Edición de perfil de fotógrafo y presencia en directorio público | 3 | Sprint 5 |
+| 26 | HU18 | Edición de perfil de fotógrafo| 3 | Sprint 5 |
 | 27 | HU23 | Marcar como favorita una imagen o video pública | 3 | Sprint 5 |
 | 28 | HU13 | Respaldo automático diario de base de datos (3 copias) | 5 | Sprint 5 |
 | 29 | HU15 | Entrega de guía de uso, capacitación y cierre | 1 | Sprint 5 |

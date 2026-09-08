@@ -1,6 +1,6 @@
 -- ========================================================
 -- Respaldo Automático de Base de Datos - Cipher Forge
--- Generado el: 2026-09-08 20:40:39
+-- Generado el: 2026-09-08 21:16:09
 -- ========================================================
 
 SET FOREIGN_KEY_CHECKS = 0;
@@ -161,39 +161,37 @@ DROP TABLE IF EXISTS `fotografos`;
 CREATE TABLE `fotografos` (
   `id_fotografo` int NOT NULL,
   `politicas_aceptadas` tinyint(1) NOT NULL DEFAULT '0',
-  `biografia` text,
-  `especialidad` varchar(60) DEFAULT NULL,
   PRIMARY KEY (`id_fotografo`),
   CONSTRAINT `fotografos_ibfk_1` FOREIGN KEY (`id_fotografo`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Volcado de datos para `fotografos`
-INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('1', '1', 'Especialista en bodas.', 'Bodas');
-INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('3', '1', 'Especialista en bodas.', 'Bodas');
-INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('5', '0', NULL, NULL);
-INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('6', '0', NULL, NULL);
-INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('7', '1', 'Especialista en bodas.', 'Bodas');
-INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('9', '1', 'Especialista en bodas.', 'Bodas');
-INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('11', '1', 'Especialista en bodas.', 'Bodas');
-INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('13', '0', NULL, NULL);
-INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('14', '1', 'Especialista en bodas.', 'Bodas');
-INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('16', '0', NULL, NULL);
-INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('17', '0', NULL, NULL);
-INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('18', '1', 'Especialista en bodas.', 'Bodas');
-INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('20', '1', 'Especialista en bodas.', 'Bodas');
-INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('22', '1', 'Especialista en bodas.', 'Bodas');
-INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('24', '0', NULL, NULL);
-INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('25', '0', NULL, NULL);
-INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('27', '0', NULL, NULL);
-INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('29', '0', NULL, NULL);
-INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('30', '0', NULL, NULL);
-INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('31', '0', NULL, NULL);
-INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('32', '0', NULL, NULL);
-INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('33', '0', NULL, NULL);
-INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('34', '0', NULL, NULL);
-INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('35', '0', NULL, NULL);
-INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('36', '0', NULL, NULL);
-INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('37', '0', NULL, NULL);
+INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`) VALUES ('1', '1');
+INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`) VALUES ('3', '1');
+INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`) VALUES ('5', '0');
+INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`) VALUES ('6', '0');
+INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`) VALUES ('7', '1');
+INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`) VALUES ('9', '1');
+INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`) VALUES ('11', '1');
+INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`) VALUES ('13', '0');
+INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`) VALUES ('14', '1');
+INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`) VALUES ('16', '0');
+INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`) VALUES ('17', '0');
+INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`) VALUES ('18', '1');
+INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`) VALUES ('20', '1');
+INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`) VALUES ('22', '1');
+INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`) VALUES ('24', '0');
+INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`) VALUES ('25', '0');
+INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`) VALUES ('27', '0');
+INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`) VALUES ('29', '0');
+INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`) VALUES ('30', '0');
+INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`) VALUES ('31', '0');
+INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`) VALUES ('32', '0');
+INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`) VALUES ('33', '0');
+INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`) VALUES ('34', '0');
+INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`) VALUES ('35', '0');
+INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`) VALUES ('36', '0');
+INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`) VALUES ('37', '0');
 
 -- --------------------------------------------------------
 -- Estructura de tabla `hashtags`
