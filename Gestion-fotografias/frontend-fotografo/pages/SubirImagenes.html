@@ -35,6 +35,10 @@
                     <div class="ListaTags" id="listaTags"></div>
                 </div>
 
+                <button class="BotonGenerarQr" id="botonGenerarQr" type="button">
+                    Generar QR
+                </button>
+
                 <div class="ControlPublicar">
                     <button class="BotonPublicar" id="botonPublicar" type="button" aria-expanded="false" aria-controls="menuVisibilidad">
                         Publicar <span class="FlechaPublicar" aria-hidden="true">▾</span>
@@ -76,6 +80,20 @@
         </div>
     </div>
 
+    <div class="ModalQr" id="modalQr" hidden>
+        <div class="ModalQrContenido" role="dialog" aria-modal="true" aria-labelledby="tituloQr">
+            <button class="BotonCerrarQr" id="cerrarQr" type="button" aria-label="Cerrar">✕</button>
+            <h2 id="tituloQr">Código QR de acceso</h2>
+            <div class="ImagenQr" id="imagenQr"></div>
+            <label for="enlaceQr">Enlace permanente</label>
+            <input id="enlaceQr" type="text" readonly>
+            <div class="AccionesQr">
+                <button class="BotonQr" id="copiarEnlace" type="button">Copiar enlace</button>
+                <a class="BotonQr BotonQrSecundario" id="abrirEnlace" href="#" target="_blank" rel="noopener">Abrir enlace</a>
+            </div>
+        </div>
+    </div>
+
     <div class="ContenedorToasts" id="toasts"></div>
 
     <div class="BarraAcciones" id="barraAcciones">
@@ -85,5 +103,6 @@
 
     <script src="../js/almacenamiento.js"></script>
     <script src="../js/subirimagenes.js"></script>
+    <script src="../js/qr.js"></script>
 </body>
 </html>
