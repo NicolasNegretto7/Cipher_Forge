@@ -312,7 +312,7 @@ A continuación se detalla la suma exacta de puntos de historia correspondientes
 | Código | Épica | Estimación en puntos | Historias asociadas |
 | --- | --- | --- | --- |
 | EP1 | Gestión de usuarios y seguridad | 16 | HU1 , HU8 , HU19 , HU21 , HU25 , HU31  |
-| EP2 | Perfiles de fotógrafos y directorio | 3 | HU18  |
+| EP2 | Perfiles de fotógrafos | 3 | HU18  |
 | EP3 | Gestión de colecciones y accesos | 21 | HU2 , HU3 , HU17 , HU20 , HU24 , HU26 , HU27  |
 | EP4 | Carga y procesamiento multimedia | 22 | HU5 , HU6 , HU16 , HU22 , HU28 , HU32  |
 | EP5 | Visualización y descargas | 9 | HU10 , HU14 , HU23 |
@@ -376,7 +376,7 @@ Se utilizará el siguiente formato:
 | HU15 | Como fotógrafo/cliente, quiero contar con una guía básica de uso y recibir una breve capacitación sobre la plataforma, para poder utilizarla de forma autónoma una vez finalizado el proyecto. | 1 | Media |
 | HU16 | Como sistema, quiero controlar el límite de almacenamiento del fotógrafo (3 GB), impidiendo subidas si se supera la cuota y, en subidas múltiples, completar los archivos válidos notificando únicamente los que excedan la cuota restante. | 5 | Media |
 | HU17 | Como fotógrafo, quiero generar un enlace o QR de acceso directo permanente a una colección específica, para permitir la visualización y descarga directa de los clientes autorizados sin caducidad. | 3 | Media |
-| HU18 | Como fotógrafo, quiero editar mi información de perfil profesional y figurar en el directorio general de descubrimiento y eventos públicos, para que nuevos clientes puedan encontrarme y contactarme. | 3 | Media |
+| HU18 | Como fotógrafo, quiero editar mi información de perfil, para tener siempre mis datos actualizados. | 3 | Media |
 | HU19 | Como sistema, quiero impedir el registro de usuarios duplicados utilizando un mismo correo electrónico ya existente, para que exista una única cuenta por correo. | 3 | Media |
 | HU20 | Como sistema, quiero impedir cualquier intento de acceso directo mediante URL a colecciones privadas por parte de usuarios no autorizados, para mantener la privacidad del contenido. | 3 | Media |
 | HU21 | Como sistema, quiero enviar un código de verificación al correo electrónico, para asegurar que la casilla registrada pertenece al usuario. | 3 | Media |

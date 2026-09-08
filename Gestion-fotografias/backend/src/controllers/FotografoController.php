@@ -57,7 +57,7 @@ class FotografoController
 
     /**
      * GET /fotografos/{id}
-     * Perfil público de un fotógrafo específico con su biografía y colecciones (HU18).
+     * Perfil público de un fotógrafo específico (HU18).
      */
     public function perfil(string $id): void
     {
@@ -86,20 +86,17 @@ class FotografoController
         }
 
         $telefono     = isset($data['telefono']) ? trim((string) $data['telefono']) : $usuario['telefono'];
-        $biografia    = isset($data['biografia']) ? trim((string) $data['biografia']) : null;
 
         $this->userRepository->actualizarPerfilFotografo(
             (int) $usuario['id'],
             $nombre,
-            $telefono,
-            $biografia
+            $telefono
         );
 
         Response::success([
             'id'              => $usuario['id'],
             'nombre_completo' => $nombre,
             'telefono'        => $telefono,
-            'biografia'       => $biografia,
         ], 'Perfil actualizado exitosamente.');
     }
 

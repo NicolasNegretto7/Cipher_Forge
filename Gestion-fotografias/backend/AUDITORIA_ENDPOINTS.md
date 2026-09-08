@@ -657,7 +657,7 @@ El backend está diseñado bajo una **Arquitectura en Capas desacoplada**, utili
   * `403 Forbidden`: El usuario autenticado es un cliente, no fotógrafo.
 
 ### 12.4 `GET /fotografos` (HU18 / RF19)
-* **Propósito:** Directorio público de fotógrafos profesionales con biografía, especialidad y cantidad de colecciones públicas.
+* **Propósito:** Directorio público de fotógrafos profesionales con cantidad de colecciones públicas.
 * **Autenticación:** Ninguna (Ruta pública).
 * **Códigos HTTP:** `200 OK`.
 
@@ -667,15 +667,13 @@ El backend está diseñado bajo una **Arquitectura en Capas desacoplada**, utili
 * **Códigos HTTP:** `200 OK`, `404 Not Found`.
 
 ### 12.6 `PUT /fotografo/perfil` (HU18 / RF19)
-* **Propósito:** Permite al fotógrafo autenticado actualizar su información profesional (nombre, teléfono, biografía, especialidad).
+* **Propósito:** Permite al fotógrafo autenticado actualizar su nombre y teléfono.
 * **Autenticación:** Obligatoria (`auth`, rol `fotografo`).
 * **Entrada (JSON):**
   ```json
   {
     "nombre_completo": "Nicolás Fotografía",
-    "telefono": "+598 99 123 456",
-    "biografia": "Especialista en bodas y eventos sociales en Montevideo y Punta del Este.",
-    "especialidad": "Bodas y 15 Años"
+    "telefono": "+598 99 123 456"
   }
   ```
 * **Códigos HTTP:** `200 OK`, `400 Bad Request`, `401 Unauthorized`, `403 Forbidden`.
