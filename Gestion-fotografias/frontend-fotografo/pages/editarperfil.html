@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Editar perfil</title>
+	<link rel="stylesheet" href="../css/estilos.css">
+</head>
+<body>
+	<header>
+		<h1>Perfil del fotógrafo</h1>
+		<p>Actualiza tus datos personales</p>
+	</header>
+
+	<main class="container">
+		<section class="card tarjeta-coleccion">
+			<h2>Editar perfil</h2>
+			<p>Modifica un dato y presiona Save para guardarlo.</p>
+
+			<form class="formulario-coleccion formulario-perfil" data-campo="nombre_completo">
+				<div class="campo-coleccion campo-con-boton">
+					<div>
+						<label for="nombreCompleto">Nombre</label>
+						<input type="text" id="nombreCompleto" name="nombre_completo" required>
+					</div>
+					<button class="btn btn-principal boton-save" type="submit">Save</button>
+				</div>
+			</form>
+
+			<form class="formulario-coleccion formulario-perfil" data-campo="telefono">
+				<div class="campo-coleccion campo-con-boton">
+					<div>
+						<label for="telefono">Número de teléfono</label>
+						<input type="tel" id="telefono" name="telefono">
+					</div>
+					<button class="btn btn-principal boton-save" type="submit">Save</button>
+				</div>
+			</form>
+
+			<p id="mensajePerfil" class="mensaje-perfil" role="status"></p>
+		</section>
+	</main>
+
+	<script src="../js/editarperfil.js"></script>
+</body>
+</html>
