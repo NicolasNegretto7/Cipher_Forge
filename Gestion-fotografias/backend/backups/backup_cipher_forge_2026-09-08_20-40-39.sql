@@ -1,6 +1,6 @@
 -- ========================================================
 -- Respaldo Automático de Base de Datos - Cipher Forge
--- Generado el: 2026-09-04 20:00:58
+-- Generado el: 2026-09-08 20:40:39
 -- ========================================================
 
 SET FOREIGN_KEY_CHECKS = 0;
@@ -29,6 +29,7 @@ INSERT INTO `acceso_colecciones` (`usuario_id`, `coleccion_id`, `permitir_alta_c
 INSERT INTO `acceso_colecciones` (`usuario_id`, `coleccion_id`, `permitir_alta_calidad`, `permitir_buena_calidad`) VALUES ('15', '17', '1', '1');
 INSERT INTO `acceso_colecciones` (`usuario_id`, `coleccion_id`, `permitir_alta_calidad`, `permitir_buena_calidad`) VALUES ('19', '21', '1', '1');
 INSERT INTO `acceso_colecciones` (`usuario_id`, `coleccion_id`, `permitir_alta_calidad`, `permitir_buena_calidad`) VALUES ('21', '23', '1', '1');
+INSERT INTO `acceso_colecciones` (`usuario_id`, `coleccion_id`, `permitir_alta_calidad`, `permitir_buena_calidad`) VALUES ('23', '25', '1', '1');
 
 -- --------------------------------------------------------
 -- Estructura de tabla `clientes`
@@ -49,6 +50,10 @@ INSERT INTO `clientes` (`id_cliente`) VALUES ('12');
 INSERT INTO `clientes` (`id_cliente`) VALUES ('15');
 INSERT INTO `clientes` (`id_cliente`) VALUES ('19');
 INSERT INTO `clientes` (`id_cliente`) VALUES ('21');
+INSERT INTO `clientes` (`id_cliente`) VALUES ('23');
+INSERT INTO `clientes` (`id_cliente`) VALUES ('26');
+INSERT INTO `clientes` (`id_cliente`) VALUES ('28');
+INSERT INTO `clientes` (`id_cliente`) VALUES ('38');
 
 -- --------------------------------------------------------
 -- Estructura de tabla `coleccion_hashtags`
@@ -82,6 +87,8 @@ INSERT INTO `coleccion_hashtags` (`id_hashtags`, `coleccion_id`) VALUES ('1', '2
 INSERT INTO `coleccion_hashtags` (`id_hashtags`, `coleccion_id`) VALUES ('2', '20');
 INSERT INTO `coleccion_hashtags` (`id_hashtags`, `coleccion_id`) VALUES ('1', '22');
 INSERT INTO `coleccion_hashtags` (`id_hashtags`, `coleccion_id`) VALUES ('2', '22');
+INSERT INTO `coleccion_hashtags` (`id_hashtags`, `coleccion_id`) VALUES ('1', '24');
+INSERT INTO `coleccion_hashtags` (`id_hashtags`, `coleccion_id`) VALUES ('2', '24');
 
 -- --------------------------------------------------------
 -- Estructura de tabla `colecciones`
@@ -97,7 +104,7 @@ CREATE TABLE `colecciones` (
   PRIMARY KEY (`id`),
   KEY `fotografo_id` (`fotografo_id`),
   CONSTRAINT `colecciones_ibfk_1` FOREIGN KEY (`fotografo_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Volcado de datos para `colecciones`
 INSERT INTO `colecciones` (`id`, `fotografo_id`, `tipo_visibilidad`, `titulo`, `descripcion`, `creado_en`) VALUES ('1', '1', 'publica', 'Album Publico Test', 'Foto publica', '2026-09-04 19:29:04');
@@ -123,6 +130,16 @@ INSERT INTO `colecciones` (`id`, `fotografo_id`, `tipo_visibilidad`, `titulo`, `
 INSERT INTO `colecciones` (`id`, `fotografo_id`, `tipo_visibilidad`, `titulo`, `descripcion`, `creado_en`) VALUES ('21', '18', 'privada', 'Album Privado Test', 'Privada', '2026-09-04 19:55:32');
 INSERT INTO `colecciones` (`id`, `fotografo_id`, `tipo_visibilidad`, `titulo`, `descripcion`, `creado_en`) VALUES ('22', '20', 'publica', 'Album Publico Test', 'Foto publica', '2026-09-04 19:58:47');
 INSERT INTO `colecciones` (`id`, `fotografo_id`, `tipo_visibilidad`, `titulo`, `descripcion`, `creado_en`) VALUES ('23', '20', 'privada', 'Album Privado Test', 'Privada', '2026-09-04 19:58:47');
+INSERT INTO `colecciones` (`id`, `fotografo_id`, `tipo_visibilidad`, `titulo`, `descripcion`, `creado_en`) VALUES ('24', '22', 'publica', 'Album Publico Test', 'Foto publica', '2026-09-04 20:02:26');
+INSERT INTO `colecciones` (`id`, `fotografo_id`, `tipo_visibilidad`, `titulo`, `descripcion`, `creado_en`) VALUES ('25', '22', 'privada', 'Album Privado Test', 'Privada', '2026-09-04 20:02:26');
+INSERT INTO `colecciones` (`id`, `fotografo_id`, `tipo_visibilidad`, `titulo`, `descripcion`, `creado_en`) VALUES ('26', '29', 'publica', 'Coleccion Tiny', 'test pequenas', '2026-09-07 23:33:27');
+INSERT INTO `colecciones` (`id`, `fotografo_id`, `tipo_visibilidad`, `titulo`, `descripcion`, `creado_en`) VALUES ('27', '30', 'publica', 'Coleccion Tiny', 'test pequenas', '2026-09-07 23:33:59');
+INSERT INTO `colecciones` (`id`, `fotografo_id`, `tipo_visibilidad`, `titulo`, `descripcion`, `creado_en`) VALUES ('28', '31', 'publica', 'Fatal Col', NULL, '2026-09-07 23:35:41');
+INSERT INTO `colecciones` (`id`, `fotografo_id`, `tipo_visibilidad`, `titulo`, `descripcion`, `creado_en`) VALUES ('29', '32', 'publica', 'Fatal Col', NULL, '2026-09-07 23:36:16');
+INSERT INTO `colecciones` (`id`, `fotografo_id`, `tipo_visibilidad`, `titulo`, `descripcion`, `creado_en`) VALUES ('30', '33', 'publica', 'Fatal Col', NULL, '2026-09-07 23:37:22');
+INSERT INTO `colecciones` (`id`, `fotografo_id`, `tipo_visibilidad`, `titulo`, `descripcion`, `creado_en`) VALUES ('31', '34', 'publica', 'Bomb Col', NULL, '2026-09-07 23:38:38');
+INSERT INTO `colecciones` (`id`, `fotografo_id`, `tipo_visibilidad`, `titulo`, `descripcion`, `creado_en`) VALUES ('32', '35', 'publica', 'Bomb Col 2', NULL, '2026-09-07 23:40:03');
+INSERT INTO `colecciones` (`id`, `fotografo_id`, `tipo_visibilidad`, `titulo`, `descripcion`, `creado_en`) VALUES ('33', '36', 'publica', 'Coleccion Tiny', 'test pequenas', '2026-09-07 23:40:08');
 
 -- --------------------------------------------------------
 -- Estructura de tabla `favoritos`
@@ -164,6 +181,19 @@ INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `e
 INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('17', '0', NULL, NULL);
 INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('18', '1', 'Especialista en bodas.', 'Bodas');
 INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('20', '1', 'Especialista en bodas.', 'Bodas');
+INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('22', '1', 'Especialista en bodas.', 'Bodas');
+INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('24', '0', NULL, NULL);
+INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('25', '0', NULL, NULL);
+INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('27', '0', NULL, NULL);
+INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('29', '0', NULL, NULL);
+INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('30', '0', NULL, NULL);
+INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('31', '0', NULL, NULL);
+INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('32', '0', NULL, NULL);
+INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('33', '0', NULL, NULL);
+INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('34', '0', NULL, NULL);
+INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('35', '0', NULL, NULL);
+INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('36', '0', NULL, NULL);
+INSERT INTO `fotografos` (`id_fotografo`, `politicas_aceptadas`, `biografia`, `especialidad`) VALUES ('37', '0', NULL, NULL);
 
 -- --------------------------------------------------------
 -- Estructura de tabla `hashtags`
@@ -199,11 +229,15 @@ CREATE TABLE `multimedia` (
   PRIMARY KEY (`id_multimedia`),
   KEY `coleccion_id` (`coleccion_id`),
   CONSTRAINT `multimedia_ibfk_1` FOREIGN KEY (`coleccion_id`) REFERENCES `colecciones` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Volcado de datos para `multimedia`
 INSERT INTO `multimedia` (`titulo`, `descripcion`, `id_multimedia`, `ruta_original`, `coleccion_id`, `vista_previa`, `tamanio`, `es_invitado`, `aprobado`, `tipo`, `creado_en`) VALUES (NULL, NULL, '1', 'uploads/originals/f047a5087d491e10cc2cac98e8f4c27f.png', '8', 'uploads/previews/2e29d188cfc2c03e3c94405f45de8776.jpg', '3359', '0', '1', 'imagen', '2026-09-04 19:36:58');
 INSERT INTO `multimedia` (`titulo`, `descripcion`, `id_multimedia`, `ruta_original`, `coleccion_id`, `vista_previa`, `tamanio`, `es_invitado`, `aprobado`, `tipo`, `creado_en`) VALUES (NULL, NULL, '2', 'uploads/originals/dcc25aa711e5c082d60d0b04b5f54db0.png', '19', 'uploads/previews/9b840e01e082746dd7682a6e34a6bee8.jpg', '1462', '0', '1', 'imagen', '2026-09-04 19:55:21');
+INSERT INTO `multimedia` (`titulo`, `descripcion`, `id_multimedia`, `ruta_original`, `coleccion_id`, `vista_previa`, `tamanio`, `es_invitado`, `aprobado`, `tipo`, `creado_en`) VALUES (NULL, NULL, '4', 'uploads/originals/73db00da2a1a2823b2e9f0c3a8ca0af0.png', '25', 'uploads/previews/c519219ca521213120d83b7b652d93d7.jpg', '1462', '0', '1', 'imagen', '2026-09-04 20:02:31');
+INSERT INTO `multimedia` (`titulo`, `descripcion`, `id_multimedia`, `ruta_original`, `coleccion_id`, `vista_previa`, `tamanio`, `es_invitado`, `aprobado`, `tipo`, `creado_en`) VALUES ('Invitado', 'Aporte colaborativo de invitado', '5', 'uploads/originals/00d81b1d964a2baa03960133efb19114.png', '24', 'uploads/previews/4e32f4dab99fba0fa94d9d70c7762eec.jpg', '1462', '1', '1', 'imagen', '2026-09-04 20:02:33');
+INSERT INTO `multimedia` (`titulo`, `descripcion`, `id_multimedia`, `ruta_original`, `coleccion_id`, `vista_previa`, `tamanio`, `es_invitado`, `aprobado`, `tipo`, `creado_en`) VALUES (NULL, NULL, '7', 'uploads/originals/54d88dd10b77268b8b69b125d83ef005.png', '27', 'uploads/previews/32e300b22c4bd2df3d2ce51d12590867.jpg', '70', '0', '1', 'imagen', '2026-09-07 23:34:00');
+INSERT INTO `multimedia` (`titulo`, `descripcion`, `id_multimedia`, `ruta_original`, `coleccion_id`, `vista_previa`, `tamanio`, `es_invitado`, `aprobado`, `tipo`, `creado_en`) VALUES (NULL, NULL, '8', 'uploads/originals/960522c68027de818f78699fe2e9a26e.png', '33', 'uploads/previews/a837a4e5fe514b53228aec557258feff.jpg', '70', '0', '1', 'imagen', '2026-09-07 23:40:08');
 
 -- --------------------------------------------------------
 -- Estructura de tabla `qr_tokens`
@@ -220,7 +254,7 @@ CREATE TABLE `qr_tokens` (
   UNIQUE KEY `token` (`token`),
   KEY `coleccion_id` (`coleccion_id`),
   CONSTRAINT `qr_tokens_ibfk_1` FOREIGN KEY (`coleccion_id`) REFERENCES `colecciones` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Volcado de datos para `qr_tokens`
 INSERT INTO `qr_tokens` (`id_token`, `token`, `coleccion_id`, `creacion_token`, `tipo`, `expiracion`) VALUES ('1', '066bf2144305f1acff595a89b15ce364fe7fad36', '4', '2026-09-04 19:29:05', 'acceso', NULL);
@@ -240,6 +274,8 @@ INSERT INTO `qr_tokens` (`id_token`, `token`, `coleccion_id`, `creacion_token`, 
 INSERT INTO `qr_tokens` (`id_token`, `token`, `coleccion_id`, `creacion_token`, `tipo`, `expiracion`) VALUES ('15', 'a5621aa657763c59f174edf3d305016673ee9b90', '20', '2026-09-04 19:56:38', 'colaborativo', '2026-09-05 19:56:38');
 INSERT INTO `qr_tokens` (`id_token`, `token`, `coleccion_id`, `creacion_token`, `tipo`, `expiracion`) VALUES ('16', '0ad4da41447d469c3494710bd043b4c38235c0a1', '23', '2026-09-04 19:58:49', 'acceso', NULL);
 INSERT INTO `qr_tokens` (`id_token`, `token`, `coleccion_id`, `creacion_token`, `tipo`, `expiracion`) VALUES ('17', 'fa07883d5c96a7d31afcaf3b83283b4b4598a51a', '22', '2026-09-04 19:59:54', 'colaborativo', '2026-09-05 19:59:54');
+INSERT INTO `qr_tokens` (`id_token`, `token`, `coleccion_id`, `creacion_token`, `tipo`, `expiracion`) VALUES ('18', '252c039bfea895ade582bafd0fe503fa0bbc6489', '25', '2026-09-04 20:02:29', 'acceso', NULL);
+INSERT INTO `qr_tokens` (`id_token`, `token`, `coleccion_id`, `creacion_token`, `tipo`, `expiracion`) VALUES ('19', '32e7922005afc503d9b4219328bef30157579fdb', '24', '2026-09-04 20:02:32', 'colaborativo', '2026-09-05 20:02:32');
 
 -- --------------------------------------------------------
 -- Estructura de tabla `solicitudes_descarga`
@@ -274,7 +310,7 @@ CREATE TABLE `usuarios` (
   `rol` enum('fotografo','cliente') NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=39 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Volcado de datos para `usuarios`
 INSERT INTO `usuarios` (`id`, `nombre_completo`, `email`, `telefono`, `email_verificado`, `codigo_verificacion`, `codigo_expiracion`, `password_hash`, `rol`) VALUES ('1', 'Fotografo Test Actualizado', 'foto162859@test.com', '+598 99 111 222', '0', '202921', '2026-09-04 20:28:59', '$2y$10$EQNO9BsYCrR92rqu3UpsbeyHqcCIo4XBcksmdg5db55kXXWjx/b52', 'fotografo');
@@ -298,6 +334,23 @@ INSERT INTO `usuarios` (`id`, `nombre_completo`, `email`, `telefono`, `email_ver
 INSERT INTO `usuarios` (`id`, `nombre_completo`, `email`, `telefono`, `email_verificado`, `codigo_verificacion`, `codigo_expiracion`, `password_hash`, `rol`) VALUES ('19', 'Cliente Test', 'cliente165527@test.com', '+598 99 222 333', '1', NULL, NULL, '$2y$10$wFYoU4Bj0na6GlWUDKC4LODD38Hljlikp9NuYb.pj8qTGe7n/gB/W', 'cliente');
 INSERT INTO `usuarios` (`id`, `nombre_completo`, `email`, `telefono`, `email_verificado`, `codigo_verificacion`, `codigo_expiracion`, `password_hash`, `rol`) VALUES ('20', 'Fotografo Test Actualizado', 'foto165844@test.com', '+598 99 111 222', '1', NULL, NULL, '$2y$10$EJs.GCwiCu2ZENyOwver3OJ5j3ppO6OJD1na/HIpwzU0Av90HOFp.', 'fotografo');
 INSERT INTO `usuarios` (`id`, `nombre_completo`, `email`, `telefono`, `email_verificado`, `codigo_verificacion`, `codigo_expiracion`, `password_hash`, `rol`) VALUES ('21', 'Cliente Test', 'cliente165844@test.com', '+598 99 222 333', '1', NULL, NULL, '$2y$10$lYI7RI5Mmo6F/1gPvk0cp.hgPMboVD4vKEafWAgllC/xAU0zL039.', 'cliente');
+INSERT INTO `usuarios` (`id`, `nombre_completo`, `email`, `telefono`, `email_verificado`, `codigo_verificacion`, `codigo_expiracion`, `password_hash`, `rol`) VALUES ('22', 'Fotografo Test Actualizado', 'foto170222@test.com', '+598 99 111 222', '1', NULL, NULL, '$2y$10$DWi3y8l7nLJBLRBoyjYgz.LkoCux7RoqwH2PfpJVAzjTU/TYYmH6S', 'fotografo');
+INSERT INTO `usuarios` (`id`, `nombre_completo`, `email`, `telefono`, `email_verificado`, `codigo_verificacion`, `codigo_expiracion`, `password_hash`, `rol`) VALUES ('23', 'Cliente Test', 'cliente170222@test.com', '+598 99 222 333', '1', NULL, NULL, '$2y$10$VAUhswB7H1KdCjB.M15KKu0KTpvxxho.VXNMfxCgWsI/CvLcjMCqq', 'cliente');
+INSERT INTO `usuarios` (`id`, `nombre_completo`, `email`, `telefono`, `email_verificado`, `codigo_verificacion`, `codigo_expiracion`, `password_hash`, `rol`) VALUES ('24', 'Foto Test', 'foto_153053_4613@test.dev', NULL, '0', '638074', '2026-09-07 19:30:53', '$2y$10$uVNAr9Z4JPgkzGPD2sr0FeSdw70URr6wsLlRHGWXVZ6VQ9tXVmEs2', 'fotografo');
+INSERT INTO `usuarios` (`id`, `nombre_completo`, `email`, `telefono`, `email_verificado`, `codigo_verificacion`, `codigo_expiracion`, `password_hash`, `rol`) VALUES ('25', 'Foto Test', 'foto_153104_7925@test.dev', NULL, '1', NULL, NULL, '$2y$10$VCySX1fDK7rCCXex0TrKseLqJCs74dORFUhvYVJqrSmQ1l1bGfa/O', 'fotografo');
+INSERT INTO `usuarios` (`id`, `nombre_completo`, `email`, `telefono`, `email_verificado`, `codigo_verificacion`, `codigo_expiracion`, `password_hash`, `rol`) VALUES ('26', 'Cliente Test', 'cliente_153104_7925@test.dev', NULL, '1', NULL, NULL, '$2y$10$spv3aUZo1w1lPx5u/ZfRQOZ3N17SI0/9BJyj10g.C2HSBD.4vs3ce', 'cliente');
+INSERT INTO `usuarios` (`id`, `nombre_completo`, `email`, `telefono`, `email_verificado`, `codigo_verificacion`, `codigo_expiracion`, `password_hash`, `rol`) VALUES ('27', 'Foto Test', 'foto_203250_1239@test.dev', NULL, '1', NULL, NULL, '$2y$10$ZfYos1FtV4VTg.8clPZApe8Ke7aqz.jb2ay9KtEp7FUj3mogBqOxW', 'fotografo');
+INSERT INTO `usuarios` (`id`, `nombre_completo`, `email`, `telefono`, `email_verificado`, `codigo_verificacion`, `codigo_expiracion`, `password_hash`, `rol`) VALUES ('28', 'Cliente Test', 'cliente_203250_1239@test.dev', NULL, '1', NULL, NULL, '$2y$10$FtqLi7IC6KtUoq3n54inUOCgkOd4Y.AxrAmniB2OKMWZThfMwd0iG', 'cliente');
+INSERT INTO `usuarios` (`id`, `nombre_completo`, `email`, `telefono`, `email_verificado`, `codigo_verificacion`, `codigo_expiracion`, `password_hash`, `rol`) VALUES ('29', 'Tiny Test', 'tiny_203327_4486@test.dev', NULL, '1', NULL, NULL, '$2y$10$1rE5YPW.JYfm0RP5LUERZOE2fuTClUmGSvw56dMOG.VNc6YAHmmyi', 'fotografo');
+INSERT INTO `usuarios` (`id`, `nombre_completo`, `email`, `telefono`, `email_verificado`, `codigo_verificacion`, `codigo_expiracion`, `password_hash`, `rol`) VALUES ('30', 'Tiny Test', 'tiny_203359_6534@test.dev', NULL, '1', NULL, NULL, '$2y$10$pgZrvRYwHZVaN32bKrFPQem60PFoBg4d7vCHWpfdENLkSS9xiXU4K', 'fotografo');
+INSERT INTO `usuarios` (`id`, `nombre_completo`, `email`, `telefono`, `email_verificado`, `codigo_verificacion`, `codigo_expiracion`, `password_hash`, `rol`) VALUES ('31', 'Fatal Test', 'fatal_203540_3140@test.dev', NULL, '1', NULL, NULL, '$2y$10$Va1kYo8b7w3zEIP1uO.bBOHj8qY1ud4ymV29/PXFvyKSla0.u8iWK', 'fotografo');
+INSERT INTO `usuarios` (`id`, `nombre_completo`, `email`, `telefono`, `email_verificado`, `codigo_verificacion`, `codigo_expiracion`, `password_hash`, `rol`) VALUES ('32', 'Fatal Test', 'fatal_203615_2650@test.dev', NULL, '1', NULL, NULL, '$2y$10$Pb7/3ZewTbXSm4LkYtRKa.pf4Hp1jrZtxH5DzcaHZ/YVWRh.cSDHW', 'fotografo');
+INSERT INTO `usuarios` (`id`, `nombre_completo`, `email`, `telefono`, `email_verificado`, `codigo_verificacion`, `codigo_expiracion`, `password_hash`, `rol`) VALUES ('33', 'Fatal Test', 'fatal_203722_3102@test.dev', NULL, '1', NULL, NULL, '$2y$10$kmkxJZ9XDw7TehYCmd3KP.dy5.QalR7FhcGC3bWCYgPQq1zl0lV4K', 'fotografo');
+INSERT INTO `usuarios` (`id`, `nombre_completo`, `email`, `telefono`, `email_verificado`, `codigo_verificacion`, `codigo_expiracion`, `password_hash`, `rol`) VALUES ('34', 'Bomb Test', 'bomb_203838_5156@test.dev', NULL, '1', NULL, NULL, '$2y$10$xOG402qmDj/g15uXSTcr5uTq61RossdjazEAnl5g5BtWcozq2gywW', 'fotografo');
+INSERT INTO `usuarios` (`id`, `nombre_completo`, `email`, `telefono`, `email_verificado`, `codigo_verificacion`, `codigo_expiracion`, `password_hash`, `rol`) VALUES ('35', 'Bomb Test 2', 'bomb2_204002_6503@test.dev', NULL, '1', NULL, NULL, '$2y$10$PGL2fhlp/C3gPZI.nbOfhu8YQI2DSdYfC9jwoVbTEM8A8ej.Wd73m', 'fotografo');
+INSERT INTO `usuarios` (`id`, `nombre_completo`, `email`, `telefono`, `email_verificado`, `codigo_verificacion`, `codigo_expiracion`, `password_hash`, `rol`) VALUES ('36', 'Tiny Test', 'tiny_204008_7958@test.dev', NULL, '1', NULL, NULL, '$2y$10$rpBKutSTRKm3NCnzrkFiz.GAvAN9EnkdNdsEXBH0CKJ3i19OT7be.', 'fotografo');
+INSERT INTO `usuarios` (`id`, `nombre_completo`, `email`, `telefono`, `email_verificado`, `codigo_verificacion`, `codigo_expiracion`, `password_hash`, `rol`) VALUES ('37', 'Foto Test', 'foto_204008_3072@test.dev', NULL, '1', NULL, NULL, '$2y$10$DQborKxL9t/DI1jzPVwT3OYiM.ofkgJOlzInQiIXV062nTz1Lpd5G', 'fotografo');
+INSERT INTO `usuarios` (`id`, `nombre_completo`, `email`, `telefono`, `email_verificado`, `codigo_verificacion`, `codigo_expiracion`, `password_hash`, `rol`) VALUES ('38', 'Cliente Test', 'cliente_204008_3072@test.dev', NULL, '1', NULL, NULL, '$2y$10$MoSLM0bNwy3A7ocE2h1fqOF8wpTuXEaDQPePyWmy1AMzRuCyPhf5.', 'cliente');
 
 SET FOREIGN_KEY_CHECKS = 1;
 -- Fin del Respaldo

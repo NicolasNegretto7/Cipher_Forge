@@ -152,7 +152,6 @@ erDiagram
         int id_fotografo PK,FK "Referencia a usuarios.id (ON DELETE CASCADE)"
         boolean politicas_aceptadas "Aceptación formal Ley 18.331"
         text biografia "Descripción profesional del fotógrafo"
-        string especialidad "Especialidad fotográfica (máx 60 car)"
     }
 
     COLECCIONES {
@@ -219,7 +218,7 @@ erDiagram
 
 ### 2.2 Decisiones de Diseño en el Modelo
 
-* **Jerarquía de Usuarios (Herencia de Tablas):** La tabla `usuarios` concentra las credenciales de acceso, la verificación por código y el rol. Las tablas especializadas `fotografos` (que incorpora biografía, especialidad y la bandera de consentimiento de la Ley 18.331) y `clientes` referencian a `usuarios.id` con eliminación en cascada (`ON DELETE CASCADE`). Esta estructura elimina redundancias y garantiza que una cuenta no pueda duplicar su correo electrónico en roles simultáneos.
+* **Jerarquía de Usuarios (Herencia de Tablas):** La tabla `usuarios` concentra las credenciales de acceso, la verificación por código y el rol. Las tablas especializadas `fotografos` (que incorpora biografía y la bandera de consentimiento de la Ley 18.331) y `clientes` referencian a `usuarios.id` con eliminación en cascada (`ON DELETE CASCADE`). Esta estructura elimina redundancias y garantiza que una cuenta no pueda duplicar su correo electrónico en roles simultáneos.
 * **Separación de Archivo Original y Vista Previa:** La entidad `multimedia` mantiene dos rutas físicas diferenciadas: `ruta_original` (archivo fuente de máxima resolución, inaccesible directamente por URL para evitar robo de contenido) y `vista_previa` (copia optimizada con marca de agua semitransparente o videoclip de 15 segundos para la visualización en el navegador).
 * **Ciclo de Vida y Moderación Colaborativa (RF14, RF15):** Los atributos `es_invitado` y `aprobado` en `multimedia` permiten que las cargas de invitados ingresen con `aprobado = FALSE`. El fotógrafo puede auditar estos archivos en su panel de moderación; los archivos no aprobados que superen las 24 horas desde `creado_en` son depurados automáticamente por la rutina del sistema.
 * **Tokens QR Efímeros vs. Permanentes:** La entidad `qr_tokens` gestiona tanto el QR colaborativo de eventos (tipo `'colaborativo'`, con expiración a las 24 horas para subida anónima) como el QR de acceso permanente (tipo `'acceso'`, con expiración nula) que permite a clientes autorizados acceder a colecciones privadas.

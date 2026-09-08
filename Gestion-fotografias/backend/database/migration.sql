@@ -26,13 +26,6 @@ SET @sql = IF(@col_exists = 0,
     'SELECT 1');
 PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
-SET @col_exists = (SELECT COUNT(*) FROM information_schema.COLUMNS
-    WHERE TABLE_SCHEMA = 'cipher_forge' AND TABLE_NAME = 'fotografos' AND COLUMN_NAME = 'especialidad');
-SET @sql = IF(@col_exists = 0,
-    'ALTER TABLE fotografos ADD COLUMN especialidad VARCHAR(60) DEFAULT NULL',
-    'SELECT 1');
-PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
-
 -- ── multimedia: campos de moderación y auditoría ────────────────
 SET @col_exists = (SELECT COUNT(*) FROM information_schema.COLUMNS
     WHERE TABLE_SCHEMA = 'cipher_forge' AND TABLE_NAME = 'multimedia' AND COLUMN_NAME = 'aprobado');

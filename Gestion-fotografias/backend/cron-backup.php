@@ -5,7 +5,23 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/public/index.php'; // Carga autoloader de clases
+spl_autoload_register(function (string $class): void {
+    $prefix = 'App\\';
+    $baseDir = __DIR__ . '/src/';
+
+    $len = strlen($prefix);
+    if (strncmp($prefix, $class, $len) !== 0) {
+        return;
+    }
+
+    $relativeClass = substr($class, $len);
+    // Convierte App\Core\Router en src/Core/Router.php
+    $file = $baseDir . str_replace('\\', '/', $relativeClass) . '.php';
+
+    if (file_exists($file)) {
+        require_once $file;
+    }
+});
 
 use App\services\BackupService;
 use App\services\MultimediaService;
