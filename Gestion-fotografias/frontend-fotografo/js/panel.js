@@ -12,7 +12,12 @@ function verificarModalPrivacidad() {
 
     const usuario = JSON.parse(localStorage.getItem("usuario") || "{}");
     const rol = usuario.rol || usuario.role;
-    const yaAcepto = usuario.politicas_aceptadas === true || localStorage.getItem("acepto-politica-fotografo") === "true";
+    const idFotografo = usuario.id || usuario.id_fotografo || "";
+    const claveAceptacion = "acepto-politica-fotografo-" + idFotografo;
+    const yaAcepto =
+        usuario.politicas_aceptadas === true ||
+        usuario.politicas_aceptadas === 1 ||
+        localStorage.getItem(claveAceptacion) === "true";
 
     if (rol === "fotografo" && !yaAcepto) {
         modalPrivacidad.classList.remove("oculto");
@@ -40,7 +45,8 @@ function verificarModalPrivacidad() {
             await window.api.aceptarPoliticas();
             usuario.politicas_aceptadas = true;
             localStorage.setItem("usuario", JSON.stringify(usuario));
-            localStorage.setItem("acepto-politica-fotografo", "true");
+            localStorage.setItem(claveAceptacion, "true");
+            localStorage.removeItem("acepto-politica-fotografo");
             if (mensajePolitica) mensajePolitica.textContent = "";
             modalPrivacidad.classList.add("oculto");
         } catch (error) {
