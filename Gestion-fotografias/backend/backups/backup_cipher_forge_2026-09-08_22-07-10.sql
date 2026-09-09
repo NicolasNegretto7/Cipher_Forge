@@ -1,6 +1,6 @@
 -- ========================================================
 -- Respaldo Automático de Base de Datos - Cipher Forge
--- Generado el: 2026-09-08 21:16:09
+-- Generado el: 2026-09-08 22:07:10
 -- ========================================================
 
 SET FOREIGN_KEY_CHECKS = 0;
