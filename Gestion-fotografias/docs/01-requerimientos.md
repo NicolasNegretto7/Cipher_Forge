@@ -179,8 +179,8 @@ El proyecto incluirá:
 2. Verificación de correo electrónico y aceptación obligatoria de Términos y Condiciones & Política de Privacidad y Ley 18.331.
 3. Creación y edición de perfiles de fotógrafos.
 4. Creación de colecciones (públicas o privadas) con soporte de hashtags para las públicas.
-5. Subida de imágenes (JPG) y videos (MP4 con recorte de 15 segundos).
-6. Aplicación de marca de agua en la vista previa de las imágenes mediante librería especializada.
+5. Subida de imágenes (JPG) y videos (MP4).
+6. Aplicación de marca de agua en la vista previa de las imágenes.
 7. Restricción de descarga en el contenido de colecciones privadas no accesibles.
 8. Visualización de imágenes y videos en colecciones públicas y privadas.
 9. Descarga directa individual de imágenes o videos en dos niveles de calidad (buena calidad y alta calidad), sin requerir autorización previa ni intermediación de notificaciones al fotógrafo.
@@ -235,7 +235,7 @@ Quedarán fuera de la primera versión:
 | RF18 | El sistema debe enviar un código de verificación al correo electrónico del usuario para asegurar que la casilla registrada realmente existe. |
 | RF19 | El sistema debe permitir crear y editar la información de perfil de los fotógrafos. |
 | RF20 | El sistema debe permitir al fotógrafo modificar los datos básicos (título, descripción) o eliminar cualquier imagen o recorte de video previamente subido a sus colecciones. |
-| RF21 | El sistema debe permitir al usuario marcar y desmarcar como favorita cualquier imagen o video perteneciente a una colección pública, visualizándose estas en un apartado de favoritos; esta información no se expone a otros usuarios. |
+| RF21 | El sistema debe permitir al usuario marcar y desmarcar como favorita/o cualquier imagen o video perteneciente a una colección pública, visualizándose estas en un apartado de favoritos; esta información no se expone a otros usuarios. |
 | RF24 | Al primer inicio de sesión como fotógrafo, el sistema debe mostrar un modal obligatorio con los Términos y Condiciones & Política de Privacidad y la Ley 18.331 sobre protección de datos personales e intimidad, estableciendo que el fotógrafo asume la responsabilidad legal por el contenido que publica y que la plataforma no se hace responsable ante demandas por publicación no autorizada. |
 | RF25 | El sistema debe hacer que los videos subidos (por fotógrafo o invitado) a una colección sean clips o recortes del video original con una restricción de cantidad máxima por video original subido. |
 | RF26 | El sistema deberá generar automáticamente un recorte de vista previa de cada video subido y almacenar el archivo original completo para su posterior descarga directa. |
@@ -365,14 +365,14 @@ Se utilizará el siguiente formato:
 | HU1 | Como usuario, quiero iniciar sesión en el sistema, para acceder de forma segura a mi panel según mi rol. | 3 | Alta |
 | HU2 | Como fotógrafo, quiero crear colecciones y asignarles visibilidad (privada o pública), para controlar quién puede acceder a cada una. | 3 | Alta |
 | HU3 | Como cliente, quiero acceder a una colección privada mediante un enlace de invitación (ingresando directo si ya inicié sesión o registrándome si aún no tengo cuenta), para ver el material exclusivo manteniendo la colección en su estado privado. | 3 | Alta |
-| HU4 | Como fotógrafo, quiero generar un código QR único de carga colaborativa para un evento (con caducidad de 1 día), para permitir a los invitados subir fotos o videos directamente, con restricciones de no poder ver lo que suben ni descargar archivos multimedias. | 5 | Media |
-| HU5 | Como fotógrafo, quiero subir imágenes (JPG) y videos (MP4) a mi colección, para ponerlas a disposición de mis clientes. | 3 | Alta |
+| HU4 | Como fotógrafo, quiero generar un código QR único de carga colaborativa para un evento (con caducidad de 1 día), para permitir a los invitados subir fotos o videos directamente, con restricciones de no poder ver lo que suben ni descargar archivos multimedia. | 5 | Media |
+| HU5 | Como fotógrafo, quiero subir imágenes (JPG) y videos (MP4) a mi colección, para ponerlos a disposición de mis clientes. | 3 | Alta |
 | HU6 | Como fotógrafo, quiero eliminar imágenes o videos de una colección, para mantener el control sobre el contenido publicado. | 3 | Alta |
 | HU7 | Como fotógrafo, quiero imprimir el código QR de carga colaborativa (con caducidad de 1 día), para exponerlo físicamente en el evento. | 3 | Media |
 | HU8 | Como usuario nuevo, quiero poder elegir si registrarme como fotógrafo o como cliente, para acceder a las funciones correctas del sistema. | 3 | Alta |
 | HU10 | Como cliente, quiero descargar directamente imágenes o videos individuales en dos niveles de calidad ("Buena Calidad" estándar o "Alta Calidad" original), para obtener mi material de manera ágil e inmediata. | 1 | Media |
-| HU11 | Como invitado de un evento, quiero escanear el código QR de carga colaborativa para subir directamente mis fotos y videos a la colección pudiendo ingresar de forma anónima sin necesidad de un registro previo. | 3 | Media |
-| HU12 | Como fotógrafo, quiero visualizar el material subido por invitados, seleccionar los archivos que apruebo mediante un modo de selección visual y confirmar la aprobación, sabiendo que los archivos no aprobados serán eliminados automáticamente tras 24 horas, para mantener el control total sobre la colección. | 3 | Media |
+| HU11 | Como invitado de un evento, quiero escanear el código QR de carga colaborativa para subir directamente mis fotos y videos a la colección, pudiendo ingresar de forma anónima sin necesidad de un registro previo. | 3 | Media |
+| HU12 | Como fotógrafo, quiero visualizar el material subido por invitados, seleccionar los archivos que apruebo y confirmar la aprobación, sabiendo que los archivos no aprobados serán eliminados automáticamente tras 24 horas, para mantener el control total sobre la colección. | 3 | Media |
 | HU13 | Como fotógrafo, quiero que se realice un respaldo automático diario de la base de datos y se roten las últimas 3 copias, para mitigar el riesgo de pérdida de datos. | 5 | Media |
 | HU14 | Como cliente, quiero visualizar las fotos de mi evento (en la colección) u otros eventos (otras colecciones) con una marca de agua integrada automáticamente, para poder previsualizar el trabajo antes de realizar la descarga directa. | 5 | Alta |
 | HU15 | Como cliente, quiero contar con una guía básica de uso y recibir una breve capacitación sobre la plataforma, para poder utilizarla de forma autónoma una vez finalizado el proyecto. | 1 | Media |
@@ -382,8 +382,8 @@ Se utilizará el siguiente formato:
 | HU19 | Como usuario nuevo, quiero que se impida el registro duplicado utilizando un mismo correo electrónico ya existente, para contar con una única cuenta por correo. | 3 | Media |
 | HU20 | Como fotógrafo, quiero que se bloquee cualquier intento de acceso directo mediante URL a mis colecciones privadas por parte de usuarios no autorizados, para mantener la privacidad del contenido. | 3 | Media |
 | HU21 | Como usuario nuevo, quiero recibir un código de verificación en mi correo electrónico, para asegurar que la casilla registrada me pertenece. | 3 | Media |
-| HU22 | Como fotógrafo, quiero editar los datos básicos (título, descripción) de una imagen o video ya subido, para mantener organizada la galería. | 3 | Media |
-| HU23 | Como usuario, quiero marcar como favorita una imagen o video de una colección pública, para tener una lista de favoritos privada. | 3 | Baja |
+| HU22 | Como fotógrafo, quiero editar los datos básicos (título, descripción) de una imagen o video ya subido/a, para mantener organizada la galería. | 3 | Media |
+| HU23 | Como usuario, quiero marcar como favorita/o una imagen o video de una colección pública, para tener una lista de favoritos privada. | 3 | Baja |
 | HU24 | Como usuario, quiero ingresar a colecciones públicas y explorar sus galerías con imágenes o videos en vista previa protegidos con marca de agua, para conocer el catálogo disponible. | 3 | Media |
 | HU25 | Como usuario nuevo, quiero registrarme proporcionando mi nombre completo, correo electrónico, contraseña de forma obligatoria y teléfono opcional, aceptando los Términos y Condiciones & Política de Privacidad. | 3 | Media |
 | HU26 | Como fotógrafo, quiero agregar hashtags al crear o editar una colección pública, para facilitar su descubrimiento por temática en el buscador. | 3 | Media |

@@ -1,4 +1,4 @@
-# 6. Control de Cambios
+# 8. Control de Cambios
 
 ## ¿Para qué sirve este documento?
 
@@ -8,7 +8,7 @@ cambios queden sin registro. El control de cambios es una bitácora que deja con
 de **qué cambió, por qué, quién lo pidió o lo detectó, y qué impacto tuvo** en alcance,
 tiempo, costo o backlog.
 
-Este documento es distinto del [Sprint Review](05_sprint_review.md): el Sprint Review
+Este documento es distinto del [Sprint Review](04_sprint_review.md): el Sprint Review
 es el acta de la reunión donde surge el cambio; el control de cambios es el registro
 consolidado y trazable de todas las decisiones de cambio del proyecto, sin importar su
 origen (una reunión, un hallazgo técnico, un pedido fuera de sprint).
@@ -43,6 +43,7 @@ Donde:
 | CC-07 | 2026-09-09 | Revisión Technical Writer / Project Manager (auditoría Scrum y trazabilidad) | PROPUESTO - pendiente de aprobación: (A) Ambigüedades RNF2/RNF3/RNF4/RF9/RF7/RF25-RF26; (B) Exceso de especificidad RF6/RF9/RF15/EP4/HU `Como sistema`; (C-D) Contradicciones/trazabilidad (visión cobro ágil, charter, RF12, SR-04/SR-05, backlog HU22, RF11 duplicado, velocidad, 05/06 vacíos, enlaces README/ética, Reviews sin cliente). | Si se acepta: reformulación RF/RNF/HU/épicas y actualización de secundarios. Sin cambio de código. | Decisión 2026-09-09 del Product Owner: se aprueba solo B completo + C-visión (ver CC-08). El resto (A y resto de D) queda validado y aceptado como está, sin modificación. | Aceptado parcial |
 | CC-08 | 2026-09-09 | Aprobación Product Owner (B + C-visión) | Cambios GRANDES autorizados y aplicados en `01-requerimientos.md`: (B1) RF6: se elimina `mediante lógica de backend`; (B2) RF9: se elimina `mediante una librería especializada`; (B3) RF15: se generaliza (se eliminan `modo de selección visual`, detalle en base de datos, texto literal del aviso y `tarea automática programada`, se conserva regla aprobar + eliminar tras 24h); (B4) EP4: se eliminan `FFmpeg (Docker)`, `Filesystem` y `15 segundos` (detalle en `02-modelado.md`/`infraestructura.md`); (B5) HU reformuladas a valor de usuario Scrum/INVEST: HU13/HU16/HU20/HU28 a `Como fotógrafo`, HU19/HU21/HU25 a `Como usuario nuevo`, HU32 a `Como usuario`, HU15 a `Como cliente` (sin `Lemuel Swec`); (C1) Visión §8: `cobro ágil... (Esto último...)` → `(El cobro ágil queda pospuesto a fase posterior por restricción UTU —menores sin pagos reales—, ver Decisiones técnicas)`. | Calidad/metodología Scrum: requerimientos en nivel general (QUÉ, no CÓMO), HU con actor de valor. Sin impacto en puntos (91 pts), tiempo ni código. | Aceptado y aplicado según autorización. Resto de CC-07 validado sin cambios. | Aplicado |
 | CC-09 | 2026-09-09 | Pedido Product Owner (cambio pequeño) | Ajuste de redacción en `01-requerimientos.md` §8 Visión: `(El cobro ágil queda pospuesto a una fase posterior...)` → `(El cobro ágil queda pospuesto a una versión posterior...)`. | Calidad documental: sin impacto en alcance, tiempo, costo ni puntos. | Aceptado: cambio pequeño autorizado. | Aplicado |
+| CC-10 | 2026-09-09 | Aprobación Product Owner Pasada 1 (3 iteraciones, sectores nuevos) | Cambios pequeños/consistencia en `01-requerimientos.md` (sin cambio de alcance): Alcance §9-5 `MP4 con recorte de 15 segundos` → `MP4`; Alcance §9-6 se elimina `mediante librería especializada` (consistencia con RF9 CC-08); RF21/HU23/HU22/HU5 concordancia género mixto `imagen o video`: RF21 `como favorita` → `como favorita/o`, HU23 igual, HU22 `ya subido` → `ya subido/a`, HU5 `ponerlas` → `ponerlos`; HU4 `archivos multimedias` → `archivos multimedia`; HU11 coma `colección pudiendo` → `colección, pudiendo`; HU12 se elimina `mediante un modo de selección visual` (consistencia con RF15 CC-08). | Calidad/consistencia Scrum: sin impacto en puntos (91 pts), tiempo ni código. | Aceptado: Pasada 1 aprobada. | Aplicado |
 
 > **Nota:** todo cambio con impacto en alcance, tiempo o costo debe quedar
 > registrado aquí, aunque el equipo lo haya "resuelto" verbalmente en una reunión. Esto

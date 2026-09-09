@@ -1,4 +1,4 @@
-# 5. Actas de Sprint Review
+# 4. Actas de Sprint Review
 
 ---
 
@@ -226,7 +226,7 @@ A diferencia del control de cambios (que es una bitácora técnica de decisiones
 
 
 ### Acuerdos y Cierre Formal del Proyecto
-**Hasta la confirmacion del cliente no se puede dar por cerrado este proyecto, pero se puede considerar entregado.**
+**Hasta la confirmación del cliente no se puede dar por cerrado este proyecto, pero se puede considerar entregado.**
 <!--
 1. **Balance Final del Backlog:** Se completaron exitosamente los **91 puntos de historia** comprometidos a lo largo de los **5 sprints** de 3 semanas (15 semanas de desarrollo en total), con una velocidad promedio real de **18.2 puntos por sprint** y un cumplimiento del 100%.
 2. **Entrega de Artefactos:** Se hizo entrega formal del repositorio de código fuente, la configuración Docker (`docker-compose.yml`, `Dockerfile`), la base de datos relacional inicializada con su esquema en `database/schema.sql` y el paquete documental de requerimientos, arquitectura, seguridad y pruebas.

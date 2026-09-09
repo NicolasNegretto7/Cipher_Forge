@@ -70,8 +70,12 @@ docker exec -it cipher_forge_db mysql -u cipher_user -pcipher_password -e "USE c
 
 *Deberás observar las 11 tablas del sistema:* `acceso_colecciones`, `backups`, `clientes`, `coleccion_hashtags`, `colecciones`, `favoritos`, `fotografos`, `hashtags`, `multimedia`, `qr_tokens`, `usuarios`.
 
+> **Nota de trazabilidad:** Este diseño viene de la decisión de crear la tabla Usuarios como padre de Fotógrafo y Cliente en 01-requerimientos.md Decisiones técnicas del equipo, y del diagrama entidad relación en 02-modelado.md.
+
 ### Paso 6: Prueba de Conectividad con la API
 Abre un navegador web o ejecuta `curl` para verificar el endpoint de diagnóstico del backend:
+
+> **Nota:** Este endpoint es solo técnico de diagnóstico y está fuera del alcance funcional de requerimientos. No tiene requerimiento funcional asociado en 01-requerimientos.md.
 
 ```bash
 curl http://localhost:8080/api/ping
