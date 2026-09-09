@@ -218,6 +218,17 @@ body {
     cursor: wait;
 }
 
+.ControlesQrColaborativo {
+    display: flex;
+    gap: 8px;
+    margin-left: auto;
+}
+
+.ControlesQrColaborativo .BotonGenerarQr {
+    margin-left: 0;
+    white-space: nowrap;
+}
+
 .ControlPublicar {
     position: relative;
 }
@@ -604,6 +615,21 @@ body {
     border: 1px solid #d1d5db;
     border-radius: 4px;
     color: var(--primary-color);
+}
+
+#enlaceQrColaborativo {
+    width: 100%;
+    padding: 9px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    color: var(--primary-color);
+}
+
+.AvisoExpiracionQr {
+    margin: -8px 0 14px;
+    color: #b45309;
+    font-size: 13px;
+    line-height: 1.4;
 }
 
 .BotonCerrarQr {

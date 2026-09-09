@@ -35,15 +35,7 @@
 
             <Div class="Menu">
                 <a class="ItemMenuActivo" href="panel.html">
-                    <p>Colecciones Publicas</p>
-                </a>
-
-                <a class="ItemMenu" href="tuscolecciones.html">
-                    <p>Tus Colecciones</p>
-                </a>
-
-                <a class="ItemMenu" href="favoritos.html">
-                    <p>Favoritos</p>
+                    <p>Mis Colecciones</p>
                 </a>
 
                 
@@ -64,23 +56,19 @@
         <div class="Principal">
 
             <div class="Encabezado">
-                <h1>Colecciones Publicas</h1>
-                <div class="ZonaBuscadorTags">
-                    <input id="tagBusqueda" type="text" placeholder="Escribe un tag">
-                    <div class="BuscadorTags" id="buscadorTags">
-                        <div class="ListaTags" id="tagsBusqueda"></div>
-                 
-                    </div>
+                <h1>Mis Colecciones</h1>
+                <a class="BotonNuevaColeccion" href="crearcoleccion.html">Nueva coleccion</a>
+            </div>
+
+            <div class="GaleriaColecciones" id="galeriaColecciones">
+                <div class="Sincolecciones" id="sinColecciones">
+                    <p>No tienes colecciones aún.</p>
                 </div>
             </div>
 
-            <div class="GaleriaColecciones" id="galeriaPublica"></div>
-                <div class="DetalleColeccion" id="detalleColeccion">
-                    <button class="FlechaColeccion Izquierda" id="imagenAnterior" type="button">&#10094;</button>
-                    <div class="ImagenColeccionGrande" id="imagenColeccionGrande"></div>
-                    <button class="FlechaColeccion Derecha" id="imagenSiguiente" type="button">&#10095;</button>
-                    <div class="InfoColeccion" id="infoColeccion"></div>
-                </div>
+            <div class="BarraAcciones" id="barraAccionesColecciones">
+                <button id="eliminarColeccionesSeleccionadas" type="button">&#128465; Eliminar</button>
+            </div>
 
     </div>
 
@@ -143,12 +131,15 @@
                 </p>
             </div>
 
+            <p id="mensajePoliticas" class="modal-privacidad__mensaje" role="status"></p>
+
             <button id="aceptarPolitica" class="btn-aceptar" type="button" disabled>
                 Aceptar
             </button>
         </div>
     </div>
 
+    <script src="../js/api.js"></script>
     <script src="../js/almacenamiento.js"></script>
     <script src="../js/menu-perfil.js"></script>
     <script src="../js/panel.js"></script>

@@ -3,25 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Colecciones</title>
+    <title>Tus Colecciones</title>
     <link rel="stylesheet" href="../css/panelcliente.css">
 </head>
 <body>
 
-    
-       <div class="Contenedor">
+    <div class="Contenedor">
 
-        
         <div class="Sidebar">
 
             <div class="Logo">
-                <p>Galería del Cliente▾</p>
-              
-                 </div>
+                <p>Galería del Cliente</p>
+            </div>
 
             <Div class="Menu">
                 <a class="ItemMenu" href="panelcliente.html">
-                    <p>Colecciones Publicas</p>
+                    <p>Colecciones Públicas</p>
                 </a>
 
                 <a class="ItemMenuActivo" href="tuscoleccionescliente.html">
@@ -31,38 +28,52 @@
                 <a class="ItemMenu" href="favoritoscliente.html">
                     <p>Favoritos</p>
                 </a>
+            </Div>
 
-              
-
-                
-                 </Div>
- 
             <hr>
 
-            
-
-            <div class="Almacenamiento">
-                <div class="CirculoAlmacenamiento"></div>
-                <p>0 GB de 3 GB usados</p>
-                <div class="BotonMas">+</div>
+            <div class="PieSidebar">
+                <button class="BotonCerrarSesion CerrarSesionCliente" type="button">Cerrar sesión</button>
             </div>
 
         </div>
 
-        
         <div class="Principal">
 
             <div class="Encabezado">
                 <h1>Tus Colecciones</h1>
-
-                <div class="Sincolecciones">
-                    <p>No tienes colecciones aún.</p>
-                </div>
-
-                
             </div>
 
-           
+            <div class="ZonaInvitacion" id="zonaInvitacion" hidden>
 
+                <div class="TarjetaInvitacion">
+                    <p class="EtiquetaInvitacion">Invitación recibida</p>
+                    <h2 id="tituloInvitacion"></h2>
+                    <p id="estadoInvitacion" class="DatosColeccion"></p>
+                    <div class="AccionesInvitacion" id="accionesInvitacion"></div>
+                </div>
+
+            </div>
+
+            <h2 class="SubtituloPagina">Colecciones con acceso</h2>
+
+            <p id="mensajeCarga" class="EstadoCarga">Cargando tus colecciones...</p>
+            <p id="mensajeError" class="EstadoError" hidden></p>
+
+            <div class="GaleriaColecciones" id="galeriaColecciones"></div>
+
+            <div class="Sincolecciones" id="sinColecciones">
+                <p>No tienes colecciones aún.</p>
+            </div>
+
+        </div>
     </div>
 
+    <div class="ContenedorToasts" id="toasts"></div>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/utils.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/tuscoleccionescliente.js"></script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Colecciones Públicas</title>
+    <title>Galería de Colección</title>
     <link rel="stylesheet" href="../css/panelcliente.css">
 </head>
 <body>
@@ -17,7 +17,7 @@
             </div>
 
             <Div class="Menu">
-                <a class="ItemMenuActivo" href="panelcliente.html">
+                <a class="ItemMenu" href="panelcliente.html">
                     <p>Colecciones Públicas</p>
                 </a>
 
@@ -41,28 +41,31 @@
         <div class="Principal">
 
             <div class="Encabezado">
-                <h1>Colecciones Públicas</h1>
-
-                <div class="ZonaBuscadorTags" id="zonaBuscadorTags">
-                    <input id="tagBusqueda" type="text" placeholder="Escribe un tag" list="sugerenciasHashtags">
-                    <div class="BuscadorTags" id="buscadorTags">
-                        <div class="ListaTags" id="tagsBusqueda"></div>
-                        <p>Pulsa Enter para añadir el tag.</p>
-                    </div>
-                </div>
+                <a class="EnlaceVolver" href="panelcliente.html">&larr; Volver</a>
+                <h1 id="tituloColeccion">Colección</h1>
             </div>
 
-            <datalist id="sugerenciasHashtags"></datalist>
+            <div id="infoColeccion" class="InfoColeccion"></div>
 
-            <p id="mensajeCarga" class="EstadoCarga">Cargando colecciones...</p>
+            <p id="mensajeCarga" class="EstadoCarga">Cargando colección...</p>
             <p id="mensajeError" class="EstadoError" hidden></p>
 
-            <div class="GaleriaColecciones" id="galeriaPublica"></div>
+            <div class="GaleriaMedia" id="galeria"></div>
 
             <div class="EstadoVacio" id="estadoVacio" hidden>
-                <p>No hay colecciones públicas con esos hashtags.</p>
+                <p>Esta colección aún no tiene archivos.</p>
             </div>
 
+        </div>
+    </div>
+
+    <div class="Visor" id="visor">
+        <div class="VisorInterior">
+            <button class="BotonCerrarVisor" id="cerrarVisor">✕</button>
+            <button class="FlechaVisor Izquierda" id="anteriorVisor" type="button">&#10094;</button>
+            <div id="visorContenido"></div>
+            <div class="AccionesVisor" id="accionesVisor"></div>
+            <button class="FlechaVisor Derecha" id="siguienteVisor" type="button">&#10095;</button>
         </div>
     </div>
 
@@ -71,6 +74,6 @@
     <script src="../js/api.js"></script>
     <script src="../js/utils.js"></script>
     <script src="../js/auth.js"></script>
-    <script src="../js/panelcliente.js"></script>
+    <script src="../js/gallery.js"></script>
 </body>
 </html>

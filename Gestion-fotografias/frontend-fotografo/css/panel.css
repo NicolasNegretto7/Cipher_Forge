@@ -503,6 +503,18 @@ body {
     transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
+.modal-privacidad__mensaje {
+    min-height: 22px;
+    margin: 14px 0 0 0;
+    text-align: center;
+    color: var(--verde);
+    font-size: 14px;
+}
+
+.modal-privacidad__mensaje.error {
+    color: #b91c1c;
+}
+
 .btn-aceptar:disabled {
     opacity: 0.5;
     cursor: not-allowed;

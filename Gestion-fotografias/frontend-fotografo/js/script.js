@@ -1,4 +1,3 @@
-
 const API_URL = "http://localhost:8080";
 
 function guardarSesion(token, usuario) {
@@ -10,79 +9,63 @@ function irSegunRol(rol) {
     if (rol === "fotografo") {
         window.location.href = "panel.html";
     } else {
-        window.location.href = "panelcliente.html";
+        window.location.href = "../../frontend-cliente/pages/panelcliente.html";
     }
+}
+
+function mostrarMensaje(elemento, texto, esError) {
+    if (!elemento) {
+        alert(texto);
+        return;
+    }
+    elemento.textContent = texto;
+    elemento.className = esError ? "mensaje-perfil error" : "mensaje-perfil";
 }
 
 async function registrarUsuario(datos) {
-    const respuesta = await fetch(API_URL + "/auth/register", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            nombre_completo: datos.nombre,
-            email: datos.correo,
-            password: datos.password,
-            rol: datos.rol,
-            telefono: datos.telefono || ""
-        })
-    });
-
-    const json = await respuesta.json();
-
-    if (!respuesta.ok) {
-        throw new Error(json.mensaje || json.error || "No se pudo registrar.");
-    }
-
-    return json;
+    return api.registrarse(datos);
 }
 
 async function iniciarSesion(datos) {
-    const respuesta = await fetch(API_URL + "/auth/login", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            email: datos.correo,
-            password: datos.password
-        })
-    });
-
-    const json = await respuesta.json();
-
-    if (!respuesta.ok) {
-        throw new Error(json.mensaje || json.error || "Credenciales incorrectas.");
-    }
-
-    return json.datos;
+    return api.iniciarSesion(datos);
 }
 
 const formRegistro = document.getElementById("formRegistro");
 if (formRegistro) {
+    const mensaje = document.getElementById("mensajeRegistro");
+
     formRegistro.onsubmit = async function (evento) {
         evento.preventDefault();
 
-        const nombre = document.getElementById("nombre").value;
-        const correo = document.getElementById("correo").value;
+        const nombre = document.getElementById("nombre").value.trim();
+        const correo = document.getElementById("correo").value.trim();
         const contrasena = document.getElementById("contraseña").value;
-        const telefono = document.getElementById("telefono")?.value || "";
+        const telefono = document.getElementById("telefono")?.value.trim() || "";
         const rol = document.getElementById("rol").value;
+        const boton = formRegistro.querySelector("button[type=submit]");
+
+        boton.disabled = true;
+        mostrarMensaje(mensaje, "Creando la cuenta...", false);
 
         try {
-            await registrarUsuario({
-                nombre: nombre,
-                correo: correo,
+            const resultado = await registrarUsuario({
+                nombre_completo: nombre,
+                email: correo,
                 password: contrasena,
                 telefono: telefono,
                 rol: rol
             });
 
-            alert("Cuenta creada correctamente. Ahora iniciá sesión.");
-            window.location.href = "login.html";
+            localStorage.setItem("email-verificacion-pendiente", resultado.email || correo);
+            localStorage.setItem("codigo-verificacion-pendiente", resultado.codigo_verificacion || "");
+
+            mostrarMensaje(mensaje, "Cuenta creada correctamente. Verifica tu correo para poder iniciar sesión.", false);
+            setTimeout(function () {
+                window.location.href = "verificaremail.html";
+            }, 1200);
         } catch (error) {
-            alert(error.message);
+            mostrarMensaje(mensaje, error.message, true);
+            boton.disabled = false;
         }
 
         return false;
@@ -91,6 +74,7 @@ if (formRegistro) {
 
 const formLogin = document.getElementById("formLogin");
 if (formLogin) {
+    const mensajeLogin = document.getElementById("mensajeLogin");
     const tokenGuardado = localStorage.getItem("token");
     const usuarioGuardado = localStorage.getItem("usuario");
 
@@ -102,19 +86,24 @@ if (formLogin) {
     formLogin.onsubmit = async function (evento) {
         evento.preventDefault();
 
-        const correo = document.getElementById("correo").value;
+        const correo = document.getElementById("correo").value.trim();
         const contrasena = document.getElementById("contraseña").value;
+        const boton = formLogin.querySelector("button[type=submit]");
+
+        boton.disabled = true;
+        mostrarMensaje(mensajeLogin, "Iniciando sesión...", false);
 
         try {
             const usuario = await iniciarSesion({
-                correo: correo,
+                email: correo,
                 password: contrasena
             });
 
             guardarSesion(usuario.token, usuario);
             irSegunRol(usuario.rol || usuario.role);
         } catch (error) {
-            alert(error.message);
+            mostrarMensaje(mensajeLogin, error.message, true);
+            boton.disabled = false;
         }
 
         return false;

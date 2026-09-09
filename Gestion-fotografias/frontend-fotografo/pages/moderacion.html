@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Moderación de aportes de invitados</title>
+    <link rel="stylesheet" href="../css/panel.css">
+    <link rel="stylesheet" href="../css/moderacion.css">
+</head>
+<body>
+    <div class="Contenedor">
+        <div class="Principal">
+
+            <div class="Encabezado">
+                <div>
+                    <a class="VolverModeracion" id="volverColeccion" href="panel.html">← Mis colecciones</a>
+                    <h1>Moderación de aportes de invitados</h1>
+                    <p class="SubtituloModeracion" id="tituloColeccionModeracion"></p>
+                </div>
+                <div class="ControlesModeracion" id="controlesModeracion" hidden>
+                    <label class="SeleccionarTodas">
+                        <input type="checkbox" id="seleccionarTodasPendientes">
+                        Seleccionar todas
+                    </label>
+                    <button class="BotonModerar Aprobar" id="aprobarPendientes" type="button" disabled>Aprobar seleccionados</button>
+                    <button class="BotonModerar Rechazar" id="rechazarPendientes" type="button" disabled>Rechazar seleccionados</button>
+                </div>
+            </div>
+
+            <p class="InfoPurga">
+                Los archivos no aprobados se eliminan automáticamente a las 24 horas de su subida.
+            </p>
+
+            <div class="GaleriaPendientes" id="galeriaPendientes">
+                <div class="EstadoPendientes" id="estadoPendientes">
+                    <p>No hay aportes de invitados pendientes de moderación.</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/almacenamiento.js"></script>
+    <script src="../js/moderation.js"></script>
+</body>
+</html>

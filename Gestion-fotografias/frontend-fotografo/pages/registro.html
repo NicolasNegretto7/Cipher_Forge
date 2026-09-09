@@ -25,12 +25,12 @@
 
                 <div class="form-group">
                     <label for="correo">Correo electrónico</label>
-                    <input type="email" id="correo" name="correo" placeholder="tugmail@gmail.com" pattern=".+@gmail\.com" title="Usa un correo válido que termine en @gmail.com" required>
+                    <input type="email" id="correo" name="correo" placeholder="tugmail@gmail.com" title="Usa un correo válido" required>
                 </div>
 
                 <div class="form-group">
                        <label for="contraseña">Contraseña</label>
-                    <input type="password" id="contraseña" name="contraseña" placeholder="Mínimo 8 caracteres" required>
+                    <input type="password" id="contraseña" name="contraseña" placeholder="Mínimo 8 caracteres" minlength="8" title="La contraseña debe tener al menos 8 caracteres" required>
                 </div>
 
                 <div class="form-group">
@@ -53,10 +53,10 @@
         Registrarse
     </button>
 
-         <form id="formRegistro" action="panel.html" method="get"></form>
-
 </div>
             </form>
+
+            <p id="mensajeRegistro" class="mensaje-perfil" role="status"></p>
 
             <P class="texto-centrado margen-arriba">
                 ¿Ya tienes cuenta? <a href="login.html">Inicia sesión aquí.</a>
@@ -71,6 +71,7 @@
         <p>Políticas de Privacidad.</p>
     </footer>
 
+    <script src="../js/api.js"></script>
     <script src="../js/script.js"></script>
 </body>
 </html>

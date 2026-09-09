@@ -32,6 +32,7 @@
         cuenta.querySelector(".CerrarSesion").addEventListener("click", function () {
             localStorage.removeItem("token");
             localStorage.removeItem("usuario");
+            localStorage.removeItem("cuota-almacenamiento");
             window.location.href = "login.html";
         });
 

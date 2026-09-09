@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificar Correo</title>
+    <link rel="stylesheet" href="../css/estilos.css">
+</head>
+<body>
+
+    <header>
+        <h1>Verifica tu correo</h1>
+        <p>Confirma tu identidad para activar tu cuenta</p>
+    </header>
+
+    <main class="container">
+        <section class="card">
+            <h2>Código de verificación</h2>
+            <p>Ingresa el código que te enviamos a tu correo electrónico.</p>
+
+            <form id="formVerificarEmail" action="" method="">
+                <div class="form-group">
+                    <label for="correoVerificar">Correo electrónico</label>
+                    <input type="email" id="correoVerificar" name="correoVerificar" placeholder="tugmail@gmail.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="codigoVerificar">Código de verificación</label>
+                    <input type="text" id="codigoVerificar" name="codigoVerificar" placeholder="6 dígitos" maxlength="6" pattern="[0-9]{6}" inputmode="numeric" title="El código tiene 6 dígitos" required>
+                </div>
+
+                <div class="texto-centrado margen-arriba">
+                    <button type="submit" class="btn btn-principal">Verificar correo</button>
+                </div>
+
+                <div class="texto-centrado margen-arriba">
+                    <button type="button" id="botonReenviar" class="btn btn-secundario">Reenviar código</button>
+                </div>
+            </form>
+
+            <p id="mensajeVerificar" class="mensaje-perfil" role="status"></p>
+
+            <P class="texto-centrado margen-arriba">
+                ¿Ya verificaste tu correo? <a href="login.html">Inicia sesión aquí.</a>
+            </P>
+        </section>
+    </main>
+
+    <footer>
+        <p>Políticas de Privacidad.</p>
+    </footer>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/verificaremail.js"></script>
+</body>
+</html>

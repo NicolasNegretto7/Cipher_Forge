@@ -188,43 +188,6 @@ class ColeccionRepository
     }
 
     /**
-     * Crea o recupera el token de acceso directo permanente (sin expiración) para una colección (HU17).
-     */
-    public function crearOObtenerTokenAcceso(int $coleccionId): array
-    {
-        $stmt = $this->pdo->prepare(
-            'SELECT id_token, token, coleccion_id, tipo, expiracion
-             FROM qr_tokens
-             WHERE coleccion_id = :coleccion_id AND tipo = "acceso"
-             LIMIT 1'
-        );
-        $stmt->execute(['coleccion_id' => $coleccionId]);
-        $existente = $stmt->fetch();
-
-        if ($existente) {
-            return $existente;
-        }
-
-        $token = bin2hex(random_bytes(20));
-        $insert = $this->pdo->prepare(
-            'INSERT INTO qr_tokens (token, coleccion_id, tipo, expiracion)
-             VALUES (:token, :coleccion_id, "acceso", NULL)'
-        );
-        $insert->execute([
-            'token'        => $token,
-            'coleccion_id' => $coleccionId,
-        ]);
-
-        return [
-            'id_token'     => (int) $this->pdo->lastInsertId(),
-            'token'        => $token,
-            'coleccion_id' => $coleccionId,
-            'tipo'         => 'acceso',
-            'expiracion'   => null,
-        ];
-    }
-
-    /**
      * Crea un token de QR colaborativo con expiración para un evento (HU4).
      */
     public function crearTokenColaborativo(int $coleccionId, string $expiracion): array
@@ -281,5 +244,59 @@ class ColeccionRepository
             'usuario_id'   => $usuarioId,
             'coleccion_id' => $coleccionId,
         ]);
+    }
+
+    /**
+     * Obtiene las rutas de archivos (original y vista previa) de los multimedia de una colección.
+     */
+    public function obtenerRutasMultimediaDeColeccion(int $coleccionId): array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT ruta_original, vista_previa FROM multimedia WHERE coleccion_id = :id'
+        );
+        $stmt->execute(['id' => $coleccionId]);
+        return $stmt->fetchAll();
+    }
+
+    /**
+     * Elimina una colección junto con todas sus dependencias (multimedia, favoritos,
+     * accesos, tokens QR, hashtags y hashtags huérfanos).
+     */
+    public function eliminarConDependencias(int $coleccionId): void
+    {
+        $this->pdo->beginTransaction();
+        try {
+            $stmt = $this->pdo->prepare(
+                'DELETE FROM favoritos
+                 WHERE favorito_id IN (SELECT id_multimedia FROM multimedia WHERE coleccion_id = :id)'
+            );
+            $stmt->execute(['id' => $coleccionId]);
+
+            $stmt = $this->pdo->prepare('DELETE FROM acceso_colecciones WHERE coleccion_id = :id');
+            $stmt->execute(['id' => $coleccionId]);
+
+            $stmt = $this->pdo->prepare('DELETE FROM qr_tokens WHERE coleccion_id = :id');
+            $stmt->execute(['id' => $coleccionId]);
+
+            $stmt = $this->pdo->prepare('DELETE FROM coleccion_hashtags WHERE coleccion_id = :id');
+            $stmt->execute(['id' => $coleccionId]);
+
+            $stmt = $this->pdo->prepare(
+                'DELETE FROM hashtags
+                 WHERE id_hashtags NOT IN (SELECT id_hashtags FROM coleccion_hashtags)'
+            );
+            $stmt->execute();
+
+            $stmt = $this->pdo->prepare('DELETE FROM multimedia WHERE coleccion_id = :id');
+            $stmt->execute(['id' => $coleccionId]);
+
+            $stmt = $this->pdo->prepare('DELETE FROM colecciones WHERE id = :id');
+            $stmt->execute(['id' => $coleccionId]);
+
+            $this->pdo->commit();
+        } catch (\Throwable $e) {
+            $this->pdo->rollBack();
+            throw $e;
+        }
     }
 }

@@ -40,10 +40,12 @@ $router->add('POST', '/fotografos/aceptar-politicas', FotografoController::class
 $router->add('POST', '/colecciones', ColeccionController::class, 'create', 'optional');
 $router->add('GET', '/colecciones/publicas', ColeccionController::class, 'listarPublicas');
 $router->add('GET', '/colecciones/{id}', ColeccionController::class, 'detalle', 'optional');
-$router->add('POST', '/colecciones/{id}/qr-acceso', ColeccionController::class, 'generarQrAcceso', 'auth');
 $router->add('GET', '/invitaciones/{token}', ColeccionController::class, 'validarInvitacion', 'optional');
 $router->add('POST', '/invitaciones/{token}/canjear', ColeccionController::class, 'canjearInvitacion', 'auth');
 $router->add('GET', '/hashtags', ColeccionController::class, 'listarHashtags');
+$router->add('PUT', '/colecciones/{id}/hashtags', ColeccionController::class, 'actualizarHashtags', 'auth');
+$router->add('PUT', '/colecciones/{id}', ColeccionController::class, 'actualizar', 'auth');
+$router->add('DELETE', '/colecciones/{id}', ColeccionController::class, 'eliminar', 'auth');
 
 // -------------------------------------------------------------
 // 4. Multimedia, Calidades, Descargas y Gestión (HU5, HU6, HU10, HU14, HU16, HU20, HU22, HU28, HU32)

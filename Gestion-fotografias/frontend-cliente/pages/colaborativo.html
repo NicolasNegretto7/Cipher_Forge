@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Carga colaborativa</title>
+    <link rel="stylesheet" href="../css/colaborativo.css">
+</head>
+<body>
+    <main class="CajaInvitado">
+
+        <section class="PanelInvitado" id="panelCargando" hidden>
+            <p class="MensajeCargando">Verificando el código QR del evento…</p>
+        </section>
+
+        <section class="PanelInvitado" id="panelError" hidden>
+            <h1>¡Enlace no válido!</h1>
+            <p class="MensajeError" id="mensajeError"></p>
+            <p>Escaneá el código QR del evento para cargar tus fotos y videos.</p>
+        </section>
+
+        <section class="PanelInvitado" id="panelFormulario" hidden>
+            <h1 id="nombreEvento"></h1>
+            <p class="SubtituloEvento">Sumá tus fotos y videos a este evento. Sin registro.</p>
+
+            <div class="ContadorCaducidad">
+                <label for="fechaCaducidad">Este enlace caduca el</label>
+                <span id="fechaCaducidad"></span>
+            </div>
+
+            <form id="formularioColaborativo" novalidate>
+                <label class="CampoNombre">
+                    <span>Tu nombre (opcional)</span>
+                    <input id="nombreInvitado" type="text" maxlength="80" placeholder="Ej.: Tía Graciela" autocomplete="name">
+                </label>
+
+                <label class="ZonaArchivos" id="zonaArchivos" for="selectorArchivos">
+                    <strong>+ Agregá fotos y videos</strong>
+                    <span class="FormatoArchivos">Imágenes o videos · hasta 80 MB por archivo</span>
+                    <span class="ListaArchivosSeleccion" id="listaArchivosSeleccion"></span>
+                </label>
+                <input type="file" id="selectorArchivos"
+                       accept=".jpg,.jpeg,.png,.mp4,.mov,.webm,.avi,image/jpeg,image/png,video/mp4,video/quicktime,video/webm,video/x-msvideo"
+                       multiple hidden>
+
+                <button class="BotonEnviar" id="botonEnviar" type="submit" disabled>Subir ahora</button>
+                <p class="NotaPrivacidad">Solo subís archivos; no podés ver ni descargar el contenido existente del evento.</p>
+            </form>
+        </section>
+
+        <section class="PanelInvitado" id="panelExito" hidden>
+            <h1>¡Gracias!</h1>
+            <p class="MensajeExito" id="mensajeExito"></p>
+            <p>El organizador revisará el material y lo publicará si corresponde.</p>
+            <button class="BotonEnviar" id="botonOtroArchivo" type="button">Subir otro archivo</button>
+        </section>
+
+        <p class="PieInvitado">Cipher Forge · Carga colaborativa por QR</p>
+    </main>
+
+    <script src="../js/api.js"></script>
+    <script src="../js/colaborativo.js"></script>
+</body>
+</html>

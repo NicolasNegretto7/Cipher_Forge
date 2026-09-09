@@ -65,7 +65,7 @@ class ColaborativoController
         $expiracion = date('Y-m-d H:i:s', time() + (24 * 3600));
         $tokenData = $this->coleccionRepository->crearTokenColaborativo($coleccionId, $expiracion);
 
-        $urlAcceso = $this->armarUrlFront("/colaborativo/{$tokenData['token']}");
+        $urlAcceso = $this->armarUrlColaborativo($tokenData['token']);
         $urlImprimir = $this->armarUrlFront("/colecciones/{$coleccionId}/qr-colaborativo/imprimir");
 
         Response::success([
@@ -105,7 +105,7 @@ class ColaborativoController
             $tokenData = $this->coleccionRepository->crearTokenColaborativo($coleccionId, $expiracion);
         }
 
-        $urlAcceso = $this->armarUrlFront("/colaborativo/{$tokenData['token']}");
+        $urlAcceso = $this->armarUrlColaborativo($tokenData['token']);
         $svg = QrGenerator::svg($urlAcceso, 280);
 
         header('Content-Type: text/html; charset=utf-8');
@@ -129,7 +129,7 @@ class ColaborativoController
             Response::error('Token no encontrado.', 404);
         }
 
-        $url = $this->armarUrlFront("/colaborativo/{$token}");
+        $url = $this->armarUrlColaborativo($token);
         $svg = QrGenerator::svg($url, 300);
 
         header('Content-Type: image/svg+xml');
@@ -169,7 +169,7 @@ class ColaborativoController
         }
 
         $request = new Request();
-        $data = $request->getBody();
+        $data = array_merge($request->getBody(), $_POST);
         $nombreInvitado = isset($data['nombre_invitado']) ? trim((string) $data['nombre_invitado']) : 'Invitado';
 
         $archivos = $this->normalizarArchivos($_FILES['archivos']);
@@ -239,5 +239,47 @@ class ColaborativoController
         $host = $_SERVER['HTTP_HOST'] ?? 'localhost:8080';
         $proto = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
         return "{$proto}://{$host}{$path}";
+    }
+
+    /**
+     * Construye la URL que codifica el QR colaborativo: debe abrir el formulario
+     * de subida del invitado (frontend-cliente/pages/colaborativo.html?token=...),
+     * nunca una respuesta JSON del API.
+     * CÓMO: En producción se usa la variable de entorno FRONTEND_URL (raíz del servidor
+     * estático que contiene las carpetas frontend-cliente y frontend-fotografo). En
+     * desarrollo se deduce la raíz a partir del Referer que envía la página estática.
+     * Si no se puede deducir, se conserva la URL del API (comportamiento histórico).
+     */
+    private function armarUrlColaborativo(string $token): string
+    {
+        $base = getenv('FRONTEND_URL');
+        if (is_string($base) && trim($base) !== '') {
+            return rtrim(trim($base), '/') . '/frontend-cliente/pages/colaborativo.html?token=' . rawurlencode($token);
+        }
+
+        $referer = $_SERVER['HTTP_REFERER'] ?? '';
+        if (is_string($referer) && $referer !== '') {
+            $partes = parse_url($referer);
+            if (isset($partes['scheme'], $partes['host'], $partes['path']) && $partes['host'] !== '') {
+                $rutaDerivada = preg_replace('#/frontend-(fotografo|cliente)(/.*)?$#', '', $partes['path']);
+
+                // Solo se puede deducir la raíz si el Referer proviene de una página
+                // real de las apps (frontend-fotografo o frontend-cliente), nunca de
+                // la raíz del servidor estático o de listados de carpetas.
+                $esOrigenFrontend = is_string($rutaDerivada)
+                    && $rutaDerivada !== $partes['path']
+                    && $partes['path'] !== '/';
+                if ($esOrigenFrontend) {
+                    $origen = $partes['scheme'] . '://' . $partes['host'];
+                    if (isset($partes['port'])) {
+                        $origen .= ':' . $partes['port'];
+                    }
+                    $rutaDerivada = rtrim($rutaDerivada, '/');
+                    return $origen . $rutaDerivada . '/frontend-cliente/pages/colaborativo.html?token=' . rawurlencode($token);
+                }
+            }
+        }
+
+        return $this->armarUrlFront('/colaborativo/' . $token);
     }
 }

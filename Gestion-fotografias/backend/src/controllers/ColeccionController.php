@@ -74,16 +74,6 @@ class ColeccionController
     }
 
     /**
-     * POST /colecciones/{id}/qr-acceso
-     * Genera o devuelve el enlace y código QR de acceso directo permanente (HU17 / RF16).
-     */
-    public function generarQrAcceso(string $id): void
-    {
-        $resultado = $this->coleccionService->obtenerQrAcceso((int) $id);
-        Response::success($resultado, 'Enlace y código QR de acceso permanente generado.');
-    }
-
-    /**
      * GET /invitaciones/{token}
      * Valida el enlace de invitación para una colección privada antes de canjear (HU3 / RF5).
      */
@@ -111,5 +101,55 @@ class ColeccionController
     {
         $tags = $this->coleccionService->listarHashtags();
         Response::success($tags, 'Listado de hashtags disponibles.');
+    }
+
+    /**
+     * PUT /colecciones/{id}
+     * Actualiza metadatos, visibilidad y hashtags de una colección existente (HU26).
+     */
+    public function actualizar(string $id): void
+    {
+        $request = new Request();
+        $data    = $request->getBody();
+
+        $hashtags = null;
+        if (array_key_exists('hashtags', $data)) {
+            $hashtags = is_array($data['hashtags'])
+                ? $data['hashtags']
+                : explode(',', (string) $data['hashtags']);
+        }
+
+        $coleccion = $this->coleccionService->actualizar((int) $id, $data, $hashtags);
+        Response::success($coleccion, 'Colección actualizada correctamente.');
+    }
+
+    /**
+     * DELETE /colecciones/{id}
+     * Elimina una colección y todos sus recursos asociados.
+     */
+    public function eliminar(string $id): void
+    {
+        $this->coleccionService->eliminar((int) $id);
+        Response::success(null, 'Colección eliminada correctamente.');
+    }
+
+    /**
+     * PUT /colecciones/{id}/hashtags
+     * Actualiza los hashtags de una colección existente (HU26).
+     */
+    public function actualizarHashtags(string $id): void
+    {
+        $request = new Request();
+        $data    = $request->getBody();
+
+        $hashtags = [];
+        if (isset($data['hashtags'])) {
+            $hashtags = is_array($data['hashtags'])
+                ? $data['hashtags']
+                : explode(',', (string) $data['hashtags']);
+        }
+
+        $coleccion = $this->coleccionService->actualizar((int) $id, [], $hashtags);
+        Response::success($coleccion, 'Hashtags actualizados correctamente.');
     }
 }

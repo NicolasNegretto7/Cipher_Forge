@@ -195,11 +195,13 @@ body {
 }
 
 .TarjetaColeccion {
+    position: relative;
     width: 300px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
     border-radius: 12px;
     overflow: hidden;
     background-color: white;
+    cursor: pointer;
 }
 
 .ImagenTarjeta {
@@ -305,7 +307,6 @@ body {
     width: 220px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
     border-radius: 12px;
-    overflow: hidden;
     background-color: white;
 }
 
@@ -317,6 +318,7 @@ body {
     display: block;
     background-color: black;
     cursor: pointer;
+    border-radius: 12px 12px 0 0;
 }
 
 .InfoMedia {
@@ -325,6 +327,21 @@ body {
     flex-direction: row;
     align-items: center;
     gap: 8px;
+}
+
+.DatosImagenTarjeta {
+    padding: 10px 15px 0 15px;
+}
+
+.DescripcionImagen {
+    font-size: 13px;
+    color: #475569;
+    margin: 0 0 8px 0;
+    line-height: 1.4;
+}
+
+.TarjetaMedia .ListaTagsColeccion {
+    padding: 0 0 10px 0;
 }
 
 .NombreArchivo {
@@ -483,4 +500,402 @@ body {
     font-size: 28px;
     font-weight: bold;
     color: var(--gris-texto);
+}
+
+/* ============================================================
+   Cliente — pie del sidebar, cierre de sesión y estados
+   ============================================================ */
+
+.PieSidebar {
+    margin-top: auto;
+}
+
+.BotonCerrarSesion {
+    width: 100%;
+    padding: 10px 14px;
+    border: none;
+    border-radius: 10px;
+    background-color: rgb(245, 245, 245);
+    color: var(--gris-texto);
+    font-size: 14px;
+    cursor: pointer;
+    text-align: left;
+}
+
+.BotonCerrarSesion:hover {
+    background-color: rgb(235, 235, 235);
+    color: var(--primary-color);
+}
+
+.FiltroHashtag {
+    margin-left: 20px;
+    padding: 8px 14px;
+    border-radius: 20px;
+    border: 1px solid rgb(220, 220, 220);
+    background-color: white;
+    color: var(--primary-color);
+    font-size: 13px;
+    min-width: 200px;
+}
+
+.EstadoCarga {
+    margin-top: 25px;
+    color: var(--gris-texto);
+}
+
+.EstadoError {
+    margin-top: 25px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    background-color: #fdecea;
+    color: #b91c1c;
+}
+
+.SubtituloPagina {
+    color: var(--primary-color);
+    margin: 30px 0 5px 0;
+    font-size: 18px;
+}
+
+/* ============================================================
+   Cliente — cubiertas de tarjetas y hashtags
+   ============================================================ */
+
+.CubiertaTarjeta {
+    width: 100%;
+    height: 200px;
+    background-color: rgb(240, 240, 240);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.CubiertaTarjeta .ImagenTarjeta {
+    width: 100%;
+    height: 100%;
+}
+
+.CubiertaVacia {
+    font-size: 56px;
+    font-weight: bold;
+    color: rgb(200, 200, 200);
+}
+
+.ListaTagsColeccion {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 0 15px 12px 15px;
+}
+
+.ChipTag {
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background-color: #e0f2fe;
+    color: #0369a1;
+    text-decoration: none;
+}
+
+.ChipTag:hover {
+    background-color: #bae6fd;
+}
+
+/* ============================================================
+   Cliente — invitación (HU3)
+   ============================================================ */
+
+.ZonaInvitacion {
+    margin-top: 25px;
+}
+
+.TarjetaInvitacion {
+    background-color: white;
+    border: 1px solid rgb(230, 230, 230);
+    border-left: 4px solid var(--verde);
+    border-radius: 12px;
+    padding: 20px 24px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
+    max-width: 560px;
+}
+
+.EtiquetaInvitacion {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--verde);
+    margin: 0 0 6px 0;
+}
+
+.TarjetaInvitacion h2 {
+    margin: 0 0 6px 0;
+    color: var(--primary-color);
+    font-size: 20px;
+}
+
+.AccionesInvitacion {
+    margin-top: 14px;
+    display: flex;
+    gap: 10px;
+}
+
+.BotonVerde {
+    display: inline-block;
+    background: linear-gradient(to right, #1cae7a 0%, #17c48f 100%);
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.BotonVerde:hover {
+    background: linear-gradient(to right, #158f64 0%, #12a077 100%);
+}
+
+.BotonVerde:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+/* ============================================================
+   Cliente — galería y visor (HU20 / HU23 / HU10)
+   ============================================================ */
+
+.EnlaceVolver {
+    text-decoration: none;
+    color: var(--gris-texto);
+    font-size: 14px;
+}
+
+.EnlaceVolver:hover {
+    color: var(--primary-color);
+}
+
+.InfoColeccion {
+    margin-top: 20px;
+    color: var(--gris-texto);
+    font-size: 14px;
+}
+
+.InfoColeccion p {
+    margin: 2px 0;
+}
+
+.InfoColeccion .ListaTagsColeccion {
+    padding: 10px 0 0 0;
+}
+
+.BotonFavoritoMedia {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.92);
+    color: #d9365f;
+    font-size: 18px;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.BotonFavoritoMedia.FavoritoActivo {
+    background: #d9365f;
+    color: white;
+}
+
+.BotonDescargar {
+    display: block;
+    text-align: center;
+    margin: 10px 12px 12px 12px;
+    padding: 8px 10px;
+    border: 0;
+    border-radius: 8px;
+    background-color: var(--primary-color);
+    color: white;
+    font-size: 13px;
+    text-decoration: none;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.BotonDescargar:hover {
+    background-color: #1e293b;
+}
+
+.TarjetaMedia {
+    position: relative;
+}
+
+/* Descarga en dos calidades: disparador + menú (HU10) */
+.ZonaDescarga {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.MenuDescarga {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 30;
+    display: none;
+    min-width: 240px;
+    padding: 6px;
+    background-color: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+
+.MenuDescarga.Abierto {
+    display: block;
+}
+
+.OpcionDescarga {
+    display: block;
+    width: 100%;
+    padding: 9px 12px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--primary-color);
+    font-size: 13px;
+    text-align: left;
+    cursor: pointer;
+}
+
+.OpcionDescarga:hover {
+    background-color: #f1f5f9;
+}
+
+.AccionesVisor {
+    display: flex;
+    justify-content: center;
+    padding: 14px 0 4px;
+}
+
+.AccionesVisor .ZonaDescarga {
+    width: auto;
+}
+
+.BotonQuitarFavorito {
+    margin-left: auto;
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #d9365f;
+    cursor: pointer;
+}
+
+.FlechaVisor {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--primary-color);
+    font-size: 18px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.FlechaVisor.Izquierda {
+    left: -52px;
+}
+
+.FlechaVisor.Derecha {
+    right: -52px;
+}
+
+/* ============================================================
+   Buscador por tags (panelcliente)
+   ============================================================ */
+
+.ZonaBuscadorTags {
+    position: relative;
+}
+
+.ZonaBuscadorTags > input {
+    width: 220px;
+    padding: 8px 12px;
+    border: 1px solid rgb(200, 200, 200);
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.BuscadorTags {
+    position: absolute;
+    top: 45px;
+    left: 0;
+    z-index: 20;
+    display: none;
+    width: 280px;
+    padding: 12px;
+    background-color: white;
+    border: 1px solid rgb(220, 220, 220);
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+}
+
+.ZonaBuscadorTags.Abierto .BuscadorTags { display: block; }
+
+.BuscadorTags .ListaTags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 12px;
+}
+
+.BuscadorTags .EtiquetaTag {
+    padding: 6px 9px;
+    border: 0;
+    border-radius: 4px;
+    color: white;
+    background-color: #16a085;
+    cursor: pointer;
+}
+
+.BuscadorTags p {
+    width: 100%;
+    margin: 0;
+    color: #6b7280;
+    font-size: 13px;
+}
+
+/* ============================================================
+   Botón de favorito en las tarjetas públicas
+   ============================================================ */
+
+.FavoritoColeccion {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 34px;
+    height: 34px;
+    border: 0;
+    border-radius: 50%;
+    color: #d9365f;
+    background-color: white;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+.FavoritoColeccion.FavoritoActivo {
+    color: white;
+    background-color: #d9365f;
+}
+
+.FavoritoColeccion.Desactivado {
+    opacity: 0.55;
 }

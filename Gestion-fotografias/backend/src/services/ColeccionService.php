@@ -10,7 +10,7 @@ use App\middlewares\AuthMiddleware;
 use App\Core\Database;
 use App\Core\Response;
 use App\dtos\CreateColeccionDto;
-use App\helpers\QrGenerator;
+use App\helpers\MediaProcessor;
 use App\repository\ColeccionRepository;
 use App\repository\MultimediaRepository;
 use App\repository\UserRepository;
@@ -107,34 +107,6 @@ class ColeccionService
     }
 
     /**
-     * Genera o consulta el enlace y código QR de acceso permanente para clientes (HU17 / RF16).
-     */
-    public function obtenerQrAcceso(int $coleccionId): array
-    {
-        $coleccion = $this->coleccionRepository->findById($coleccionId);
-        if ($coleccion === null) {
-            Response::error('La colección no existe.', 404);
-        }
-
-        $usuario = AuthMiddleware::user();
-        if ($usuario === null || (int) $coleccion['fotografo_id'] !== (int) $usuario['id']) {
-            Response::error('Solo el fotógrafo dueño puede generar o consultar el acceso permanente.', 403);
-        }
-
-        $tokenData = $this->coleccionRepository->crearOObtenerTokenAcceso($coleccionId);
-        $url = $this->armarUrlFront("/invitacion/{$tokenData['token']}");
-
-        return [
-            'coleccion_id' => $coleccionId,
-            'titulo'       => $coleccion['titulo'],
-            'token'        => $tokenData['token'],
-            'tipo'         => 'acceso_permanente',
-            'url_acceso'   => $url,
-            'svg_qr'       => QrGenerator::svg($url),
-        ];
-    }
-
-    /**
      * Valida un token de invitación privada y devuelve estado (HU3 / RF5).
      */
     public function validarInvitacion(string $token): array
@@ -201,10 +173,97 @@ class ColeccionService
         return $this->coleccionRepository->listarHashtags();
     }
 
-    private function armarUrlFront(string $path): string
+    /**
+     * Actualiza los hashtags de una colección existente (HU26).
+     * Verifica que el usuario autenticado sea el fotógrafo dueño.
+     */
+    public function actualizarHashtags(int $id, array $hashtags = []): array
     {
-        $host = $_SERVER['HTTP_HOST'] ?? 'localhost:8080';
-        $proto = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
-        return "{$proto}://{$host}{$path}";
+        $coleccion = $this->coleccionRepository->findById($id);
+
+        if ($coleccion === null) {
+            Response::error('La colección no existe.', 404);
+        }
+
+        $usuario = AuthMiddleware::user();
+        if ($usuario === null || (int) $coleccion['fotografo_id'] !== (int) $usuario['id']) {
+            Response::error('Solo el fotógrafo dueño puede actualizar los hashtags.', 403);
+        }
+
+        $this->coleccionRepository->sincronizarHashtags($id, $hashtags);
+
+        $coleccion['hashtags'] = $this->coleccionRepository->obtenerHashtags($id);
+        return $coleccion;
+    }
+
+    /**
+     * Actualiza metadatos, visibilidad y hashtags de una colección existente (HU26).
+     * Verifica que el usuario autenticado sea el fotógrafo dueño.
+     */
+    public function actualizar(int $id, array $campos, ?array $hashtags = null): array
+    {
+        $coleccion = $this->coleccionRepository->findById($id);
+
+        if ($coleccion === null) {
+            Response::error('La colección no existe.', 404);
+        }
+
+        $usuario = AuthMiddleware::user();
+        if ($usuario === null || (int) $coleccion['fotografo_id'] !== (int) $usuario['id']) {
+            Response::error('Solo el fotógrafo dueño puede modificar la colección.', 403);
+        }
+
+        $titulo = isset($campos['titulo']) && trim((string) $campos['titulo']) !== ''
+            ? trim((string) $campos['titulo'])
+            : (string) $coleccion['titulo'];
+
+        $descripcion = array_key_exists('descripcion', $campos)
+            ? trim((string) $campos['descripcion'])
+            : ($coleccion['descripcion'] ?? null);
+
+        $tipoVisibilidad = isset($campos['tipo_visibilidad']) && in_array($campos['tipo_visibilidad'], ['privada', 'publica'], true)
+            ? (string) $campos['tipo_visibilidad']
+            : (string) $coleccion['tipo_visibilidad'];
+
+        $this->coleccionRepository->actualizar($id, $titulo, $descripcion, $tipoVisibilidad);
+
+        if ($hashtags !== null) {
+            $this->coleccionRepository->sincronizarHashtags($id, $hashtags);
+        }
+
+        $coleccionActualizada   = $this->coleccionRepository->findById($id);
+        $coleccionActualizada['hashtags'] = $this->coleccionRepository->obtenerHashtags($id);
+        return $coleccionActualizada;
+    }
+
+    /**
+     * Elimina una colección y todos sus recursos asociados (multimedia, archivos, favoritos,
+     * accesos, tokens QR y hashtags). Verifica que el usuario sea el fotógrafo dueño.
+     */
+    public function eliminar(int $id): void
+    {
+        $coleccion = $this->coleccionRepository->findById($id);
+
+        if ($coleccion === null) {
+            Response::error('La colección no existe.', 404);
+        }
+
+        $usuario = AuthMiddleware::user();
+        if ($usuario === null || (int) $coleccion['fotografo_id'] !== (int) $usuario['id']) {
+            Response::error('Solo el fotógrafo dueño puede eliminar la colección.', 403);
+        }
+
+        foreach ($this->coleccionRepository->obtenerRutasMultimediaDeColeccion($id) as $fila) {
+            foreach (['ruta_original', 'vista_previa'] as $clave) {
+                if (!empty($fila[$clave])) {
+                    $rutaAbsoluta = MediaProcessor::aRutaAbsoluta((string) $fila[$clave]);
+                    if (file_exists($rutaAbsoluta)) {
+                        @unlink($rutaAbsoluta);
+                    }
+                }
+            }
+        }
+
+        $this->coleccionRepository->eliminarConDependencias($id);
     }
 }

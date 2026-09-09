@@ -94,6 +94,21 @@ tagInput.addEventListener("keydown", function (evento) {
     tagInput.value = "";
 });
 
+if (window.api && window.api.listarHashtags) {
+    window.api.listarHashtags()
+        .then(function (hashtags) {
+            const lista = document.getElementById("sugerenciasHashtags");
+            if (!lista) return;
+            (hashtags || []).forEach(function (h) {
+                const opcion = document.createElement("option");
+                opcion.value = "#" + h.nombre_hashtags;
+                opcion.label = "#" + h.nombre_hashtags + " (" + h.total_colecciones + ")";
+                lista.appendChild(opcion);
+            });
+        })
+        .catch(function () {});
+}
+
 zonaCarga.addEventListener("click", function () { selectorArchivos.click(); });
 function leerArchivoComoDataUrl(archivo) {
     return new Promise(function (resolver, rechazar) {
@@ -168,12 +183,84 @@ function mostrarGaleria() {
     barraAcciones.classList.toggle("Visible", archivos.length > 0);
 }
 
+// Carga una vista previa desde el backend autenticada (las colecciones privadas
+// exigen el token; un <img> directo no lo enviaría).
+function cargarVistaRemota(idMultimedia) {
+    const token = localStorage.getItem("token");
+    return fetch(window.api.urlVistaPrevia(idMultimedia), {
+        headers: token ? { Authorization: "Bearer " + token } : {}
+    }).then(function (respuesta) {
+        if (!respuesta.ok) throw new Error("No se pudo cargar la vista previa.");
+        return respuesta.blob();
+    }).then(function (blob) {
+        return URL.createObjectURL(blob);
+    });
+}
+
+// Incorpora a "su colección" los archivos ya aprobados en el servidor,
+// incluidos los aportes de invitados aprobados en moderación, para que se
+// publiquen junto al material subido por el fotógrafo.
+async function sincronizarColeccionBackend() {
+    const idBackend = Number(coleccion.id);
+    const publicada = coleccion.publicada === true;
+
+    if (!publicada || !Number.isInteger(idBackend) || idBackend <= 0 || !window.api || !window.api.listarMultimedia) {
+        return;
+    }
+
+    try {
+        const servidor = (await window.api.listarMultimedia(idBackend)) || [];
+
+        // Descarta entradas remotas previas (sus blob URLs mueren al recargar).
+        archivos = archivos.filter(function (archivo) { return !archivo.remoto; });
+
+        for (const item of servidor) {
+            const yaExiste = archivos.some(function (archivo) {
+                return archivo.id_multimedia === item.id_multimedia;
+            });
+            if (yaExiste) continue;
+
+            try {
+                const src = await cargarVistaRemota(item.id_multimedia);
+                archivos.push({
+                    id: item.id_multimedia,
+                    nombre: item.titulo || ("archivo-" + item.id_multimedia),
+                    tipo: item.tipo === "video" ? "video/mp4" : "image/jpeg",
+                    tamano: item.tamanio,
+                    src: src,
+                    favorita: false,
+                    subido: true,
+                    id_multimedia: item.id_multimedia,
+                    remoto: true
+                });
+            } catch (error) {
+                /* si la vista previa no responde, se omite el ítem remoto */
+            }
+        }
+
+        mostrarGaleria();
+    } catch (error) {
+        /* si el servidor no responde, se continúa con el borrador local */
+    }
+}
+
 document.getElementById("seleccionarTodas").addEventListener("click", function () {
     seleccionados = archivos.map(function (archivo) { return archivo.id; });
     mostrarGaleria();
 });
 
 document.getElementById("eliminarSeleccionados").addEventListener("click", function () {
+
+    const eliminados = seleccionados.slice();
+    eliminados.forEach(function (id) {
+        const archivo = archivos.find(function (a) { return a.id === id; });
+        if (archivo && archivo.subido && archivo.id_multimedia && window.api && window.api.eliminarMultimedia) {
+            window.api.eliminarMultimedia(archivo.id_multimedia).catch(function () {
+                /* el borrado local prevalece aunque el servidor falle */
+            });
+        }
+    });
+
     archivos = archivos.filter(function (archivo) { return !seleccionados.includes(archivo.id); });
     seleccionados = [];
     if (archivos.length === 0) {
@@ -201,6 +288,39 @@ botonPublicar.addEventListener("click", function () {
     menuVisibilidad.hidden = menuAbierto;
 });
 
+function dataUrlAFile(dataUrl, nombreArchivo) {
+    const partes = dataUrl.split(",");
+    const tipo = (partes[0].match(/data:([^;]+)/) || [])[1] || "image/jpeg";
+    const binario = atob(partes[1]);
+    const bytes = new Uint8Array(binario.length);
+    for (let i = 0; i < binario.length; i++) {
+        bytes[i] = binario.charCodeAt(i);
+    }
+    const nombreBase = nombreArchivo || "imagen.jpg";
+    const nombreLimpio = nombreBase.replace(/[\\/:*?"<>|]+/g, "-");
+    return new File([bytes], nombreLimpio, { type: tipo });
+}
+
+async function subirImagenesPendientes(coleccionIdBackend) {
+    const pendientes = archivos.filter(function (archivo) { return !archivo.subido; });
+    if (pendientes.length === 0) return;
+
+    const archivosDeSubida = pendientes.map(function (archivo) {
+        return dataUrlAFile(archivo.src, archivo.nombre || ("imagen-" + archivo.id + ".jpg"));
+    });
+
+    const resultado = await window.api.subirMultimedia(coleccionIdBackend, archivosDeSubida, {
+        titulo: coleccion.nombre,
+        descripcion: coleccion.descripcion || ""
+    });
+
+    const subidos = (resultado && resultado.subidos) || [];
+    pendientes.forEach(function (archivo, indice) {
+        archivo.subido = true;
+        if (subidos[indice]) archivo.id_multimedia = subidos[indice].id_multimedia;
+    });
+}
+
 async function publicarColeccion(tipoVisibilidad) {
     if (archivos.length === 0) {
         alert("Agrega al menos una imagen antes de publicar la colección.");
@@ -216,33 +336,43 @@ async function publicarColeccion(tipoVisibilidad) {
         return;
     }
 
+    if (!localStorage.getItem("token")) {
+        alert("Debes iniciar sesión para publicar la colección.");
+        return;
+    }
+
     const botonSeleccionado = menuVisibilidad.querySelector("[data-visibilidad='" + tipoVisibilidad + "']");
     const idBorrador = coleccion.id;
     botonSeleccionado.disabled = true;
 
     try {
-        const respuesta = await fetch(API_URL + "/colecciones", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
+        let coleccionIdBackend = Number(coleccion.id);
+
+        if (!coleccion.publicada || !coleccionIdBackend) {
+            const creada = await window.api.crearColeccion({
                 fotografo_id: fotografoId,
                 titulo: coleccion.nombre,
                 tipo_visibilidad: tipoVisibilidad,
-                descripcion: coleccion.descripcion || ""
-            })
-        });
-
-        const json = await respuesta.json();
-        if (!respuesta.ok) {
-            throw new Error(json.mensaje || "No se pudo publicar la colección.");
+                descripcion: coleccion.descripcion || "",
+                hashtags: coleccion.tags || []
+            });
+            coleccionIdBackend = Number(creada.id);
+            coleccion.id = coleccionIdBackend;
+            coleccion.publicada = true;
+            coleccion.localId = coleccion.localId || idBorrador;
         }
 
-        coleccion.id = Number(json.datos.id);
+        await subirImagenesPendientes(coleccionIdBackend);
+
+        const datosActualizacion = { tipo_visibilidad: tipoVisibilidad };
+        if (coleccion.tags && Array.isArray(coleccion.tags)) {
+            datosActualizacion.hashtags = coleccion.tags;
+        }
+        if (window.api && window.api.actualizarColeccion) {
+            await window.api.actualizarColeccion(coleccionIdBackend, datosActualizacion);
+        }
+
         coleccion.tipo_visibilidad = tipoVisibilidad;
-        coleccion.publicada = true;
-        coleccion.localId = coleccion.localId || idBorrador;
         guardarColeccion();
         estadoVisibilidad.textContent = tipoVisibilidad === "publica"
             ? "Visible en colecciones públicas"
@@ -253,7 +383,7 @@ async function publicarColeccion(tipoVisibilidad) {
             ? "Colección publicada y visible en colecciones públicas."
             : "Colección publicada como privada.");
     } catch (error) {
-        alert(error.message);
+        alert(error.message || "No se pudo publicar la colección.");
     } finally {
         botonSeleccionado.disabled = false;
     }
@@ -267,3 +397,4 @@ menuVisibilidad.querySelectorAll("[data-visibilidad]").forEach(function (opcion)
 
 mostrarTags();
 mostrarGaleria();
+sincronizarColeccionBackend();

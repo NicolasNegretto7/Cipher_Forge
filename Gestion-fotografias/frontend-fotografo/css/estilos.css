@@ -365,6 +365,15 @@ footer p {
     color: #b71c1c;
 }
 
+.valor-perfil {
+    font-family: "Open Sans", Helvetica, Arial, sans-serif !important;
+    font-size: 18px !important;
+    text-transform: none !important;
+    letter-spacing: 0 !important;
+    line-height: 1.5 !important;
+    font-weight: normal !important;
+}
+
 @media (max-width: 600px) {
     .campo-con-boton {
         align-items: stretch;

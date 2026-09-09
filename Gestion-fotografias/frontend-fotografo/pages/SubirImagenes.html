@@ -31,13 +31,17 @@
                 <h1>Subir Imágenes</h1>
 
                 <div class="TagsColeccion">
-                    <input id="tagInput" type="text" placeholder="Escribe un tag">
+                    <input id="tagInput" type="text" placeholder="Escribe un tag" list="sugerenciasHashtags">
+                    <datalist id="sugerenciasHashtags"></datalist>
                     <div class="ListaTags" id="listaTags"></div>
                 </div>
 
-                <button class="BotonGenerarQr" id="botonGenerarQr" type="button">
-                    Generar QR
-                </button>
+                <div class="ControlesQrColaborativo">
+                    <a class="BotonGenerarQr" id="botonModerarColaborativo" href="#" title="Revisar y aprobar los archivos que subieron los invitados">Moderar aportes</a>
+                    <button class="BotonGenerarQr" id="botonQrColaborativo" type="button" title="QR temporal (24 h) para que los invitados suban fotos y videos al evento">
+                        QR colaborativo
+                    </button>
+                </div>
 
                 <div class="ControlPublicar">
                     <button class="BotonPublicar" id="botonPublicar" type="button" aria-expanded="false" aria-controls="menuVisibilidad">
@@ -80,16 +84,18 @@
         </div>
     </div>
 
-    <div class="ModalQr" id="modalQr" hidden>
-        <div class="ModalQrContenido" role="dialog" aria-modal="true" aria-labelledby="tituloQr">
-            <button class="BotonCerrarQr" id="cerrarQr" type="button" aria-label="Cerrar">✕</button>
-            <h2 id="tituloQr">Código QR de acceso</h2>
-            <div class="ImagenQr" id="imagenQr"></div>
-            <label for="enlaceQr">Enlace permanente</label>
-            <input id="enlaceQr" type="text" readonly>
+    <div class="ModalQr" id="modalQrColaborativo" hidden>
+        <div class="ModalQrContenido" role="dialog" aria-modal="true" aria-labelledby="tituloQrColaborativo">
+            <button class="BotonCerrarQr" id="cerrarQrColaborativo" type="button" aria-label="Cerrar">✕</button>
+            <h2 id="tituloQrColaborativo">QR colaborativo de evento</h2>
+            <p class="AvisoExpiracionQr" id="avisoExpiracionQr"></p>
+            <div class="ImagenQr" id="imagenQrColaborativo"></div>
+            <label for="enlaceQrColaborativo">Enlace de subida para invitados</label>
+            <input id="enlaceQrColaborativo" type="text" readonly>
             <div class="AccionesQr">
-                <button class="BotonQr" id="copiarEnlace" type="button">Copiar enlace</button>
-                <a class="BotonQr BotonQrSecundario" id="abrirEnlace" href="#" target="_blank" rel="noopener">Abrir enlace</a>
+                <button class="BotonQr" id="copiarEnlaceColaborativo" type="button">Copiar enlace</button>
+                <a class="BotonQr BotonQrSecundario" id="abrirEnlaceColaborativo" href="#" target="_blank" rel="noopener">Abrir</a>
+                <a class="BotonQr" id="imprimirQrColaborativo" href="#" target="_blank" rel="noopener">Imprimir hoja</a>
             </div>
         </div>
     </div>
@@ -101,8 +107,9 @@
         <button id="eliminarSeleccionados" type="button">&#128465; Eliminar</button>
     </div>
 
+    <script src="../js/api.js"></script>
     <script src="../js/almacenamiento.js"></script>
     <script src="../js/subirimagenes.js"></script>
-    <script src="../js/qr.js"></script>
+    <script src="../js/qrcolaborativo.js"></script>
 </body>
 </html>

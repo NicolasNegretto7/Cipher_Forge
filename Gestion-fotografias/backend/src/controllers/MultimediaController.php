@@ -40,7 +40,7 @@ class MultimediaController
     {
         $coleccionId = (int) $coleccionId;
         $request = new Request();
-        $data    = $request->getBody();
+        $data    = array_merge($request->getBody(), $_POST);
 
         if (!isset($_FILES['archivos'])) {
             Response::error('Debes enviar al menos un archivo en el campo "archivos".', 400);

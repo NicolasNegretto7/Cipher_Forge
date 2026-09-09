@@ -1,12 +1,6 @@
-const API_URL = "http://localhost:8080";
-
 const token = localStorage.getItem("token");
 const usuarioGuardado = JSON.parse(localStorage.getItem("usuario") || "null");
 const mensaje = document.getElementById("mensajePerfil");
-
-if (!token || !usuarioGuardado) {
-	window.location.href = "login.html";
-}
 
 function mostrarDatos() {
 	document.getElementById("nombreCompleto").value = usuarioGuardado.nombre_completo || "";
@@ -19,47 +13,41 @@ function mostrarMensaje(texto, esError = false) {
 }
 
 async function guardarCampo(campo, valor) {
-	const respuesta = await fetch(API_URL + "/fotografo/perfil", {
-		method: "PUT",
-		headers: {
-			"Content-Type": "application/json",
-			"Authorization": "Bearer " + token
-		},
-		body: JSON.stringify({ [campo]: valor })
-	});
+	const datosActualizados = await api.actualizarPerfil({ [campo]: valor });
 
-	const resultado = await respuesta.json();
-
-	if (!respuesta.ok) {
-		throw new Error(resultado.mensaje || "No se pudo guardar el dato.");
-	}
-
-	const datosActualizados = resultado.datos;
 	Object.assign(usuarioGuardado, datosActualizados);
 	localStorage.setItem("usuario", JSON.stringify(usuarioGuardado));
 	mostrarDatos();
 	mostrarMensaje("Dato guardado correctamente.");
 }
 
-document.querySelectorAll(".formulario-perfil").forEach(function (formulario) {
-	formulario.addEventListener("submit", async function (evento) {
-		evento.preventDefault();
+if (!token || !usuarioGuardado) {
+	window.location.href = "login.html";
+} else {
+	mostrarDatos();
 
-		const campo = formulario.dataset.campo;
-		const valor = formulario.elements[campo].value.trim();
-		const boton = formulario.querySelector("button");
+	document.querySelectorAll(".formulario-perfil").forEach(function (formulario) {
+		formulario.addEventListener("submit", async function (evento) {
+			evento.preventDefault();
 
-		boton.disabled = true;
-		mostrarMensaje("Guardando...");
+			const campo = formulario.dataset.campo;
+			const valor = formulario.elements[campo].value.trim();
+			const boton = formulario.querySelector("button");
 
-		try {
-			await guardarCampo(campo, valor);
-		} catch (error) {
-			mostrarMensaje(error.message, true);
-		} finally {
-			boton.disabled = false;
-		}
+			boton.disabled = true;
+			mostrarMensaje("Guardando...");
+
+			try {
+				await guardarCampo(campo, valor);
+			} catch (error) {
+				mostrarMensaje(error.message, true);
+				if (error.status === 401) {
+					window.location.href = "login.html";
+					return;
+				}
+			} finally {
+				boton.disabled = false;
+			}
+		});
 	});
-});
-
-mostrarDatos();
+}
