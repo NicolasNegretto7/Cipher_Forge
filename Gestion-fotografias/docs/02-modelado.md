@@ -24,7 +24,7 @@ graph TD
         ROUTER["Front Controller & Enrutador\n(public/index.php / Router.php / Request / Response)"]
         AUTH_MID["Middleware de Autenticación\n(AuthMiddleware / Validación Bearer JWT)"]
         
-        subgraph Modulos ["Controladores, Validadores y Servicios"]
+        subgraph Módulos ["Controladores, Validadores y Servicios"]
             CTRL["Controladores (Controllers)\n(AuthController, ColeccionController, MultimediaController,\nColaborativoController, FavoritoController, FotografoController, SistemaController)"]
             VAL["Validadores (Validators) & DTOs Inmutables\n(AuthValidator, RegisterDto, MultimediaDto, etc.)"]
             SERV["Servicios de Negocio (Services)\n(AuthService, ColeccionService, MultimediaService, BackupService)"]
@@ -104,7 +104,7 @@ graph TD
 
 5. **Capa de Almacenamiento, Procesamiento Multimedia y Mantenimiento:**
    - **Librería GD:** Imprime marcas de agua semitransparentes en diagonal de forma repetida sobre copias de previsualización en JPG en el instante de la subida, redimensionando la imagen a un ancho óptimo de 1280 px para visualización rápida en galería. Para la descarga en "Buena Calidad", genera una copia limpia optimizada a un ancho máximo de 1920 px (Full HD).
-   - **FFmpeg CLI en Docker:** Se ejecuta desde PHP mediante llamadas seguras por consola (`escapeshellarg`) sobre el binario preinstalado en el contenedor Linux, generando automáticamente un clip representativo de 15 segundos (`-t 15 -preset veryfast`) para la galería de previsualización, reteniendo el archivo original de hasta 800 MB para la descarga autorizada.
+   - **FFmpeg CLI en Docker:** Se ejecuta desde PHP mediante llamadas seguras por consola (`escapeshellarg`) sobre el binario preinstalado en el contenedor Linux, generando automáticamente un clip representativo de 15 segundos (`-t 15 -preset veryfast`) para la galería de previsualización, reteniendo el archivo original de hasta 800 MB para la descarga directa.
    - **Filesystem persistente:** Montaje desacoplado en el volumen de Docker `uploads_data`, organizado en los subdirectorios `/uploads/originals/`, `/uploads/previews/` y `/uploads/standard/`.
    - **Respaldos y Rotación Diaria:** El script `cron-backup.php` y el controlador `SistemaController` orquestan a `BackupService`, el cual genera el volcado DDL y DML de la base de datos vía PDO directamente en `backend/backups/`, registra la traza de auditoría en la tabla `backups` y aplica rotación FIFO conservando estrictamente las últimas 3 copias más recientes y eliminando las más antiguas tanto en disco como en la base de datos (RNF5, RNF6, RNF7 / HU13).
 

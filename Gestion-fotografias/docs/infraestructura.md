@@ -51,6 +51,8 @@ graph LR
 <!-- WHY: Empaqueta códecs de video, librerías gráficas y extensiones de base de datos sin contaminar el SO del host -->
 <!-- HOW: Basado en Debian Buster/Bullseye vía imagen oficial php:8.2-apache -->
 
+> **Nota de trazabilidad:** Los detalles de FFmpeg, Docker y Filesystem de esta sección implementan la épica EP4 de 01-requerimientos.md, que quedó redactada en forma general a propósito por CC-08. Ver 01-requerimientos.md EP4 y 02-modelado.md Capa de Almacenamiento.
+
 ### 2.1 Código y Desglose Línea por Línea
 
 ```dockerfile
@@ -129,6 +131,8 @@ Define la estructura DDL para las 11 entidades del sistema:
 ### 4.2 Mecanismo de Respaldo Diario y Rotación (RNF5, RNF6, RNF7)
 
 Para satisfacer los requerimientos no funcionales de respaldo diario de la base de datos conservando las últimas 3 copias de forma persistente y portable, el sistema prescinde de scripts bash externos o dependencias del sistema operativo host. En su lugar, implementa una solución autocontenida y desacoplada en PHP nativo mediante `App\services\BackupService`, orquestada por el script de consola `backend/cron-backup.php` o invocable vía API REST mediante `POST /sistema/backup`.
+
+> **Nota de trazabilidad:** Este mecanismo implementa el RF15 generalizado y el HU12 simplificado aprobados en CC-08 y CC-10. En requerimientos solo queda aprobar el material y eliminar lo no aprobado tras 24 horas. El detalle de tarea programada vive aquí, no en 01-requerimientos.md.
 
 Todos los archivos de volcado se almacenan físicamente en el directorio del proyecto:
 `backend/backups/` con la nomenclatura `backup_cipher_forge_{YYYY-MM-DD_HH-mm-ss}.sql`.
