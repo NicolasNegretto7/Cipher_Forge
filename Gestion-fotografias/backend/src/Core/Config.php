@@ -9,11 +9,31 @@ namespace App\Core;
 
 class Config
 {
-    // Clave secreta para firmar los tokens JWT.
-    // En producción no debe versionarse; aquí se sobreescribe con la variable de entorno JWT_SECRET si existe.
+    // Clave secreta para firmar los tokens JWT (CF-13).
+    // Preferencia: variable de entorno JWT_SECRET. Si no está definida, se genera una
+    // clave aleatoria de 256 bits en la primera ejecución y se persiste en uploads/.jwt_secret
+    // (carpeta git-ignored y denegada por HTTP), de modo que los tokens sobrevivan reinicios
+    // y nunca se use una clave conocida/versionada como fallback.
     public static function jwtSecret(): string
     {
-        return getenv('JWT_SECRET') ?: 'cipher_forge_clave_super_secreta_2026';
+        $env = getenv('JWT_SECRET');
+        if (is_string($env) && trim($env) !== '') {
+            return trim($env);
+        }
+
+        $archivo = self::uploadsDir() . '/.jwt_secret';
+        if (is_file($archivo)) {
+            $guardado = @file_get_contents($archivo);
+            if (is_string($guardado) && trim($guardado) !== '') {
+                return trim($guardado);
+            }
+        }
+
+        $secreto = bin2hex(random_bytes(32));
+        @file_put_contents($archivo, $secreto, LOCK_EX);
+        @chmod($archivo, 0600);
+
+        return $secreto;
     }
 
     // Horas de validez de un token de acceso.
@@ -61,12 +81,6 @@ class Config
     public static function maxVideoSizeBytes(): int
     {
         return 800 * 1024 * 1024;
-    }
-
-    // Límite máximo para clip de video de invitado (80 MB, RF25/HU28).
-    public static function maxClipSizeBytes(): int
-    {
-        return 80 * 1024 * 1024;
     }
 
     // Texto que se incrusta como marca de agua sobre las vistas previas de imágenes.

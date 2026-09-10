@@ -15,22 +15,20 @@ use App\Core\Request;
 use App\Core\Response;
 use App\helpers\QrGenerator;
 use App\repository\ColeccionRepository;
+use App\repository\MultimediaRepository;
 use App\services\MultimediaService;
 use App\validators\MultimediaValidator;
 
 class ColaborativoController
 {
-    private ColeccionRepository $coleccionRepository;
-    private MultimediaService   $multimediaService;
-    private MultimediaValidator $multimediaValidator;
+    private ColeccionRepository    $coleccionRepository;
+    private MultimediaRepository   $multimediaRepository;
+    private MultimediaService      $multimediaService;
+    private MultimediaValidator    $multimediaValidator;
 
     private const EXTENSION_POR_MIME = [
-        'image/jpeg'      => 'jpg',
-        'image/png'       => 'png',
-        'video/mp4'       => 'mp4',
-        'video/quicktime' => 'mov',
-        'video/webm'      => 'webm',
-        'video/x-msvideo' => 'avi',
+        'image/jpeg' => 'jpg',
+        'video/mp4'  => 'mp4',
     ];
 
     public function __construct()
@@ -38,9 +36,10 @@ class ColaborativoController
         $database = new Database();
         $pdo      = $database->getConnection();
 
-        $this->coleccionRepository = new ColeccionRepository($pdo);
-        $this->multimediaService   = new MultimediaService();
-        $this->multimediaValidator = new MultimediaValidator();
+        $this->coleccionRepository  = new ColeccionRepository($pdo);
+        $this->multimediaRepository = new MultimediaRepository($pdo);
+        $this->multimediaService    = new MultimediaService();
+        $this->multimediaValidator  = new MultimediaValidator();
     }
 
     /**
@@ -80,8 +79,47 @@ class ColaborativoController
     }
 
     /**
+     * POST /colecciones/{id}/qr-acceso
+     * Genera o reutiliza un enlace/QR de acceso permanente (sin caducidad) a una colección
+     * privada (CF-01 / RF16 / HU17). Quien posea el enlace puede canjearlo y acceder a la
+     * colección como cliente invitado. Solo el fotógrafo dueño puede generarlo.
+     */
+    public function generarAcceso(string $id): void
+    {
+        $coleccionId = (int) $id;
+        $coleccion = $this->coleccionRepository->findById($coleccionId);
+
+        if ($coleccion === null) {
+            Response::error('La colección no existe.', 404);
+        }
+
+        $usuario = AuthMiddleware::user();
+        if ($usuario === null || (int) $coleccion['fotografo_id'] !== (int) $usuario['id']) {
+            Response::error('Solo el fotógrafo dueño puede generar el enlace de acceso.', 403);
+        }
+
+        // Reutilizar el token de acceso vigente si ya existe (enlace permanente estable);
+        // de lo contrario crear uno nuevo sin expiración.
+        $existente = $this->coleccionRepository->buscarTokenAccesoVigente($coleccionId);
+        $tokenData = $existente ?? $this->coleccionRepository->crearTokenAcceso($coleccionId);
+
+        $urlAcceso = $this->armarUrlInvitacion($tokenData['token']);
+
+        Response::success([
+            'token'        => $tokenData['token'],
+            'coleccion_id' => $coleccionId,
+            'titulo'       => $coleccion['titulo'],
+            'tipo'         => 'acceso',
+            'expiracion'   => null,
+            'url_acceso'   => $urlAcceso,
+            'svg_qr'       => QrGenerator::svg($urlAcceso),
+        ], 'Enlace de acceso permanente a la colección generado.', 201);
+    }
+
+    /**
      * GET /colecciones/{id}/qr-colaborativo/imprimir
      * Genera la hoja HTML con estilos CSS @media print para imprimir el QR físicamente en el evento (HU7).
+     * PENDIENTE CF-06: resolución pendiente de definición con el equipo de frontend.
      */
     public function imprimir(string $id): void
     {
@@ -157,12 +195,14 @@ class ColaborativoController
     /**
      * POST /colaborativo/{token}/subir
      * Sube material de invitados a la colección sin requerir registro (HU11 / RF14 / RF25).
-     * Aplica límite de 80 MB para clips y marca como pendiente de moderación (aprobado = 0).
+     * Aplica el límite documentado de 800 MB por video y respeta la cuota de 3 GB del
+     * fotógrafo (CF-07 / RF17); los archivos que excedan la cuota se rechazan y se informan.
      */
     public function subir(string $token): void
     {
         $infoToken = $this->validarTokenActivo($token);
         $coleccionId = (int) $infoToken['coleccion_id'];
+        $fotografoId = (int) $infoToken['fotografo_id'];
 
         if (!isset($_FILES['archivos'])) {
             Response::error('Debes enviar al menos un archivo en el campo "archivos".', 400);
@@ -174,9 +214,27 @@ class ColaborativoController
 
         $archivos = $this->normalizarArchivos($_FILES['archivos']);
         $subidos = [];
+        $excedentes = [];
+
+        // Consultar cuota usada por el fotógrafo dueño de la colección (CF-07 / RF17)
+        $espacioUsado = $this->multimediaRepository->espacioUsadoPorFotografo($fotografoId);
+        $maxCuota = Config::maxStorageBytes();
 
         foreach ($archivos as $archivo) {
-            // Validar con restricción estricta de invitado (máx 80MB para clips según RF25)
+            $tamano = (int) $archivo['size'];
+            $nombreOriginal = $archivo['name'] ?? 'archivo';
+
+            // Comprobar cuota restante antes de validar el archivo (RF17)
+            if (($espacioUsado + $tamano) > $maxCuota) {
+                $excedentes[] = [
+                    'archivo' => $nombreOriginal,
+                    'tamanio' => $tamano,
+                    'motivo'  => 'Excede la cuota máxima de almacenamiento del fotógrafo (3 GB).',
+                ];
+                continue;
+            }
+
+            // Validar con las restricciones de invitado (JPG/MP4 y máx 800 MB por archivo, CF-04)
             $dto = $this->multimediaValidator->validateUpload(
                 $archivo,
                 [
@@ -192,12 +250,22 @@ class ColaborativoController
 
             // Subir con aprobado = false para requerir aprobación del fotógrafo (HU12)
             $subidos[] = $this->multimediaService->upload($dto, $archivo, $extension, $mime, aprobado: false);
+            $espacioUsado += $tamano;
         }
 
+        if (empty($subidos) && !empty($excedentes)) {
+            Response::error('No se pudo subir ningún archivo porque se excede la cuota de 3 GB del fotógrafo.', 400, $excedentes);
+        }
+
+        $mensaje = !empty($excedentes)
+            ? 'Carga colaborativa recibida parcialmente: algunos archivos excedieron la cuota de 3 GB.'
+            : 'Carga colaborativa recibida exitosamente.';
+
         Response::success([
-            'subidos' => count($subidos),
-            'aviso'   => 'Tus archivos han sido subidos y serán revisados por el fotógrafo. Los no aprobados se eliminarán en 24 horas.',
-        ], 'Carga colaborativa recibida exitosamente.', 201);
+            'subidos'  => count($subidos),
+            'excedentes' => $excedentes,
+            'aviso'    => 'Tus archivos han sido subidos y serán revisados por el fotógrafo. Los no aprobados se eliminarán en 24 horas.',
+        ], $mensaje, 201);
     }
 
     private function validarTokenActivo(string $token): array
@@ -281,5 +349,40 @@ class ColaborativoController
         }
 
         return $this->armarUrlFront('/colaborativo/' . $token);
+    }
+
+    /**
+     * Construye la URL que codifica el QR/enlace de acceso permanente: debe abrir la
+     * página del cliente que canjea invitaciones (frontend-cliente/pages/tuscoleccionescliente.html?invitacion=...),
+     * nunca una respuesta JSON del API. Misma lógica de origen que armarUrlColaborativo().
+     */
+    private function armarUrlInvitacion(string $token): string
+    {
+        $base = getenv('FRONTEND_URL');
+        if (is_string($base) && trim($base) !== '') {
+            return rtrim(trim($base), '/') . '/frontend-cliente/pages/tuscoleccionescliente.html?invitacion=' . rawurlencode($token);
+        }
+
+        $referer = $_SERVER['HTTP_REFERER'] ?? '';
+        if (is_string($referer) && $referer !== '') {
+            $partes = parse_url($referer);
+            if (isset($partes['scheme'], $partes['host'], $partes['path']) && $partes['host'] !== '') {
+                $rutaDerivada = preg_replace('#/frontend-(fotografo|cliente)(/.*)?$#', '', $partes['path']);
+
+                $esOrigenFrontend = is_string($rutaDerivada)
+                    && $rutaDerivada !== $partes['path']
+                    && $partes['path'] !== '/';
+                if ($esOrigenFrontend) {
+                    $origen = $partes['scheme'] . '://' . $partes['host'];
+                    if (isset($partes['port'])) {
+                        $origen .= ':' . $partes['port'];
+                    }
+                    $rutaDerivada = rtrim($rutaDerivada, '/');
+                    return $origen . $rutaDerivada . '/frontend-cliente/pages/tuscoleccionescliente.html?invitacion=' . rawurlencode($token);
+                }
+            }
+        }
+
+        return $this->armarUrlFront('/invitaciones/' . $token);
     }
 }

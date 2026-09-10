@@ -213,6 +213,47 @@ class ColeccionRepository
     }
 
     /**
+     * Crea un token de acceso permanente (sin expiración) para una colección privada (CF-01 / RF16).
+     */
+    public function crearTokenAcceso(int $coleccionId): array
+    {
+        $token = bin2hex(random_bytes(20));
+        $stmt = $this->pdo->prepare(
+            'INSERT INTO qr_tokens (token, coleccion_id, tipo, expiracion)
+             VALUES (:token, :coleccion_id, "acceso", NULL)'
+        );
+        $stmt->execute([
+            'token'        => $token,
+            'coleccion_id' => $coleccionId,
+        ]);
+
+        return [
+            'id_token'     => (int) $this->pdo->lastInsertId(),
+            'token'        => $token,
+            'coleccion_id' => $coleccionId,
+            'tipo'         => 'acceso',
+            'expiracion'   => null,
+        ];
+    }
+
+    /**
+     * Devuelve el token de acceso permanente más reciente de una colección, si existe (CF-01 / RF16).
+     */
+    public function buscarTokenAccesoVigente(int $coleccionId): ?array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT id_token, token, coleccion_id, tipo, expiracion
+             FROM qr_tokens
+             WHERE coleccion_id = :id AND tipo = "acceso"
+             ORDER BY id_token DESC
+             LIMIT 1'
+        );
+        $stmt->execute(['id' => $coleccionId]);
+        $row = $stmt->fetch();
+        return $row ?: null;
+    }
+
+    /**
      * Busca cualquier token en qr_tokens y obtiene los datos de su colección vinculada.
      */
     public function buscarToken(string $token): ?array

@@ -17,8 +17,26 @@ services:
       - DB_PASS=cipher_password
       - DB_PORT=3306
       - FRONTEND_URL=http://127.0.0.1:5500/Gestion-fotografias
+      # Buzón SMTP de desarrollo (CF-02): la app envía el código de verificación por correo
+      # a "mailpit" y la bandeja se consulta en http://localhost:8025. Gmail/proveedores
+      # externos quedan excluidos del alcance (ver EMAIL_CONFIG.md).
+      - SMTP_HOST=mailpit
+      - SMTP_PORT=1025
+      - MAIL_FROM=no-reply@cipherforge.local
+      - MAIL_FROM_NAME=Cipher Forge
     depends_on:
       - db
+      - mailpit
+
+  # Buzón de correo de desarrollo (CF-02 / RF18): recibe los correos generados por la app,
+  # los guarda y los expone en una interfaz web. Nada sale de tu máquina.
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: cipher_forge_mail
+    restart: always
+    ports:
+      - "8025:8025"   # Interfaz web para leer los correos
+      - "1025:1025"   # SMTP de entrada usado por la app
 
   db:
     image: mysql:8.0

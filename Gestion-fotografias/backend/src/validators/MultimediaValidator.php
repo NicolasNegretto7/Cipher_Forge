@@ -12,20 +12,17 @@ use App\dtos\MultimediaDto;
 
 class MultimediaValidator
 {
-    // Límites (bytes). Video: 800 MB como tope de archivo original (RF7).
+    // Límites (bytes). Video: 800 MB como tope de archivo original (RF7 / RF26).
     private const MAX_IMAGEN = 20 * 1024 * 1024;    // 20 MB
     private const MAX_VIDEO  = 800 * 1024 * 1024;   // 800 MB
 
+    // Formatos aceptados por decisión del cliente/equipo (CF-03): únicamente JPG y MP4.
     private const MIMES_IMAGEN = [
         'image/jpeg' => 'jpg',
-        'image/png'  => 'png',
     ];
 
     private const MIMES_VIDEO = [
-        'video/mp4'        => 'mp4',
-        'video/quicktime'  => 'mov',
-        'video/webm'       => 'webm',
-        'video/x-msvideo'  => 'avi',
+        'video/mp4'  => 'mp4',
     ];
 
     /**
@@ -54,15 +51,15 @@ class MultimediaValidator
         } elseif (isset(self::MIMES_VIDEO[$mime])) {
             $tipo = 'video';
         } else {
-            $errores[] = 'Formato no permitido. Solo se aceptan imágenes (JPG/PNG) o videos (MP4/MOV/WEBM/AVI).';
+            $errores[] = 'Formato no permitido. Solo se aceptan imágenes JPG y videos MP4.';
             Response::error('Error de validación.', 400, $errores);
         }
 
-        // 3. Validar el tamaño según el tipo y rol (RF7: 800MB video original; RF25: 80MB clips de invitados).
+        // 3. Validar el tamaño según el tipo (RF7: imagen 20MB; video 800MB, CF-04: el mismo límite para invitados).
         if ($tipo === 'imagen') {
             $limite = self::MAX_IMAGEN;
         } else {
-            $limite = $esInvitado ? (80 * 1024 * 1024) : self::MAX_VIDEO;
+            $limite = self::MAX_VIDEO;
         }
 
         if ($tamano <= 0 || $tamano > $limite) {

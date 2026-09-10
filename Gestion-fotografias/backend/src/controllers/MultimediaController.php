@@ -18,12 +18,8 @@ class MultimediaController
     private MultimediaValidator $multimediaValidator;
 
     private const EXTENSION_POR_MIME = [
-        'image/jpeg'       => 'jpg',
-        'image/png'        => 'png',
-        'video/mp4'        => 'mp4',
-        'video/quicktime'  => 'mov',
-        'video/webm'       => 'webm',
-        'video/x-msvideo'  => 'avi',
+        'image/jpeg' => 'jpg',
+        'video/mp4'  => 'mp4',
     ];
 
     public function __construct()
@@ -156,16 +152,6 @@ class MultimediaController
 
         $rechazados = $this->multimediaService->rechazarColaborativo((int) $coleccionId, $ids);
         Response::success(['eliminados' => $rechazados], "Se han rechazado y eliminado {$rechazados} archivos.");
-    }
-
-    /**
-     * POST /sistema/limpiar-colaborativos
-     * Tarea programada para purgar archivos no aprobados tras 24 horas (HU12 / RF15).
-     */
-    public function limpiarExpirados(): void
-    {
-        $total = $this->multimediaService->purgarExpirados();
-        Response::success(['eliminados_expirados' => $total], "Se han purgado {$total} archivos no aprobados con más de 24h.");
     }
 
     /**

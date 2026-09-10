@@ -43,20 +43,26 @@ class ColeccionService
             Response::error('El fotógrafo especificado no existe.', 404);
         }
 
-        // 2. Verificar que el usuario tenga rol 'fotografo' (RF4 / HU2)
+        // 2. CF-05: el usuario autenticado debe ser el fotógrafo dueño de la nueva colección.
+        $autenticado = AuthMiddleware::user();
+        if ($autenticado === null || (int) $autenticado['id'] !== (int) $usuario['id']) {
+            Response::error('Solo puedes crear colecciones a tu propio nombre.', 403);
+        }
+
+        // 3. Verificar que el usuario tenga rol 'fotografo' (RF4 / HU2)
         if ($usuario['rol'] !== 'fotografo') {
             Response::error('Solo los usuarios con rol fotógrafo pueden crear colecciones.', 403);
         }
 
-        // 3. Crear la colección en la base de datos
+        // 4. Crear la colección en la base de datos
         $coleccionId = $this->coleccionRepository->create($dto);
 
-        // 4. Si es pública y se enviaron hashtags, guardarlos (HU26)
+        // 5. Si es pública y se enviaron hashtags, guardarlos (HU26)
         if ($dto->tipoVisibilidad === 'publica' && !empty($hashtags)) {
             $this->coleccionRepository->sincronizarHashtags($coleccionId, $hashtags);
         }
 
-        // 5. Obtener los datos completos de la colección creada
+        // 6. Obtener los datos completos de la colección creada
         $coleccion = $this->coleccionRepository->findById($coleccionId);
         $coleccion['hashtags'] = $this->coleccionRepository->obtenerHashtags($coleccionId);
 

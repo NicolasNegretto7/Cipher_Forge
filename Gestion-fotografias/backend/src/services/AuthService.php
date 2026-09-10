@@ -13,6 +13,7 @@ use App\Core\Response;
 use App\dtos\RegisterDto;
 use App\dtos\LoginDto;
 use App\helpers\Jwt;
+use App\helpers\Mailer;
 use App\repository\UserRepository;
 
 class AuthService
@@ -50,6 +51,14 @@ class AuthService
         $expiracion = date('Y-m-d H:i:s', time() + 3600);
         $this->userRepository->guardarCodigoVerificacion($dto->email, $codigo, $expiracion);
 
+        // 5. Enviar el código por correo con un mensaje personalizado (CF-02 / RF18).
+        //    Si el transporte falla (ej. Mailpit caído) se registra y se continúa, de modo
+        //    que el registro no se rompa; el código sigue disponible en dev para testing.
+        $enviado = Mailer::enviarVerificacion($dto->email, $dto->nombreCompleto, $codigo, $expiracion);
+        if (!$enviado) {
+            error_log('[CF-02] No se pudo enviar el correo de verificación a ' . $dto->email . ': ' . Mailer::lastError());
+        }
+
         return [
             'id'                  => $userId,
             'nombre_completo'     => $dto->nombreCompleto,
@@ -57,6 +66,7 @@ class AuthService
             'telefono'            => $dto->telefono,
             'rol'                 => $dto->rol,
             'email_verificado'    => false,
+            'email_enviado'       => $enviado,
             'codigo_verificacion' => $codigo, // Expuesto en dev/entorno local para testing ágil
         ];
     }
@@ -79,6 +89,11 @@ class AuthService
         // 2. Verificar contraseña contra el hash almacenado
         if (!password_verify($dto->password, $user['password_hash'])) {
             Response::error('Credenciales incorrectas.', 401);
+        }
+
+        // 2b. CF-09: bloquear el login hasta que el correo esté verificado (RF18 / HU8).
+        if (!(bool) $user['email_verificado']) {
+            Response::error('Debes verificar tu correo electrónico antes de iniciar sesión. Revisa tu bandeja de entrada o solicita un nuevo código.', 403);
         }
 
         // 3. Emitir un token JWT firmado para las peticiones autenticadas posteriores.
@@ -156,8 +171,15 @@ class AuthService
         $expiracion = date('Y-m-d H:i:s', time() + 3600);
         $this->userRepository->guardarCodigoVerificacion($email, $codigo, $expiracion);
 
+        // Reenviar el código por correo con mensaje personalizado (CF-02 / RF18 / HU21).
+        $enviado = Mailer::enviarVerificacion($email, (string) $user['nombre_completo'], $codigo, $expiracion);
+        if (!$enviado) {
+            error_log('[CF-02] No se pudo reenviar el correo de verificación a ' . $email . ': ' . Mailer::lastError());
+        }
+
         return [
             'email'               => $email,
+            'email_enviado'       => $enviado,
             'codigo_verificacion' => $codigo,
         ];
     }

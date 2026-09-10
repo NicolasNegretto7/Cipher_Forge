@@ -19,10 +19,14 @@ class ColeccionValidator
     {
         $errores = [];
 
-        // Si fotografo_id no viene en el body, autocompletar desde el usuario autenticado
-        if ((!isset($data['fotografo_id']) || empty($data['fotografo_id'])) && \App\middlewares\AuthMiddleware::user() !== null) {
-            $data['fotografo_id'] = \App\middlewares\AuthMiddleware::user()['id'];
+        // CF-05: La ruta exige autenticación ('auth') y la colección SIEMPRE pertenece al
+        // usuario autenticado. Se ignora cualquier fotografo_id enviado en el body y se
+        // toma la identidad del token JWT (el servidor es la autoridad).
+        $usuario = \App\middlewares\AuthMiddleware::user();
+        if ($usuario === null) {
+            Response::error('Debes iniciar sesión para crear una colección.', 401);
         }
+        $data['fotografo_id'] = $usuario['id'];
 
         // Validar fotografo_id
         if (!isset($data['fotografo_id']) || !is_numeric($data['fotografo_id']) || (int) $data['fotografo_id'] <= 0) {

@@ -37,7 +37,7 @@ $router->add('POST', '/fotografos/aceptar-politicas', FotografoController::class
 // -------------------------------------------------------------
 // 3. Colecciones, Hashtags e Invitaciones (HU2, HU3, HU17, HU24, HU26, HU27)
 // -------------------------------------------------------------
-$router->add('POST', '/colecciones', ColeccionController::class, 'create', 'optional');
+$router->add('POST', '/colecciones', ColeccionController::class, 'create', 'auth');
 $router->add('GET', '/colecciones/publicas', ColeccionController::class, 'listarPublicas');
 $router->add('GET', '/colecciones/{id}', ColeccionController::class, 'detalle', 'optional');
 $router->add('GET', '/invitaciones/{token}', ColeccionController::class, 'validarInvitacion', 'optional');
@@ -63,6 +63,7 @@ $router->add('DELETE', '/multimedia/{id}', MultimediaController::class, 'elimina
 // -------------------------------------------------------------
 $router->add('POST', '/colecciones/{id}/qr-colaborativo', ColaborativoController::class, 'generar', 'auth');
 $router->add('GET', '/colecciones/{id}/qr-colaborativo/imprimir', ColaborativoController::class, 'imprimir');
+$router->add('POST', '/colecciones/{id}/qr-acceso', ColaborativoController::class, 'generarAcceso', 'auth');
 $router->add('GET', '/qr/{token}/svg', ColaborativoController::class, 'svg');
 $router->add('GET', '/colaborativo/{token}', ColaborativoController::class, 'verificar');
 $router->add('POST', '/colaborativo/{token}/subir', ColaborativoController::class, 'subir');
