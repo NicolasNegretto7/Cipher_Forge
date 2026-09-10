@@ -176,6 +176,7 @@ Cada código QR se generará como un token único asociado a una colección o ev
 
 Se registrarán eventos como inicios de sesión fallidos y uso de códigos QR, lo que permitirá detectar patrones de abuso (por ejemplo, múltiples intentos de acceso a colecciones privadas).
 
+<<<<<<< HEAD
 ---
 
 ## 7. Cambios a futuro (pendientes)
@@ -188,14 +189,70 @@ Cambios detectados en la auditoría del backend que quedan **documentados y post
 
 **Cambio a futuro (postergado):** proteger estos endpoints **antes de exponer el servicio**. Opción recomendada: exigir cabecera `Authorization: Bearer <clave>` contra una clave maestra configurada por entorno (`SISTEMA_API_KEY`, con fallback y documentación de despliegue); alternativa: agregar rol `admin` al ENUM `roles` con usuario sembrado y verificación de rol en `AuthMiddleware`. El servicio `worker` y `cron-backup.php` **no se ven afectados** por ninguna de las dos, porque invocan `BackupService`/`MultimediaService` directamente (sin pasar por HTTP).
 
-### 7.2 Frente de UI para el consentimiento de datos (CF-15 / CC-13)
+### 7.2 Consentimiento de datos — integración de UI (CF-15 / CC-13) — aplicado
 
-El backend ya persiste el consentimiento (registro: `clientes.politicas_aceptadas`; invitado colaborativo: `multimedia.consentimiento_ts`), pero los archivos de frontend están en solo lectura y falta su integración:
+El consentimiento se captura y persiste de punta a punta:
 
-- Enviar `acepta_politicas=true` en `POST /auth/register` (casilla obligatoria de Términos & Política de Privacidad/Ley 18.331).
-- En la página colaborativa (`frontend-cliente/pages/colaborativo.html`), informar el tratamiento del nombre y enviar `acepto_datos=true` junto a la carga.
+- **Registro (HU25/RNF8):** casilla obligatoria de Términos y Condiciones & Política de Privacidad/Ley 18.331 en `frontend-fotografo/pages/registro.html` (roles fotógrafo y cliente). `script.js` envía `acepta_politicas=true`; el backend lo persiste en `clientes.politicas_aceptadas` o `fotografos.politicas_aceptadas` según el rol. Si el fotógrafo ya lo aceptó al registrarse, el modal de primer login (HU31) no vuelve a mostrarse.
+- **Carga colaborativa (RF14/RNF8):** `frontend-cliente/pages/colaborativo.html` informa el tratamiento del nombre y exige un checkbox legal (Ley 18.331) que habilita el envío; `colaborativo.js` + `api.js` envían `acepto_datos=true`, y el backend registra `multimedia.consentimiento_ts` (auditoría).
 
-Hasta entonces, el consentimiento queda registrado únicamente cuando el cliente lo envía, y `consentimiento_ts` queda `NULL` en las subidas anónimas que no lo declaran (trazable para auditoría).
+Pendiente en este frente solo la prueba manual del flujo QR en dispositivo (CF-14).
+=======
+# Segunda Entrega - Implementación Segura, Criptografía y Aspectos Legales
+
+# Términos y Condiciones
+
+Estos términos definen el uso aceptable de la plataforma web, protegen al equipo de desarrollo/empresa y establecen cómo se gestionan los datos en cumplimiento con la normativa uruguaya.
+
+## 1. Identificación y aceptación
+* **Datos del presentador:** La plataforma es un sistema web destinado a fotógrafos y compradores de material fotográfico, desarrollado inicialmente como un Proyecto de Egreso de UTU. 
+* **Consentimiento expreso:** Los usuarios (fotógrafos y clientes) deben aceptar de forma obligatoria los Términos y Condiciones y la Política de Privacidad al momento de registrarse. Además, en su primer inicio de sesión, el fotógrafo debe aceptar mediante un modal obligatorio su responsabilidad legal sobre el contenido y el cumplimiento de la Ley 18.331.
+
+## 2. Uso aceptable y restricciones
+* **Reglas de conducta:** El sistema permite la subida de imágenes en formato JPG y videos en formato MP4. Los invitados a un evento pueden subir fotos y videos mediante un código QR de carga colaborativa, pero el fotógrafo es quien debe moderar y aprobar este material. 
+* **Gestión de cuentas:** Para registrarse, los usuarios deben proporcionar su nombre completo, correo electrónico y contraseña, con el número de teléfono como dato opcional. El sistema prohíbe y bloquea el registro de usuarios duplicados que intenten usar un mismo correo electrónico. Se requiere verificar la cuenta mediante un código enviado al correo electrónico.
+
+## 3. Propiedad, estructura y contenidos
+* **Dependencia de la plataforma:** El sistema ofrece galerías de previsualización donde las imágenes se muestran con una marca de agua aplicada automáticamente para proteger el trabajo del fotógrafo. Los videos subidos generan automáticamente un recorte de vista previa de un máximo de 15 segundos.
+* **Contenido generado por el usuario:** El fotógrafo es quien decide de manera soberana si sus colecciones son públicas o privadas. El fotógrafo asume la total responsabilidad legal por el contenido que publica en la plataforma. La plataforma establece explícitamente que no se hace responsable ante posibles demandas por la publicación no autorizada de imágenes de terceros.
+
+## 4. Aspectos económicos y cancelación
+* **Precios y pagos:** El sistema otorga a cada fotógrafo una cuota de almacenamiento inicial de 3 GB. En esta primera versión del proyecto (por restricciones institucionales), no se incluyen pasarelas de pago reales ni se procesan cobros financieros dentro del sistema. 
+* **Suspensiones:** El sistema controla activamente el límite de almacenamiento de 3 GB. Si el usuario supera esta cuota, el sistema impide nuevas subidas de archivos y notifica sobre los elementos que exceden el límite. Los archivos colaborativos subidos por invitados que no sean aprobados por el fotógrafo serán eliminados automáticamente luego de 24 horas.
+
+## 5. Responsabilidad y legislación
+* **Limitación de responsabilidad:** El sistema bloqueará cualquier intento de acceso directo mediante URL a las colecciones privadas por parte de usuarios no autorizados. Para mitigar el riesgo de pérdida de datos, el sistema realiza respaldos automáticos diarios de la base de datos.
+* **Ley aplicable y jurisdicción:** La plataforma y el tratamiento de los datos personales se rigen estrictamente por la Ley 18.331 de Protección de Datos Personales de Uruguay. No se solicita la dirección física ni la cédula de identidad de los usuarios para simplificar el registro y minimizar la recolección de datos sensibles.
+
+---
+
+# Políticas de Seguridad de la Información (PSI)
+
+Estas políticas establecen los lineamientos normativos para proteger la Confidencialidad, Integridad y Disponibilidad (CIA) de los datos gestionados en el sistema de fotografía.
+
+## 1. Diagnóstico
+* **Información sensible:** La organización maneja datos personales como nombres completos, correos electrónicos y contraseñas de los usuarios registrados. También gestiona material multimedia sensible y privado, perteneciente a eventos sociales (bodas, fiestas de 15 años).
+* **Riesgos que enfrenta:** Se identificaron riesgos operativos como la caída del servidor, posibles pérdidas de información (respaldos), y el riesgo legal por exposición de material fotográfico privado sin autorización.
+
+## 2. Definición de roles y responsabilidades
+* **Fotógrafo (Administrador de colección):** Es responsable de clasificar sus colecciones como públicas o privadas. También es responsable de moderar y aprobar el material subido por los invitados a través del QR colaborativo.
+* **Cliente:** Responsable de acceder a las colecciones privadas únicamente a través de los enlaces de invitación proporcionados, requiriendo registro o inicio de sesión.
+* **Invitados (Carga colaborativa):** Pueden subir contenido de forma anónima mediante el código QR sin necesidad de registro, pero tienen restringido el acceso para visualizar o descargar otros archivos de la colección.
+
+## 3. Lineamientos y normas
+* **Confidencialidad:** Las colecciones privadas conservan su estado permanentemente, sin importar el tiempo transcurrido o la cantidad de clientes asignados. Se aplican marcas de agua a las imágenes en la vista previa para proteger la propiedad intelectual antes de la descarga o compra.
+* **Disponibilidad e Integridad:** El sistema debe ejecutar un respaldo automático diario de la base de datos. Se aplica una política de rotación automática que mantiene almacenadas únicamente las últimas tres copias de seguridad. Queda registrado en el sistema la fecha y hora exacta de cada uno de estos respaldos.
+
+## 4. Aprobación y difusión
+* Las normativas de seguridad, términos de uso y el cumplimiento de la Ley 18.331 deben ser presentadas y aprobadas formalmente por el cliente solicitante, Lemuel Swec.
+* Para la difusión a los usuarios, la política se comunica obligatoriamente a través de un modal emergente durante el primer inicio de sesión del fotógrafo.
+
+## 5. Revisión periódica
+* Las políticas actuales están diseñadas para un entorno de pruebas local como parte del proyecto académico. 
+* Estas normativas deberán ser revisadas y actualizadas cuando el sistema se migre a un servidor en la nube de producción y se implementen pasarelas de métodos de pago reales en futuras versiones.
+
+
+>>>>>>> f0a5605d0b78cef274b953ef27d9cbde3f204e04
 
 
 

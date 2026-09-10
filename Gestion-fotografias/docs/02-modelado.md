@@ -90,7 +90,7 @@ graph TD
 
 3. **Capa de Negocio y Dominio (Services, DTOs, Validators & Helpers):**
    - **DTOs (Data Transfer Objects):** Clases inmutables con propiedades fuertemente tipadas (`readonly`) que estructuran la carga de datos (`RegisterDto`, `LoginDto`, `CreateColeccionDto`, `MultimediaDto`), garantizando la integridad de datos desde la entrada del sistema.
-   - **Validators:** Clases especializadas (`AuthValidator`, `ColeccionValidator`, `MultimediaValidator`) que verifican reglas de negocio y restricciones técnicas (formatos RFC de correo electrónico, longitud de claves, extensiones MIME permitidas, límite de 800 MB en video y 3 GB en cuota global).
+   - **Validators:** Clases especializadas (`AuthValidator`, `ColeccionValidator`, `MultimediaValidator`) que verifican reglas de negocio y restricciones técnicas (formatos RFC de correo electrónico, longitud de claves, extensiones MIME permitidas, límite de 800 MB en video y 3 GB en cuota global). Para que estos límites de aplicación sean los que efectivamente rigen, el runtime PHP del contenedor se alinea vía `php.ini` (`upload_max_filesize=900M`, `post_max_size=1G`, `memory_limit=512M`); antes, el default `2M` de PHP rechazaba fotos >2 MB en el transporte sin llegar al validador (CF-NUEVO/CC-15).
    - **Services:** Implementan la lógica de negocio nuclear (`AuthService`, `ColeccionService`, `MultimediaService`, `BackupService`), coordinando la persistencia con repositorios y la manipulación binaria con helpers.
    - **Helpers Nativos en PHP 8.2 (Sin librerías de terceros):**
      * `Jwt.php`: Generador y validador de tokens HS256 basado en `hash_hmac('sha256', ...)` y codificación Base64Url estándar.

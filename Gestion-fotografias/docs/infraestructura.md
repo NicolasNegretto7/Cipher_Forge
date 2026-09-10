@@ -91,7 +91,13 @@ RUN a2enmod rewrite
 # 5. Directorio de trabajo predeterminado dentro del contenedor
 WORKDIR /var/www/html
 
-# 6. Comando por defecto: Apache en primer plano (CF-12). El entrypoint respeta "$@",
+# 6. Configuración PHP del contenedor (CF-NUEVO): alinea los límites de subida con los
+#    que ya valida la aplicación (imagen 20 MB / video 800 MB). Cargado por Apache en
+#    /usr/local/etc/php/conf.d/, sobrescribe upload_max_filesize=2M y post_max_size=8M
+#    por defecto de php:8.2-apache, que rechazaban cualquier archivo >2 MB.
+COPY php.ini /usr/local/etc/php/conf.d/99-cipher-forge.ini
+
+# 7. Comando por defecto: Apache en primer plano (CF-12). El entrypoint respeta "$@",
 #    por lo que el servicio `worker` de compose lo reemplaza por `php cron-backup.php --loop`.
 CMD ["apache2-foreground"]
 ```
@@ -100,6 +106,20 @@ Además, la imagen define un entrypoint propio en `backend/docker-entrypoint.sh`
 1. Crea y da permisos a las carpetas de `uploads/` (`originals`, `previews`, `standard`).
 2. Aplica la migración idempotente `database/migration.sql` al arrancar (tras esperar a MySQL).
 3. Ejecuta `exec "$@"` (CF-12): respeta el `CMD`/`command` de compose — `app` ejecuta el `CMD` por defecto de la imagen (`apache2-foreground`), y `worker` ejecuta `php cron-backup.php --loop`.
+
+### 2.2 Límites de Subida del Runtime (CF-NUEVO)
+
+El contenedor PHP trae por defecto `upload_max_filesize=2M` y `post_max_size=8M`, que rechazaban cualquier archivo >2 MB *antes* de entrar al código de la aplicación. Para que el tope real sean las reglas de negocio (imagen 20 MB / video 800 MB según `MultimediaValidator`, CF-03/RF7), la imagen inyecta `backend/php.ini` como `99-cipher-forge.ini`:
+
+| Directiva | Valor | Justificación |
+|---|---|---|
+| `file_uploads` | On | Subidas habilitadas. |
+| `upload_max_filesize` | 900M | Video de 800 MB + margen. |
+| `post_max_size` | 1G | Varias fotos en una misma petición multipart. |
+| `memory_limit` | 512M | Procesamiento GD (imágenes) y transcodificación de video. |
+| `max_execution_time` / `max_input_time` | 600 | Subidas grandes (video 800 MB). |
+
+> **Nota de trazabilidad:** Nivel de transporte (PHP/Apache), mientras que CF-03 valida formatos y tamaños por tipo de archivo en la capa de aplicación. Ver 02-modelado.md y CC-15.
 
 ---
 

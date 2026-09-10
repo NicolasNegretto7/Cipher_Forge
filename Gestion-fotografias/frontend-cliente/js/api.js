@@ -220,10 +220,11 @@
         return enviarJson("/colaborativo/" + encodeURIComponent(tokenQr), "GET");
     }
 
-    async function subirMaterialColaborativo(tokenQr, archivos, nombreInvitado) {
+    async function subirMaterialColaborativo(tokenQr, archivos, nombreInvitado, aceptoDatos) {
         const formulario = new FormData();
         adjuntarArchivos(formulario, archivos);
         if (nombreInvitado) formulario.append("nombre_invitado", nombreInvitado);
+        if (aceptoDatos) formulario.append("acepto_datos", "true");
         return enviarMultipart("/colaborativo/" + encodeURIComponent(tokenQr) + "/subir", "POST", formulario, false);
     }
 

@@ -13,6 +13,7 @@ const formulario = document.getElementById("formularioColaborativo");
 const selectorArchivos = document.getElementById("selectorArchivos");
 const listaArchivosSeleccion = document.getElementById("listaArchivosSeleccion");
 const botonEnviar = document.getElementById("botonEnviar");
+const aceptoDatos = document.getElementById("aceptoDatos");
 const panelExito = document.getElementById("panelExito");
 const mensajeExito = document.getElementById("mensajeExito");
 
@@ -46,27 +47,36 @@ async function iniciar() {
 	}
 }
 
+function actualizarBotonEnviar() {
+	botonEnviar.disabled = (archivosSeleccionados.length === 0) || !aceptoDatos.checked;
+}
+
 selectorArchivos.addEventListener("change", function () {
 	archivosSeleccionados = Array.from(selectorArchivos.files || []);
 	if (archivosSeleccionados.length > 0) {
 		listaArchivosSeleccion.textContent = archivosSeleccionados.length + " archivo(s) seleccionado(s)";
-		botonEnviar.disabled = false;
 	} else {
 		listaArchivosSeleccion.textContent = "";
-		botonEnviar.disabled = true;
 	}
+	actualizarBotonEnviar();
 });
+
+aceptoDatos.addEventListener("change", actualizarBotonEnviar);
 
 formulario.addEventListener("submit", async function (evento) {
 	evento.preventDefault();
 	if (archivosSeleccionados.length === 0) return;
+	if (!aceptoDatos.checked) {
+		alert("Debés aceptar el tratamiento de tus datos (Ley 18.331) para poder subir archivos.");
+		return;
+	}
 
 	botonEnviar.disabled = true;
 	botonEnviar.textContent = "Subiendo…";
 
 	try {
 		const nombreInvitado = document.getElementById("nombreInvitado").value.trim();
-		const resultado = await window.api.subirMaterialColaborativo(token, archivosSeleccionados, nombreInvitado);
+		const resultado = await window.api.subirMaterialColaborativo(token, archivosSeleccionados, nombreInvitado, aceptoDatos.checked);
 		mensajeExito.textContent = resultado.aviso;
 		mostrarPantalla(panelExito);
 	} catch (error) {
