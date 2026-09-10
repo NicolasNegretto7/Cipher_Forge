@@ -176,6 +176,27 @@ Cada código QR se generará como un token único asociado a una colección o ev
 
 Se registrarán eventos como inicios de sesión fallidos y uso de códigos QR, lo que permitirá detectar patrones de abuso (por ejemplo, múltiples intentos de acceso a colecciones privadas).
 
+---
+
+## 7. Cambios a futuro (pendientes)
+
+Cambios detectados en la auditoría del backend que quedan **documentados y postergados** por decisión del Product Owner. No se implementan en esta versión.
+
+### 7.1 Protección de endpoints de administración `/sistema/*` (CF-08 / CC-14)
+
+**Estado actual:** `POST /sistema/backup`, `GET /sistema/backups` y `POST /sistema/limpiar-colaborativos` (`routes.php`) son públicos: cualquiera que alcance la API puede disparar respaldos, listar el historial o **purgar colaborativos pendientes de cualquier fotógrafo**. El esquema solo admite roles `fotografo`/`cliente` (no existe `admin`).
+
+**Cambio a futuro (postergado):** proteger estos endpoints **antes de exponer el servicio**. Opción recomendada: exigir cabecera `Authorization: Bearer <clave>` contra una clave maestra configurada por entorno (`SISTEMA_API_KEY`, con fallback y documentación de despliegue); alternativa: agregar rol `admin` al ENUM `roles` con usuario sembrado y verificación de rol en `AuthMiddleware`. El servicio `worker` y `cron-backup.php` **no se ven afectados** por ninguna de las dos, porque invocan `BackupService`/`MultimediaService` directamente (sin pasar por HTTP).
+
+### 7.2 Frente de UI para el consentimiento de datos (CF-15 / CC-13)
+
+El backend ya persiste el consentimiento (registro: `clientes.politicas_aceptadas`; invitado colaborativo: `multimedia.consentimiento_ts`), pero los archivos de frontend están en solo lectura y falta su integración:
+
+- Enviar `acepta_politicas=true` en `POST /auth/register` (casilla obligatoria de Términos & Política de Privacidad/Ley 18.331).
+- En la página colaborativa (`frontend-cliente/pages/colaborativo.html`), informar el tratamiento del nombre y enviar `acepto_datos=true` junto a la carga.
+
+Hasta entonces, el consentimiento queda registrado únicamente cuando el cliente lo envía, y `consentimiento_ts` queda `NULL` en las subidas anónimas que no lo declaran (trazable para auditoría).
+
 
 
 

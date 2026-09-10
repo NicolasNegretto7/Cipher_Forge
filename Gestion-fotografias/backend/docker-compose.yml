@@ -4,6 +4,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: cipher-forge:dev
     container_name: cipher_forge_app
     ports:
       - "8080:80"
@@ -27,6 +28,31 @@ services:
     depends_on:
       - db
       - mailpit
+
+  # Worker de mantenimiento (CF-12): ejecuta cron-backup.php --loop en la misma imagen.
+  # Automatiza el respaldo diario (HU13) y la purga de colaborativos no aprobados > 24h (HU12)
+  # sin depender del host ni de tráfico web. Intervalos configurables por entorno.
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cipher-forge:dev
+    container_name: cipher_forge_worker
+    restart: unless-stopped
+    command: php cron-backup.php --loop
+    volumes:
+      - .:/var/www/html
+      - uploads_data:/var/www/html/uploads
+    environment:
+      - DB_HOST=db
+      - DB_NAME=cipher_forge
+      - DB_USER=cipher_user
+      - DB_PASS=cipher_password
+      - DB_PORT=3306
+      - BACKUP_INTERVAL_SEG=86400
+      - PURGE_INTERVAL_SEG=3600
+    depends_on:
+      - db
 
   # Buzón de correo de desarrollo (CF-02 / RF18): recibe los correos generados por la app,
   # los guarda y los expone en una interfaz web. Nada sale de tu máquina.

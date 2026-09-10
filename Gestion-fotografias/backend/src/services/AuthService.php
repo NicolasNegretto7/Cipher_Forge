@@ -103,10 +103,10 @@ class AuthService
             Config::tokenHoras()
         );
 
-        // 4. Comprobar si aceptó las políticas obligatorias si es fotógrafo (HU31)
+        // 4. Comprobar si aceptó las políticas obligatorias (HU31 para fotógrafo; CF-15 para cliente).
         $politicasAceptadas = $user['rol'] === 'fotografo'
             ? $this->userRepository->politicasAceptadas((int) $user['id'])
-            : true;
+            : $this->userRepository->politicasClienteAceptadas((int) $user['id']);
 
         // 5. Retornar datos del usuario (sin el hash) junto con el token de acceso.
         return [

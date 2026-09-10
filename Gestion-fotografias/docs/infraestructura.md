@@ -26,6 +26,10 @@ graph LR
             UPLOADS_DIR["/var/www/html/uploads"]
         end
 
+        subgraph WorkerContainer ["Contenedor: cipher_forge_worker"]
+            WORKER["PHP CLI 8.2\n(cron-backup.php --loop)"]
+        end
+
         subgraph DBContainer ["Contenedor: cipher_forge_db"]
             MYSQL["MySQL Server 8.0"]
             INIT["/docker-entrypoint-initdb.d\n(schema.sql)"]
@@ -39,6 +43,8 @@ graph LR
     P3306 --> MYSQL
     CODE -.->|Bind Mount| AppContainer
     AppContainer -->|Red Interna: DB_HOST=db:3306| DBContainer
+    WorkerContainer -->|Red Interna: DB_HOST=db:3306| DBContainer
+    WorkerContainer -.->|purgarExpirados >24h| V_UPLOADS
     UPLOADS_DIR --- V_UPLOADS
     MYSQL --- V_DB
 ```
@@ -84,18 +90,27 @@ RUN a2enmod rewrite
 
 # 5. Directorio de trabajo predeterminado dentro del contenedor
 WORKDIR /var/www/html
+
+# 6. Comando por defecto: Apache en primer plano (CF-12). El entrypoint respeta "$@",
+#    por lo que el servicio `worker` de compose lo reemplaza por `php cron-backup.php --loop`.
+CMD ["apache2-foreground"]
 ```
+
+Además, la imagen define un entrypoint propio en `backend/docker-entrypoint.sh` que:
+1. Crea y da permisos a las carpetas de `uploads/` (`originals`, `previews`, `standard`).
+2. Aplica la migración idempotente `database/migration.sql` al arrancar (tras esperar a MySQL).
+3. Ejecuta `exec "$@"` (CF-12): respeta el `CMD`/`command` de compose — `app` ejecuta el `CMD` por defecto de la imagen (`apache2-foreground`), y `worker` ejecuta `php cron-backup.php --loop`.
 
 ---
 
 ## 3. Especificación de Docker Compose (`backend/docker-compose.yml`)
 
-Docker Compose orquesta dos servicios desacoplados comunicados mediante una red interna tipo puente (`bridge`).
+Docker Compose orquesta **cuatro servicios** comunicados mediante una red interna tipo puente (`bridge`): `app` (web/API), `mailpit` (buzón SMTP de desarrollo), `worker` (mantenimiento programado) y `db` (MySQL). Los servicios `app` y `worker` comparten la imagen local `cipher-forge:dev`, construida una sola vez desde el mismo `Dockerfile`.
 
 ### 3.1 Servicios Definidos
 
 #### A. Servicio `app` (Contenedor `cipher_forge_app`)
-* **Construcción:** Construye la imagen local utilizando el archivo `./Dockerfile`.
+* **Construcción:** Construye la imagen local `cipher-forge:dev` utilizando el archivo `./Dockerfile` (compartida con el servicio `worker`).
 * **Mapeo de Puertos:** `8080:80` (el puerto 80 del servidor Apache interno se expone en el puerto 8080 del host local).
 * **Volúmenes:**
   * `.:/var/www/html`: Montaje enlazado (*bind mount*) que sincroniza en tiempo real los cambios de código fuente sin necesidad de reconstruir la imagen.
@@ -105,9 +120,28 @@ Docker Compose orquesta dos servicios desacoplados comunicados mediante una red 
   * `DB_NAME=cipher_forge`: Nombre del esquema de base de datos.
   * `DB_USER=cipher_user` / `DB_PASS=cipher_password`: Credenciales del usuario de la aplicación.
   * `DB_PORT=3306`: Puerto estándar de escucha de MySQL.
-* **Dependencias:** `depends_on: [db]` garantiza que el contenedor de base de datos inicie antes de la aplicación.
+  * `FRONTEND_URL=http://127.0.0.1:5500/Gestion-fotografias`: Raíz del frontend estático usada por el backend para armar las URLs codificadas en los QR (CF-06).
+  * `SMTP_HOST=mailpit` / `SMTP_PORT=1025` / `MAIL_FROM` / `MAIL_FROM_NAME`: Envío de correos de verificación al buzón local Mailpit (CF-02).
+* **Dependencias:** `depends_on: [db, mailpit]` garantiza que la base de datos y el buzón inicien antes que la aplicación.
 
-#### B. Servicio `db` (Contenedor `cipher_forge_db`)
+#### B. Servicio `mailpit` (Contenedor `cipher_forge_mail`)
+* **Imagen:** `axllent/mailpit:latest` (buzón SMTP de desarrollo, CF-02 / RF18). Intercepta los correos generados por la app y los expone en una interfaz web; nada sale de la máquina.
+* **Mapeo de Puertos:** `8025:8025` (interfaz web de lectura del buzón) y `1025:1025` (entrada SMTP que usa la app).
+* **Reinicio:** `restart: always`.
+
+#### C. Servicio `worker` (Contenedor `cipher_forge_worker`)
+* **Construcción:** Comparte la imagen `cipher-forge:dev` construida con el mismo `./Dockerfile` que `app`.
+* **Comando:** `php cron-backup.php --loop` — ejecuta como proceso residente el script de mantenimiento (CF-12): **respaldo diario** de la base de datos (HU13 / RNF5-RNF7) y **purga de archivos colaborativos no aprobados tras 24 horas** (HU12 / RF15). No expone puertos.
+* **Volúmenes:**
+  * `.:/var/www/html`: mismo bind mount de código que `app` (Lee el script y escribe los volcados en `backend/backups/`).
+  * `uploads_data:/var/www/html/uploads`: mismo volumen persistente (borra físicamente los archivos colaborativos purgados).
+* **Variables de Entorno:** las mismas credenciales de BD que `app` (`DB_*`) más los intervalos del bucle:
+  * `BACKUP_INTERVAL_SEG=86400`: respaldo cada 24 h.
+  * `PURGE_INTERVAL_SEG=3600`: purga colaborativa cada 1 h.
+* **Reinicio:** `restart: unless-stopped`.
+* **Dependencias:** `depends_on: [db]`.
+
+#### D. Servicio `db` (Contenedor `cipher_forge_db`)
 * **Imagen:** Imagen oficial `mysql:8.0`.
 * **Mapeo de Puertos:** `3306:3306` (permite conexiones externas de diagnóstico mediante clientes como DBeaver, MySQL Workbench o la extensión de VS Code).
 * **Variables de Entorno:**
@@ -130,7 +164,10 @@ Define la estructura DDL para las 11 entidades del sistema:
 
 ### 4.2 Mecanismo de Respaldo Diario y Rotación (RNF5, RNF6, RNF7)
 
-Para satisfacer los requerimientos no funcionales de respaldo diario de la base de datos conservando las últimas 3 copias de forma persistente y portable, el sistema prescinde de scripts bash externos o dependencias del sistema operativo host. En su lugar, implementa una solución autocontenida y desacoplada en PHP nativo mediante `App\services\BackupService`, orquestada por el script de consola `backend/cron-backup.php` o invocable vía API REST mediante `POST /sistema/backup`.
+Para satisfacer los requerimientos no funcionales de respaldo diario de la base de datos conservando las últimas 3 copias de forma persistente y portable, el sistema prescinde de scripts bash externos o dependencias del sistema operativo host. En su lugar, implementa una solución autocontenida y desacoplada en PHP nativo mediante `App\services\BackupService`, orquestada por el script de consola `backend/cron-backup.php` de dos maneras complementarias (CF-12):
+- **Con el servicio `worker` de docker-compose** (recomendado): lo ejecuta `php cron-backup.php --loop` como proceso residente; automatiza el respaldo diario y la purga colaborativa sin depender del host ni del tráfico web.
+- **Invocación manual o cron del host**: `php cron-backup.php` (one-shot) ejecuta ambas tareas una vez y termina.
+- **Vía API REST**: `POST /sistema/backup` dispara el respaldo puntual.
 
 > **Nota de trazabilidad:** Este mecanismo implementa el RF15 generalizado y el HU12 simplificado aprobados en CC-08 y CC-10. En requerimientos solo queda aprobar el material y eliminar lo no aprobado tras 24 horas. El detalle de tarea programada vive aquí, no en 01-requerimientos.md.
 
@@ -155,34 +192,57 @@ Todos los archivos de volcado se almacenan físicamente en el directorio del pro
 <?php
 // WHAT: Script CLI ejecutable para tareas programadas de mantenimiento y respaldo de base de datos.
 // WHY: Automatiza el cumplimiento de RNF5, RNF6, RNF7 y la purga colaborativa (RF15) sin intervención manual ni dependencias del host.
-// HOW: Inicializa el autoloader PSR-4 nativo, ejecuta BackupService con rotación en backend/backups/ y purga archivos expirados.
+// HOW: Inicializa el autoloader PSR-4 nativo, ejecuta BackupService con rotación en backend/backups/
+//      y purga archivos expirados. Modo --loop (worker) con intervalos por entorno.
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/public/index.php'; // Carga autoloader de clases
+// Autoloader PSR-4 nativo (App\ -> src/)
 
 use App\services\BackupService;
 use App\services\MultimediaService;
 
-echo "[" . date('Y-m-d H:i:s') . "] Iniciando tareas programadas de mantenimiento...\n";
+$modoLoop = in_array('--loop', $argv, true);
 
-try {
-    // 1. Respaldo de base de datos con rotación (HU13 / RNF5, RNF6, RNF7)
-    $backupService = new BackupService();
-    $backup = $backupService->generarBackup();
-    echo "[OK] Respaldo generado en backend/backups/: {$backup['nombre_backup']} ({$backup['tamanio_kb']} KB)\n";
+// Intervalos (segundos) en modo --loop; sobrescribibles por entorno.
+$intervaloBackupSeg = max(1, (int) (getenv('BACKUP_INTERVAL_SEG') ?: 86400)); // diario
+$intervaloPurgaSeg  = max(1, (int) (getenv('PURGE_INTERVAL_SEG')  ?: 3600));  // horario
 
-    // 2. Limpieza de archivos colaborativos no aprobados con más de 24h (HU12 / RF15)
-    $multimediaService = new MultimediaService();
-    $purgados = $multimediaService->purgarExpirados();
-    echo "[OK] Archivos colaborativos expirados purgados: {$purgados}\n";
+$ultimoBackup = 0;
+$ultimaPurga  = 0;
 
-    echo "[" . date('Y-m-d H:i:s') . "] Tareas finalizadas exitosamente.\n";
-    exit(0);
-} catch (Throwable $e) {
-    echo "[ERROR] Fallo en tareas programadas: " . $e->getMessage() . "\n";
-    exit(1);
-}
+do {
+    $ahora = time();
+    $correrBackup = ($ahora - $ultimoBackup) >= $intervaloBackupSeg;
+    $correrPurga  = ($ahora - $ultimaPurga)  >= $intervaloPurgaSeg;
+
+    try {
+        // 1. Purga de colaborativos no aprobados > 24h (HU12 / RF15)
+        if ($correrPurga) {
+            $multimediaService = new MultimediaService();
+            $purgados = $multimediaService->purgarExpirados();
+            echo "[OK] Archivos colaborativos expirados purgados: {$purgados}\n";
+            $ultimaPurga = $ahora;
+        }
+
+        // 2. Respaldo de base de datos con rotación (HU13 / RNF5, RNF6, RNF7)
+        if ($correrBackup) {
+            $backupService = new BackupService();
+            $backup = $backupService->generarBackup();
+            echo "[OK] Respaldo generado en backend/backups/: {$backup['nombre_backup']} ({$backup['tamanio_kb']} KB)\n";
+            $ultimoBackup = $ahora;
+        }
+
+        if (!$modoLoop) { break; }
+        sleep(60);
+    } catch (Throwable $e) {
+        echo "[ERROR] Fallo en tareas programadas: " . $e->getMessage() . "\n";
+        if (!$modoLoop) { exit(1); }
+        sleep(60);
+    }
+} while ($modoLoop);
+
+exit(0);
 ```
 
 4. **Endpoints de Control vía API REST (`backend/routes.php`):**

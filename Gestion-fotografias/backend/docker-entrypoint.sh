@@ -37,6 +37,8 @@ if [ -f "$MIGRATION_FILE" ]; then
     echo "✅ Migración completada."
 fi
 
-# Arrancar Apache en primer plano (heredando la configuración de la imagen base).
-exec apache2-foreground
+# Ejecutar el comando del contenedor (CMD / command de compose) respetando "$@".
+# Así `app` arranca Apache (CMD por defecto de la imagen) y `worker` (CF-12) ejecuta
+# `php cron-backup.php --loop`, ambos después de preparar carpetas y migración.
+exec "$@"
 

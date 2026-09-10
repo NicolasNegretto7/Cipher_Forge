@@ -46,7 +46,7 @@ graph TD
 
     subgraph Persistencia ["Capa de Datos y Mantenimiento"]
         MYSQL[("MySQL 8.0 (Docker cipher_forge_db)\n(Puerto 3306 - volumen db_data)")]
-        BACKUP["Sistema de Respaldos Diarios\n(cron-backup.php / BackupService / PDO / rotación 3 copias)"]
+        BACKUP["Sistema de Respaldos y Purga Diaria\n(worker cipher_forge_worker: cron-backup.php --loop / BackupService / PDO / rotación 3 copias)"]
     end
 
     FC -->|HTTP REST / JSON / Multipart| APACHE
@@ -71,6 +71,7 @@ graph TD
     FFMPEG --> FS
     REPO -->|Conexión PDO / Sentencias preparadas| MYSQL
     BACKUP -.->|PDO SQL Dump y rotación automática| MYSQL
+    BACKUP -.->|purgarExpirados (>24h) sobre| FS
 ```
 
 ### 1.2 Descripción Detallada de Capas
@@ -106,7 +107,7 @@ graph TD
    - **Librería GD:** Imprime marcas de agua semitransparentes en diagonal de forma repetida sobre copias de previsualización en JPG en el instante de la subida, redimensionando la imagen a un ancho óptimo de 1280 px para visualización rápida en galería. Para la descarga en "Buena Calidad", genera una copia limpia optimizada a un ancho máximo de 1920 px (Full HD).
    - **FFmpeg CLI en Docker:** Se ejecuta desde PHP mediante llamadas seguras por consola (`escapeshellarg`) sobre el binario preinstalado en el contenedor Linux, generando automáticamente un clip representativo de 15 segundos (`-t 15 -preset veryfast`) para la galería de previsualización, reteniendo el archivo original de hasta 800 MB para la descarga directa.
    - **Filesystem persistente:** Montaje desacoplado en el volumen de Docker `uploads_data`, organizado en los subdirectorios `/uploads/originals/`, `/uploads/previews/` y `/uploads/standard/`.
-   - **Respaldos y Rotación Diaria:** El script `cron-backup.php` y el controlador `SistemaController` orquestan a `BackupService`, el cual genera el volcado DDL y DML de la base de datos vía PDO directamente en `backend/backups/`, registra la traza de auditoría en la tabla `backups` y aplica rotación FIFO conservando estrictamente las últimas 3 copias más recientes y eliminando las más antiguas tanto en disco como en la base de datos (RNF5, RNF6, RNF7 / HU13).
+   - **Respaldos y Purga Automatizada (CF-12):** El servicio `worker` de docker-compose (`cipher_forge_worker`) ejecuta `cron-backup.php --loop` como proceso residente y desacoplado del tráfico web. Realiza (a) **respaldo diario** con `BackupService`: volcado DDL y DML de la base de datos vía PDO directo en `backend/backups/`, registro de la traza de auditoría en la tabla `backups` y rotación FIFO conservando estrictamente las últimas 3 copias (RNF5, RNF6, RNF7 / HU13); y (b) **purga horaria de colaborativos no aprobados > 24 h** (`MultimediaService::purgarExpirados`), borrando filas en `multimedia` y archivos físicos en `uploads/` (RF15 / HU12). Sus intervalos se configuran por entorno (`BACKUP_INTERVAL_SEG=86400`, `PURGE_INTERVAL_SEG=3600`); el controlador `SistemaController` ofrece las mismas tareas vía API (`POST /sistema/backup`, `POST /sistema/limpiar-colaborativos`).
 
 ---
 
@@ -130,7 +131,7 @@ erDiagram
     COLECCIONES ||--o{ ACCESO_COLECCIONES : "asigna permisos a"
     
     HASHTAGS ||--o{ COLECCION_HASHTAGS : "asocia temas a"
-    MULTIMEDIA ||--o{ FAVORITOS : "es guardada en"
+    COLECCIONES ||--o{ FAVORITOS : "es marcada como favorita"
 
     USUARIOS {
         int id PK "Identificador único autoincremental"
@@ -146,6 +147,7 @@ erDiagram
 
     CLIENTES {
         int id_cliente PK,FK "Referencia a usuarios.id (ON DELETE CASCADE)"
+        boolean politicas_aceptadas "Aceptación políticas/privacidad Ley 18.331 (registro, CF-15)"
     }
 
     FOTOGRAFOS {
@@ -172,6 +174,7 @@ erDiagram
         bigint tamanio "Tamaño exacto del archivo original en bytes"
         boolean es_invitado "Indica si fue aportada vía QR por un invitado"
         boolean aprobado "Estado de moderación (TRUE aprobado, FALSE pendiente)"
+        datetime consentimiento_ts "Consentimiento Ley 18.331 del invitado (nombre), CF-15"
         enum tipo "Tipo de recurso: 'video' o 'imagen'"
         timestamp creado_en "Fecha y hora de subida"
     }
@@ -185,7 +188,7 @@ erDiagram
 
     FAVORITOS {
         int usuario_id PK,FK "Usuario que marca (usuarios.id)"
-        int favorito_id PK,FK "Archivo multimedia marcado (multimedia.id_multimedia)"
+        int favorito_id PK,FK "Colección pública marcada (colecciones.id)"
     }
 
     QR_TOKENS {
@@ -217,7 +220,7 @@ erDiagram
 
 ### 2.2 Decisiones de Diseño en el Modelo
 
-* **Jerarquía de Usuarios (Herencia de Tablas):** La tabla `usuarios` concentra las credenciales de acceso, la verificación por código y el rol. Las tablas especializadas `fotografos` (que incorpora la bandera de consentimiento de la Ley 18.331) y `clientes` referencian a `usuarios.id` con eliminación en cascada (`ON DELETE CASCADE`). Esta estructura elimina redundancias y garantiza que una cuenta no pueda duplicar su correo electrónico en roles simultáneos.
+* **Jerarquía de Usuarios (Herencia de Tablas):** La tabla `usuarios` concentra las credenciales de acceso, la verificación por código y el rol. Las tablas especializadas `fotografos` (con la bandera de aceptación formal de la Ley 18.331 en primer login, HU31) y `clientes` (con el mismo consentimiento capturado en el registro, CF-15) referencian a `usuarios.id` con eliminación en cascada (`ON DELETE CASCADE`). Esta estructura elimina redundancias y garantiza que una cuenta no pueda duplicar su correo electrónico en roles simultáneos.
 * **Separación de Archivo Original y Vista Previa:** La entidad `multimedia` mantiene dos rutas físicas diferenciadas: `ruta_original` (archivo fuente de máxima resolución, inaccesible directamente por URL para evitar robo de contenido) y `vista_previa` (copia optimizada con marca de agua semitransparente o videoclip de 15 segundos para la visualización en el navegador).
 * **Ciclo de Vida y Moderación Colaborativa (RF14, RF15):** Los atributos `es_invitado` y `aprobado` en `multimedia` permiten que las cargas de invitados ingresen con `aprobado = FALSE`. El fotógrafo puede auditar estos archivos en su panel de moderación; los archivos no aprobados que superen las 24 horas desde `creado_en` son depurados automáticamente por la rutina del sistema.
 * **Tokens QR Efímeros vs. Permanentes:** La entidad `qr_tokens` gestiona tanto el QR colaborativo de eventos (tipo `'colaborativo'`, con expiración a las 24 horas para subida anónima) como el QR de acceso permanente (tipo `'acceso'`, con expiración nula) que permite a clientes autorizados acceder a colecciones privadas.

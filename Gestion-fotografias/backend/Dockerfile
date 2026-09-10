@@ -25,4 +25,8 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
     RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
+    # Comando por defecto (CF-12): Apache en primer plano. El entrypoint respeta "$@",
+    # por lo que el servicio `worker` de compose lo reemplaza por `php cron-backup.php --loop`.
+    CMD ["apache2-foreground"]
+
     ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]

@@ -188,7 +188,7 @@ El proyecto incluirá:
 11. Generación de un código QR de carga colaborativa para eventos con caducidad de 1 día, permitiendo a invitados subir contenido sin registro complejo, pudiendo ingresar de forma anónima. Los invitados únicamente podrán subir archivos, sin acceso a visualizar el contenido existente de la colección.
 12. Generación de un enlace o QR de acceso directo permanente a una colección específica para visualización y descarga de clientes.
 13. Moderación y gestión por parte del fotógrafo sobre el contenido de sus colecciones y el material aportado por invitados, con aprobación selectiva de archivos colaborativos y eliminación automática del material no aprobado tras 24 horas.
-14. Sistema de favoritos sobre colecciones públicas y filtrado de colecciones públicas por hashtags.
+14. Sistema de favoritos sobre colecciones públicas completas (no archivos individuales) y filtrado de colecciones públicas por hashtags.
 15. Respaldos automáticos diarios de la base de datos con rotación de las últimas tres copias.
 
 ---
@@ -235,7 +235,7 @@ Quedarán fuera de la primera versión:
 | RF18 | El sistema debe enviar un código de verificación al correo electrónico del usuario para asegurar que la casilla registrada realmente existe. |
 | RF19 | El sistema debe permitir crear y editar la información de perfil de los fotógrafos. |
 | RF20 | El sistema debe permitir al fotógrafo modificar los datos básicos (título, descripción) o eliminar cualquier imagen o recorte de video previamente subido a sus colecciones. |
-| RF21 | El sistema debe permitir al usuario marcar y desmarcar como favorita/o cualquier imagen o video perteneciente a una colección pública, visualizándose estas en un apartado de favoritos; esta información no se expone a otros usuarios. |
+| RF21 | El sistema debe permitir al usuario marcar y desmarcar como favorita cualquier colección pública completa, visualizándose estas en un apartado de favoritos; esta información no se expone a otros usuarios. |
 | RF24 | Al primer inicio de sesión como fotógrafo, el sistema debe mostrar un modal obligatorio con los Términos y Condiciones & Política de Privacidad y la Ley 18.331 sobre protección de datos personales e intimidad, estableciendo que el fotógrafo asume la responsabilidad legal por el contenido que publica y que la plataforma no se hace responsable ante demandas por publicación no autorizada. |
 | RF25 | El sistema debe hacer que los videos subidos (por fotógrafo o invitado) a una colección sean clips o recortes del video original con una restricción de cantidad máxima por video original subido. |
 | RF26 | El sistema deberá generar automáticamente un recorte de vista previa de cada video subido y almacenar el archivo original completo para su posterior descarga directa. |
@@ -280,7 +280,7 @@ Una épica es una funcionalidad grande o área de trabajo que debe dividirse en 
 | EP2 | Perfiles de fotógrafos | Modificación de perfiles de fotógrafos. | RF19 |
 | EP3 | Gestión de colecciones y accesos | Creación, categorización (públicas/privadas), hashtags, filtrado público, acceso a colecciones privadas por enlace con permisos (y redirección a registro/login), control de acceso por URL y generación de QR/enlace permanente. | RF4, RF5, RF6, RF11, RF16 |
 | EP4 | Carga y procesamiento multimedia | Subida de imágenes JPG y videos, generación de vistas previas optimizadas, marca de agua, edición/eliminación de archivos y control de cuotas. | RF7, RF8, RF9, RF17, RF20, RF25, RF26 |
-| EP5 | Visualización y descargas | Galería de previsualización para clientes, visualización de colecciones y descarga directa individual de imágenes o videos en dos niveles de calidad (buena calidad y alta calidad). | RF10, RF11, RF21 |
+| EP5 | Visualización y descargas | Galería de previsualización para clientes, visualización de colecciones, marcado de colecciones públicas completas como favoritas y descarga directa individual de imágenes o videos en dos niveles de calidad (buena calidad y alta calidad). | RF10, RF11, RF21 |
 | EP6 | Carga colaborativa por QR | Generación de código QR temporal de evento (caducidad 1 día), subida rápida por invitados sin registro complejo (sin visualización del contenido existente), validación de clips, moderación con aprobación selectiva por el fotógrafo y eliminación automática del material no aprobado tras 24 horas. | RF13, RF14, RF15, RF25 |
 | EP7 | Mantenimiento técnico y respaldo | Configuración de respaldos automáticos diarios, rotación de las últimas tres copias y registro de auditoría. | RNF5, RNF6, RNF7 |
 | EP8 | Capacitación y cierre | Entrega de la guía básica de uso, capacitación al cliente y cierre formal del proyecto de UTU. | — (actividad de entrega/capacitación) |
@@ -383,7 +383,7 @@ Se utilizará el siguiente formato:
 | HU20 | Como fotógrafo, quiero que se bloquee cualquier intento de acceso directo mediante URL a mis colecciones privadas por parte de usuarios no autorizados, para mantener la privacidad del contenido. | 3 | Media |
 | HU21 | Como usuario nuevo, quiero recibir un código de verificación en mi correo electrónico, para asegurar que la casilla registrada me pertenece. | 3 | Media |
 | HU22 | Como fotógrafo, quiero editar los datos básicos (título, descripción) de una imagen o video ya subido/a, para mantener organizada la galería. | 3 | Media |
-| HU23 | Como usuario, quiero marcar como favorita/o una imagen o video de una colección pública, para tener una lista de favoritos privada. | 3 | Baja |
+| HU23 | Como usuario, quiero marcar como favorita una colección pública completa, para tener una lista de favoritos privada. | 3 | Baja |
 | HU24 | Como usuario, quiero ingresar a colecciones públicas y explorar sus galerías con imágenes o videos en vista previa protegidos con marca de agua, para conocer el catálogo disponible. | 3 | Media |
 | HU25 | Como usuario nuevo, quiero registrarme proporcionando mi nombre completo, correo electrónico, contraseña de forma obligatoria y teléfono opcional, aceptando los Términos y Condiciones & Política de Privacidad. | 3 | Media |
 | HU26 | Como fotógrafo, quiero agregar hashtags al crear o editar una colección pública, para facilitar su descubrimiento por temática en el buscador. | 3 | Media |
@@ -429,7 +429,7 @@ El backlog ha sido distribuido equitativamente manteniendo un ritmo de trabajo s
 | 24 | HU32 | Procesamiento automático de recortes de video (15s) y almacenamiento del original | 3 | Sprint 4 |
 | 25 | HU22 | Edición de datos básicos (título, descripción) de una colección incluyendo reasignación de visibilidad y adición de hashtags | 3 | Sprint 5 |
 | 26 | HU18 | Edición de perfil de fotógrafo| 3 | Sprint 5 |
-| 27 | HU23 | Marcar como favorita una imagen o video públicos | 3 | Sprint 5 |
+| 27 | HU23 | Marcar como favorita una colección pública | 3 | Sprint 5 |
 | 28 | HU13 | Respaldo automático diario de base de datos (3 copias) | 5 | Sprint 5 |
 | 29 | HU15 | Entrega de guía de uso, capacitación y cierre | 1 | Sprint 5 |
 

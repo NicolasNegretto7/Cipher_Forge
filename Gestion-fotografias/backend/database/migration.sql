@@ -33,3 +33,19 @@ SET @sql = IF(@col_exists = 0,
     'ALTER TABLE multimedia ADD COLUMN creado_en TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP',
     'SELECT 1');
 PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+-- ── clientes: consentimiento de políticas / Ley 18.331 (CF-15 / RNF8 / HU25) ──
+SET @col_exists = (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = 'cipher_forge' AND TABLE_NAME = 'clientes' AND COLUMN_NAME = 'politicas_aceptadas');
+SET @sql = IF(@col_exists = 0,
+    'ALTER TABLE clientes ADD COLUMN politicas_aceptadas BOOLEAN NOT NULL DEFAULT FALSE',
+    'SELECT 1');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
+-- ── multimedia: consentimiento de datos del invitado colaborativo (CF-15 / RNF8) ──
+SET @col_exists = (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = 'cipher_forge' AND TABLE_NAME = 'multimedia' AND COLUMN_NAME = 'consentimiento_ts');
+SET @sql = IF(@col_exists = 0,
+    'ALTER TABLE multimedia ADD COLUMN consentimiento_ts DATETIME DEFAULT NULL',
+    'SELECT 1');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;

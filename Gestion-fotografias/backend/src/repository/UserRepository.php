@@ -85,18 +85,18 @@ class UserRepository
             // lastInsertId() retorna el AUTO_INCREMENT generado por MySQL
             $userId = (int) $this->pdo->lastInsertId();
 
-            // 2. Insertar en tabla hija según el rol
+            // 2. Insertar en tabla hija según el rol (CF-15: se persiste la aceptación de políticas).
             if ($dto->rol === 'fotografo') {
                 $childStmt = $this->pdo->prepare(
-                    'INSERT INTO fotografos (id_fotografo) VALUES (:id)'
+                    'INSERT INTO fotografos (id_fotografo, politicas_aceptadas) VALUES (:id, :politicas)'
                 );
             } else {
                 $childStmt = $this->pdo->prepare(
-                    'INSERT INTO clientes (id_cliente) VALUES (:id)'
+                    'INSERT INTO clientes (id_cliente, politicas_aceptadas) VALUES (:id, :politicas)'
                 );
             }
 
-            $childStmt->execute(['id' => $userId]);
+            $childStmt->execute(['id' => $userId, 'politicas' => (int) $dto->aceptaPoliticas]);
 
             $this->pdo->commit();
 
@@ -175,6 +175,19 @@ class UserRepository
             'SELECT politicas_aceptadas FROM fotografos WHERE id_fotografo = :id LIMIT 1'
         );
         $stmt->execute(['id' => $fotografoId]);
+        $val = $stmt->fetchColumn();
+        return $val !== false && (bool) $val;
+    }
+
+    /**
+     * Retorna si el cliente ha aceptado las políticas de privacidad en el registro (CF-15).
+     */
+    public function politicasClienteAceptadas(int $clienteId): bool
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT politicas_aceptadas FROM clientes WHERE id_cliente = :id LIMIT 1'
+        );
+        $stmt->execute(['id' => $clienteId]);
         $val = $stmt->fetchColumn();
         return $val !== false && (bool) $val;
     }
