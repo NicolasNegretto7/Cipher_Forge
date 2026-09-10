@@ -13,7 +13,6 @@ CREATE TABLE usuarios(
 );
 CREATE TABLE clientes (
     id_cliente INT NOT NULL PRIMARY KEY,
-    politicas_aceptadas BOOLEAN NOT NULL DEFAULT FALSE,
     FOREIGN KEY (id_cliente) REFERENCES usuarios(id) ON DELETE CASCADE
 );
 CREATE TABLE fotografos (
@@ -40,7 +39,6 @@ CREATE TABLE multimedia (
     tamanio BIGINT UNSIGNED NOT NULL,
     es_invitado BOOLEAN NOT NULL DEFAULT FALSE,
     aprobado BOOLEAN NOT NULL DEFAULT TRUE,
-    consentimiento_ts DATETIME DEFAULT NULL,
     tipo ENUM('video', 'imagen') NOT NULL,
     creado_en TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (coleccion_id) REFERENCES colecciones(id) ON DELETE CASCADE

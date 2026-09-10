@@ -36,7 +36,7 @@ class MultimediaService
      * Sube un archivo multimedia a una colección (HU5 / HU11).
      * Soporta subida de fotógrafo (con control de propiedad) o de invitado (es_invitado = 1, aprobado = 0).
      */
-    public function upload(MultimediaDto $dto, array $archivo, string $extension, string $mime, bool $aprobado = true, ?string $consentimientoTs = null): array
+    public function upload(MultimediaDto $dto, array $archivo, string $extension, string $mime, bool $aprobado = true): array
     {
         // 1. Verificar que la colección existe.
         $coleccion = $this->coleccionRepository->findById($dto->coleccionId);
@@ -71,9 +71,9 @@ class MultimediaService
             Response::error('No se pudo generar la vista previa del archivo.', 500);
         }
 
-        // 5. Registrar el archivo en la base de datos con estado de aprobación y consentimiento (CF-15).
+        // 5. Registrar el archivo en la base de datos con estado de aprobación.
         $tamanio = (int) $archivo['size'];
-        $idMultimedia = $this->multimediaRepository->create($dto, $rutaOriginal, $vistaPrevia, $tamanio, $aprobado, $consentimientoTs);
+        $idMultimedia = $this->multimediaRepository->create($dto, $rutaOriginal, $vistaPrevia, $tamanio, $aprobado);
 
         return [
             'id_multimedia' => $idMultimedia,

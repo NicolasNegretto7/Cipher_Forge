@@ -189,15 +189,6 @@ Cambios detectados en la auditoría del backend que quedan **documentados y post
 
 **Cambio a futuro (postergado):** proteger estos endpoints **antes de exponer el servicio**. Opción recomendada: exigir cabecera `Authorization: Bearer <clave>` contra una clave maestra configurada por entorno (`SISTEMA_API_KEY`, con fallback y documentación de despliegue); alternativa: agregar rol `admin` al ENUM `roles` con usuario sembrado y verificación de rol en `AuthMiddleware`. El servicio `worker` y `cron-backup.php` **no se ven afectados** por ninguna de las dos, porque invocan `BackupService`/`MultimediaService` directamente (sin pasar por HTTP).
 
-### 7.2 Consentimiento de datos — integración de UI (CF-15 / CC-13) — aplicado
-
-El consentimiento se captura y persiste de punta a punta:
-
-- **Registro (HU25/RNF8):** casilla obligatoria de Términos y Condiciones & Política de Privacidad/Ley 18.331 en `frontend-fotografo/pages/registro.html` (roles fotógrafo y cliente). `script.js` envía `acepta_politicas=true`; el backend lo persiste en `clientes.politicas_aceptadas` o `fotografos.politicas_aceptadas` según el rol. Si el fotógrafo ya lo aceptó al registrarse, el modal de primer login (HU31) no vuelve a mostrarse.
-- **Carga colaborativa (RF14/RNF8):** `frontend-cliente/pages/colaborativo.html` informa el tratamiento del nombre y exige un checkbox legal (Ley 18.331) que habilita el envío; `colaborativo.js` + `api.js` envían `acepto_datos=true`, y el backend registra `multimedia.consentimiento_ts` (auditoría).
-
-Pendiente en este frente solo la prueba manual del flujo QR en dispositivo (CF-14).
-=======
 # Segunda Entrega - Implementación Segura, Criptografía y Aspectos Legales
 
 # Términos y Condiciones

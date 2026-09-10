@@ -46,21 +46,6 @@ class AuthValidator
             $errores[] = 'El rol debe ser "fotografo" o "cliente".';
         }
 
-        // Aceptación de políticas de privacidad / Ley 18.331 (CF-15 / RNF8 / HU25).
-        // Opcional para no romper clientes anteriores; si se envía, debe ser verdadero/falso explícito.
-        $aceptaPoliticas = false;
-        if (array_key_exists('acepta_politicas', $data) && $data['acepta_politicas'] !== null && $data['acepta_politicas'] !== '') {
-            if (is_bool($data['acepta_politicas'])) {
-                $aceptaPoliticas = $data['acepta_politicas'];
-            } elseif (in_array($data['acepta_politicas'], ['true', '1', 'on', 'yes', 'sí', 'si'], true)) {
-                $aceptaPoliticas = true;
-            } elseif (in_array($data['acepta_politicas'], ['false', '0', 'off', 'no'], true)) {
-                $aceptaPoliticas = false;
-            } else {
-                $errores[] = 'El campo "acepta_politicas" debe ser true o false.';
-            }
-        }
-
         // --- Si hay errores, cortar aquí ---
         if (!empty($errores)) {
             Response::error('Error de validación.', 400, $errores);
@@ -72,7 +57,6 @@ class AuthValidator
             password:        $data['password'],
             rol:             $data['rol'],
             telefono:        !empty($data['telefono']) ? trim($data['telefono']) : null,
-            aceptaPoliticas: $aceptaPoliticas,
         );
     }
 

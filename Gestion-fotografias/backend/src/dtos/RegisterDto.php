@@ -15,6 +15,5 @@ class RegisterDto
         public readonly string  $password,
         public readonly string  $rol,
         public readonly ?string $telefono = null,
-        public readonly bool    $aceptaPoliticas = false,
     ) {}
 }

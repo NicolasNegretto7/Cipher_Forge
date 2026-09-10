@@ -119,7 +119,7 @@ El contenedor PHP trae por defecto `upload_max_filesize=2M` y `post_max_size=8M`
 | `memory_limit` | 512M | Procesamiento GD (imágenes) y transcodificación de video. |
 | `max_execution_time` / `max_input_time` | 600 | Subidas grandes (video 800 MB). |
 
-> **Nota de trazabilidad:** Nivel de transporte (PHP/Apache), mientras que CF-03 valida formatos y tamaños por tipo de archivo en la capa de aplicación. Ver 02-modelado.md y CC-15.
+> **Nota de trazabilidad:** Nivel de transporte (PHP/Apache), mientras que CF-03 valida formatos y tamaños por tipo de archivo en la capa de aplicación. Ver 02-modelado.md y CC-16.
 
 ---
 

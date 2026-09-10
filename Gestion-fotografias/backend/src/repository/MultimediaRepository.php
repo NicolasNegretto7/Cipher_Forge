@@ -21,14 +21,12 @@ class MultimediaRepository
 
     /**
      * Inserta un registro multimedia y retorna el id generado.
-     * $consentimientoTs (CF-15): fecha en que el invitado aceptó el tratamiento de sus datos
-     * (nombre_invitado) conforme a la Ley 18.331; null si no se capturó el consentimiento.
      */
-    public function create(MultimediaDto $dto, string $rutaOriginal, string $vistaPrevia, int $tamanio, bool $aprobado = true, ?string $consentimientoTs = null): int
+    public function create(MultimediaDto $dto, string $rutaOriginal, string $vistaPrevia, int $tamanio, bool $aprobado = true): int
     {
         $stmt = $this->pdo->prepare(
-            'INSERT INTO multimedia (coleccion_id, titulo, descripcion, ruta_original, vista_previa, tamanio, tipo, es_invitado, aprobado, consentimiento_ts)
-             VALUES (:coleccion_id, :titulo, :descripcion, :ruta_original, :vista_previa, :tamanio, :tipo, :es_invitado, :aprobado, :consentimiento_ts)'
+            'INSERT INTO multimedia (coleccion_id, titulo, descripcion, ruta_original, vista_previa, tamanio, tipo, es_invitado, aprobado)
+             VALUES (:coleccion_id, :titulo, :descripcion, :ruta_original, :vista_previa, :tamanio, :tipo, :es_invitado, :aprobado)'
         );
 
         $stmt->execute([
@@ -41,7 +39,6 @@ class MultimediaRepository
             'tipo'              => $dto->tipo,
             'es_invitado'       => (int) $dto->esInvitado,
             'aprobado'          => (int) $aprobado,
-            'consentimiento_ts' => $consentimientoTs,
         ]);
 
         return (int) $this->pdo->lastInsertId();

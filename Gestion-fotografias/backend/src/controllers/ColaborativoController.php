@@ -213,12 +213,6 @@ class ColaborativoController
         $data = array_merge($request->getBody(), $_POST);
         $nombreInvitado = isset($data['nombre_invitado']) ? trim((string) $data['nombre_invitado']) : 'Invitado';
 
-        // CF-15 / RNF8: el invitado declara su nombre y acepta su tratamiento (Ley 18.331).
-        // El frontend debe enviar acepto_datos=true (checkbox legal); si no llega, no se asume
-        // el consentimiento y consentimiento_ts queda NULL (registro para auditoría).
-        $aceptoDatos = filter_var($data['acepto_datos'] ?? false, FILTER_VALIDATE_BOOLEAN);
-        $consentimientoTs = $aceptoDatos ? date('Y-m-d H:i:s') : null;
-
         $archivos = $this->normalizarArchivos($_FILES['archivos']);
         $subidos = [];
         $excedentes = [];
@@ -256,7 +250,7 @@ class ColaborativoController
             $extension = self::EXTENSION_POR_MIME[$mime] ?? 'bin';
 
             // Subir con aprobado = false para requerir aprobación del fotógrafo (HU12)
-            $subidos[] = $this->multimediaService->upload($dto, $archivo, $extension, $mime, aprobado: false, consentimientoTs: $consentimientoTs);
+            $subidos[] = $this->multimediaService->upload($dto, $archivo, $extension, $mime, aprobado: false);
             $espacioUsado += $tamano;
         }
 
@@ -269,11 +263,6 @@ class ColaborativoController
             : 'Carga colaborativa recibida exitosamente.';
 
         $aviso = 'Tus archivos han sido subidos y serán revisados por el fotógrafo. Los no aprobados se eliminarán en 24 horas.';
-        if ($aceptoDatos) {
-            $aviso .= ' Registramos tu aceptación para tratar tu nombre junto al contenido (Ley 18.331).';
-        } elseif ($nombreInvitado !== 'Invitado') {
-            $aviso .= ' Recordá que tu nombre se almacena junto a tus archivos; se requiere tu aceptación (Ley 18.331).';
-        }
 
         Response::success([
             'subidos'  => count($subidos),
