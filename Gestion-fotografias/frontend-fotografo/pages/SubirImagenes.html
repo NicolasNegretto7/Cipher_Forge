@@ -41,6 +41,9 @@
                     <button class="BotonGenerarQr" id="botonQrColaborativo" type="button" title="QR temporal (24 h) para que los invitados suban fotos y videos al evento">
                         QR colaborativo
                     </button>
+                    <button class="BotonGenerarQr" id="botonQrAcceso" type="button" title="QR/enlace permanente (sin caducidad) para que los clientes accedan y descarguen la colección">
+                        QR de acceso
+                    </button>
                 </div>
 
                 <div class="ControlPublicar">
@@ -100,6 +103,21 @@
         </div>
     </div>
 
+    <div class="ModalQr" id="modalQrAcceso" hidden>
+        <div class="ModalQrContenido" role="dialog" aria-modal="true" aria-labelledby="tituloQrAcceso">
+            <button class="BotonCerrarQr" id="cerrarQrAcceso" type="button" aria-label="Cerrar">✕</button>
+            <h2 id="tituloQrAcceso">QR de acceso permanente</h2>
+            <p class="AvisoExpiracionQr" id="avisoQrAcceso"></p>
+            <div class="ImagenQr" id="imagenQrAcceso"></div>
+            <label for="enlaceQrAcceso">Enlace de acceso para clientes</label>
+            <input id="enlaceQrAcceso" type="text" readonly>
+            <div class="AccionesQr">
+                <button class="BotonQr" id="copiarEnlaceAcceso" type="button">Copiar enlace</button>
+                <a class="BotonQr BotonQrSecundario" id="abrirEnlaceAcceso" href="#" target="_blank" rel="noopener">Abrir</a>
+            </div>
+        </div>
+    </div>
+
     <div class="ContenedorToasts" id="toasts"></div>
 
     <div class="BarraAcciones" id="barraAcciones">
@@ -111,5 +129,6 @@
     <script src="../js/almacenamiento.js"></script>
     <script src="../js/subirimagenes.js"></script>
     <script src="../js/qrcolaborativo.js"></script>
+    <script src="../js/qracceso.js"></script>
 </body>
 </html>
