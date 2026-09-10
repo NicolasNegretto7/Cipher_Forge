@@ -42,13 +42,7 @@ if (formRegistro) {
         const contrasena = document.getElementById("contraseña").value;
         const telefono = document.getElementById("telefono")?.value.trim() || "";
         const rol = document.getElementById("rol").value;
-        const aceptaPoliticas = document.getElementById("aceptaPoliticas")?.checked || false;
         const boton = formRegistro.querySelector("button[type=submit]");
-
-        if (!aceptaPoliticas) {
-            mostrarMensaje(mensaje, "Debés aceptar los Términos y Condiciones y la Política de Privacidad (Ley 18.331) para registrarte.", true);
-            return;
-        }
 
         boton.disabled = true;
         mostrarMensaje(mensaje, "Creando la cuenta...", false);
@@ -59,8 +53,7 @@ if (formRegistro) {
                 email: correo,
                 password: contrasena,
                 telefono: telefono,
-                rol: rol,
-                acepta_politicas: aceptaPoliticas
+                rol: rol
             });
 
             localStorage.setItem("email-verificacion-pendiente", resultado.email || correo);
