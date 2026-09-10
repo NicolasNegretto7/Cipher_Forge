@@ -66,7 +66,14 @@ class ColeccionRepository
     {
         $sql = 'SELECT c.id, c.fotografo_id, c.titulo, c.tipo_visibilidad, c.descripcion, c.creado_en,
                        u.nombre_completo AS fotografo_nombre,
-                       (SELECT m.vista_previa FROM multimedia m WHERE m.coleccion_id = c.id AND m.aprobado = 1 ORDER BY m.id_multimedia ASC LIMIT 1) AS portada_preview,
+                       (SELECT m.vista_previa FROM multimedia m
+                        WHERE m.coleccion_id = c.id AND m.aprobado = 1
+                        ORDER BY CASE WHEN m.tipo = "imagen" THEN 0 ELSE 1 END, m.id_multimedia ASC
+                        LIMIT 1) AS portada_preview,
+                       (SELECT m.id_multimedia FROM multimedia m
+                        WHERE m.coleccion_id = c.id AND m.aprobado = 1
+                        ORDER BY CASE WHEN m.tipo = "imagen" THEN 0 ELSE 1 END, m.id_multimedia ASC
+                        LIMIT 1) AS portada_id_multimedia,
                        (SELECT COUNT(*) FROM multimedia m WHERE m.coleccion_id = c.id AND m.aprobado = 1) AS total_archivos
                 FROM colecciones c
                 INNER JOIN usuarios u ON u.id = c.fotografo_id
@@ -302,14 +309,14 @@ class ColeccionRepository
     /**
      * Elimina una colección junto con todas sus dependencias (multimedia, favoritos,
      * accesos, tokens QR, hashtags y hashtags huérfanos).
+     * CC-15: los favoritos referencian colecciones.id, no multimedia.
      */
     public function eliminarConDependencias(int $coleccionId): void
     {
         $this->pdo->beginTransaction();
         try {
             $stmt = $this->pdo->prepare(
-                'DELETE FROM favoritos
-                 WHERE favorito_id IN (SELECT id_multimedia FROM multimedia WHERE coleccion_id = :id)'
+                'DELETE FROM favoritos WHERE favorito_id = :id'
             );
             $stmt->execute(['id' => $coleccionId]);
 

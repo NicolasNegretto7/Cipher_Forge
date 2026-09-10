@@ -4,14 +4,15 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
+    # Conserva la cabecera Authorization (para los tokens JWT/Bearer).
+    # DEBE ir ANTES de la regla con [L], de lo contrario nunca se ejecuta.
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
     # Si la petición busca un archivo o carpeta real que existe, la sirve tal cual
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
 
     # Todo lo demás se envía a index.php
     RewriteRule ^ index.php [QSA,L]
-
-    # Conserva la cabecera Authorization (para los tokens JWT/Bearer)
-    RewriteCond %{HTTP:Authorization} .
-    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 </IfModule>

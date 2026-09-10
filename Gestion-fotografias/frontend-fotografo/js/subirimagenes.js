@@ -12,6 +12,12 @@ const barraAcciones = document.getElementById("barraAcciones");
 const tagInput = document.getElementById("tagInput");
 const listaTags = document.getElementById("listaTags");
 
+// Marcador minúsculo (PNG 1x1) cuando no hay previsualización persistida.
+const PLACEHOLDER_SRC = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
+
+// Bytes originales de la sesión (id -> File): IndexedDB los persiste, este mapa acelera la subida.
+const bytesOriginalesEnSesion = {};
+
 let colecciones = JSON.parse(localStorage.getItem("colecciones") || "[]");
 let coleccion = colecciones.find(function (item) { return item.id === coleccionId; });
 let esColeccionNueva = false;
@@ -57,7 +63,23 @@ function guardarColeccion() {
         colecciones[indiceColeccion] = coleccion;
     }
 
-    localStorage.setItem("colecciones", JSON.stringify(colecciones));
+    const datos = JSON.stringify(colecciones);
+    try {
+        localStorage.setItem("colecciones", datos);
+    } catch (error) {
+        // Cuota local agotada: se limpian las previsualizaciones grandes de TODAS las colecciones
+        // (los bytes reales siguen en IndexedDB y se restauran al recargar la página).
+        const reemplazarPorMarcador = function (archivo) {
+            if (typeof archivo.src === "string" && archivo.src.length > PLACEHOLDER_SRC.length + 100) {
+                archivo.src = PLACEHOLDER_SRC;
+            }
+        };
+        (coleccion.imagenes || []).forEach(reemplazarPorMarcador);
+        colecciones.forEach(function (coleccionItem) {
+            (coleccionItem.imagenes || []).forEach(reemplazarPorMarcador);
+        });
+        localStorage.setItem("colecciones", JSON.stringify(colecciones));
+    }
 }
 
 function mostrarTags() {
@@ -119,6 +141,79 @@ function leerArchivoComoDataUrl(archivo) {
     });
 }
 
+function cargarImagenDesdeSrc(src) {
+    return new Promise(function (resolver, rechazar) {
+        const imagen = new Image();
+        imagen.onload = function () { resolver(imagen); };
+        imagen.onerror = rechazar;
+        imagen.src = src;
+    });
+}
+
+// Reencoda una imagen como JPEG pequeño para no agotar localStorage (los bytes originales van a IndexedDB).
+async function generarMiniaturaImagen(src, maxLado) {
+    const lienzo = document.createElement("canvas");
+    const imagen = await cargarImagenDesdeSrc(src);
+    const escala = Math.min(1, maxLado / Math.max(imagen.naturalWidth, imagen.naturalHeight));
+    lienzo.width = Math.max(1, Math.round(imagen.naturalWidth * escala));
+    lienzo.height = Math.max(1, Math.round(imagen.naturalHeight * escala));
+    lienzo.getContext("2d").drawImage(imagen, 0, 0, lienzo.width, lienzo.height);
+    return lienzo.toDataURL("image/jpeg", 0.72);
+}
+
+// Captura un fotograma de un video como miniatura JPEG (para videos grandes que no caben en localStorage).
+async function generarPosterVideo(src) {
+    const video = document.createElement("video");
+    video.muted = true;
+    video.preload = "metadata";
+    video.src = src;
+    await new Promise(function (resolver, rechazar) {
+        video.onloadeddata = resolver;
+        video.onerror = rechazar;
+    });
+    const instante = Math.min(0.5, (Number(video.duration) || 1) / 2);
+    video.currentTime = instante;
+    await new Promise(function (resolver, rechazar) {
+        video.onseeked = resolver;
+        video.onerror = rechazar;
+    });
+    const lienzo = document.createElement("canvas");
+    const escala = Math.min(1, 640 / Math.max(video.videoWidth, video.videoHeight));
+    lienzo.width = Math.max(1, Math.round(video.videoWidth * escala));
+    lienzo.height = Math.max(1, Math.round(video.videoHeight * escala));
+    lienzo.getContext("2d").drawImage(video, 0, 0, lienzo.width, lienzo.height);
+    return lienzo.toDataURL("image/jpeg", 0.72);
+}
+
+function obtenerArchivoOriginal(archivo) {
+    const enSesion = bytesOriginalesEnSesion[archivo.id];
+    if (enSesion) return Promise.resolve(enSesion);
+    return obtenerBinario(archivo.id).then(function (desdeIndice) {
+        if (desdeIndice) return desdeIndice;
+        if (typeof archivo.src === "string" && archivo.src.indexOf("data:") === 0) {
+            return dataUrlAFile(archivo.src, archivo.nombre || "imagen.jpg");
+        }
+        return null;
+    });
+}
+
+// Devuelve a la vista las previsualizaciones de archivos cuyos bytes viven en IndexedDB.
+async function restaurarVistasDesdeBinarios() {
+    for (const archivo of archivos) {
+        if (archivo.remoto || archivo.subido) continue;
+        const blob = await obtenerBinario(archivo.id);
+        if (!blob) continue;
+        if (archivo.vista_restaurada) {
+            try { URL.revokeObjectURL(archivo.vista_restaurada); } catch (error) { }
+        }
+        archivo.src = URL.createObjectURL(blob);
+        archivo.vista_restaurada = archivo.src;
+        archivo.es_poster = false;
+    }
+    mostrarGaleria();
+    actualizarAlmacenamiento();
+}
+
 selectorArchivos.addEventListener("change", async function () {
     const excedidos = [];
 
@@ -129,13 +224,28 @@ selectorArchivos.addEventListener("change", async function () {
             continue;
         }
 
-        const src = await leerArchivoComoDataUrl(archivo);
+        const srcCompleto = await leerArchivoComoDataUrl(archivo);
+        const id = Date.now() + Math.random();
+        bytesOriginalesEnSesion[id] = archivo;
+        guardarBinario(id, archivo);
+
+        let src = srcCompleto;
+        let esPoster = false;
+        const esVideo = String(archivo.type).startsWith("video");
+        if (esVideo && tamanoArchivo > 2000000) {
+            esPoster = true;
+            try { src = await generarPosterVideo(srcCompleto); } catch (error) { src = PLACEHOLDER_SRC; }
+        } else if (!esVideo && tamanoArchivo > 2000000) {
+            try { src = await generarMiniaturaImagen(srcCompleto, 1600); } catch (error) { src = srcCompleto; }
+        }
+
         archivos.push({
-            id: Date.now() + Math.random(),
+            id: id,
             nombre: archivo.name,
             tipo: archivo.type,
             tamano: tamanoArchivo,
             src: src,
+            es_poster: esPoster,
             favorita: false
         });
         guardarColeccion();
@@ -158,7 +268,14 @@ function mostrarGaleria() {
         tarjeta.className = "TarjetaMedia";
         tarjeta.classList.toggle("Seleccionada", seleccionados.includes(archivo.id));
 
-        const vista = document.createElement(archivo.tipo.startsWith("video") ? "video" : "img");
+        const esVideo = archivo.tipo && String(archivo.tipo).startsWith("video");
+        let vista;
+        if (esVideo && !archivo.es_poster && archivo.src) {
+            vista = document.createElement("video");
+            vista.muted = true;
+        } else {
+            vista = document.createElement("img");
+        }
         vista.src = archivo.src;
         vista.className = "VistaMiniatura";
         tarjeta.appendChild(vista);
@@ -259,6 +376,10 @@ document.getElementById("eliminarSeleccionados").addEventListener("click", funct
                 /* el borrado local prevalece aunque el servidor falle */
             });
         }
+        if (archivo && !archivo.remoto) {
+            delete bytesOriginalesEnSesion[archivo.id];
+            borrarBinario(archivo.id);
+        }
     });
 
     archivos = archivos.filter(function (archivo) { return !seleccionados.includes(archivo.id); });
@@ -305,20 +426,37 @@ async function subirImagenesPendientes(coleccionIdBackend) {
     const pendientes = archivos.filter(function (archivo) { return !archivo.subido; });
     if (pendientes.length === 0) return;
 
-    const archivosDeSubida = pendientes.map(function (archivo) {
-        return dataUrlAFile(archivo.src, archivo.nombre || ("imagen-" + archivo.id + ".jpg"));
-    });
+    const subidas = [];
+    const sinDisponibles = [];
+    for (const archivo of pendientes) {
+        const original = await obtenerArchivoOriginal(archivo);
+        if (original) {
+            subidas.push([archivo, original]);
+        } else {
+            sinDisponibles.push(archivo.nombre || ("archivo-" + archivo.id));
+        }
+    }
 
-    const resultado = await window.api.subirMultimedia(coleccionIdBackend, archivosDeSubida, {
+    if (subidas.length === 0) {
+        if (sinDisponibles.length > 0) {
+            alert("No se pudo recuperar el contenido original de: " + sinDisponibles.join(", ") + ". Vuelve a añadir esos archivos.");
+        }
+        return;
+    }
+
+    const resultado = await window.api.subirMultimedia(coleccionIdBackend, subidas.map(function (pareja) { return pareja[1]; }), {
         titulo: coleccion.nombre,
         descripcion: coleccion.descripcion || ""
     });
 
     const subidos = (resultado && resultado.subidos) || [];
-    pendientes.forEach(function (archivo, indice) {
-        archivo.subido = true;
-        if (subidos[indice]) archivo.id_multimedia = subidos[indice].id_multimedia;
+    subidas.forEach(function (pareja, indice) {
+        pareja[0].subido = true;
+        if (subidos[indice]) pareja[0].id_multimedia = subidos[indice].id_multimedia;
     });
+    if (sinDisponibles.length > 0) {
+        alert("Se subieron los archivos disponibles. No se pudo recuperar el contenido original de: " + sinDisponibles.join(", ") + ". Vuelve a añadir esos archivos.");
+    }
 }
 
 async function publicarColeccion(tipoVisibilidad) {
@@ -398,3 +536,4 @@ menuVisibilidad.querySelectorAll("[data-visibilidad]").forEach(function (opcion)
 mostrarTags();
 mostrarGaleria();
 sincronizarColeccionBackend();
+restaurarVistasDesdeBinarios();

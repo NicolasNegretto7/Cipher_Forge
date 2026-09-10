@@ -33,14 +33,14 @@
         return window.api.listarFavoritos()
             .then(function (favoritos) {
                 (favoritos || []).forEach(function (favorito) {
-                    favoritosIds.add(Number(favorito.id_multimedia));
+                    favoritosIds.add(Number(favorito.id_coleccion));
                 });
             })
             .catch(function () {});
     }
 
-    // Marca o desmarca un archivo multimedia como favorito (HU23 / RF21).
-    function toggleFavorito(idMultimedia, boton) {
+    // Marca o desmarca la colección pública completa como favorita (HU23 / RF21 / CC-15).
+    function toggleFavoritoColeccion(idColeccion, boton) {
         if (!window.auth || !window.auth.haySesion()) {
             window.utils.mostrarToast("Inicia sesión para guardar favoritos.", "Info");
             return;
@@ -48,17 +48,17 @@
         boton.disabled = true;
         var agregar = !boton.classList.contains("FavoritoActivo");
         var accion = agregar
-            ? window.api.agregarFavorito(idMultimedia)
-            : window.api.quitarFavorito(idMultimedia);
+            ? window.api.agregarFavorito(idColeccion)
+            : window.api.quitarFavorito(idColeccion);
         accion
             .then(function () {
                 boton.classList.toggle("FavoritoActivo", agregar);
                 boton.textContent = agregar ? "♥" : "♡";
                 boton.title = agregar ? "Quitar de favoritos" : "Guardar en favoritos";
                 if (agregar) {
-                    favoritosIds.add(idMultimedia);
+                    favoritosIds.add(idColeccion);
                 } else {
-                    favoritosIds.delete(idMultimedia);
+                    favoritosIds.delete(idColeccion);
                 }
                 window.utils.mostrarToast(agregar ? "Añadido a favoritos." : "Eliminado de favoritos.", "Exito");
             })
@@ -165,18 +165,6 @@
         vista.addEventListener("click", function () { abrirVisor(indice); });
         tarjeta.appendChild(vista);
 
-        var idMultimedia = Number(archivo.id_multimedia);
-        var botonFavorito = document.createElement("button");
-        botonFavorito.type = "button";
-        botonFavorito.className = "BotonFavoritoMedia" + (favoritosIds.has(idMultimedia) ? " FavoritoActivo" : "");
-        botonFavorito.textContent = favoritosIds.has(idMultimedia) ? "♥" : "♡";
-        botonFavorito.title = favoritosIds.has(idMultimedia) ? "Quitar de favoritos" : "Guardar en favoritos";
-        botonFavorito.addEventListener("click", function (evento) {
-            evento.stopPropagation();
-            toggleFavorito(idMultimedia, botonFavorito);
-        });
-        tarjeta.appendChild(botonFavorito);
-
         var datos = document.createElement("div");
         datos.className = "DatosImagenTarjeta";
         if (archivo.descripcion) {
@@ -235,6 +223,21 @@
                 contenedor.appendChild(chip);
             });
             infoColeccion.appendChild(contenedor);
+        }
+
+        // Solo las colecciones públicas se pueden marcar como favoritas (CC-15)
+        if (coleccion.tipo_visibilidad === "publica") {
+            var esFavorito = favoritosIds.has(coleccion.id);
+            var botonFavorito = document.createElement("button");
+            botonFavorito.type = "button";
+            botonFavorito.className = "FavoritoColeccion" + (esFavorito ? " FavoritoActivo" : "");
+            botonFavorito.textContent = esFavorito ? "♥" : "♡";
+            botonFavorito.title = esFavorito ? "Quitar de favoritos" : "Guardar en favoritos";
+            botonFavorito.addEventListener("click", function (evento) {
+                evento.stopPropagation();
+                toggleFavoritoColeccion(coleccion.id, botonFavorito);
+            });
+            infoColeccion.appendChild(botonFavorito);
         }
     }
 

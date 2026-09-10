@@ -1,7 +1,14 @@
-# QUÉ: Redirección raíz hacia la carpeta pública.
-# POR QUÉ: Protege el código fuente (src, config) y envía el tráfico a public/index.php.
-
 <IfModule mod_rewrite.c>
     RewriteEngine On
+
+    # Preserva la cabecera Authorization (Bearer JWT) en el reenvío a public/index.php.
+    # Sin esto, Apache la descarta y AuthMiddleware ve $_SERVER vacío → 401.
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # No reescribir archivos o carpetas reales (permite /public/*.php directos, uploads, etc.)
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+
     RewriteRule ^(.*)$ public/index.php [QSA,L]
 </IfModule>

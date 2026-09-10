@@ -72,7 +72,8 @@ $router->add('POST', '/colecciones/{id}/colaborativo/aprobar', MultimediaControl
 $router->add('POST', '/colecciones/{id}/colaborativo/rechazar', MultimediaController::class, 'rechazarColaborativo', 'auth');
 
 // -------------------------------------------------------------
-// 6. Favoritos (HU23 / RF21)
+// 6. Favoritos (HU23 / RF21 / CC-15)
+// {id} corresponde a una colección pública completa, no a un archivo.
 // -------------------------------------------------------------
 $router->add('POST', '/favoritos/{id}', FavoritoController::class, 'agregar', 'auth');
 $router->add('DELETE', '/favoritos/{id}', FavoritoController::class, 'quitar', 'auth');

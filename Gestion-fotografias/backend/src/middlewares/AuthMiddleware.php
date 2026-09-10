@@ -41,12 +41,56 @@ class AuthMiddleware
     }
 
     /**
+     * Lee la cabecera Authorization (Bearer) desde todas las fuentes posibles.
+     * POR QUÉ: según la configuración de Apache/Docker, PHP puede exponerla como
+     * HTTP_AUTHORIZATION, REDIRECT_HTTP_AUTHORIZATION (tras RewriteRule) o solo
+     * vía apache_request_headers()/getallheaders(). Si solo se mira una, los
+     * endpoints con 'auth' devuelven 401 aunque el token sea válido.
+     */
+    private static function obtenerCabeceraAuth(): string
+    {
+        $candidatos = [
+            $_SERVER['HTTP_AUTHORIZATION'] ?? '',
+            $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? '',
+            $_SERVER['REDIRECT_REDIRECT_HTTP_AUTHORIZATION'] ?? '',
+        ];
+
+        foreach ($candidatos as $valor) {
+            if (is_string($valor) && trim($valor) !== '') {
+                return trim($valor);
+            }
+        }
+
+        if (function_exists('apache_request_headers')) {
+            $cabeceras = apache_request_headers();
+            foreach ($cabeceras as $nombre => $valor) {
+                if (strtolower((string) $nombre) === 'authorization' && trim((string) $valor) !== '') {
+                    return trim((string) $valor);
+                }
+            }
+        }
+
+        if (function_exists('getallheaders')) {
+            $cabeceras = getallheaders();
+            if (is_array($cabeceras)) {
+                foreach ($cabeceras as $nombre => $valor) {
+                    if (strtolower((string) $nombre) === 'authorization' && trim((string) $valor) !== '') {
+                        return trim((string) $valor);
+                    }
+                }
+            }
+        }
+
+        return '';
+    }
+
+    /**
      * Autentica sólo si la petición trae un token Bearer; si no trae, continúa sin usuario.
      * Los errores de firma/expiración siguen bloqueando (token corrupto no se ignora).
      */
     private static function authenticateIfPresent(): void
     {
-        $auth = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+        $auth = self::obtenerCabeceraAuth();
 
         if ($auth === '' || !str_starts_with($auth, 'Bearer ')) {
             return; // Usuario anónimo (colección pública).
@@ -61,7 +105,7 @@ class AuthMiddleware
      */
     private static function authenticate(): void
     {
-        $auth = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+        $auth = self::obtenerCabeceraAuth();
 
         if (!preg_match('/^Bearer\s+(.+)$/i', $auth, $matches)) {
             Response::error('Debes iniciar sesión para acceder a este recurso.', 401);

@@ -43,12 +43,13 @@ CREATE TABLE multimedia (
     creado_en TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (coleccion_id) REFERENCES colecciones(id) ON DELETE CASCADE
 );
+-- CC-15: los favoritos apuntan a colecciones públicas completas, no a archivos individuales.
 CREATE TABLE favoritos (
     usuario_id INT NOT NULL,
     favorito_id INT NOT NULL,
     PRIMARY KEY (usuario_id, favorito_id),
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
-    FOREIGN KEY (favorito_id) REFERENCES multimedia (id_multimedia) ON DELETE CASCADE
+    FOREIGN KEY (favorito_id) REFERENCES colecciones(id) ON DELETE CASCADE
 );
 CREATE TABLE acceso_colecciones (
     usuario_id INT NOT NULL,

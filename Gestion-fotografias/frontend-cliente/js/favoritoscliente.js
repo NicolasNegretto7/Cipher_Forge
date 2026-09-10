@@ -12,28 +12,7 @@
         }
     }
 
-    function agruparPorColeccion(favoritos) {
-        var grupos = new Map();
-        (favoritos || []).forEach(function (favorito) {
-            if (!grupos.has(favorito.coleccion_id)) {
-                grupos.set(favorito.coleccion_id, []);
-            }
-            grupos.get(favorito.coleccion_id).push(favorito);
-        });
-        var resultado = [];
-        grupos.forEach(function (items, coleccionId) {
-            items.sort(function (a, b) { return (b.vista_previa || "").localeCompare(a.vista_previa || ""); });
-            resultado.push({
-                coleccion_id: coleccionId,
-                titulo: items[0].coleccion_titulo || items[0].titulo || "Colección",
-                fotografo_nombre: items[0].fotografo_nombre || "",
-                portada: items[0],
-                ids_media: items.map(function (item) { return item.id_multimedia; })
-            });
-        });
-        return resultado;
-    }
-
+    // CC-15: cada fila de /favoritos es una colección pública completa.
     function crearTarjeta(coleccionFavorita) {
         var tarjeta = document.createElement("div");
         tarjeta.className = "TarjetaColeccion";
@@ -46,12 +25,15 @@
         placeholder.textContent = (coleccionFavorita.titulo.charAt(0) || "?").toUpperCase();
         envoltorio.appendChild(placeholder);
 
-        var imagen = document.createElement("img");
-        imagen.className = "ImagenTarjeta";
-        imagen.src = window.api.urlVistaPrevia(coleccionFavorita.portada.id_multimedia);
-        imagen.alt = coleccionFavorita.titulo;
-        imagen.onerror = function () { imagen.remove(); };
-        envoltorio.appendChild(imagen);
+        var idPortada = Number(coleccionFavorita.portada_id_multimedia);
+        if (Number.isInteger(idPortada) && idPortada > 0) {
+            var imagen = document.createElement("img");
+            imagen.className = "ImagenTarjeta";
+            imagen.src = window.api.urlVistaPrevia(idPortada);
+            imagen.alt = coleccionFavorita.titulo;
+            imagen.onerror = function () { imagen.remove(); };
+            envoltorio.appendChild(imagen);
+        }
 
         var quitar = document.createElement("button");
         quitar.type = "button";
@@ -61,10 +43,7 @@
         quitar.addEventListener("click", function (evento) {
             evento.stopPropagation();
             quitar.disabled = true;
-            var pendientes = coleccionFavorita.ids_media.map(function (id) {
-                return window.api.quitarFavorito(id);
-            });
-            Promise.all(pendientes)
+            window.api.quitarFavorito(coleccionFavorita.id_coleccion)
                 .then(function () {
                     window.utils.mostrarToast("Colección eliminada de favoritos.", "Exito");
                     tarjeta.remove();
@@ -94,16 +73,17 @@
         origen.textContent = coleccionFavorita.fotografo_nombre || "";
         contenido.appendChild(origen);
 
-        var total = document.createElement("p");
-        total.className = "DatosColeccion";
-        total.textContent = coleccionFavorita.ids_media.length + (coleccionFavorita.ids_media.length === 1 ? " archivo" : " archivos");
-        total.style.margin = "0 15px 15px 15px";
-        contenido.appendChild(total);
+        var total = Number(coleccionFavorita.total_archivos) || 0;
+        var totalTexto = document.createElement("p");
+        totalTexto.className = "DatosColeccion";
+        totalTexto.textContent = total + (total === 1 ? " archivo" : " archivos");
+        totalTexto.style.margin = "0 15px 15px 15px";
+        contenido.appendChild(totalTexto);
 
         tarjeta.appendChild(contenido);
 
         tarjeta.addEventListener("click", function () {
-            window.location.href = "coleccion.html?id=" + coleccionFavorita.coleccion_id;
+            window.location.href = "coleccion.html?id=" + coleccionFavorita.id_coleccion;
         });
 
         return tarjeta;
@@ -112,7 +92,7 @@
     window.api.listarFavoritos()
         .then(function (favoritos) {
             if (mensajeCarga) mensajeCarga.hidden = true;
-            var colecciones = agruparPorColeccion(favoritos);
+            var colecciones = favoritos || [];
             sinFavoritos.hidden = colecciones.length !== 0;
             colecciones.forEach(function (coleccionFavorita) {
                 galeria.appendChild(crearTarjeta(coleccionFavorita));

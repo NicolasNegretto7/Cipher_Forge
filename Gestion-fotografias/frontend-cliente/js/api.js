@@ -240,14 +240,15 @@
     }
 
     // ---------------------------------------------------------------
-    // 6. Favoritos (HU23 / RF21)
+    // 6. Favoritos (HU23 / RF21 / CC-15)
+    // agregarFavorito/quitarFavorito reciben el ID de una colección pública.
     // ---------------------------------------------------------------
-    async function agregarFavorito(idMultimedia) {
-        return enviarJson("/favoritos/" + idMultimedia, "POST");
+    async function agregarFavorito(idColeccion) {
+        return enviarJson("/favoritos/" + idColeccion, "POST");
     }
 
-    async function quitarFavorito(idMultimedia) {
-        return enviarJson("/favoritos/" + idMultimedia, "DELETE");
+    async function quitarFavorito(idColeccion) {
+        return enviarJson("/favoritos/" + idColeccion, "DELETE");
     }
 
     async function listarFavoritos() {

@@ -826,18 +826,20 @@ El backend está diseñado bajo una **Arquitectura en Capas desacoplada**, utili
 * **Entrada (JSON):** `{ "ids": [12, 13] }`
 * **Códigos HTTP:** `200 OK`, `400 Bad Request`, `401 Unauthorized`, `403 Forbidden`.
 
-### 12.25 `POST /favoritos/{id}` (HU23 / RF21)
-* **Propósito:** Agrega una foto o video perteneciente a una colección pública a la lista privada de favoritos del usuario autenticado.
+### 12.25 `POST /favoritos/{id}` (HU23 / RF21 / CC-15)
+* **Propósito:** Agrega una colección pública completa a la lista privada de favoritos del usuario autenticado. `{id}` es el ID de la colección (no de un archivo).
 * **Autenticación:** Obligatoria (`auth`).
 * **Códigos HTTP:** `201 Created`, `401 Unauthorized`, `403 Forbidden` (si la colección no es pública), `404 Not Found`.
+* **Respuesta (201):** `{ "id_coleccion": 3, "es_favorito": true }`
 
-### 12.26 `DELETE /favoritos/{id}` (HU23 / RF21)
-* **Propósito:** Quita un archivo de la lista de favoritos del usuario.
+### 12.26 `DELETE /favoritos/{id}` (HU23 / RF21 / CC-15)
+* **Propósito:** Quita una colección completa de la lista de favoritos del usuario. `{id}` es el ID de la colección.
 * **Autenticación:** Obligatoria (`auth`).
 * **Códigos HTTP:** `200 OK`, `401 Unauthorized`.
+* **Respuesta (200):** `{ "id_coleccion": 3, "es_favorito": false }`
 
-### 12.27 `GET /favoritos` (HU23 / RF21)
-* **Propósito:** Lista los elementos favoritos guardados por el usuario autenticado (información privada, no expuesta a otros usuarios).
+### 12.27 `GET /favoritos` (HU23 / RF21 / CC-15)
+* **Propósito:** Lista las colecciones públicas favoritas del usuario autenticado, una fila por colección (información privada, no expuesta a otros usuarios). Incluye `id_coleccion`, `titulo`, `descripcion`, `fotografo_nombre`, `portada_preview`, `portada_id_multimedia` y `total_archivos`.
 * **Autenticación:** Obligatoria (`auth`).
 * **Códigos HTTP:** `200 OK`, `401 Unauthorized`.
 
@@ -885,7 +887,7 @@ El backend está diseñado bajo una **Arquitectura en Capas desacoplada**, utili
 | 24 | HU32 | Procesamiento de recortes de video 15s y original | Sprint 4 | ✅ Completo | `MediaProcessor::generarPreviewVideo` (FFmpeg) |
 | 25 | HU22 | Edición de datos básicos y reasignación de colección | Sprint 5 | ✅ Completo | `PUT /multimedia/{id}` |
 | 26 | HU18 | Edición de perfil de fotógrafo y directorio público | Sprint 5 | ✅ Completo | `GET /fotografos`, `GET .../{id}`, `PUT .../perfil` |
-| 27 | HU23 | Marcar como favorita una imagen o video pública | Sprint 5 | ✅ Completo | `POST /favoritos/{id}`, `DELETE .../{id}`, `GET /favoritos` |
+| 27 | HU23 | Marcar como favorita una colección pública completa (CC-15) | Sprint 5 | ✅ Completo | `POST /favoritos/{id}`, `DELETE .../{id}`, `GET /favoritos` |
 | 28 | HU13 | Respaldo automático diario de base de datos (3 copias) | Sprint 5 | ✅ Completo | `BackupService`, `POST /sistema/backup`, `cron-backup.php` |
 | 29 | HU15 | Entrega de guía de uso, capacitación y cierre | Sprint 5 | ✅ Completo | Documentado en `AUDITORIA_ENDPOINTS.md` |
 

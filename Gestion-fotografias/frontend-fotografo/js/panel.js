@@ -9,6 +9,9 @@ let llegoAlFinal = false;
 
 function verificarModalPrivacidad() {
     if (!modalPrivacidad || !textoLey || !botonAceptar) return;
+    // Evita registrar listeners duplicados si la función se invoca más de una vez.
+    if (verificarModalPrivacidad._inicializado) return;
+    verificarModalPrivacidad._inicializado = true;
 
     const usuario = JSON.parse(localStorage.getItem("usuario") || "{}");
     const rol = usuario.rol || usuario.role;
@@ -21,19 +24,45 @@ function verificarModalPrivacidad() {
 
     if (rol === "fotografo" && !yaAcepto) {
         modalPrivacidad.classList.remove("oculto");
+    } else {
+        return;
     }
 
-    llegoAlFinal = textoLey.scrollTop + textoLey.clientHeight >= textoLey.scrollHeight - 10;
-    botonAceptar.disabled = !llegoAlFinal;
-
-    textoLey.addEventListener("scroll", function () {
+    function actualizarEstadoBoton() {
         llegoAlFinal = textoLey.scrollTop + textoLey.clientHeight >= textoLey.scrollHeight - 10;
-        botonAceptar.disabled = !llegoAlFinal;
-    });
+        // No pisar el estado "Guardando..." mientras hay una petición en curso.
+        if (!botonAceptar.dataset.guardando) {
+            botonAceptar.disabled = !llegoAlFinal;
+        }
+    }
+
+    actualizarEstadoBoton();
+
+    textoLey.addEventListener("scroll", actualizarEstadoBoton);
+    window.addEventListener("resize", actualizarEstadoBoton);
+    // Recalcular cuando termine de cargar el layout/fuentes.
+    window.addEventListener("load", actualizarEstadoBoton);
 
     botonAceptar.addEventListener("click", async function () {
-        if (!window.api || !window.api.aceptarPoliticas) return;
         const mensajePolitica = document.getElementById("mensajePoliticas");
+
+        if (!window.api || !window.api.aceptarPoliticas) {
+            if (mensajePolitica) {
+                mensajePolitica.textContent = "No se pudo cargar el módulo de conexión (api.js). Recarga la página e inténtalo de nuevo.";
+                mensajePolitica.classList.add("error");
+            }
+            return;
+        }
+        if (!localStorage.getItem("token")) {
+            if (mensajePolitica) {
+                mensajePolitica.textContent = "Tu sesión expiró. Serás redirigido al inicio de sesión...";
+                mensajePolitica.classList.add("error");
+            }
+            setTimeout(function () { window.location.href = "login.html"; }, 1200);
+            return;
+        }
+
+        botonAceptar.dataset.guardando = "1";
         botonAceptar.disabled = true;
 
         if (mensajePolitica) {
@@ -49,17 +78,28 @@ function verificarModalPrivacidad() {
             localStorage.removeItem("acepto-politica-fotografo");
             if (mensajePolitica) mensajePolitica.textContent = "";
             modalPrivacidad.classList.add("oculto");
+            delete botonAceptar.dataset.guardando;
         } catch (error) {
             if (mensajePolitica) {
-                mensajePolitica.textContent = error.message;
+                var mensaje = (error && error.message) ? error.message : "Error inesperado al guardar.";
+                // fetch lanza TypeError cuando el backend no está en ejecución.
+                if (error instanceof TypeError || mensaje === "Failed to fetch") {
+                    mensaje = "No se pudo conectar con el servidor (http://localhost:8080). Verifica que el backend esté en ejecución con Docker y vuelve a intentarlo.";
+                }
+                mensajePolitica.textContent = mensaje;
                 mensajePolitica.classList.add("error");
             }
-            if (error.status === 401) {
-                modalPrivacidad.classList.add("oculto");
-                window.location.href = "login.html";
+            if (error && error.status === 401) {
+                // Sesión inválida o expirada: limpiar para NO rebotar entre
+                // panel.html <-> login.html (el login redirige a panel si hay token).
+                localStorage.removeItem("token");
+                localStorage.removeItem("usuario");
+                localStorage.removeItem("cuota-almacenamiento");
+                setTimeout(function () { window.location.href = "login.html"; }, 1500);
                 return;
             }
-            botonAceptar.disabled = !llegoAlFinal;
+            delete botonAceptar.dataset.guardando;
+            actualizarEstadoBoton();
         }
     });
 }

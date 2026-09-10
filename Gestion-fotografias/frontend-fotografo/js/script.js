@@ -5,6 +5,26 @@ function guardarSesion(token, usuario) {
     localStorage.setItem("usuario", JSON.stringify(usuario));
 }
 
+function limpiarSesionGuardada() {
+    localStorage.removeItem("token");
+    localStorage.removeItem("usuario");
+    localStorage.removeItem("cuota-almacenamiento");
+}
+
+// Verifica la expiración (exp) del JWT en el cliente, sin validar la firma.
+// Retorna true solo si el token tiene formato JWT válido y aún no expiró.
+function tokenVigente(token) {
+    try {
+        const partes = String(token).split(".");
+        if (partes.length !== 3) return false;
+        const payload = JSON.parse(atob(partes[1].replace(/-/g, "+").replace(/_/g, "/")));
+        if (!payload.exp) return true; // Sin exp: no podemos saber, se deja pasar.
+        return Date.now() < Number(payload.exp) * 1000;
+    } catch (e) {
+        return false;
+    }
+}
+
 function irSegunRol(rol) {
     if (rol === "fotografo") {
         window.location.href = "panel.html";
@@ -78,9 +98,21 @@ if (formLogin) {
     const tokenGuardado = localStorage.getItem("token");
     const usuarioGuardado = localStorage.getItem("usuario");
 
-    if (tokenGuardado && usuarioGuardado) {
-        const usuario = JSON.parse(usuarioGuardado);
-        irSegunRol(usuario.rol || usuario.role);
+    // Solo reutilizar la sesión guardada si el JWT aún está vigente.
+    // Antes se redirigía con cualquier token (incluso expirado/inválido) y eso
+    // provocaba un rebote infinito panel.html <-> login.html: panel devolvía 401
+    // y mandaba a login, y login devolvía a panel sin validar nada.
+    if (tokenGuardado && usuarioGuardado && tokenVigente(tokenGuardado)) {
+        try {
+            const usuario = JSON.parse(usuarioGuardado);
+            irSegunRol(usuario.rol || usuario.role);
+        } catch (e) {
+            limpiarSesionGuardada();
+        }
+    } else if (tokenGuardado || usuarioGuardado) {
+        // Token ausente, malformado o expirado: no redirigir, limpiar para
+        // que el usuario inicie sesión de nuevo en lugar de rebotar.
+        limpiarSesionGuardada();
     }
 
     formLogin.onsubmit = async function (evento) {
