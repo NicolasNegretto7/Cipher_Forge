@@ -180,6 +180,10 @@
         return enviarJson("/colecciones/" + coleccionId + "/qr-colaborativo", "POST");
     }
 
+    async function generarQrAcceso(coleccionId) {
+        return enviarJson("/colecciones/" + coleccionId + "/qr-acceso", "POST");
+    }
+
     function urlImprimirQrColaborativo(coleccionId) {
         return API_URL + "/colecciones/" + coleccionId + "/qr-colaborativo/imprimir";
     }
@@ -272,6 +276,7 @@
         urlDescarga: urlDescarga,
         // 5. Colaborativo y QR
         generarQrColaborativo: generarQrColaborativo,
+        generarQrAcceso: generarQrAcceso,
         urlImprimirQrColaborativo: urlImprimirQrColaborativo,
         urlSvgQr: urlSvgQr,
         verificarAccesoColaborativo: verificarAccesoColaborativo,

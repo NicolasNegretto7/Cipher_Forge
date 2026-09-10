@@ -1,5 +1,6 @@
 (function () {
     var CLAVE_MIS_COLECCIONES = "mis-colecciones";
+    var CLAVE_INVITACIONES_PENDIENTES = "invitaciones-pendientes";
     var LOGIN_URL = "../../frontend-fotografo/index.html";
 
     var galeria = document.getElementById("galeriaColecciones");
@@ -18,6 +19,31 @@
 
     function guardarMisColecciones(lista) {
         localStorage.setItem(CLAVE_MIS_COLECCIONES, JSON.stringify(lista));
+    }
+
+    function invitacionesPendientes() {
+        try {
+            return JSON.parse(localStorage.getItem(CLAVE_INVITACIONES_PENDIENTES) || "[]");
+        } catch (error) {
+            return [];
+        }
+    }
+
+    function guardarInvitacionesPendientes(lista) {
+        localStorage.setItem(CLAVE_INVITACIONES_PENDIENTES, JSON.stringify(lista));
+    }
+
+    function guardarInvitacionPendiente(tokenInvitacion) {
+        var lista = invitacionesPendientes();
+        if (lista.indexOf(tokenInvitacion) === -1) {
+            lista.push(tokenInvitacion);
+            guardarInvitacionesPendientes(lista);
+        }
+    }
+
+    function quitarInvitacionPendiente(tokenInvitacion) {
+        var lista = invitacionesPendientes().filter(function (t) { return t !== tokenInvitacion; });
+        guardarInvitacionesPendientes(lista);
     }
 
     function agregarColeccionAcceso(idColeccion, titulo) {
@@ -99,18 +125,53 @@
         });
     }
 
+    function boton(texto, clase, alHacerClick) {
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = clase;
+        b.textContent = texto;
+        b.addEventListener("click", alHacerClick);
+        return b;
+    }
+
+    function ejecutarCanje(estado, tokenInvitacion, contenedor, botonCanjear) {
+        if (botonCanjear) {
+            botonCanjear.disabled = true;
+            botonCanjear.textContent = "Canjeando...";
+        }
+
+        window.api.canjearInvitacion(tokenInvitacion)
+            .then(function (resultado) {
+                var coleccion = (resultado && resultado.coleccion) || {};
+                agregarColeccionAcceso(Number(coleccion.id) || estado.coleccion_id, coleccion.titulo || estado.coleccion_titulo);
+                quitarInvitacionPendiente(tokenInvitacion);
+                document.getElementById("estadoInvitacion").textContent = "Acceso concedido. Ya puedes ver esta colección.";
+                contenedor.innerHTML = "";
+                var ver = boton("Ver colección", "BotonVerde", function () {
+                    window.location.href = "coleccion.html?id=" + (coleccion.id || estado.coleccion_id);
+                });
+                contenedor.appendChild(ver);
+                cargarMisColecciones();
+                window.utils.mostrarToast("Acceso concedido.", "Exito");
+            })
+            .catch(function (error) {
+                window.utils.mostrarToast(error.message || "No se pudo canjear la invitación.", "Error");
+                if (botonCanjear) {
+                    botonCanjear.disabled = false;
+                    botonCanjear.textContent = "Canjear acceso";
+                } else {
+                    contenedor.innerHTML = "";
+                    var reintentar = boton("Canjear acceso", "BotonVerde", function () {
+                        ejecutarCanje(estado, tokenInvitacion, contenedor, reintentar);
+                    });
+                    contenedor.appendChild(reintentar);
+                }
+            });
+    }
+
     function accionesInvitacion(estado, tokenInvitacion) {
         var contenedor = document.getElementById("accionesInvitacion");
         contenedor.innerHTML = "";
-
-        function boton(texto, clase, alHacerClick) {
-            var b = document.createElement("button");
-            b.type = "button";
-            b.className = clase;
-            b.textContent = texto;
-            b.addEventListener("click", alHacerClick);
-            return b;
-        }
 
         if (!estado.autenticado) {
             var enlace = document.createElement("a");
@@ -122,6 +183,9 @@
         }
 
         if (estado.tiene_acceso) {
+            agregarColeccionAcceso(Number(estado.coleccion_id) || estado.coleccion_id, estado.coleccion_titulo);
+            quitarInvitacionPendiente(tokenInvitacion);
+            cargarMisColecciones();
             var ver = boton("Ver colección", "BotonVerde", function () {
                 window.location.href = "coleccion.html?id=" + estado.coleccion_id;
             });
@@ -129,29 +193,10 @@
             return;
         }
 
-        var canjear = boton("Canjear acceso", "BotonVerde", function () {
-            canjear.disabled = true;
-            canjear.textContent = "Canjeando...";
-            window.api.canjearInvitacion(tokenInvitacion)
-                .then(function (resultado) {
-                    var coleccion = (resultado && resultado.coleccion) || {};
-                    agregarColeccionAcceso(Number(coleccion.id) || estado.coleccion_id, coleccion.titulo || estado.coleccion_titulo);
-                    document.getElementById("estadoInvitacion").textContent = "Acceso concedido. Ya puedes ver esta colección.";
-                    cargarMisColecciones();
-                    contenedor.innerHTML = "";
-                    var ver = boton("Ver colección", "BotonVerde", function () {
-                        window.location.href = "coleccion.html?id=" + (coleccion.id || estado.coleccion_id);
-                    });
-                    contenedor.appendChild(ver);
-                    window.utils.mostrarToast("Acceso concedido.", "Exito");
-                })
-                .catch(function (error) {
-                    window.utils.mostrarToast(error.message || "No se pudo canjear la invitación.", "Error");
-                    canjear.disabled = false;
-                    canjear.textContent = "Canjear acceso";
-                });
-        });
-        contenedor.appendChild(canjear);
+        var procesando = boton("Canjeando acceso...", "BotonVerde", function () {});
+        procesando.disabled = true;
+        contenedor.appendChild(procesando);
+        ejecutarCanje(estado, tokenInvitacion, contenedor, null);
     }
 
     function procesarInvitacion(tokenInvitacion) {
@@ -190,9 +235,37 @@
         return null;
     }
 
+    function reconciliarInvitacionesPendientes() {
+        var pendientes = invitacionesPendientes().filter(function (t) { return t !== tokenInvitacion; });
+        if (pendientes.length === 0) return;
+
+        Promise.all(pendientes.map(function (token) {
+            return window.api.validarInvitacion(token)
+                .then(function (estado) {
+                    if (estado.tiene_acceso) {
+                        agregarColeccionAcceso(Number(estado.coleccion_id) || estado.coleccion_id, estado.coleccion_titulo);
+                        quitarInvitacionPendiente(token);
+                        return;
+                    }
+                    return window.api.canjearInvitacion(token)
+                        .then(function (resultado) {
+                            var coleccion = (resultado && resultado.coleccion) || {};
+                            agregarColeccionAcceso(Number(coleccion.id) || estado.coleccion_id, coleccion.titulo || estado.coleccion_titulo);
+                            quitarInvitacionPendiente(token);
+                        });
+                })
+                .catch(function () { return; });
+        })).then(function () {
+            cargarMisColecciones();
+        });
+    }
+
     var tokenInvitacion = obtenerTokenInvitacion();
     if (tokenInvitacion) {
+        guardarInvitacionPendiente(tokenInvitacion);
         procesarInvitacion(tokenInvitacion);
+    } else if (window.auth && window.auth.haySesion()) {
+        reconciliarInvitacionesPendientes();
     }
 
     cargarMisColecciones();

@@ -175,8 +175,6 @@ Cada código QR se generará como un token único asociado a una colección o ev
 ## 3.6 Registro y monitoreo de eventos sensibles
 
 Se registrarán eventos como inicios de sesión fallidos y uso de códigos QR, lo que permitirá detectar patrones de abuso (por ejemplo, múltiples intentos de acceso a colecciones privadas).
-
-<<<<<<< HEAD
 ---
 
 ## 7. Cambios a futuro (pendientes)
