@@ -71,7 +71,7 @@ graph TD
     FFMPEG --> FS
     REPO -->|Conexión PDO / Sentencias preparadas| MYSQL
     BACKUP -.->|PDO SQL Dump y rotación automática| MYSQL
-    BACKUP -.->|purgarExpirados (>24h) sobre| FS
+    BACKUP -.->|purga 24h| FS
 ```
 
 ### 1.2 Descripción Detallada de Capas

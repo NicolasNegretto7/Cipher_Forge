@@ -153,6 +153,25 @@
         return API_URL + "/multimedia/" + id + "/vista-previa";
     }
 
+    async function obtenerVistaPrevia(idMultimedia) {
+        const cab = {};
+        const t = tokenSesion();
+        if (t) cab["Authorization"] = "Bearer " + t;
+        const respuesta = await fetch(urlVistaPrevia(idMultimedia), { headers: cab });
+        if (!respuesta.ok) {
+            let mensaje = "No se pudo cargar la previsualización.";
+            try {
+                const json = await respuesta.json();
+                if (json && json.mensaje) mensaje = json.mensaje;
+            } catch (e) { /* la respuesta no era JSON */ }
+            const error = new Error(mensaje);
+            error.status = respuesta.status;
+            throw error;
+        }
+        const blob = await respuesta.blob();
+        return URL.createObjectURL(blob);
+    }
+
     function urlOriginal(id) {
         return API_URL + "/multimedia/" + id + "/original";
     }
@@ -294,6 +313,7 @@
         actualizarMultimedia: actualizarMultimedia,
         eliminarMultimedia: eliminarMultimedia,
         urlVistaPrevia: urlVistaPrevia,
+        obtenerVistaPrevia: obtenerVistaPrevia,
         urlOriginal: urlOriginal,
         urlDescarga: urlDescarga,
         descargarMultimedia: descargarMultimedia,

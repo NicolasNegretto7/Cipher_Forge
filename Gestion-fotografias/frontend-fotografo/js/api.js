@@ -26,6 +26,7 @@
         if (!respuesta.ok) {
             const error = new Error(json.mensaje || "Error inesperado en la solicitud.");
             error.status = respuesta.status;
+            error.errores = Array.isArray(json.errores) ? json.errores : [];
             throw error;
         }
         return json.datos;

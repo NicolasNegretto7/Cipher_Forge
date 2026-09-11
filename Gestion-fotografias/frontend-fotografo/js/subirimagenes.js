@@ -197,6 +197,64 @@ function obtenerArchivoOriginal(archivo) {
     });
 }
 
+// Detecta el formato real por los primeros bytes (magic bytes), no por la extensión ni el tipo del navegador.
+async function comprobarFormatoReal(archivo) {
+    const original = await obtenerArchivoOriginal(archivo);
+    if (!original) return null;
+    const cabecera = await new Promise(function (resolve) {
+        const lector = new FileReader();
+        lector.addEventListener("loadend", function () {
+            try { resolve(new Uint8Array(lector.result || new ArrayBuffer(0)).slice(0, 16)); } catch (error) { resolve(new Uint8Array(0)); }
+        });
+        lector.addEventListener("error", function () { resolve(new Uint8Array(0)); });
+        lector.readAsArrayBuffer(original.slice(0, 16));
+    });
+    if (cabecera.length < 3) return null;
+    const texto = String.fromCharCode.apply(null, cabecera);
+    if (cabecera[0] === 0xFF && cabecera[1] === 0xD8 && cabecera[2] === 0xFF) return "image/jpeg";
+    if (cabecera[0] === 0xFF && cabecera[1] === 0x0A) return "image/jxl";
+    if (texto.indexOf("\x89PNG") === 0) return "image/png";
+    if (texto.indexOf("RIFF") === 0 && texto.indexOf("WEBP") === 8) return "image/webp";
+    if (texto.indexOf("gif87a") === 0 || texto.indexOf("gif89a") === 0) return "image/gif";
+    if (texto.indexOf("BM") === 0) return "image/bmp";
+    if (texto.indexOf("II*\x00") === 0 || texto.indexOf("MM\x00*") === 0) return "image/tiff";
+    if (texto.substr(4, 4) === "jP  " && cabecera[8] === 0x0D) return "image/jp2";
+    if (texto.substr(4, 4) === "ftyp") {
+        const marca = texto.substr(8, 4);
+        if (marca.indexOf("qt") === 0) return "video/quicktime";
+        const brandMp4 = ["isom", "iso2", "mp41", "mp42", "avc1", "mp4v", "dash", "M4V ", "M4A ", "mmp4", "MSNV"];
+        if (brandMp4.indexOf(marca) !== -1) return "video/mp4";
+        if (marca.indexOf("heic") === 0 || marca.indexOf("heix") === 0 || marca === "mif1" || marca === "msf1") return "image/heic";
+        if (marca === "avif" || marca === "avis") return "image/avif";
+        return null;
+    }
+    if (texto.indexOf("\x1a\x45\xdf\xa3") === 0) return "video/x-matroska";
+    if (texto.indexOf("RIFF") === 0 && texto.indexOf("AVI ") === 8) return "video/x-msvideo";
+    if (texto.indexOf("WEBM") === 0) return "video/webm";
+    return null;
+}
+
+function etiquetaFormato(tipo) {
+    const nombres = {
+        "image/jpeg": "JPG",
+        "image/png": "PNG",
+        "image/webp": "WebP",
+        "image/gif": "GIF",
+        "image/bmp": "BMP",
+        "image/tiff": "TIFF",
+        "image/jp2": "JPEG 2000",
+        "image/jxl": "JPEG XL",
+        "image/heic": "HEIC",
+        "image/avif": "AVIF",
+        "video/mp4": "MP4",
+        "video/quicktime": "MOV",
+        "video/x-matroska": "MKV",
+        "video/x-msvideo": "AVI",
+        "video/webm": "WebM"
+    };
+    return nombres[tipo] || tipo;
+}
+
 // Devuelve a la vista las previsualizaciones de archivos cuyos bytes viven en IndexedDB.
 async function restaurarVistasDesdeBinarios() {
     for (const archivo of archivos) {
@@ -278,6 +336,7 @@ function mostrarGaleria() {
         }
         vista.src = archivo.src;
         vista.className = "VistaMiniatura";
+        vista.addEventListener("click", function () { abrirVisorDe(archivo); });
         tarjeta.appendChild(vista);
 
         const selector = document.createElement("button");
@@ -298,6 +357,57 @@ function mostrarGaleria() {
     });
 
     barraAcciones.classList.toggle("Visible", archivos.length > 0);
+}
+
+// Abre el visor (lightbox) con la previsualización del archivo al hacer clic en la miniatura.
+async function abrirVisorDe(archivo) {
+    const visor = document.getElementById("visor");
+    const contenido = document.getElementById("visorContenido");
+    if (!visor || !contenido) return;
+
+    contenido.innerHTML = "";
+    let url = archivo.src;
+    let poster = null;
+    if (!archivo.remoto && !archivo.subido) {
+        const original = await obtenerArchivoOriginal(archivo);
+        if (original) url = URL.createObjectURL(original);
+    }
+    if (url && url.indexOf("data:image/") === 0) {
+        poster = url;
+        url = null;
+    }
+
+    const esVideo = archivo.tipo && String(archivo.tipo).startsWith("video");
+    const medio = document.createElement(esVideo ? "video" : "img");
+    if (esVideo) {
+        medio.controls = true;
+        if (url) medio.src = url;
+        if (poster) medio.poster = poster;
+    } else {
+        medio.src = url || poster || PLACEHOLDER_SRC;
+    }
+    contenido.appendChild(medio);
+    visor.classList.add("Abierto");
+}
+
+function configurarVisor() {
+    const visor = document.getElementById("visor");
+    const contenido = document.getElementById("visorContenido");
+    const botonCerrar = document.getElementById("cerrarVisor");
+    if (!visor || !contenido || !botonCerrar) return;
+
+    botonCerrar.addEventListener("click", function () {
+        visor.classList.remove("Abierto");
+        contenido.innerHTML = "";
+    });
+
+    visor.addEventListener("click", function (evento) {
+        if (evento.target === visor) botonCerrar.click();
+    });
+
+    document.addEventListener("keydown", function (evento) {
+        if (evento.key === "Escape" && visor.classList.contains("Abierto")) botonCerrar.click();
+    });
 }
 
 // Carga una vista previa desde el backend autenticada (las colecciones privadas
@@ -465,6 +575,36 @@ async function publicarColeccion(tipoVisibilidad) {
         return;
     }
 
+    const nombreColeccion = (coleccion.nombre || "").trim();
+    if (nombreColeccion === "") {
+        alert("La colección necesita un nombre antes de publicar.");
+        return;
+    }
+    if (nombreColeccion.length > 60) {
+        alert("El nombre de la colección no puede superar los 60 caracteres (tiene " + nombreColeccion.length + ").");
+        return;
+    }
+    if ((coleccion.descripcion || "").length > 90) {
+        alert("La descripción no puede superar los 90 caracteres (tiene " + (coleccion.descripcion || "").length + ").");
+        return;
+    }
+    const formatosPermitidos = ["image/jpeg", "video/mp4"];
+    const pendientes = archivos.filter(function (a) { return !a.subido && !a.remoto; });
+    const problemas = [];
+    for (const archivo of pendientes) {
+        let real = null;
+        try { real = await comprobarFormatoReal(archivo); } catch (error) { real = null; }
+        const rapido = archivo.tipo ? String(archivo.tipo).toLowerCase() : "";
+        const tipoFinal = real ? String(real) : rapido;
+        if (tipoFinal && formatosPermitidos.indexOf(tipoFinal) === -1) {
+            problemas.push((archivo.nombre || "archivo") + (real ? " (contenido: " + etiquetaFormato(String(real)) + ")" : ""));
+        }
+    }
+    if (problemas.length > 0) {
+        alert("Solo se aceptan imágenes JPG y videos MP4 reales. Revisa el contenido (no la extensión) de: " + problemas.join(", ") + ". Abre el archivo y vuelve a guardarlo como JPG o MP4.");
+        return;
+    }
+
     const usuario = JSON.parse(localStorage.getItem("usuario") || "null");
     const rol = usuario && (usuario.rol || usuario.role);
     const fotografoId = Number(usuario && (usuario.id || usuario.id_fotografo));
@@ -521,7 +661,8 @@ async function publicarColeccion(tipoVisibilidad) {
             ? "Colección publicada y visible en colecciones públicas."
             : "Colección publicada como privada.");
     } catch (error) {
-        alert(error.message || "No se pudo publicar la colección.");
+        const detalles = error && Array.isArray(error.errores) ? error.errores.filter(Boolean) : [];
+        alert((error && error.message) ? error.message + (detalles.length > 0 ? "\n\n• " + detalles.join("\n• ") : "") : "No se pudo publicar la colección.");
     } finally {
         botonSeleccionado.disabled = false;
     }
@@ -537,3 +678,4 @@ mostrarTags();
 mostrarGaleria();
 sincronizarColeccionBackend();
 restaurarVistasDesdeBinarios();
+configurarVisor();

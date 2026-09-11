@@ -143,8 +143,48 @@ protegido contra agotamiento de cuota y restauración de vistas al recargar.
 | 4 | Mismo flujo con dos `archivos[]` en una petición | 201, todos en `subidos` |
 | 5 | Video MP4 (ffmpeg, 35 KB): misma subida | 201, `tipo: video`, `vista_previa` .mp4 generada |
 | 6 | Datos de prueba (usuarios `ups_%`/`up_test_%`, colecciones, multimedia y ficheros en volumen) limpiados al terminar | OK |
+| 7 | Clic en una miniatura del borrador (`SubirImagenes.html`) abre el visor `#visor.Abierto` con la previsualización | OK (manual) |
+| 8 | Videos en el visor: se cargan con `src` del archivo original recuperado (objectURL) y se reproducen (póster solo si los bytes no están disponibles) | OK (manual) |
+| 9 | `node --check` de `subirimagenes.js` tras cablear el visor | OK |
+| 10 | `POST /colecciones` con título de 65 caracteres responde `400` con `errores: ["El título no puede superar los 60 caracteres."]` (reproducido) | OK |
+| 11 | `POST /colecciones` con descripción de 95 caracteres responde `400` con detalle en `errores` (reproducido) | OK |
+| 12 | `POST /colecciones/{id}/multimedia` con un PNG responde `400` con `errores: ["Formato no permitido. Solo se aceptan imágenes JPG y videos MP4."]` (reproducido) | OK |
+| 13 | `api.js` propaga `error.errores` y `publicarColeccion` muestra el detalle (viñetas) en el alert; validación previa (nombre ≤60, descripción ≤90, JPG/MP4) antes de llamar al backend | OK (`node --check` en `api.js` y `subirimagenes.js`) |
+| 14 | `comprobarFormatoReal` detecta por cabecera JPG, PNG, WebP, GIF, BMP, TIFF, JP2, JXL, HEIC, AVIF, MOV, MKV, AVI, WebM aunque el nombre/la extensión digan `.jpg`; la validación previa SIEMPRE lee los bytes (ya no confía en el MIME del navegador, que usa la extensión) | OK (`node --check`) |
+| 15 | `mime_content_type` del servidor (probe en contenedor): JPEG real→`image/jpeg` (acepta); PNG/WebP/JP2→otros MIME (rechaza con "Formato no permitido") | OK |
 
 ### Despliegue
 
 Cambios solo en `frontend-fotografo/` (JS + HTML). No requiere reconstrucción de
 imágenes ni migración de BD; los borradores previos de `localStorage` se conservan.
+
+## Galería de una colección privada abierta por QR/invitación (CC-21)
+
+### Contexto
+
+La galería del cliente (`frontend-cliente/js/gallery.js:crearVista`) ponía la vista
+previa como `src` directo de un `<img>/<video>` (`urlVistaPrevia(id)`). Un navegador
+no adjunta `Authorization: Bearer` a un recurso cargado por un elemento HTML; para
+colecciones **privadas** el backend exige sesión (`rutaServible` → 401) y las
+miniaturas/visor acababan en icono de imagen rota. Las públicas funcionaban.
+
+Corrección: `window.api.obtenerVistaPrevia(id)` en `frontend-cliente/js/api.js`, que
+hace `fetch` de `vista-previa` con el header Bearer y devuelve un objectURL (mismo
+patrón que `descargarMultimedia`); `gallery.js` la usa para miniaturas y visor, con
+liberación de objectURLs al re-renderizar la galería.
+
+### Verificación (evidencia, 2026-09-11)
+
+| # | Verificación | Resultado |
+| --- | --- | --- |
+| 1 | `node --check` de `frontend-cliente/js/api.js` y `frontend-cliente/js/gallery.js` | OK |
+| 2 | `GET /multimedia/101/vista-previa` de colección privada (78) **sin** Bearer | 401 (causa del icono roto) |
+| 3 | Flujo invitado completo: registrar cliente, verificar código, login, `GET /invitaciones/{token}` → `GET/POST /invitaciones/{token}/canjear` | 200, `acceso_concedido: true`, `tipo_visibilidad: privada` |
+| 4 | `GET /multimedia/101/vista-previa` con Bearer del invitado (tras canje) | 200, 208 977 B, firma `FF D8 FF E0` (JPEG) |
+| 5 | Usuarios de prueba, `acceso_colecciones` y ficheros temporales limpiados | OK |
+
+### Despliegue
+
+Cambios solo en `frontend-cliente/` (JS). No requiere reconstrucción de imágenes ni
+migración de BD; las colecciones privadas ya publicadas se ven al recargar con
+Ctrl+F5.

@@ -15,6 +15,14 @@
     var visorContenido = document.getElementById("visorContenido");
     var accionesVisor = document.getElementById("accionesVisor");
     var favoritosIds = new Set();
+    var objectUrlsVistas = [];
+
+    function liberarObjectUrlsVistas() {
+        objectUrlsVistas.forEach(function (url) {
+            try { URL.revokeObjectURL(url); } catch (error) { }
+        });
+        objectUrlsVistas = [];
+    }
 
     function mostrarError(texto) {
         if (mensajeCarga) mensajeCarga.hidden = true;
@@ -122,12 +130,21 @@
 
     function crearVista(archivo) {
         var vista = document.createElement(esVideo(archivo) ? "video" : "img");
-        vista.src = window.api.urlVistaPrevia(archivo.id_multimedia);
+        vista.className = "VistaMiniatura";
         if (esVideo(archivo)) {
             vista.controls = false;
             vista.muted = true;
         }
-        vista.className = "VistaMiniatura";
+        if (window.api && window.api.obtenerVistaPrevia) {
+            window.api.obtenerVistaPrevia(archivo.id_multimedia)
+                .then(function (url) {
+                    objectUrlsVistas.push(url);
+                    vista.src = url;
+                })
+                .catch(function () { });
+        } else {
+            vista.src = window.api.urlVistaPrevia(archivo.id_multimedia);
+        }
         return vista;
     }
 
@@ -192,6 +209,7 @@
     }
 
     function mostrarGaleria() {
+        liberarObjectUrlsVistas();
         galeria.innerHTML = "";
         if (mensajeCarga) mensajeCarga.hidden = true;
         if (estadoVacio) estadoVacio.hidden = archivos.length !== 0;
