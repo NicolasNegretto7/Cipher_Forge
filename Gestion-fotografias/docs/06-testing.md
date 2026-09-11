@@ -265,3 +265,20 @@ El panel "Moderar aportes" (`frontend-fotografo/js/moderation.js`) cargaba las m
 ### Despliegue (CC-25)
 
 Cambios solo en `frontend-fotografo/js/api.js` y `frontend-fotografo/js/moderation.js`. No requiere migración de BD.
+
+---
+
+### Videos en moderación y cuota de almacenamiento (CC-26)
+
+(1) La vista previa de un video es un clip MP4 de 15 s; `renderizarPendientes` ahora crea `<video>` (muted, preload auto) para los ítems cuyo `tipo` empieza con "video" en lugar de `<img>`. (2) El indicador de cuota usaba `Math.max(borrador local, servidor)` y el borrador local conservaba copias de todo lo subido/sincronizado, por lo que la cuota quedaba clavada en un valor alto: ahora la base es `espacio_servidor + borradores aún no subidos`, se refresca la cuota del servidor tras publicar/subir/borrar, y los borrados (archivos y colecciones) esperan el `DELETE` del backend y avisan si falla (conservando el elemento para reintentarlo). Verificación E2E del SUM del backend con un usuario de prueba: `GET /fotografos/cuota` = 5 429 B tras subir 1 JPG y **0 B** tras borrar la colección.
+
+| # | Verificación | Resultado |
+| --- | --- | --- |
+| 1 | `node --check` de `almacenamiento.js`, `subirimagenes.js`, `panel.js` y `moderation.js` | OK |
+| 2 | E2E: cuota 5 429 B → borrar colección → cuota 0 B (`GET /fotografos/cuota`) | OK (usuario de prueba eliminado) |
+| 3 | Video MP4 pendiente en "Moderar aportes" se ve (reproduce el clip) y el clic abre la vista completa | Pendiente de confirmar en navegador (Ctrl+F5) |
+| 4 | Al borrar una colección/archivo en el panel, la cuota baja (y avisa si el servidor falla) | Pendiente de confirmar en navegador (Ctrl+F5) |
+
+### Despliegue (CC-26)
+
+Cambios solo en `frontend-fotografo/js/almacenamiento.js`, `subirimagenes.js`, `panel.js` y `moderation.js`. No requiere migración de BD.
