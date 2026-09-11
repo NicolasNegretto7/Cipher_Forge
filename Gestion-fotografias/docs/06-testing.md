@@ -188,3 +188,80 @@ liberación de objectURLs al re-renderizar la galería.
 Cambios solo en `frontend-cliente/` (JS). No requiere reconstrucción de imágenes ni
 migración de BD; las colecciones privadas ya publicadas se ven al recargar con
 Ctrl+F5.
+
+## Archivos nuevos en una colección ya publicada (CC-22)
+
+### Contexto
+
+En el panel del fotógrafo los archivos se añaden primero al borrador local
+(`localStorage`/IndexedDB) y solo se suben al backend al pulsar «Publicar colección».
+Para una colección **ya publicada** eso obligaba a re-publicar para que el enlace
+permanente/QR mostrase los archivos nuevos. Corrección: `subirNuevosSiColeccionPublicada()`
+en `subirimagenes.js` sube de inmediato los pendientes cuando la colección está
+publicada (al seleccionar archivos y al cargar la página).
+
+### Verificación (evidencia, 2026-09-11)
+
+| # | Verificación | Resultado |
+| --- | --- | --- |
+| 1 | `node --check` de `frontend-fotografo/js/subirimagenes.js` | OK |
+| 2 | Fotógrafo de prueba crea colección **privada** y genera QR de acceso; cliente invitado canjea el QR (`acceso_concedido: true`) | OK |
+| 3 | `GET /colecciones/{id}/multimedia` como invitado (estado inicial) | 0 archivos |
+| 4 | Fotógrafo sube 2 archivos nuevos (JPEG 64×64 real + MP4 ffmpeg) a la colección ya publicada | 201, `subidos` con id 104 (imagen) y 105 (video), `aprobado: true` |
+| 5 | Mismo `GET /colecciones/{id}/multimedia` como invitado **sin re-publicar** | 2 archivos (los ve al refrescar) |
+| 6 | `GET /multimedia/{id}/vista-previa` del archivo nuevo con token del invitado | 200 (mp4, 2246 B) |
+| 7 | `publicarColeccion` conserva su validación previa (nombre ≤60, descripción ≤90, JPG/MP4 reales, extraído a `archivosConFormatoInvalido`) | OK (`node --check`) |
+| 8 | Datos de prueba eliminados: colección, multimedia, QR, accesos, usuarios y ficheros de vista previa en el volumen | OK, sin residuos |
+
+### Despliegue
+
+Cambios solo en `frontend-fotografo/js/subirimagenes.js`. No requiere migración de BD;
+los borradores previos se conservan. Los pendientes heredados de antes del fix se
+suben solos al abrir la colección.
+
+## Miniaturas verdes por perfil ICC y calidad de descarga (CC-23)
+
+### Contexto
+
+Las miniaturas del borrador reencodan la imagen en un `<canvas>` (`generarMiniaturaImagen`)
+y el póster de video hace lo propio (`generarPosterVideo`). Cuando el JPEG trae metadatos
+de perfil de color (ICC) inconsistentes —típico en archivos descargados y re-subeidos—
+Chrome/Edge pintan todo el canvas en verde; el `<img>` directo y el visor (bytes
+originales) se ven bien. Corrección: `dibujarEnLienzo()` decodifica con
+`createImageBitmap({ colorSpaceConversion: "none", imageOrientation: "from-image" })`
+(ignora el perfil corrupto y respeta EXIF), con fallback al `drawImage` clásico.
+
+La descarga en dos calidades usa `MediaProcessor::generarBuenaCalidadImagen()`: desde CC-24 la "buena" es una copia limpia sin marca de agua con calidad baja (JPEG 30) y resolución máxima Full HD (1920 px, se reescala solo si el original supera ese ancho); la "alta" es el original íntegro. (Semántica previa CC-12: máx 1920 px + JPEG 80.)
+
+### Verificación (evidencia, 2026-09-11)
+
+| # | Verificación | Resultado |
+| --- | --- | --- |
+| 1 | `node --check` de `frontend-fotografo/js/subirimagenes.js` (helper `dibujarEnLienzo`) | OK |
+| 2 | `createImageBitmap` disponible en Chrome/Edge/Firefox; `colorSpaceConversion: "none"` evita la conversión del perfil ICC roto (referencia: WHATWG ImageBitmap / MDN) | OK (documentación) |
+| 3 | Fallback: si `createImageBitmap` no está o falla, se dibuja la imagen tal cual (comportamiento anterior) | OK (try/catch) |
+| 4 | Descarga `?calidad=alta` de un JPG 6000×4000 de prueba | 200, 2 283 322 B (original íntegro) |
+| 5 | Descarga `?calidad=buena` del mismo archivo (CC-24) | 200, 1920×1280, 133 003 B (-94%), SHA-256 distinto |
+| 6 | Descarga `?calidad=buena` de un JPG 1920×1280 de prueba | 200, 1920×1280, 134 137 B (-59%); se genera `uploads/standard/*.jpg` (máx 1920 px, JPEG 30) en el volumen |
+| 7 | `php -l` de `MediaProcessor.php` y `MultimediaService.php` tras el cambio CC-24 | OK |
+| 8 | Sin regresión en la subida: `POST /colecciones/{id}/multimedia` multiauto (imagen + video) | 201, `subidos` con `aprobado: true` |
+| 9 | Datos de prueba (usuarios `qual_%`/`qual2_%`, colecciones, multimedia, ficheros de prueba en volumen) limpiados | OK, sin residuos (los originales reales del usuario quedan intactos) |
+
+### Despliegue
+
+Cambios solo en `frontend-fotografo/js/subirimagenes.js`. No requiere migración de BD.
+
+---
+
+### Vista previa y moderación de aportes colaborativos (CC-25)
+
+El panel "Moderar aportes" (`frontend-fotografo/js/moderation.js`) cargaba las miniaturas con `<img src=.../vista-previa>` sin cabecera `Authorization`; como las colecciones colaborativas son privadas, el backend responde 401 y las imágenes quedaban ocultas (se podían seleccionar sin verlas). Corrección: `window.api.obtenerVistaPrevia(id)` en `frontend-fotografo/js/api.js` descarga con `fetch` + Bearer y devuelve un objectURL; `renderizarPendientes` la usa, revoca los objectURLs al re-renderizar y el clic en la miniatura abre la vista previa completa en nueva pestaña (CC-25).
+
+| # | Verificación | Resultado |
+| --- | --- | --- |
+| 1 | `node --check` de `frontend-fotografo/js/api.js` y `frontend-fotografo/js/moderation.js` | OK |
+| 2 | Carga de una colección publicada con aportes pendientes en "Moderar aportes" | Pendiente de confirmar en navegador (Ctrl+F5) |
+
+### Despliegue (CC-25)
+
+Cambios solo en `frontend-fotografo/js/api.js` y `frontend-fotografo/js/moderation.js`. No requiere migración de BD.

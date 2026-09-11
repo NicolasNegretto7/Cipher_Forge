@@ -22,6 +22,27 @@ function obtenerAlmacenamientoUsado() {
 	}, 0);
 }
 
+// Solo archivos del borrador que aún NO están en el servidor (no subidos y no remotos):
+// el resto ya cuenta en la cuota del backend y no debe duplicarse.
+function obtenerAlmacenamientoPendiente() {
+	return obtenerColeccionesAlmacenadas().reduce(function (totalColecciones, coleccion) {
+		return totalColecciones + (coleccion.imagenes || []).reduce(function (totalArchivos, archivo) {
+			if (archivo.remoto || archivo.subido) return totalArchivos;
+			return totalArchivos + obtenerTamanoArchivo(archivo);
+		}, 0);
+	}, 0);
+}
+
+// Para el chequeo previo del selector: usa la cuota vigente si el servidor fue
+// consultado (cache), o el total del borrador como medida conservadora local.
+function obtenerEspacioEnUsoContexto() {
+	const guardada = cuotaGuardada();
+	if (guardada && Number.isFinite(Number(guardada.espacio_usado_bytes))) {
+		return Number(guardada.espacio_usado_bytes);
+	}
+	return obtenerAlmacenamientoUsado();
+}
+
 function formatearAlmacenamiento(bytes) {
 	if (bytes >= 1024 * 1024 * 1024) return (bytes / (1024 * 1024 * 1024)).toFixed(2) + " GB";
 	if (bytes >= 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + " MB";
@@ -58,8 +79,10 @@ function pintarAlmacenamiento(usado, total, restante) {
 
 function combinarConLocal(cuota) {
 	const total = Number(cuota.espacio_total_bytes) || CAPACIDAD_ALMACENAMIENTO;
-	const usadoLocal = obtenerAlmacenamientoUsado();
-	const usado = Math.max(usadoLocal, Number(cuota.espacio_usado_bytes) || 0);
+	const usadoServidor = Number(cuota.espacio_usado_bytes) || 0;
+	// La cuota del servidor es la base (SUM sobre multimedia): baja al borrar
+	// colecciones o archivos. Solo se suman los borradores aún no subidos.
+	const usado = usadoServidor + obtenerAlmacenamientoPendiente();
 
 	return {
 		espacio_usado_bytes: usado,
@@ -69,12 +92,9 @@ function combinarConLocal(cuota) {
 }
 
 function aplicarCuota(cuota) {
-	const combinada = combinarConLocal(cuota);
-	pintarAlmacenamiento(
-		combinada.espacio_usado_bytes,
-		combinada.espacio_total_bytes,
-		combinada.espacio_disponible_bytes
-	);
+	const usado = Number(cuota.espacio_usado_bytes) || 0;
+	const total = Number(cuota.espacio_total_bytes) || CAPACIDAD_ALMACENAMIENTO;
+	pintarAlmacenamiento(usado, total, Math.max(0, total - usado));
 }
 
 function actualizarAlmacenamiento() {

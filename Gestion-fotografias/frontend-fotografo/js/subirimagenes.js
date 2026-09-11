@@ -150,6 +150,29 @@ function cargarImagenDesdeSrc(src) {
     });
 }
 
+// Dibuja un origen sobre el lienzo decodificando SIN la gestión de color del
+// navegador: evita que JPEGs con perfiles ICC inconsistentes se pinten en verde
+// en el canvas (fallo conocido de Chrome/Edge al usar drawImage directo).
+async function dibujarEnLienzo(lienzo, imagen, anchoDibujo, altoDibujo) {
+    const contexto = lienzo.getContext("2d");
+    let origen = imagen;
+    try {
+        if (typeof createImageBitmap === "function" && typeof imagen === "object") {
+            origen = await createImageBitmap(imagen, {
+                colorSpaceConversion: "none",
+                imageOrientation: "from-image"
+            });
+        }
+    } catch (error) { /* sin soporte: se dibuja la imagen tal cual */ }
+    try {
+        contexto.drawImage(origen, 0, 0, anchoDibujo, altoDibujo);
+    } finally {
+        if (origen && origen !== imagen && typeof origen.close === "function") {
+            try { origen.close(); } catch (error) { }
+        }
+    }
+}
+
 // Reencoda una imagen como JPEG pequeño para no agotar localStorage (los bytes originales van a IndexedDB).
 async function generarMiniaturaImagen(src, maxLado) {
     const lienzo = document.createElement("canvas");
@@ -157,7 +180,7 @@ async function generarMiniaturaImagen(src, maxLado) {
     const escala = Math.min(1, maxLado / Math.max(imagen.naturalWidth, imagen.naturalHeight));
     lienzo.width = Math.max(1, Math.round(imagen.naturalWidth * escala));
     lienzo.height = Math.max(1, Math.round(imagen.naturalHeight * escala));
-    lienzo.getContext("2d").drawImage(imagen, 0, 0, lienzo.width, lienzo.height);
+    await dibujarEnLienzo(lienzo, imagen, lienzo.width, lienzo.height);
     return lienzo.toDataURL("image/jpeg", 0.72);
 }
 
@@ -181,7 +204,7 @@ async function generarPosterVideo(src) {
     const escala = Math.min(1, 640 / Math.max(video.videoWidth, video.videoHeight));
     lienzo.width = Math.max(1, Math.round(video.videoWidth * escala));
     lienzo.height = Math.max(1, Math.round(video.videoHeight * escala));
-    lienzo.getContext("2d").drawImage(video, 0, 0, lienzo.width, lienzo.height);
+    await dibujarEnLienzo(lienzo, video, lienzo.width, lienzo.height);
     return lienzo.toDataURL("image/jpeg", 0.72);
 }
 
@@ -277,7 +300,7 @@ selectorArchivos.addEventListener("change", async function () {
 
     for (const archivo of Array.from(selectorArchivos.files)) {
         const tamanoArchivo = Number(archivo.size) || 0;
-        if (obtenerAlmacenamientoUsado() + tamanoArchivo > CAPACIDAD_ALMACENAMIENTO) {
+        if (obtenerEspacioEnUsoContexto() + tamanoArchivo > CAPACIDAD_ALMACENAMIENTO) {
             excedidos.push(archivo.name);
             continue;
         }
@@ -315,6 +338,7 @@ selectorArchivos.addEventListener("change", async function () {
         alert("No se pudieron subir por superar el espacio restante: " + excedidos.join(", "));
     }
     selectorArchivos.value = "";
+    subirNuevosSiColeccionPublicada();
 });
 
 function mostrarGaleria() {
@@ -357,6 +381,15 @@ function mostrarGaleria() {
     });
 
     barraAcciones.classList.toggle("Visible", archivos.length > 0);
+
+    const botonSeleccionarTodas = document.getElementById("seleccionarTodas");
+    if (botonSeleccionarTodas) {
+        const todasLasIds = archivos.map(function (archivo) { return archivo.id; });
+        const todasSeleccionadas = todasLasIds.length > 0 && todasLasIds.every(function (id) { return seleccionados.includes(id); });
+        botonSeleccionarTodas.textContent = todasSeleccionadas
+            ? "\u2611 Quitar selección"
+            : "\u2611 Seleccionar todas las imágenes";
+    }
 }
 
 // Abre el visor (lightbox) con la previsualización del archivo al hacer clic en la miniatura.
@@ -472,27 +505,44 @@ async function sincronizarColeccionBackend() {
 }
 
 document.getElementById("seleccionarTodas").addEventListener("click", function () {
-    seleccionados = archivos.map(function (archivo) { return archivo.id; });
+    const todasLasIds = archivos.map(function (archivo) { return archivo.id; });
+    const todasSeleccionadas = todasLasIds.length > 0 && todasLasIds.every(function (id) { return seleccionados.includes(id); });
+    seleccionados = todasSeleccionadas ? [] : todasLasIds;
     mostrarGaleria();
 });
 
-document.getElementById("eliminarSeleccionados").addEventListener("click", function () {
+document.getElementById("eliminarSeleccionados").addEventListener("click", async function () {
 
-    const eliminados = seleccionados.slice();
-    eliminados.forEach(function (id) {
+    const eliminables = seleccionados.slice();
+    const borrados = [];
+    const fallidosEnServidor = [];
+
+    for (const id of eliminables) {
         const archivo = archivos.find(function (a) { return a.id === id; });
-        if (archivo && archivo.subido && archivo.id_multimedia && window.api && window.api.eliminarMultimedia) {
-            window.api.eliminarMultimedia(archivo.id_multimedia).catch(function () {
-                /* el borrado local prevalece aunque el servidor falle */
-            });
+        if (!archivo) continue;
+
+        if (archivo.subido && archivo.id_multimedia && window.api && window.api.eliminarMultimedia) {
+            try {
+                await window.api.eliminarMultimedia(archivo.id_multimedia);
+            } catch (error) {
+                // Si el servidor no borró el archivo, se conserva localmente para reintentar,
+                // así la cuota del servidor sí baja al eliminarlo.
+                fallidosEnServidor.push(archivo.nombre || ("archivo-" + archivo.id));
+                continue;
+            }
         }
-        if (archivo && !archivo.remoto) {
+        if (!archivo.remoto) {
             delete bytesOriginalesEnSesion[archivo.id];
             borrarBinario(archivo.id);
         }
-    });
+        borrados.push(id);
+    }
 
-    archivos = archivos.filter(function (archivo) { return !seleccionados.includes(archivo.id); });
+    if (fallidosEnServidor.length > 0) {
+        alert("No se pudieron eliminar en el servidor y se conservaron en la colección: " + fallidosEnServidor.join(", ") + ". Inténtalo de nuevo.");
+    }
+
+    archivos = archivos.filter(function (archivo) { return !borrados.includes(archivo.id); });
     seleccionados = [];
     if (archivos.length === 0) {
         eliminarColeccionVacia();
@@ -500,6 +550,7 @@ document.getElementById("eliminarSeleccionados").addEventListener("click", funct
         guardarColeccion();
     }
     actualizarAlmacenamiento();
+    refrescarCuotaServidor();
     mostrarGaleria();
 });
 
@@ -569,6 +620,46 @@ async function subirImagenesPendientes(coleccionIdBackend) {
     }
 }
 
+// Lista los archivos pendientes cuyo contenido real no es JPG/MP4 (magic bytes).
+async function archivosConFormatoInvalido() {
+    const formatosPermitidos = ["image/jpeg", "video/mp4"];
+    const pendientes = archivos.filter(function (a) { return !a.subido && !a.remoto; });
+    const problemas = [];
+    for (const archivo of pendientes) {
+        let real = null;
+        try { real = await comprobarFormatoReal(archivo); } catch (error) { real = null; }
+        const rapido = archivo.tipo ? String(archivo.tipo).toLowerCase() : "";
+        const tipoFinal = real ? String(real) : rapido;
+        if (tipoFinal && formatosPermitidos.indexOf(tipoFinal) === -1) {
+            problemas.push((archivo.nombre || "archivo") + (real ? " (contenido: " + etiquetaFormato(String(real)) + ")" : ""));
+        }
+    }
+    return problemas;
+}
+
+// Para una colección YA publicada, sube de inmediato los archivos nuevos (no hace
+// falta volver a tocar «Publicar colección» para que el enlace del QR los muestre).
+async function subirNuevosSiColeccionPublicada() {
+    const idBackend = Number(coleccion.id);
+    if (!(coleccion.publicada === true) || !Number.isInteger(idBackend) || idBackend <= 0) return;
+    if (!localStorage.getItem("token")) return;
+
+    const problemas = await archivosConFormatoInvalido();
+    if (problemas.length > 0) {
+        alert("No se subieron los archivos nuevos por contenido no permitido: " + problemas.join(", ") + ". Quita esos archivos de la colección; los demás quedarán listos para «Publicar colección».");
+        return;
+    }
+
+    try {
+        await subirImagenesPendientes(idBackend);
+        guardarColeccion();
+        actualizarAlmacenamiento();
+        refrescarCuotaServidor();
+    } catch (error) {
+        alert((error && error.message) ? error.message : "No se pudieron subir los archivos nuevos. Quedan pendientes y puedes reintentarlos con «Publicar colección».");
+    }
+}
+
 async function publicarColeccion(tipoVisibilidad) {
     if (archivos.length === 0) {
         alert("Agrega al menos una imagen antes de publicar la colección.");
@@ -588,18 +679,7 @@ async function publicarColeccion(tipoVisibilidad) {
         alert("La descripción no puede superar los 90 caracteres (tiene " + (coleccion.descripcion || "").length + ").");
         return;
     }
-    const formatosPermitidos = ["image/jpeg", "video/mp4"];
-    const pendientes = archivos.filter(function (a) { return !a.subido && !a.remoto; });
-    const problemas = [];
-    for (const archivo of pendientes) {
-        let real = null;
-        try { real = await comprobarFormatoReal(archivo); } catch (error) { real = null; }
-        const rapido = archivo.tipo ? String(archivo.tipo).toLowerCase() : "";
-        const tipoFinal = real ? String(real) : rapido;
-        if (tipoFinal && formatosPermitidos.indexOf(tipoFinal) === -1) {
-            problemas.push((archivo.nombre || "archivo") + (real ? " (contenido: " + etiquetaFormato(String(real)) + ")" : ""));
-        }
-    }
+    const problemas = await archivosConFormatoInvalido();
     if (problemas.length > 0) {
         alert("Solo se aceptan imágenes JPG y videos MP4 reales. Revisa el contenido (no la extensión) de: " + problemas.join(", ") + ". Abre el archivo y vuelve a guardarlo como JPG o MP4.");
         return;
@@ -652,6 +732,8 @@ async function publicarColeccion(tipoVisibilidad) {
 
         coleccion.tipo_visibilidad = tipoVisibilidad;
         guardarColeccion();
+        actualizarAlmacenamiento();
+        refrescarCuotaServidor();
         estadoVisibilidad.textContent = tipoVisibilidad === "publica"
             ? "Visible en colecciones públicas"
             : "Privada: no aparece en colecciones públicas";
@@ -677,5 +759,6 @@ menuVisibilidad.querySelectorAll("[data-visibilidad]").forEach(function (opcion)
 mostrarTags();
 mostrarGaleria();
 sincronizarColeccionBackend();
+subirNuevosSiColeccionPublicada();
 restaurarVistasDesdeBinarios();
 configurarVisor();

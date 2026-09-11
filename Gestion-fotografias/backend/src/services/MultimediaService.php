@@ -192,7 +192,8 @@ class MultimediaService
             return $rutaOriginalAbsoluta;
         }
 
-        // Si se solicita Buena Calidad (imagen): se entrega versión estándar Full HD sin marca de agua
+        // Si se solicita Buena Calidad (imagen): copia limpia sin marca de agua con
+        // calidad baja (JPEG 30) y resolución máxima Full HD (CC-24)
         $rutaBuenaCalidad = MediaProcessor::generarBuenaCalidadImagen($rutaOriginalAbsoluta);
         $rutaBuenaAbsoluta = MediaProcessor::aRutaAbsoluta($rutaBuenaCalidad);
 
