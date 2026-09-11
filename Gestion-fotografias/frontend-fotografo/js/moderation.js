@@ -14,6 +14,7 @@ const volverColeccion = document.getElementById("volverColeccion");
 
 let pendientes = [];
 const idsSeleccionados = new Set();
+const urlsObjetos = new Set();
 
 function formatearTamano(bytes) {
 	const valor = Number(bytes) || 0;
@@ -43,6 +44,8 @@ function actualizarBotones() {
 
 function renderizarPendientes() {
 	galeria.querySelectorAll(".TarjetaPendiente").forEach(function (tarjeta) { tarjeta.remove(); });
+	urlsObjetos.forEach(function (url) { URL.revokeObjectURL(url); });
+	urlsObjetos.clear();
 	estadoVacio.hidden = pendientes.length > 0;
 	controles.hidden = pendientes.length === 0;
 	actualizarBotones();
@@ -54,11 +57,26 @@ function renderizarPendientes() {
 		tarjeta.className = "TarjetaPendiente";
 		tarjeta.dataset.id = id;
 
-		const imagen = document.createElement("img");
+		const esVideo = archivo.tipo && String(archivo.tipo).startsWith("video");
+
+		const imagen = document.createElement(esVideo ? "video" : "img");
 		imagen.className = "MiniaturaPendiente";
-		imagen.src = window.api.urlVistaPrevia(id);
 		imagen.alt = archivo.titulo || "Aporte de invitado";
-		imagen.onerror = function () { imagen.style.display = "none"; };
+		if (esVideo) {
+			imagen.muted = true;
+			imagen.playsInline = true;
+			imagen.preload = "auto";
+		}
+		imagen.onerror = function () { imagen.style.visibility = "hidden"; };
+		imagen.onclick = function () {
+			if (imagen.src) window.open(imagen.src, "_blank");
+		};
+
+		cargarVistaPrevia(id).then(function (url) {
+			imagen.src = url;
+		}).catch(function () {
+			imagen.style.visibility = "hidden";
+		});
 
 		const casilla = document.createElement("input");
 		casilla.type = "checkbox";
@@ -86,6 +104,12 @@ function renderizarPendientes() {
 		tarjeta.appendChild(datos);
 		galeria.appendChild(tarjeta);
 	});
+}
+
+async function cargarVistaPrevia(id) {
+	const url = await window.api.obtenerVistaPrevia(id);
+	urlsObjetos.add(url);
+	return url;
 }
 
 async function cargarPendientes() {

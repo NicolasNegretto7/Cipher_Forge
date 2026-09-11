@@ -617,7 +617,7 @@ El backend está diseñado bajo una **Arquitectura en Capas desacoplada**, utili
 ┌─────────────────────────────────────────────────────────────────────────┐
 │          10. Capa de Procesamiento Binario & Helpers Nativos            │
 │   - MediaProcessor: GD (vistas previas, marca de agua diagonal, buena   │
-│     calidad 1920px limpia sin marca de agua) + FFmpeg (clip 15s)        │
+│     calidad = calidad baja, máx 1920 px) + FFmpeg (clip 15s)│
 │   - QrGenerator: generación nativa de códigos QR SVG y carteles HTML    │
 │   - Jwt: codificación / decodificación HMAC-SHA256 en PHP puro          │
 └─────────────────────────────────────────────────────────────────────────┘
@@ -745,7 +745,7 @@ El backend está diseñado bajo una **Arquitectura en Capas desacoplada**, utili
 ### 12.14 `GET /multimedia/{id}/descargar` (HU10 / RF10)
 * **Propósito:** Descarga directa e individual en dos calidades:
   * `calidad=alta`: Archivo original íntegro sin procesar.
-  * `calidad=buena`: Versión optimizada Full HD (1920px) limpia **sin marca de agua** (RF136).
+  * `calidad=buena`: Copia limpia **sin marca de agua** con calidad baja (`CALIDAD_BUENA_JPEG=30`) y resolución máxima Full HD 1920 px (`ANCHO_MAX_BUENA_CALIDAD`) (RF136, CC-24).
 * **Autenticación:** Opcional (`optional`), sujeta a las reglas de acceso de la colección.
 * **Parámetros URL:** `?calidad=buena` o `?calidad=alta` (por defecto: `alta`).
 * **Cabeceras:** `Content-Disposition: attachment; filename="..."`, `Cache-Control: no-store`.
@@ -909,7 +909,7 @@ El backend está diseñado bajo una **Arquitectura en Capas desacoplada**, utili
 | `src/Core/AuthMiddleware.php` | Existente | Core | Validación de tokens Bearer JWT y carga de usuario |
 | `src/Core/Database.php` | Existente | Core | Conexión singleton PDO configurada para UTF-8 y excepciones |
 | `src/helpers/Jwt.php` | Existente | Helper | Firma y verificación HMAC-SHA256 en PHP puro |
-| `src/helpers/MediaProcessor.php` | Modificado | Helper | Marca de agua GD, clip 15s FFmpeg, buena calidad 1920px y borrado físico |
+| `src/helpers/MediaProcessor.php` | Modificado | Helper | Marca de agua GD, clip 15s FFmpeg, buena calidad (máx 1920 px, JPEG 30) y borrado físico |
 | `src/helpers/QrGenerator.php` | Nuevo | Helper | Generador de matriz QR en SVG nativo y plantilla imprimible HTML (HU7) |
 | `src/dtos/RegisterDto.php` | Existente | DTO | DTO tipado inmutable de registro de usuarios |
 | `src/dtos/LoginDto.php` | Existente | DTO | DTO tipado inmutable de inicio de sesión |

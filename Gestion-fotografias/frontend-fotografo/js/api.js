@@ -166,6 +166,18 @@
         return API_URL + "/multimedia/" + id + "/vista-previa";
     }
 
+    async function obtenerVistaPrevia(id) {
+        const respuesta = await fetch(API_URL + "/multimedia/" + id + "/vista-previa", {
+            headers: cabeceras(false)
+        });
+        if (!respuesta.ok) {
+            const error = new Error("No se pudo cargar la vista previa.");
+            error.status = respuesta.status;
+            throw error;
+        }
+        return URL.createObjectURL(await respuesta.blob());
+    }
+
     function urlOriginal(id) {
         return API_URL + "/multimedia/" + id + "/original";
     }
@@ -273,6 +285,7 @@
         actualizarMultimedia: actualizarMultimedia,
         eliminarMultimedia: eliminarMultimedia,
         urlVistaPrevia: urlVistaPrevia,
+        obtenerVistaPrevia: obtenerVistaPrevia,
         urlOriginal: urlOriginal,
         urlDescarga: urlDescarga,
         // 5. Colaborativo y QR

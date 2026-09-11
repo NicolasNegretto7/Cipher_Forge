@@ -154,25 +154,37 @@ document.getElementById("eliminarColeccionesSeleccionadas").addEventListener("cl
         return coleccionesSeleccionadas.includes(coleccion.id);
     });
 
-    if (window.api && window.api.eliminarColeccion) {
-        for (const coleccionDeBorrado of aEliminar) {
-            const idBackend = Number(coleccionDeBorrado.id);
-            if (coleccionDeBorrado.publicada === true && Number.isInteger(idBackend) && idBackend > 0) {
-                try {
-                    await window.api.eliminarColeccion(idBackend);
-                } catch (error) {
-                    /* el borrado local prevalece aunque el servidor falle */
-                }
+    const borradas = [];
+    const fallidas = [];
+
+    for (const coleccionDeBorrado of aEliminar) {
+        const idBackend = Number(coleccionDeBorrado.id);
+        const borradaBackend = !coleccionDeBorrado.publicada || !Number.isInteger(idBackend) || idBackend <= 0;
+
+        if (!borradaBackend && window.api && window.api.eliminarColeccion) {
+            try {
+                await window.api.eliminarColeccion(idBackend);
+            } catch (error) {
+                // Si el servidor no borró la colección, se conserva localmente para
+                // reintentar: así la cuota del servidor sí disminuye al eliminarla.
+                fallidas.push(coleccionDeBorrado.nombre || "Colección");
+                continue;
             }
         }
+        borradas.push(coleccionDeBorrado.id);
+    }
+
+    if (fallidas.length > 0) {
+        alert("No se pudieron eliminar en el servidor y se conservaron: " + fallidas.join(", ") + ". Inténtalo de nuevo.");
     }
 
     colecciones = colecciones.filter(function (coleccion) {
-        return !coleccionesSeleccionadas.includes(coleccion.id);
+        return !borradas.includes(coleccion.id);
     });
     localStorage.setItem("colecciones", JSON.stringify(colecciones));
     coleccionesSeleccionadas = [];
     if (typeof actualizarAlmacenamiento === "function") actualizarAlmacenamiento();
+    if (typeof refrescarCuotaServidor === "function") refrescarCuotaServidor();
     mostrarColecciones();
 });
 

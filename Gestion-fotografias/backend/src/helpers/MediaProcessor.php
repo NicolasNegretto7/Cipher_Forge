@@ -12,6 +12,11 @@ use App\Core\Config;
 
 class MediaProcessor
 {
+    // "Buena Calidad" (HU10 / RF10 / CC-24): copia del original con calidad baja
+    // (JPEG 30) y resolución máxima Full HD (1920 px) cuando el original la supera.
+    // La "Alta Calidad" se sirve siempre desde `originals/` (archivo original íntegro).
+    public const CALIDAD_BUENA_JPEG = 30;
+    public const ANCHO_MAX_BUENA_CALIDAD = 1920;
     /**
      * Genera un nombre de archivo único (sin posibilidad de colisión entre usuarios).
      */
@@ -139,7 +144,10 @@ class MediaProcessor
     }
 
     /**
-     * Genera una versión limpia (sin marca de agua) a resolución estándar (máx 1920px) para descarga en 'Buena Calidad' (HU10).
+     * Genera la versión de "Buena Calidad": copia del original SIN marca de agua con
+     * calidad baja (JPEG 30) y resolución máxima Full HD (1920 px) si el original la
+     * supera (CC-24). La "Alta Calidad" se sirve siempre desde `originals/`.
+     * Retorna la ruta relativa o '' si no se pudo generar (el llamador usa el original).
      */
     public static function generarBuenaCalidadImagen(string $rutaOriginalAbsoluta): string
     {
@@ -162,9 +170,11 @@ class MediaProcessor
             return '';
         }
 
+        // Tope de resolución Full HD: si la imagen es más ancha que 1920 px se reescala
+        // (manteniendo proporción); si no, se conservan las dimensiones originales.
         $ancho = imagesx($origen);
         $alto  = imagesy($origen);
-        $anchoMax = 1920; // Estándar Full HD para Buena Calidad
+        $anchoMax = self::ANCHO_MAX_BUENA_CALIDAD;
 
         if ($ancho > $anchoMax) {
             $nuevoAlto = (int) round($alto * ($anchoMax / $ancho));
@@ -177,7 +187,7 @@ class MediaProcessor
         $nombre = self::nombreUnico('jpg');
         $destino = $dir . '/' . $nombre;
 
-        imagejpeg($redim, $destino, 80); // Compresión estándar limpia sin marca de agua
+        imagejpeg($redim, $destino, self::CALIDAD_BUENA_JPEG); // Calidad baja
         if ($redim !== $origen) {
             imagedestroy($redim);
         }
