@@ -63,6 +63,16 @@ class MultimediaController
     }
 
     /**
+     * GET /multimedia/{id}/poster
+     * Sirve el fotograma JPG de portada de un video tras validar acceso (CC-35).
+     */
+    public function poster(string $idMultimedia): void
+    {
+        $ruta = $this->multimediaService->obtenerPoster((int) $idMultimedia);
+        $this->emitirArchivo($ruta, false);
+    }
+
+    /**
      * GET /multimedia/{id}/original
      * Sirve el archivo original (alta calidad) SOLO si el solicitante tiene permiso (HU20).
      */
@@ -82,7 +92,7 @@ class MultimediaController
         $calidad = (string) $request->getQuery('calidad', 'alta');
 
         $ruta = $this->multimediaService->obtenerDescarga((int) $idMultimedia, $calidad);
-        $this->emitirArchivo($ruta, true);
+        $this->emitirArchivo($ruta, true, $this->nombreDescarga((int) $idMultimedia, $calidad, $ruta));
     }
 
     /**
@@ -194,13 +204,28 @@ class MultimediaController
      * Emite un archivo binario al cliente con las cabeceras correctas.
      * $forzarDescarga=true añade Content-Disposition: attachment.
      */
-    private function emitirArchivo(string $ruta, bool $forzarDescarga): void
+    private function nombreDescarga(int $idMultimedia, string $calidad, string $ruta): string
+    {
+        $extension = strtolower(pathinfo($ruta, PATHINFO_EXTENSION));
+        if ($extension === '' || $extension === 'bin') {
+            $mime = mime_content_type($ruta) ?: '';
+            $extension = match ($mime) {
+                'image/jpeg' => 'jpg',
+                'video/mp4'  => 'mp4',
+                default      => 'dat',
+            };
+        }
+        $calidadTexto = strtolower($calidad) === 'buena' ? 'buena' : 'alta';
+        return "cipherforge-{$idMultimedia}-{$calidadTexto}.{$extension}";
+    }
+
+    private function emitirArchivo(string $ruta, bool $forzarDescarga, ?string $nombreDescarga = null): void
     {
         $mime = mime_content_type($ruta);
         header('Content-Type: ' . $mime);
 
         if ($forzarDescarga) {
-            $nombre = basename($ruta);
+            $nombre = $nombreDescarga ?? basename($ruta);
             header('Content-Disposition: attachment; filename="' . $nombre . '"');
         } else {
             header('Content-Disposition: inline');

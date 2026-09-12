@@ -61,10 +61,14 @@ class MultimediaService
         $rutaAbsoluta = MediaProcessor::aRutaAbsoluta($rutaOriginal);
 
         // 4. Generar la vista previa: marca de agua (imagen) o recorte 15 s (video).
+        // 4b. Para videos se genera además un poster (fotograma JPG) usado como portada
+        //     de colección cuando esta no tiene imágenes (CC-35).
         if ($dto->tipo === 'imagen') {
             $vistaPrevia = MediaProcessor::generarPreviewImagen($rutaAbsoluta);
+            $poster = null;
         } else {
             $vistaPrevia = MediaProcessor::generarPreviewVideo($rutaAbsoluta);
+            $poster = MediaProcessor::generarPosterVideo($rutaAbsoluta);
         }
 
         if ($vistaPrevia === '') {
@@ -73,7 +77,7 @@ class MultimediaService
 
         // 5. Registrar el archivo en la base de datos con estado de aprobación.
         $tamanio = (int) $archivo['size'];
-        $idMultimedia = $this->multimediaRepository->create($dto, $rutaOriginal, $vistaPrevia, $tamanio, $aprobado);
+        $idMultimedia = $this->multimediaRepository->create($dto, $rutaOriginal, $vistaPrevia, $tamanio, $aprobado, $poster);
 
         return [
             'id_multimedia' => $idMultimedia,
@@ -82,6 +86,7 @@ class MultimediaService
             'titulo'        => $dto->titulo,
             'descripcion'   => $dto->descripcion,
             'vista_previa'  => $vistaPrevia,
+            'poster'        => $poster,
             'tamanio'       => $tamanio,
             'es_invitado'   => $dto->esInvitado,
             'aprobado'      => $aprobado,
@@ -187,14 +192,20 @@ class MultimediaService
             Response::error('El archivo original no está disponible en disco.', 404);
         }
 
-        // Si se solicita Alta Calidad o si es video: se entrega el archivo original completo
-        if (strtolower($calidad) === 'alta' || $multimedia['tipo'] === 'video') {
+        // Se solicita Alta Calidad: se entrega el archivo original completo.
+        if (strtolower($calidad) === 'alta') {
             return $rutaOriginalAbsoluta;
         }
 
-        // Si se solicita Buena Calidad (imagen): copia limpia sin marca de agua con
-        // calidad baja (JPEG 30) y resolución máxima Full HD (CC-24)
-        $rutaBuenaCalidad = MediaProcessor::generarBuenaCalidadImagen($rutaOriginalAbsoluta);
+        // Se solicita Buena Calidad (CC-24/H05): copia re-codificada con calidad baja.
+        // Imagen: JPEG 30 con tope Full HD 1920 px. Video: FFmpeg H.264 CRF 28, tope
+        // Full HD 1920 px y audio AAC 128 kbps (CC-30). Si no se puede generar, se
+        // entrega el original como fallback.
+        if ($multimedia['tipo'] === 'video') {
+            $rutaBuenaCalidad = MediaProcessor::generarBuenaCalidadVideo($rutaOriginalAbsoluta);
+        } else {
+            $rutaBuenaCalidad = MediaProcessor::generarBuenaCalidadImagen($rutaOriginalAbsoluta);
+        }
         $rutaBuenaAbsoluta = MediaProcessor::aRutaAbsoluta($rutaBuenaCalidad);
 
         if (file_exists($rutaBuenaAbsoluta)) {
@@ -202,6 +213,46 @@ class MultimediaService
         }
 
         return $rutaOriginalAbsoluta;
+    }
+
+    /**
+     * Devuelve la ruta absoluta del poster (fotograma JPG) de un video tras validar acceso (CC-35).
+     * Si el video se subió antes de CC-35 (sin poster en disco), lo genera una única vez
+     * desde el original y persiste la ruta. Para imágenes sirve la vista previa con marca de agua.
+     */
+    public function obtenerPoster(int $idMultimedia): string
+    {
+        $multimedia = $this->multimediaRepository->findById($idMultimedia);
+        if ($multimedia === null) {
+            Response::error('El archivo multimedia no existe.', 404);
+        }
+
+        $coleccion = [
+            'id'               => $multimedia['coleccion_id'],
+            'fotografo_id'     => $multimedia['fotografo_id'],
+            'tipo_visibilidad' => $multimedia['tipo_visibilidad'],
+            'titulo'           => $multimedia['titulo'],
+        ];
+        $this->verificarAccesoALaColeccion($coleccion);
+
+        if ($multimedia['tipo'] === 'imagen') {
+            return MediaProcessor::aRutaAbsoluta($multimedia['vista_previa']);
+        }
+
+        $rutaPoster = $multimedia['poster'] ?? null;
+        if ($rutaPoster === null || $rutaPoster === '' || !file_exists(MediaProcessor::aRutaAbsoluta($rutaPoster))) {
+            $rutaOriginalAbsoluta = MediaProcessor::aRutaAbsoluta($multimedia['ruta_original']);
+            if (!file_exists($rutaOriginalAbsoluta)) {
+                Response::error('El archivo no está disponible.', 404);
+            }
+            $rutaPoster = MediaProcessor::generarPosterVideo($rutaOriginalAbsoluta);
+            if ($rutaPoster === '') {
+                Response::error('No se pudo generar el poster del video.', 500);
+            }
+            $this->multimediaRepository->actualizarPoster((int) $multimedia['id_multimedia'], $rutaPoster);
+        }
+
+        return MediaProcessor::aRutaAbsoluta($rutaPoster);
     }
 
     /**
@@ -222,6 +273,7 @@ class MultimediaService
         // Eliminar archivos físicos en disco
         MediaProcessor::eliminarArchivoFisico($multimedia['ruta_original']);
         MediaProcessor::eliminarArchivoFisico($multimedia['vista_previa']);
+        MediaProcessor::eliminarArchivoFisico($multimedia['poster']);
 
         $this->multimediaRepository->delete($idMultimedia);
     }
@@ -317,6 +369,7 @@ class MultimediaService
         foreach ($rutas as $item) {
             MediaProcessor::eliminarArchivoFisico($item['ruta_original']);
             MediaProcessor::eliminarArchivoFisico($item['vista_previa']);
+            MediaProcessor::eliminarArchivoFisico($item['poster']);
             $this->multimediaRepository->delete((int) $item['id_multimedia']);
         }
 
@@ -332,6 +385,7 @@ class MultimediaService
         foreach ($purgados as $item) {
             MediaProcessor::eliminarArchivoFisico($item['ruta_original']);
             MediaProcessor::eliminarArchivoFisico($item['vista_previa']);
+            MediaProcessor::eliminarArchivoFisico($item['poster']);
         }
         return count($purgados);
     }

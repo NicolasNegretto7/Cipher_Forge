@@ -70,6 +70,26 @@ class ColeccionService
     }
 
     /**
+     * Lista las colecciones del fotógrafo autenticado (H09 / CC-33).
+     * Habilita que el panel "Mis colecciones" se cargue desde el servidor,
+     * de modo que las colecciones persistan entre navegadores/dispositivos.
+     */
+    public function listarMias(): array
+    {
+        $autenticado = AuthMiddleware::user();
+        if ($autenticado === null) {
+            Response::error('Debes iniciar sesión para ver tus colecciones.', 401);
+        }
+
+        $colecciones = $this->coleccionRepository->listarMiasConPortada((int) $autenticado['id']);
+        foreach ($colecciones as &$col) {
+            $col['hashtags'] = $this->coleccionRepository->obtenerHashtags((int) $col['id']);
+        }
+
+        return $colecciones;
+    }
+
+    /**
      * Lista colecciones públicas con sus hashtags asociados (HU24 / HU27).
      */
     public function listarPublicas(?string $hashtag = null): array

@@ -244,6 +244,7 @@ Quedarán fuera de la primera versión:
 - El recorte de vista previa tendrá una duración máxima de 15 segundos.
 - El recorte se mostrará en la colección como representación del video.
 - La cantidad máxima permitida por video subido será de 800MB por cada uno.
+- La cantidad máxima permitida por imagen (JPG) subida será de 30MB por cada una.
 - El video original completo quedará disponible para la descarga directa.
 - El proceso de recorte se realizará de forma automática sin intervención del usuario.
 

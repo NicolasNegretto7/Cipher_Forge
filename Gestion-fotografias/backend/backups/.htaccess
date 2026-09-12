@@ -1,0 +1,11 @@
+# QUÉ: Niega el acceso directo por URL a los respaldos de la base de datos.
+# POR QUÉ: Los respaldos contienen datos personales completos (Ley 18.331 / RNF8); nunca
+#          deben servirse por una ruta estática predecible (H01). Solo el backend, tras
+#          validar permisos, entrega el historial a través del endpoint protegido /sistema/backups.
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+</IfModule>

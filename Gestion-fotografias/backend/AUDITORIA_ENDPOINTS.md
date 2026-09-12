@@ -347,7 +347,7 @@ Documento de registro técnico y auditoría para documentar el flujo de ejecuci�
 ## 7. `POST /colecciones/{id}/multimedia` — Subida de imágenes o videos (HU5)
 
 ### Resumen Técnico
-* **Propósito:** Subir uno o más archivos (JPG/PNG o video) a una colección del fotógrafo (HU5/RF7).
+* **Propósito:** Subir uno o más archivos (JPG o MP4) a una colección del fotógrafo (HU5/RF7).
 * **Autenticación requerida:** Sí (`auth`). Solo el fotógrafo **dueño** de la colección puede subir.
 * **Formato:** `multipart/form-data`, campo `archivos` (uno o un array). Opcionales: `titulo`, `descripcion`.
 * **Códigos de respuesta:**
@@ -376,8 +376,8 @@ Documento de registro técnico y auditoría para documentar el flujo de ejecuci�
    ▼
 5. src/validators/MultimediaValidator.php
    │ - Verifica que $_FILES['archivos'] tenga error UPLOAD_ERR_OK.
-   │ - Detecta el MIME real con mime_content_type() (imagen JPG/PNG | video MP4/MOV/WEBM/AVI).
-   │ - Valida tamaño: imagen <= 20 MB, video <= 800 MB (RF7).
+   │ - Detecta el MIME real con mime_content_type() (solo imagen JPG | video MP4, RF7/CF-03).
+   │ - Valida tamaño: imagen <= 30 MB, video <= 800 MB (RF7/RF26).
    │ - Valida título (<=60) y descripción (<=90).
    ▼
 6. src/services/MultimediaService.php -> upload()
@@ -510,6 +510,17 @@ directamente a `http://localhost:8080/uploads/originals/<archivo>.jpg` devuelve 
 > * Colección privada con token del **dueño** -> `200` (vista previa y original).
 > * Colección **pública** sin token -> `200` (vista previa, original y listado).
 
+### 9bis. `GET /multimedia/{id}/poster` — Portada (fotograma JPG) de videos (CC-35)
+
+* **Propósito:** Servir el **poster** de un video: un fotograma extraído con FFmpeg (segundo 1; si el video es más corto, fotograma 0), reescalado a máx. 1280 px y guardado como JPG en `uploads/standard/`. Es la miniatura de portada de una colección que **solo tiene videos** (un clip MP4 no se renderiza en un `<img>`).
+* **Autenticación requerida:** Opcional (`optional`). Aplica la misma regla central de acceso (`verificarAccesoALaColeccion`) que la vista previa: colecciones privadas → dueño o cliente con `acceso_colecciones`.
+* **Generación:** Al subir un video, `MediaProcessor::generarPosterVideo` genera el poster y `MultimediaService::upload` lo guarda en la columna `poster` (nueva, migración idempotente en `migration.sql`). Si el video existente no tiene poster (subido antes de CC-35, o el archivo se perdió), `MultimediaService::obtenerPoster` lo **genera bajo demanda una única vez** desde el original y lo persiste.
+* **Para imágenes:** el endpoint sirve la vista previa con marca de agua (la portada de una colección con imágenes es su vista previa).
+* **Códigos de respuesta:** `200 OK` (Content-Type `image/jpeg`), `401`/`403` (colección privada sin permiso), `404` (no existe / archivo no disponible), `500` (FFmpeg no pudo extraer el fotograma).
+* **Limpieza:** `eliminar`, `rechazarColaborativo` y `purgarExpirados` eliminan también el archivo físico del poster.
+
+> **Verificado en pruebas (e2e CC-35):** subida de video → `poster` presente en BD y en disco; `GET /multimedia/{id}/poster` → `200 image/jpeg`; con `poster=NULL` en BD → el GET regenera y persiste (200); colección mixta → portada sigue siendo `imagen`; cliente sin acceso a colección privada → `403`.
+
 ---
 
 ## 10. `GET /colecciones/{id}/multimedia` — Listado de contenidos (galería)
@@ -600,7 +611,7 @@ El backend está diseñado bajo una **Arquitectura en Capas desacoplada**, utili
 │   - ColeccionValidator / ColeccionDto│   - ColeccionService             │
 │   - MultimediaValidator / MultiDto   │   - MultimediaService            │
 │     Valida MIME real, límites 3GB /  │   - BackupService                │
-│     800MB / 80MB clips, tipos        │     Reglas de negocio, cuotas,   │
+│     800MB por archivo, tipos        │     Reglas de negocio, cuotas,   │
 │                                      │     canje de tokens, moderación  │
 └──────────────────────────────────────┴──────────────────┬───────────────┘
                                                           │
@@ -745,7 +756,10 @@ El backend está diseñado bajo una **Arquitectura en Capas desacoplada**, utili
 ### 12.14 `GET /multimedia/{id}/descargar` (HU10 / RF10)
 * **Propósito:** Descarga directa e individual en dos calidades:
   * `calidad=alta`: Archivo original íntegro sin procesar.
-  * `calidad=buena`: Copia limpia **sin marca de agua** con calidad baja (`CALIDAD_BUENA_JPEG=30`) y resolución máxima Full HD 1920 px (`ANCHO_MAX_BUENA_CALIDAD`) (RF136, CC-24).
+  * `calidad=buena`: Copia re-codificada con calidad **baja/claramente degradada**, servida desde `uploads/standard/` (RF136, CC-24/H05, CC-30/CC-32):
+    - **Imagen:** sin marca de agua, JPEG 10 (`CALIDAD_BUENA_JPEG`) y resolución máxima HD 1280 px (`ANCHO_MAX_BUENA_CALIDAD`).
+    - **Video:** H.264 (libx264) CRF 35, resolución máxima HD 1280 px si el original la supera, audio AAC 96 kbps y `+faststart`.
+    - Fallback: si la copia no se puede generar, se entrega el original.
 * **Autenticación:** Opcional (`optional`), sujeta a las reglas de acceso de la colección.
 * **Parámetros URL:** `?calidad=buena` o `?calidad=alta` (por defecto: `alta`).
 * **Cabeceras:** `Content-Disposition: attachment; filename="..."`, `Cache-Control: no-store`.
@@ -803,9 +817,9 @@ El backend está diseñado bajo una **Arquitectura en Capas desacoplada**, utili
 * **Códigos HTTP:** `200 OK`, `404 Not Found`, `410 Gone` (si superó las 24 horas).
 
 ### 12.21 `POST /colaborativo/{token}/subir` (HU11 / RF14 / RF25)
-* **Propósito:** Permite a los invitados subir fotos (JPG/PNG) y videos (clips) de forma anónima o con nombre opcional sin registrarse.
+* **Propósito:** Permite a los invitados subir fotos (JPG) y videos (MP4) de forma anónima o con nombre opcional sin registrarse.
 * **Restricciones:**
-  * Clips de video: límite máximo de **80 MB** (RF25).
+  * Videos: límite máximo de **800 MB** por archivo original (RF25/RF26); imágenes JPG hasta 30 MB (RF7/RF26).
   * Persistencia: se registra en `multimedia` con `es_invitado = 1` y `aprobado = 0` (pendiente de aprobación).
 * **Códigos HTTP:** `201 Created`, `400 Bad Request`, `404 Not Found`, `410 Gone`.
 
@@ -855,6 +869,14 @@ El backend está diseñado bajo una **Arquitectura en Capas desacoplada**, utili
 * **Propósito:** Tarea programada para purgar y eliminar definitivamente del disco y de la base de datos todos los archivos colaborativos no aprobados con más de 24 horas de antigüedad.
 * **Códigos HTTP:** `200 OK`.
 
+### 12.31 `GET /colecciones/mias` (H09 / CC-33)
+* **Propósito:** Listar las colecciones del fotógrafo autenticado desde el servidor, con portada y total de archivos aprobados. Permite que el panel "Mis colecciones" (`frontend-fotografo/js/panel.js`) se cargue desde la API y no dependa exclusivamente de `localStorage`, por lo que las colecciones persisten al cambiar de navegador/dispositivo (escalabilidad a producción).
+* **Autenticación:** Obligatoria (`auth`). El ID del fotógrafo se toma del token JWT (`AuthMiddleware::user`), nunca de la URL.
+* **Salida (JSON):** Array de colecciones con `id`, `fotografo_id`, `titulo`, `tipo_visibilidad`, `descripcion`, `creado_en`, `portada_preview`, `portada_id_multimedia`, `portada_tipo` (`imagen`/`video`/nulo), `total_archivos`, `hashtags`.
+* **Códigos HTTP:** `200 OK`, `401 Unauthorized`.
+* **Comportamiento en el frontend (CC-33):** `panel.js` fusiona esta lista con el borrador local (`localStorage["colecciones"]`); conserva los borradores sin publicar y descarta solo las publicadas que ya no existan en el servidor. Las miniaturas de colecciones nuevas se cargan autenticadas vía `obtenerVistaPrevia(portada_id_multimedia)`.
+* **Portada de video (CC-34/CC-35):** si la colección no tiene imágenes (solo videos), `portada_id_multimedia` apunta al video y `panel.js` carga su **poster** (fotograma JPG) vía `obtenerPoster(portada_id_multimedia)` (`GET /multimedia/{id}/poster`). Si por algún motivo no hay poster, se muestra un marcador "Vídeo" como respaldo (nunca un `<img>` con un clip MP4).
+
 ---
 
 ## 13. Matriz de Trazabilidad: Backlog Priorizado (29 Historias de Usuario)
@@ -882,7 +904,7 @@ El backend está diseñado bajo una **Arquitectura en Capas desacoplada**, utili
 | 19 | HU26 | Agregar hashtags a colecciones públicas | Sprint 3 | ✅ Completo | `POST /colecciones` (tabla `coleccion_hashtags`) |
 | 20 | HU27 | Filtrado de colecciones públicas por hashtags | Sprint 3 | ✅ Completo | `GET /colecciones/publicas?hashtag=...`, `GET /hashtags` |
 | 21 | HU16 | Control de cuota (3 GB) y subida parcial con excedentes | Sprint 4 | ✅ Completo | `MultimediaService::uploadMultiple`, `GET /fotografos/cuota` |
-| 22 | HU28 | Validación de videos (clips y límite de 800MB) | Sprint 4 | ✅ Completo | `MultimediaValidator` (800MB fotógrafo, 80MB clips) |
+| 22 | HU28 | Validación de videos (clips y límite de 800MB) | Sprint 4 | ✅ Completo | `MultimediaValidator` (800MB por archivo, fotógrafo e invitado) |
 | 23 | HU6 | Eliminación regular de imágenes o videos por fotógrafo | Sprint 4 | ✅ Completo | `DELETE /multimedia/{id}` (físico y BD) |
 | 24 | HU32 | Procesamiento de recortes de video 15s y original | Sprint 4 | ✅ Completo | `MediaProcessor::generarPreviewVideo` (FFmpeg) |
 | 25 | HU22 | Edición de datos básicos y reasignación de colección | Sprint 5 | ✅ Completo | `PUT /multimedia/{id}` |
@@ -905,11 +927,11 @@ El backend está diseñado bajo una **Arquitectura en Capas desacoplada**, utili
 | `src/Core/Router.php` | Modificado | Core | Despacho dinámico con múltiples parámetros `{param}` |
 | `src/Core/Request.php` | Modificado | Core | Lectura de bodies JSON y query params en `$_GET` |
 | `src/Core/Response.php` | Existente | Core | Emisión estandarizada de respuestas JSON (200, 201, 400, etc.) |
-| `src/Core/Config.php` | Modificado | Core | Cuota 3 GB, límites de video 800MB/80MB, rutas y claves JWT |
+| `src/Core/Config.php` | Modificado | Core | Cuota 3 GB, límites de archivo 800MB, rutas y claves JWT |
 | `src/Core/AuthMiddleware.php` | Existente | Core | Validación de tokens Bearer JWT y carga de usuario |
 | `src/Core/Database.php` | Existente | Core | Conexión singleton PDO configurada para UTF-8 y excepciones |
 | `src/helpers/Jwt.php` | Existente | Helper | Firma y verificación HMAC-SHA256 en PHP puro |
-| `src/helpers/MediaProcessor.php` | Modificado | Helper | Marca de agua GD, clip 15s FFmpeg, buena calidad (máx 1920 px, JPEG 30) y borrado físico |
+| `src/helpers/MediaProcessor.php` | Modificado | Helper | Marca de agua GD, clip 15s FFmpeg, buena calidad imagen (máx 1280 px, JPEG 10) y video (FFmpeg CRF 35, máx 1280 px, AAC 96k) y borrado físico |
 | `src/helpers/QrGenerator.php` | Nuevo | Helper | Generador de matriz QR en SVG nativo y plantilla imprimible HTML (HU7) |
 | `src/dtos/RegisterDto.php` | Existente | DTO | DTO tipado inmutable de registro de usuarios |
 | `src/dtos/LoginDto.php` | Existente | DTO | DTO tipado inmutable de inicio de sesión |
@@ -917,7 +939,7 @@ El backend está diseñado bajo una **Arquitectura en Capas desacoplada**, utili
 | `src/dtos/MultimediaDto.php` | Modificado | DTO | DTO con soporte para metadatos y flag `esInvitado` |
 | `src/validators/AuthValidator.php` | Existente | Validador | Valida datos de registro y login |
 | `src/validators/ColeccionValidator.php` | Modificado | Validador | Valida colecciones y autocompleta `fotografo_id` si hay sesión |
-| `src/validators/MultimediaValidator.php`| Modificado | Validador | Valida MIME real, 800MB (fotógrafo) y 80MB clips (invitado) |
+| `src/validators/MultimediaValidator.php`| Modificado | Validador | Valida MIME real, imagen 30MB y video 800MB (fotógrafo e invitado) |
 | `src/repository/UserRepository.php` | Modificado | Repositorio | CRUD usuarios, verificación de email (HU21), políticas (HU31) y perfiles (HU18) |
 | `src/repository/ColeccionRepository.php`| Modificado | Repositorio | Consultas colecciones, hashtags (HU26/27), `qr_tokens` y `acceso_colecciones` |
 | `src/repository/MultimediaRepository.php`| Modificado| Repositorio | Persistencia multimedia, cuota (HU16), moderación (HU12), borrado (HU6), edición (HU22) |

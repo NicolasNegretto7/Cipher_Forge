@@ -39,6 +39,7 @@ $router->add('POST', '/fotografos/aceptar-politicas', FotografoController::class
 // -------------------------------------------------------------
 $router->add('POST', '/colecciones', ColeccionController::class, 'create', 'auth');
 $router->add('GET', '/colecciones/publicas', ColeccionController::class, 'listarPublicas');
+$router->add('GET', '/colecciones/mias', ColeccionController::class, 'listarMias', 'auth');
 $router->add('GET', '/colecciones/{id}', ColeccionController::class, 'detalle', 'optional');
 $router->add('GET', '/invitaciones/{token}', ColeccionController::class, 'validarInvitacion', 'optional');
 $router->add('POST', '/invitaciones/{token}/canjear', ColeccionController::class, 'canjearInvitacion', 'auth');
@@ -53,6 +54,7 @@ $router->add('DELETE', '/colecciones/{id}', ColeccionController::class, 'elimina
 $router->add('POST', '/colecciones/{id}/multimedia', MultimediaController::class, 'upload', 'auth');
 $router->add('GET', '/colecciones/{id}/multimedia', MultimediaController::class, 'listar', 'optional');
 $router->add('GET', '/multimedia/{id}/vista-previa', MultimediaController::class, 'vistaPrevia', 'optional');
+$router->add('GET', '/multimedia/{id}/poster', MultimediaController::class, 'poster', 'optional');
 $router->add('GET', '/multimedia/{id}/original', MultimediaController::class, 'original', 'optional');
 $router->add('GET', '/multimedia/{id}/descargar', MultimediaController::class, 'descargar', 'optional');
 $router->add('PUT', '/multimedia/{id}', MultimediaController::class, 'actualizar', 'auth');

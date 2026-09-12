@@ -111,6 +111,7 @@ function mostrarColecciones() {
     colecciones.forEach(function (coleccion) {
         const tarjeta = document.createElement("div");
         tarjeta.className = "TarjetaColeccion";
+        tarjeta.setAttribute("data-coleccion", coleccion.id);
         tarjeta.classList.toggle("Seleccionada", coleccionesSeleccionadas.includes(coleccion.id));
         tarjeta.addEventListener("click", function () {
             window.location.href = "SubirImagenes.html?coleccionId=" + coleccion.id;
@@ -121,6 +122,11 @@ function mostrarColecciones() {
             imagen.className = "ImagenTarjeta";
             imagen.src = coleccion.imagenes[0].src;
             tarjeta.appendChild(imagen);
+        } else if (coleccion._portadaTipo === "video") {
+            const marcador = document.createElement("div");
+            marcador.className = "VideoPortada";
+            marcador.textContent = "Vídeo";
+            tarjeta.appendChild(marcador);
         }
 
         const nombre = document.createElement("p");
@@ -190,3 +196,124 @@ document.getElementById("eliminarColeccionesSeleccionadas").addEventListener("cl
 
 verificarModalPrivacidad();
 mostrarColecciones();
+
+// H09 / CC-33: carga las colecciones del fotógrafo desde el servidor (GET /colecciones/mias)
+// y las fusiona con el borrador local, de modo que persistan entre navegadores/dispositivos.
+if (window.api && window.api.listarMisColecciones && localStorage.getItem("token")) {
+    sincronizarMisColecciones()
+        .then(function () {
+            mostrarColecciones();
+            cargarMiniaturasRemotas();
+        })
+        .catch(function () { /* sin red: se queda el borrador local */ });
+}
+
+async function sincronizarMisColecciones() {
+    const mias = (await window.api.listarMisColecciones()) || [];
+    const idsServidor = mias.map(function (c) { return c.id; });
+
+    mias.forEach(function (servidor) {
+        const existente = colecciones.find(function (c) { return c.id === servidor.id; });
+        if (existente) {
+            existente.nombre = servidor.titulo || existente.nombre;
+            existente.tipo_visibilidad = servidor.tipo_visibilidad || existente.tipo_visibilidad;
+            existente.publicada = true;
+            existente._portadaTipo = servidor.portada_tipo || null;
+            const nuevoPortada = servidor.portada_id_multimedia || null;
+            if (existente._portadaId !== nuevoPortada) {
+                // La portada cambió en el servidor (o el caché la desconocía): refrescarla desde la API.
+                existente._portadaId = nuevoPortada;
+                existente.imagenes = [];
+            }
+        } else {
+            colecciones.push({
+                id: servidor.id,
+                localId: null,
+                nombre: servidor.titulo || "",
+                descripcion: servidor.descripcion || "",
+                tipo_visibilidad: servidor.tipo_visibilidad || "privada",
+                tags: servidor.hashtags || [],
+                favorita: false,
+                publicada: true,
+                imagenes: [],
+                _portadaId: servidor.portada_id_multimedia || null,
+                _portadaTipo: servidor.portada_tipo || null
+            });
+        }
+    });
+
+    // Descarta solo las publicadas que ya no existan en el servidor; los borradores
+    // sin publicar y los ítems sin red se conservan localmente.
+    colecciones = colecciones.filter(function (c) {
+        return !c.publicada || idsServidor.indexOf(c.id) !== -1;
+    });
+
+    localStorage.setItem("colecciones", JSON.stringify(colecciones));
+}
+
+// Carga la miniatura (portada) de colecciones nuevas desde el servidor, autenticada,
+// y la inyecta en la tarjeta ya renderizada sin bloquear el pintado.
+// CC-34/CC-35: si la portada es un VIDEO, su vista previa es un clip MP4 que un <img> no
+// reproduce; entonces se carga el poster (fotograma JPG) vía `obtenerPoster`. Si el video
+// aún no tiene poster (subido antes de CC-35 o fallo de FFmpeg), se muestra el marcador "Vídeo".
+function cargarMiniaturasRemotas() {
+    if (!window.api || !window.api.obtenerVistaPrevia) return;
+
+    colecciones.forEach(function (coleccion) {
+        const tarjeta = galeria.querySelector(".TarjetaColeccion[data-coleccion='" + coleccion.id + "']");
+        if (!tarjeta) return;
+        if (coleccion.imagenes && coleccion.imagenes.length > 0) return;
+
+        if (coleccion._portadaTipo === "video") {
+            if (coleccion._posterSolicitado) return;
+            coleccion._posterSolicitado = true;
+
+            window.api.obtenerPoster(coleccion._portadaId)
+                .then(function (src) {
+                    coleccion.imagenes = [{ src: src }];
+                    coleccion._portadaId = null;
+                    coleccion._portadaTipo = null;
+
+                    const t = galeria.querySelector(".TarjetaColeccion[data-coleccion='" + coleccion.id + "']");
+                    if (!t) return;
+                    const marca = t.querySelector(".VideoPortada");
+                    if (marca) marca.remove();
+                    const yaImagen = t.querySelector(".ImagenTarjeta");
+                    if (yaImagen) {
+                        yaImagen.src = src;
+                    } else {
+                        const imagen = document.createElement("img");
+                        imagen.className = "ImagenTarjeta";
+                        imagen.src = src;
+                        t.insertBefore(imagen, t.firstChild);
+                    }
+                })
+                .catch(function () {
+                    // Sin poster disponible: la tarjeta conserva el marcador "Vídeo".
+                });
+            return;
+        }
+
+        if (!coleccion._portadaId) return;
+
+        window.api.obtenerVistaPrevia(coleccion._portadaId)
+            .then(function (src) {
+                coleccion.imagenes = [{ src: src }];
+                coleccion._portadaId = null;
+
+                const tarjetaActual = galeria.querySelector(".TarjetaColeccion[data-coleccion='" + coleccion.id + "']");
+                if (!tarjetaActual) return;
+
+                const yaImagen = tarjetaActual.querySelector(".ImagenTarjeta");
+                if (yaImagen) {
+                    yaImagen.src = src;
+                } else {
+                    const imagen = document.createElement("img");
+                    imagen.className = "ImagenTarjeta";
+                    imagen.src = src;
+                    tarjetaActual.insertBefore(imagen, tarjetaActual.firstChild);
+                }
+            })
+            .catch(function () { /* sin miniatura: la tarjeta queda sin imagen */ });
+    });
+}

@@ -116,6 +116,36 @@ class ColeccionRepository
     }
 
     /**
+     * Lista las colecciones de un fotógrafo con portada y total de archivos aprobados (H09 / CC-33).
+     * Se usa por `GET /colecciones/mias` para que el panel "Mis colecciones" se cargue
+     * desde el servidor (persiste entre navegadores/dispositivos) y no solo de localStorage.
+     */
+    public function listarMiasConPortada(int $fotografoId): array
+    {
+        $stmt = $this->pdo->prepare(
+            'SELECT c.id, c.fotografo_id, c.titulo, c.tipo_visibilidad, c.descripcion, c.creado_en,
+                    (SELECT m.vista_previa FROM multimedia m
+                     WHERE m.coleccion_id = c.id AND m.aprobado = 1
+                     ORDER BY CASE WHEN m.tipo = "imagen" THEN 0 ELSE 1 END, m.id_multimedia ASC
+                     LIMIT 1) AS portada_preview,
+                    (SELECT m.id_multimedia FROM multimedia m
+                     WHERE m.coleccion_id = c.id AND m.aprobado = 1
+                     ORDER BY CASE WHEN m.tipo = "imagen" THEN 0 ELSE 1 END, m.id_multimedia ASC
+                     LIMIT 1) AS portada_id_multimedia,
+                    (SELECT m.tipo FROM multimedia m
+                     WHERE m.coleccion_id = c.id AND m.aprobado = 1
+                     ORDER BY CASE WHEN m.tipo = "imagen" THEN 0 ELSE 1 END, m.id_multimedia ASC
+                     LIMIT 1) AS portada_tipo,
+                    (SELECT COUNT(*) FROM multimedia m WHERE m.coleccion_id = c.id AND m.aprobado = 1) AS total_archivos
+             FROM colecciones c
+             WHERE c.fotografo_id = :fotografo_id
+             ORDER BY c.id DESC'
+        );
+        $stmt->execute(['fotografo_id' => $fotografoId]);
+        return $stmt->fetchAll();
+    }
+
+    /**
      * Actualiza metadatos de una colección.
      */
     public function actualizar(int $id, string $titulo, ?string $descripcion, string $tipoVisibilidad): bool

@@ -34,6 +34,14 @@ SET @sql = IF(@col_exists = 0,
     'SELECT 1');
 PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
+-- ── multimedia: poster (fotograma JPG) para portadas de video (CC-35) ──────
+SET @col_exists = (SELECT COUNT(*) FROM information_schema.COLUMNS
+    WHERE TABLE_SCHEMA = 'cipher_forge' AND TABLE_NAME = 'multimedia' AND COLUMN_NAME = 'poster');
+SET @sql = IF(@col_exists = 0,
+    'ALTER TABLE multimedia ADD COLUMN poster VARCHAR(255) DEFAULT NULL AFTER vista_previa',
+    'SELECT 1');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
+
 -- ── favoritos: CC-15 redirige favoritos de multimedia a colecciones ─────────
 -- Antes: favorito_id referencia multimedia.id_multimedia (favoritos por archivo).
 -- Ahora: favorito_id referencia colecciones.id (colección pública completa).

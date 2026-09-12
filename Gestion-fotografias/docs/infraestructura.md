@@ -92,7 +92,7 @@ RUN a2enmod rewrite
 WORKDIR /var/www/html
 
 # 6. Configuración PHP del contenedor (CF-NUEVO): alinea los límites de subida con los
-#    que ya valida la aplicación (imagen 20 MB / video 800 MB). Cargado por Apache en
+#    que ya valida la aplicación (imagen 30 MB / video 800 MB). Cargado por Apache en
 #    /usr/local/etc/php/conf.d/, sobrescribe upload_max_filesize=2M y post_max_size=8M
 #    por defecto de php:8.2-apache, que rechazaban cualquier archivo >2 MB.
 COPY php.ini /usr/local/etc/php/conf.d/99-cipher-forge.ini
@@ -109,7 +109,7 @@ Además, la imagen define un entrypoint propio en `backend/docker-entrypoint.sh`
 
 ### 2.2 Límites de Subida del Runtime (CF-NUEVO)
 
-El contenedor PHP trae por defecto `upload_max_filesize=2M` y `post_max_size=8M`, que rechazaban cualquier archivo >2 MB *antes* de entrar al código de la aplicación. Para que el tope real sean las reglas de negocio (imagen 20 MB / video 800 MB según `MultimediaValidator`, CF-03/RF7), la imagen inyecta `backend/php.ini` como `99-cipher-forge.ini`:
+El contenedor PHP trae por defecto `upload_max_filesize=2M` y `post_max_size=8M`, que rechazaban cualquier archivo >2 MB *antes* de entrar al código de la aplicación. Para que el tope real sean las reglas de negocio (imagen 30 MB / video 800 MB según `MultimediaValidator`, CF-03/RF7), la imagen inyecta `backend/php.ini` como `99-cipher-forge.ini`:
 
 | Directiva | Valor | Justificación |
 |---|---|---|

@@ -36,6 +36,7 @@ CREATE TABLE multimedia (
     ruta_original VARCHAR(255) NOT NULL,
     coleccion_id INT NOT NULL,
     vista_previa VARCHAR(255) NOT NULL,
+    poster VARCHAR(255) DEFAULT NULL,
     tamanio BIGINT UNSIGNED NOT NULL,
     es_invitado BOOLEAN NOT NULL DEFAULT FALSE,
     aprobado BOOLEAN NOT NULL DEFAULT TRUE,

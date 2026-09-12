@@ -22,7 +22,7 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     WORKDIR /var/www/html
 
     # Configuración PHP del contenedor (límites de subida alineados a la app:
-    # imagen 20 MB / video 800 MB). Sobrescribe los valores por defecto de php:8.2-apache.
+    # imagen 30 MB / video 800 MB). Sobrescribe los valores por defecto de php:8.2-apache.
     COPY php.ini /usr/local/etc/php/conf.d/99-cipher-forge.ini
 
     # Copia el script de entrada que prepara las carpetas de uploads y arranca Apache.

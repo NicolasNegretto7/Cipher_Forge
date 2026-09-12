@@ -22,11 +22,11 @@ class MultimediaRepository
     /**
      * Inserta un registro multimedia y retorna el id generado.
      */
-    public function create(MultimediaDto $dto, string $rutaOriginal, string $vistaPrevia, int $tamanio, bool $aprobado = true): int
+    public function create(MultimediaDto $dto, string $rutaOriginal, string $vistaPrevia, int $tamanio, bool $aprobado = true, ?string $poster = null): int
     {
         $stmt = $this->pdo->prepare(
-            'INSERT INTO multimedia (coleccion_id, titulo, descripcion, ruta_original, vista_previa, tamanio, tipo, es_invitado, aprobado)
-             VALUES (:coleccion_id, :titulo, :descripcion, :ruta_original, :vista_previa, :tamanio, :tipo, :es_invitado, :aprobado)'
+            'INSERT INTO multimedia (coleccion_id, titulo, descripcion, ruta_original, vista_previa, poster, tamanio, tipo, es_invitado, aprobado)
+             VALUES (:coleccion_id, :titulo, :descripcion, :ruta_original, :vista_previa, :poster, :tamanio, :tipo, :es_invitado, :aprobado)'
         );
 
         $stmt->execute([
@@ -35,6 +35,7 @@ class MultimediaRepository
             'descripcion'       => $dto->descripcion,
             'ruta_original'     => $rutaOriginal,
             'vista_previa'      => $vistaPrevia,
+            'poster'            => $poster,
             'tamanio'           => $tamanio,
             'tipo'              => $dto->tipo,
             'es_invitado'       => (int) $dto->esInvitado,
@@ -45,13 +46,22 @@ class MultimediaRepository
     }
 
     /**
+     * Registra (o actualiza) la ruta del poster JPG de un video (CC-35).
+     */
+    public function actualizarPoster(int $id, string $rutaPoster): bool
+    {
+        $stmt = $this->pdo->prepare('UPDATE multimedia SET poster = :poster WHERE id_multimedia = :id');
+        return $stmt->execute(['poster' => $rutaPoster, 'id' => $id]);
+    }
+
+    /**
      * Retorna los datos de un archivo multimedia por su id (incluida su colección).
      */
     public function findById(int $id): ?array
     {
         $stmt = $this->pdo->prepare(
             'SELECT m.id_multimedia, m.coleccion_id, m.titulo, m.descripcion, m.ruta_original,
-                    m.vista_previa, m.tamanio, m.tipo, m.es_invitado, m.aprobado, m.creado_en,
+                    m.vista_previa, m.poster, m.tamanio, m.tipo, m.es_invitado, m.aprobado, m.creado_en,
                     c.tipo_visibilidad, c.fotografo_id
              FROM multimedia m
              INNER JOIN colecciones c ON c.id = m.coleccion_id
@@ -180,7 +190,7 @@ class MultimediaRepository
 
         $inClause = implode(',', array_map('intval', $ids));
         $stmt = $this->pdo->prepare(
-            "SELECT id_multimedia, ruta_original, vista_previa
+            "SELECT id_multimedia, ruta_original, vista_previa, poster
              FROM multimedia
              WHERE coleccion_id = :coleccion_id AND id_multimedia IN ({$inClause})"
         );
@@ -196,7 +206,7 @@ class MultimediaRepository
     {
         // 1. Obtener los archivos que han superado las 24 horas
         $stmt = $this->pdo->prepare(
-            'SELECT id_multimedia, ruta_original, vista_previa
+            'SELECT id_multimedia, ruta_original, vista_previa, poster
              FROM multimedia
              WHERE es_invitado = 1 AND aprobado = 0 AND creado_en < (NOW() - INTERVAL 24 HOUR)'
         );

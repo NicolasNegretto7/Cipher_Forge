@@ -54,6 +54,9 @@ use App\Core\Router;
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+// Expone Content-Disposition para que el frontend use el nombre real del archivo en las descargas
+// (sin esto, un fetch cross-origin no puede leer la cabecera y el navegador cae a un nombre genérico).
+header('Access-Control-Expose-Headers: Content-Disposition, Content-Length');
 
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'OPTIONS') {
     http_response_code(204);

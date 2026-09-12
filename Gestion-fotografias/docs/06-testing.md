@@ -124,7 +124,7 @@ y se alinearon el controlador, el repositorio y el frontend de cliente.
 
 ### Contexto
 
-El backend admite imágenes de hasta 20 MB y videos de hasta 800 MB
+El backend admite imágenes de hasta 30 MB y videos de hasta 800 MB
 (`MultimediaValidator`) y el transporte del contenedor acepta hasta 900M/1G (CC-16);
 sin embargo, el frontend del fotógrafo guardaba el archivo completo como **dataURL en
 `localStorage`** (límite real del navegador ~5 MB): una foto de cámara >2 MB lanzaba
@@ -244,14 +244,15 @@ La descarga en dos calidades usa `MediaProcessor::generarBuenaCalidadImagen()`: 
 | 5 | Descarga `?calidad=buena` del mismo archivo (CC-24) | 200, 1920×1280, 133 003 B (-94%), SHA-256 distinto |
 | 6 | Descarga `?calidad=buena` de un JPG 1920×1280 de prueba | 200, 1920×1280, 134 137 B (-59%); se genera `uploads/standard/*.jpg` (máx 1920 px, JPEG 30) en el volumen |
 | 7 | `php -l` de `MediaProcessor.php` y `MultimediaService.php` tras el cambio CC-24 | OK |
-| 8 | Sin regresión en la subida: `POST /colecciones/{id}/multimedia` multiauto (imagen + video) | 201, `subidos` con `aprobado: true` |
-| 9 | Datos de prueba (usuarios `qual_%`/`qual2_%`, colecciones, multimedia, ficheros de prueba en volumen) limpiados | OK, sin residuos (los originales reales del usuario quedan intactos) |
+| 8 | Descarga `?calidad=buena` de un video MP4 1920×1080 de prueba (CC-30/CC-32) | 200, 352 KB (original 7 443 KB, **-95%**), SHA-256 distinto, binario MP4 válido (`ftyp`), ahora con degradación visual evidente; la `?calidad=alta` entrega el original exacto (SHA-256 igual). Genera `uploads/standard/*.mp4` (H.264 CRF 35, máx 1280 px, AAC 96k, maxrate 1500k) en el volumen |
+| 9 | Descarga `?calidad=buena` de una imagen JPG 6000×4000 de prueba | 200, **1280×853**, 24 197 B (original 1 317 980 B, **-98%**), SHA-256 distinto; `?calidad=alta` = original exacto |
+| 10 | Cabeceras de descarga (CC-31): `Content-Disposition: attachment; filename="cipherforge-{id}-{calidad}.{ext}"` y `Access-Control-Expose-Headers: Content-Disposition, Content-Length` en respuesta y preflight | OK: video = `cipherforge-146-buena.mp4`, imagen = `cipherforge-147-buena.jpg`; el frontend ya no cae al nombre genérico `.jpg` (fallback por `Content-Type`) |
+| 11 | Sin regresión en la subida: `POST /colecciones/{id}/multimedia` multiauto (imagen + video) | 201, `subidos` con `aprobado: true` |
+| 12 | Datos de prueba (usuarios `qual_%`/`qual2_%`, colecciones, multimedia, ficheros de prueba en volumen) limpiados | OK, sin residuos (los originales reales del usuario quedan intactos) |
 
 ### Despliegue
 
 Cambios solo en `frontend-fotografo/js/subirimagenes.js`. No requiere migración de BD.
-
----
 
 ### Vista previa y moderación de aportes colaborativos (CC-25)
 
@@ -282,3 +283,46 @@ Cambios solo en `frontend-fotografo/js/api.js` y `frontend-fotografo/js/moderati
 ### Despliegue (CC-26)
 
 Cambios solo en `frontend-fotografo/js/almacenamiento.js`, `subirimagenes.js`, `panel.js` y `moderation.js`. No requiere migración de BD.
+
+---
+
+### "Mis colecciones" desde el servidor (H09 / CC-33)
+
+El panel del fotógrafo cargaba "Mis colecciones" solo de `localStorage`, por lo que las colecciones publicadas desaparecían al cambiar de navegador/dispositivo. Se agregó `GET /colecciones/mias` (auth) que lista las colecciones del fotógrafo autenticado con portada y total de archivos aprobados, y `panel.js` sincroniza el panel con esa lista (fusiona con el borrador local: conserva borradores sin publicar, descarta solo las publicadas que ya no existen en el servidor y carga miniaturas autenticadas vía `obtenerVistaPrevia`).
+
+| # | Verificación | Resultado |
+| --- | --- | --- |
+| 1 | `php -l` de `ColeccionRepository.php`, `ColeccionService.php`, `ColeccionController.php`, `routes.php` | OK |
+| 2 | `node --check` de `frontend-fotografo/js/api.js` y `frontend-fotografo/js/panel.js` | OK |
+| 3 | E2E: registro fotógrafo + 2 colecciones (pública y privada) + subida de imagen → `GET /colecciones/mias` | 200, 2 colecciones del fotógrafo, orden id DESC, `portada_id_multimedia` solo en la que tiene archivos |
+| 4 | `GET /colecciones/mias` sin token | 401 Unauthorized |
+| 5 | `GET /colecciones/mias` con usuario rol cliente | 200, lista vacía (no ve colecciones ajenas) |
+| 6 | Sin regresión: `GET /colecciones/108` (pública) → 200; `GET /colecciones/999999` → 404 | OK (la ruta `/colecciones/mias` es anterior a `/{id}` y no la intercepta) |
+| 7 | Portada de colección solo-video, solo-imagen y mixta (CC-34) | `portada_tipo = video` (id 161, sin imágenes), `imagen` (162) y `imagen` en mixta (164); el panel muestra marcador "Vídeo" en colecciones sin imágenes y miniatura real en las demás |
+| 8 | Panel: carga de "Mis colecciones" desde el servidor con miniaturas | Pendiente de confirmar en navegador (Ctrl+F5) |
+
+### Despliegue (CC-33)
+
+Backend: `routes.php`, `ColeccionController`, `ColeccionService`, `ColeccionRepository`. Frontend: `frontend-fotografo/js/api.js` y `frontend-fotografo/js/panel.js`. No requiere migración de BD.
+
+---
+
+### Portada de video con fotograma real (poster) (CC-35)
+
+Una colección que solo tiene videos usaba el clip MP4 de 15 s como portada, y `panel.js` lo cargaba en un `<img>` (imagen rota) o mostraba un marcador gris "Vídeo". Ahora cada video genera un **poster** (fotograma JPG) con FFmpeg: `MediaProcessor::generarPosterVideo` (segundo 1, o fotograma 0 si el video es más corto; escala máx. 1280 px; guardado en `uploads/standard/`). Se persiste en la columna nueva `multimedia.poster`. Nuevo endpoint autenticado `GET /multimedia/{id}/poster` (`MultimediaService::obtenerPoster`): para videos sirve el poster (generándolo bajo demanda una única vez si el video es anterior a CC-35); para imágenes sirve la vista previa con marca de agua. Mantiene el mismo control de acceso que la vista previa. El panel usa `obtenerPoster` para las portadas `portada_tipo = video` y conserva el marcador "Vídeo" solo como respaldo si FFmpeg no pudo generar el fotograma.
+
+| # | Verificación | Resultado |
+| --- | --- | --- |
+| 1 | `php -l` de `MediaProcessor.php`, `MultimediaRepository.php`, `MultimediaService.php`, `MultimediaController.php`, `routes.php` | OK |
+| 2 | `node --check` de `frontend-fotografo/js/api.js` y `frontend-fotografo/js/panel.js` | OK |
+| 3 | Migración idempotente: `poster` agregado a `multimedia` (`migration.sql` re-ejecutado sin error) | OK (`SHOW COLUMNS` lo confirma) |
+| 4 | E2E: subida de video → respuesta incluye `poster`; archivo existe en disco; `SELECT poster` en BD lo confirma | OK |
+| 5 | E2E: `GET /multimedia/{id}/poster` con token del dueño | 200, Content-Type `image/jpeg` |
+| 6 | E2E: generación diferida (poster=NULL) → petición regenera, persiste y responde 200 | OK |
+| 7 | E2E: cliente sin acceso a colección privada pide el poster | 403 Forbidden |
+| 8 | E2E: colección mixta (video + imagen) → `portada_tipo = imagen` (el backend prefiere imagen) | OK |
+| 9 | Panel: colección solo-video muestra el fotograma real como miniatura | Pendiente de confirmar en navegador (Ctrl+F5) |
+
+### Despliegue (CC-35)
+
+Backend: `routes.php`, `MultimediaController`, `MultimediaService`, `MultimediaRepository`, `MediaProcessor`, `database/schema.sql`, `database/migration.sql`. Frontend: `frontend-fotografo/js/api.js`, `frontend-fotografo/js/panel.js`. Requiere migración de BD (`poster` en `multimedia`); se aplica automáticamente al arrancar el contenedor y quedó aplicada al entorno actual.

@@ -12,11 +12,13 @@ use App\Core\Config;
 
 class MediaProcessor
 {
-    // "Buena Calidad" (HU10 / RF10 / CC-24): copia del original con calidad baja
-    // (JPEG 30) y resolución máxima Full HD (1920 px) cuando el original la supera.
+    // "Buena Calidad" (HU10 / RF10 / CC-24 / CC-30 / CC-32): copia del original con calidad baja
+    // para que la diferencia sea visualmente evidente (pixeleada/borrosa) respecto a la "Alta".
+    // Imagen: JPEG 10 y resolución máxima HD (1280 px) cuando el original la supera.
+    // Video: re-codificación FFmpeg (H.264 CRF 35, tope 1280 px, audio AAC 96k).
     // La "Alta Calidad" se sirve siempre desde `originals/` (archivo original íntegro).
-    public const CALIDAD_BUENA_JPEG = 30;
-    public const ANCHO_MAX_BUENA_CALIDAD = 1920;
+    public const CALIDAD_BUENA_JPEG = 10;
+    public const ANCHO_MAX_BUENA_CALIDAD = 1280;
     /**
      * Genera un nombre de archivo único (sin posibilidad de colisión entre usuarios).
      */
@@ -192,6 +194,74 @@ class MediaProcessor
             imagedestroy($redim);
         }
         imagedestroy($origen);
+
+        return 'uploads/standard/' . $nombre;
+    }
+
+    /**
+     * Genera la versión de "Buena Calidad" de un video: original re-codificado con FFmpeg
+     * a calidad claramente degradada (H.264 libx264 CRF 35), resolución máxima HD (1280 px)
+     * si el original la supera, audio AAC 96 kbps y `+faststart` (H05/CC-30/CC-32).
+     * La "Alta Calidad" se sirve siempre desde `originals/` (archivo original íntegro).
+     * Retorna la ruta relativa o '' si no se pudo generar (el llamador usa el original).
+     */
+    public static function generarBuenaCalidadVideo(string $rutaOriginalAbsoluta): string
+    {
+        $dir = Config::standardDir();
+        self::asegurarDirectorio($dir);
+
+        $nombre = self::nombreUnico('mp4');
+        $destino = $dir . '/' . $nombre;
+
+        $cmd = sprintf(
+            'ffmpeg -y -i %s -vf "scale=\'min(%d,iw)\':-2" -c:v libx264 -crf 35 -preset veryfast -maxrate 1500k -bufsize 3000k -c:a aac -b:a 96k -movflags +faststart %s 2>&1',
+            escapeshellarg($rutaOriginalAbsoluta),
+            self::ANCHO_MAX_BUENA_CALIDAD,
+            escapeshellarg($destino)
+        );
+
+        exec($cmd, $out, $code);
+
+        if ($code !== 0 || !file_exists($destino)) {
+            return '';
+        }
+
+        return 'uploads/standard/' . $nombre;
+    }
+
+    /**
+     * Extrae un fotograma (poster) de un video con FFmpeg y lo guarda como JPG (CC-35).
+     * Intenta el segundo 1 para evitar el fundido inicial negro; si el video es más corto,
+     * reintenta en el fotograma 0. Retorna la ruta relativa o '' si no se pudo generar.
+     */
+    public static function generarPosterVideo(string $rutaOriginalAbsoluta): string
+    {
+        $dir = Config::standardDir();
+        self::asegurarDirectorio($dir);
+
+        $nombre = self::nombreUnico('jpg');
+        $destino = $dir . '/' . $nombre;
+
+        $generado = false;
+        foreach ([1, 0] as $segundo) {
+            $cmd = sprintf(
+                'ffmpeg -y -i %s -ss %d -frames:v 1 -vf "scale=\'min(%d,iw)\':-2" %s 2>&1',
+                escapeshellarg($rutaOriginalAbsoluta),
+                $segundo,
+                self::ANCHO_MAX_BUENA_CALIDAD,
+                escapeshellarg($destino)
+            );
+            exec($cmd, $out, $code);
+            if ($code === 0 && file_exists($destino) && filesize($destino) > 0) {
+                $generado = true;
+                break;
+            }
+            @unlink($destino);
+        }
+
+        if (!$generado) {
+            return '';
+        }
 
         return 'uploads/standard/' . $nombre;
     }

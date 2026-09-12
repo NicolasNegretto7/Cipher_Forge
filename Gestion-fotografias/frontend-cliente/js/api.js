@@ -197,6 +197,13 @@
         setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
     }
 
+    function extensionSegunTipo(tipo) {
+        if (!tipo) return "";
+        if (/^video\//i.test(tipo)) return ".mp4";
+        if (/^image\//i.test(tipo)) return ".jpg";
+        return "";
+    }
+
     async function descargarMultimedia(idMultimedia, calidad) {
         const cab = {};
         const t = tokenSesion();
@@ -216,7 +223,7 @@
 
         const blob = await respuesta.blob();
         const nombre = nombreDesdeDisposicion(respuesta.headers.get("Content-Disposition"))
-            || ("descarga-" + idMultimedia + "-" + (calidad || "alta") + ".jpg");
+            || ("descarga-" + idMultimedia + "-" + (calidad || "alta") + extensionSegunTipo(respuesta.headers.get("Content-Type") || blob.type));
         guardarBlobComo(blob, nombre);
     }
 

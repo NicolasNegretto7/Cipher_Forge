@@ -64,6 +64,16 @@ class ColeccionController
     }
 
     /**
+     * GET /colecciones/mias
+     * Lista las colecciones del fotógrafo autenticado (H09 / CC-33).
+     */
+    public function listarMias(): void
+    {
+        $colecciones = $this->coleccionService->listarMias();
+        Response::success($colecciones, 'Tus colecciones.');
+    }
+
+    /**
      * GET /colecciones/{id}
      * Retorna los detalles de una colección tras validar acceso si es privada (HU24 / HU20).
      */

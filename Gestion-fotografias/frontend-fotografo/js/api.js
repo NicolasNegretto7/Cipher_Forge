@@ -111,6 +111,10 @@
         return enviarJson("/colecciones/publicas" + query, "GET");
     }
 
+    async function listarMisColecciones() {
+        return enviarJson("/colecciones/mias", "GET");
+    }
+
     async function detalleColeccion(id) {
         return enviarJson("/colecciones/" + id, "GET");
     }
@@ -172,6 +176,18 @@
         });
         if (!respuesta.ok) {
             const error = new Error("No se pudo cargar la vista previa.");
+            error.status = respuesta.status;
+            throw error;
+        }
+        return URL.createObjectURL(await respuesta.blob());
+    }
+
+    async function obtenerPoster(id) {
+        const respuesta = await fetch(API_URL + "/multimedia/" + id + "/poster", {
+            headers: cabeceras(false)
+        });
+        if (!respuesta.ok) {
+            const error = new Error("No se pudo cargar la portada del video.");
             error.status = respuesta.status;
             throw error;
         }
@@ -272,6 +288,7 @@
         // 3. Colecciones
         crearColeccion: crearColeccion,
         listarColeccionesPublicas: listarColeccionesPublicas,
+        listarMisColecciones: listarMisColecciones,
         detalleColeccion: detalleColeccion,
         validarInvitacion: validarInvitacion,
         canjearInvitacion: canjearInvitacion,
@@ -286,6 +303,7 @@
         eliminarMultimedia: eliminarMultimedia,
         urlVistaPrevia: urlVistaPrevia,
         obtenerVistaPrevia: obtenerVistaPrevia,
+        obtenerPoster: obtenerPoster,
         urlOriginal: urlOriginal,
         urlDescarga: urlDescarga,
         // 5. Colaborativo y QR

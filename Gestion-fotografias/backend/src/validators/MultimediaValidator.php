@@ -12,8 +12,8 @@ use App\dtos\MultimediaDto;
 
 class MultimediaValidator
 {
-    // Límites (bytes). Video: 800 MB como tope de archivo original (RF7 / RF26).
-    private const MAX_IMAGEN = 20 * 1024 * 1024;    // 20 MB
+    // Límites (bytes). Imagen: 30 MB acordado con el cliente (RF26). Video: 800 MB como tope de archivo original (RF7 / RF26).
+    private const MAX_IMAGEN = 30 * 1024 * 1024;    // 30 MB
     private const MAX_VIDEO  = 800 * 1024 * 1024;   // 800 MB
 
     // Formatos aceptados por decisión del cliente/equipo (CF-03): únicamente JPG y MP4.
@@ -55,7 +55,7 @@ class MultimediaValidator
             Response::error('Error de validación.', 400, $errores);
         }
 
-        // 3. Validar el tamaño según el tipo (RF7: imagen 20MB; video 800MB, CF-04: el mismo límite para invitados).
+        // 3. Validar el tamaño según el tipo (RF7/RF26: imagen 30MB; video 800MB, CF-04: el mismo límite para invitados).
         if ($tipo === 'imagen') {
             $limite = self::MAX_IMAGEN;
         } else {
