@@ -55,8 +55,8 @@ $router->add('POST', '/colecciones/{id}/multimedia', MultimediaController::class
 $router->add('GET', '/colecciones/{id}/multimedia', MultimediaController::class, 'listar', 'optional');
 $router->add('GET', '/multimedia/{id}/vista-previa', MultimediaController::class, 'vistaPrevia', 'optional');
 $router->add('GET', '/multimedia/{id}/poster', MultimediaController::class, 'poster', 'optional');
-$router->add('GET', '/multimedia/{id}/original', MultimediaController::class, 'original', 'optional');
-$router->add('GET', '/multimedia/{id}/descargar', MultimediaController::class, 'descargar', 'optional');
+$router->add('GET', '/multimedia/{id}/original', MultimediaController::class, 'original', 'auth');
+$router->add('GET', '/multimedia/{id}/descargar', MultimediaController::class, 'descargar', 'auth');
 $router->add('PUT', '/multimedia/{id}', MultimediaController::class, 'actualizar', 'auth');
 $router->add('DELETE', '/multimedia/{id}', MultimediaController::class, 'eliminar', 'auth');
 
@@ -64,7 +64,7 @@ $router->add('DELETE', '/multimedia/{id}', MultimediaController::class, 'elimina
 // 5. Carga Colaborativa por Invitados & Códigos QR (HU4, HU7, HU11, HU12)
 // -------------------------------------------------------------
 $router->add('POST', '/colecciones/{id}/qr-colaborativo', ColaborativoController::class, 'generar', 'auth');
-$router->add('GET', '/colecciones/{id}/qr-colaborativo/imprimir', ColaborativoController::class, 'imprimir');
+$router->add('GET', '/colecciones/{id}/qr-colaborativo/imprimir', ColaborativoController::class, 'imprimir', 'auth');
 $router->add('POST', '/colecciones/{id}/qr-acceso', ColaborativoController::class, 'generarAcceso', 'auth');
 $router->add('GET', '/qr/{token}/svg', ColaborativoController::class, 'svg');
 $router->add('GET', '/colaborativo/{token}', ColaborativoController::class, 'verificar');
@@ -83,6 +83,8 @@ $router->add('GET', '/favoritos', FavoritoController::class, 'listar', 'auth');
 
 // -------------------------------------------------------------
 // 7. Respaldos y Mantenimiento del Sistema (HU13 / RNF5, RNF6, RNF7)
+// H02 (RESUELTO): restringidos a la red local en SistemaController (restringirALocal).
+// El respaldo automático corre por CLI (cron-backup.php) y no depende de estas rutas.
 // -------------------------------------------------------------
 $router->add('POST', '/sistema/backup', SistemaController::class, 'backup');
 $router->add('GET', '/sistema/backups', SistemaController::class, 'listarBackups');

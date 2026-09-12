@@ -35,12 +35,13 @@ class ColeccionController
         // 2. Validar payload y generar DTO
         $dto = $this->coleccionValidator->validateCreate($data);
 
-        // 3. Extraer hashtags opcionales (array o string separado por comas)
+        // 3. Extraer y validar hashtags opcionales (array o string separado por comas) (H-09)
         $hashtags = [];
         if (isset($data['hashtags'])) {
-            $hashtags = is_array($data['hashtags'])
+            $rawHashtags = is_array($data['hashtags'])
                 ? $data['hashtags']
                 : explode(',', (string) $data['hashtags']);
+            $hashtags = $this->coleccionValidator->validateHashtags($rawHashtags);
         }
 
         // 4. Procesar lógica de creación y control de rol
@@ -122,14 +123,18 @@ class ColeccionController
         $request = new Request();
         $data    = $request->getBody();
 
+        // H-04: Validar longitud de campos (título máx 60, descripción máx 90) antes de persistir
+        $camposValidados = $this->coleccionValidator->validateUpdate($data);
+
         $hashtags = null;
         if (array_key_exists('hashtags', $data)) {
-            $hashtags = is_array($data['hashtags'])
+            $rawHashtags = is_array($data['hashtags'])
                 ? $data['hashtags']
                 : explode(',', (string) $data['hashtags']);
+            $hashtags = $this->coleccionValidator->validateHashtags($rawHashtags);
         }
 
-        $coleccion = $this->coleccionService->actualizar((int) $id, $data, $hashtags);
+        $coleccion = $this->coleccionService->actualizar((int) $id, $camposValidados, $hashtags);
         Response::success($coleccion, 'Colección actualizada correctamente.');
     }
 
@@ -154,9 +159,10 @@ class ColeccionController
 
         $hashtags = [];
         if (isset($data['hashtags'])) {
-            $hashtags = is_array($data['hashtags'])
+            $rawHashtags = is_array($data['hashtags'])
                 ? $data['hashtags']
                 : explode(',', (string) $data['hashtags']);
+            $hashtags = $this->coleccionValidator->validateHashtags($rawHashtags);
         }
 
         $coleccion = $this->coleccionService->actualizar((int) $id, [], $hashtags);

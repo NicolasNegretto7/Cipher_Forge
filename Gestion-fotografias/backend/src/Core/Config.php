@@ -88,4 +88,19 @@ class Config
     {
         return 'Cipher Forge';
     }
+
+    // Rangos desde los que se permite invocar los endpoints administrativos /sistema/* (H02).
+    // Por defecto (sin SISTEMA_ALLOWED_IPS) el backend admite únicamente tráfico no público:
+    // loopback, rangos privados RFC1918 y redes de reserva; el host local de desarrollo llega
+    // a través del NAT del bridge de Docker con una IP privada (p. ej. 172.x). Si se define
+    // SISTEMA_ALLOWED_IPS (CIDRs separados por coma), se exige coincidencia explícita.
+    public static function ipsPermitidasSistema(): array
+    {
+        $env = getenv('SISTEMA_ALLOWED_IPS');
+        if (is_string($env) && trim($env) !== '') {
+            return array_values(array_filter(array_map('trim', explode(',', $env))));
+        }
+
+        return [];
+    }
 }

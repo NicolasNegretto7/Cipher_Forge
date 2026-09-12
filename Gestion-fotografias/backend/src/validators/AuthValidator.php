@@ -46,17 +46,25 @@ class AuthValidator
             $errores[] = 'El rol debe ser "fotografo" o "cliente".';
         }
 
+        // H-03: Aceptación obligatoria de Términos y Condiciones & Política de Privacidad (HU25 / Alcance 2)
+        $terminos = $data['terminos_aceptados'] ?? $data['terminos_condiciones'] ?? null;
+        $terminosValidos = $terminos === true || $terminos === 1 || $terminos === '1' || $terminos === 'true';
+        if (!$terminosValidos) {
+            $errores[] = 'Debes aceptar los Términos y Condiciones & Política de Privacidad.';
+        }
+
         // --- Si hay errores, cortar aquí ---
         if (!empty($errores)) {
             Response::error('Error de validación.', 400, $errores);
         }
 
         return new RegisterDto(
-            nombreCompleto:  trim($data['nombre_completo']),
-            email:           strtolower(trim($data['email'])),
-            password:        $data['password'],
-            rol:             $data['rol'],
-            telefono:        !empty($data['telefono']) ? trim($data['telefono']) : null,
+            nombreCompleto:    trim($data['nombre_completo']),
+            email:             strtolower(trim($data['email'])),
+            password:          $data['password'],
+            rol:               $data['rol'],
+            telefono:          !empty($data['telefono']) ? trim($data['telefono']) : null,
+            terminosAceptados: true,
         );
     }
 

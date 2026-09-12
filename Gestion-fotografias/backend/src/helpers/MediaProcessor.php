@@ -149,12 +149,22 @@ class MediaProcessor
      * Genera la versión de "Buena Calidad": copia del original SIN marca de agua con
      * calidad baja (JPEG 30) y resolución máxima Full HD (1920 px) si el original la
      * supera (CC-24). La "Alta Calidad" se sirve siempre desde `originals/`.
+     * H-08: Nombra el archivo de forma determinista ('standard_{id}.jpg') y reutiliza la
+     * versión previamente procesada si ya existe en disco, evitando duplicados infinitos.
      * Retorna la ruta relativa o '' si no se pudo generar (el llamador usa el original).
      */
-    public static function generarBuenaCalidadImagen(string $rutaOriginalAbsoluta): string
+    public static function generarBuenaCalidadImagen(string $rutaOriginalAbsoluta, ?int $idMultimedia = null): string
     {
         $dir = Config::standardDir();
         self::asegurarDirectorio($dir);
+
+        $nombre = $idMultimedia !== null ? "standard_{$idMultimedia}.jpg" : self::nombreUnico('jpg');
+        $destino = $dir . '/' . $nombre;
+
+        // Si ya fue procesado previamente con nombre determinista, reutilizarlo directamente (H-08)
+        if ($idMultimedia !== null && file_exists($destino) && filesize($destino) > 0) {
+            return 'uploads/standard/' . $nombre;
+        }
 
         $info = @getimagesize($rutaOriginalAbsoluta);
         if ($info === false) {
@@ -186,9 +196,6 @@ class MediaProcessor
             $redim = $origen;
         }
 
-        $nombre = self::nombreUnico('jpg');
-        $destino = $dir . '/' . $nombre;
-
         imagejpeg($redim, $destino, self::CALIDAD_BUENA_JPEG); // Calidad baja
         if ($redim !== $origen) {
             imagedestroy($redim);
@@ -202,16 +209,23 @@ class MediaProcessor
      * Genera la versión de "Buena Calidad" de un video: original re-codificado con FFmpeg
      * a calidad claramente degradada (H.264 libx264 CRF 35), resolución máxima HD (1280 px)
      * si el original la supera, audio AAC 96 kbps y `+faststart` (H05/CC-30/CC-32).
+     * H-08: Nombra el archivo de forma determinista ('standard_{id}.mp4') y reutiliza la
+     * versión previamente procesada si ya existe en disco, evitando re-codificaciones costosas.
      * La "Alta Calidad" se sirve siempre desde `originals/` (archivo original íntegro).
      * Retorna la ruta relativa o '' si no se pudo generar (el llamador usa el original).
      */
-    public static function generarBuenaCalidadVideo(string $rutaOriginalAbsoluta): string
+    public static function generarBuenaCalidadVideo(string $rutaOriginalAbsoluta, ?int $idMultimedia = null): string
     {
         $dir = Config::standardDir();
         self::asegurarDirectorio($dir);
 
-        $nombre = self::nombreUnico('mp4');
+        $nombre = $idMultimedia !== null ? "standard_{$idMultimedia}.mp4" : self::nombreUnico('mp4');
         $destino = $dir . '/' . $nombre;
+
+        // Reutilizar versión previamente transcodificada si existe en disco (H-08)
+        if ($idMultimedia !== null && file_exists($destino) && filesize($destino) > 0) {
+            return 'uploads/standard/' . $nombre;
+        }
 
         $cmd = sprintf(
             'ffmpeg -y -i %s -vf "scale=\'min(%d,iw)\':-2" -c:v libx264 -crf 35 -preset veryfast -maxrate 1500k -bufsize 3000k -c:a aac -b:a 96k -movflags +faststart %s 2>&1',
@@ -281,6 +295,20 @@ class MediaProcessor
         }
 
         return false;
+    }
+
+    /**
+     * Elimina los archivos derivados de buena calidad en uploads/standard/ asociados a un id multimedia (H-08).
+     */
+    public static function eliminarStandard(int $idMultimedia): void
+    {
+        $dir = Config::standardDir();
+        foreach (['jpg', 'mp4'] as $ext) {
+            $archivo = $dir . '/standard_' . $idMultimedia . '.' . $ext;
+            if (file_exists($archivo) && is_file($archivo)) {
+                @unlink($archivo);
+            }
+        }
     }
 
     /**

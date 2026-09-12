@@ -72,8 +72,8 @@
 - **Dependencias:** ninguna.
 - **Cambio propuesto:** restringir esos 3 endpoints al **host local** (`Require local` en Apache / chequeo de `REMOTE_ADDR` en `index.php`). El cron del contenedor sigue funcionando por correr en la misma red local. Sin introducir roles.
 - **Riesgo:** **Medio**
-- **¿Requiere aprobación?:** **Sí** — **aprobación pendiente** (2026-09-11).
-- **Estado:** **Pendiente de aprobación.**
+- **¿Requiere aprobación?:** **Sí** — **aprobado** por el responsable (2026-09-12).
+- **Estado:** **Solucionado** (2026-09-12) — guard `restringirALocal()` en `SistemaController` (constructor): bloquea IPs públicas con `403`; por defecto admite tráfico local/privado (loopback, RFC1918, NAT del bridge de Docker); lista explícita opcional vía env `SISTEMA_ALLOWED_IPS` (`Config::ipsPermitidasSistema()`). El respaldo automático no cambia porque `cron-backup.php` invoca los servicios por CLI sin HTTP. Documentado en `backend/SISTEMA_LOCAL.md`.
 
 ---
 

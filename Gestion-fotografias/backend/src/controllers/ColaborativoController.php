@@ -16,6 +16,7 @@ use App\Core\Response;
 use App\helpers\QrGenerator;
 use App\repository\ColeccionRepository;
 use App\repository\MultimediaRepository;
+use App\repository\UserRepository;
 use App\services\MultimediaService;
 use App\validators\MultimediaValidator;
 
@@ -23,6 +24,7 @@ class ColaborativoController
 {
     private ColeccionRepository    $coleccionRepository;
     private MultimediaRepository   $multimediaRepository;
+    private UserRepository         $userRepository;
     private MultimediaService      $multimediaService;
     private MultimediaValidator    $multimediaValidator;
 
@@ -38,6 +40,7 @@ class ColaborativoController
 
         $this->coleccionRepository  = new ColeccionRepository($pdo);
         $this->multimediaRepository = new MultimediaRepository($pdo);
+        $this->userRepository       = new UserRepository($pdo);
         $this->multimediaService    = new MultimediaService();
         $this->multimediaValidator  = new MultimediaValidator();
     }
@@ -58,6 +61,11 @@ class ColaborativoController
         $usuario = AuthMiddleware::user();
         if ($usuario === null || (int) $coleccion['fotografo_id'] !== (int) $usuario['id']) {
             Response::error('Solo el fotógrafo dueño puede generar el código colaborativo.', 403);
+        }
+
+        // H-07: Verificar que el fotógrafo haya aceptado políticas y Ley 18.331 (RF26 / HU31)
+        if (!$this->userRepository->politicasAceptadas((int) $usuario['id'])) {
+            Response::error('Debes aceptar los Términos, Condiciones y Ley 18.331 antes de generar códigos QR.', 403);
         }
 
         // Expiración a 24 horas desde su creación (RF13)
@@ -98,6 +106,11 @@ class ColaborativoController
             Response::error('Solo el fotógrafo dueño puede generar el enlace de acceso.', 403);
         }
 
+        // H-07: Verificar que el fotógrafo haya aceptado políticas y Ley 18.331 (RF26 / HU31)
+        if (!$this->userRepository->politicasAceptadas((int) $usuario['id'])) {
+            Response::error('Debes aceptar los Términos, Condiciones y Ley 18.331 antes de generar códigos QR.', 403);
+        }
+
         // Reutilizar el token de acceso vigente si ya existe (enlace permanente estable);
         // de lo contrario crear uno nuevo sin expiración.
         $existente = $this->coleccionRepository->buscarTokenAccesoVigente($coleccionId);
@@ -129,6 +142,12 @@ class ColaborativoController
 
         if ($coleccion === null) {
             Response::error('La colección no existe.', 404);
+        }
+
+        // H-05: Exigir que el solicitante sea el fotógrafo dueño de la colección (HU7)
+        $usuario = AuthMiddleware::user();
+        if ($usuario === null || (int) $coleccion['fotografo_id'] !== (int) $usuario['id']) {
+            Response::error('Solo el fotógrafo dueño de la colección puede imprimir el código QR colaborativo.', 403);
         }
 
         // Buscar el token colaborativo vigente más reciente
@@ -235,8 +254,8 @@ class ColaborativoController
                 continue;
             }
 
-            // Validar con las restricciones de invitado (JPG/MP4 y máx 800 MB por archivo, CF-04)
-            $dto = $this->multimediaValidator->validateUpload(
+            // H-06: Validar con restricciones de invitado sin interrumpir todo el lote si un archivo falla
+            $check = $this->multimediaValidator->checkUpload(
                 $archivo,
                 [
                     'titulo'      => $nombreInvitado,
@@ -246,8 +265,18 @@ class ColaborativoController
                 esInvitado: true
             );
 
-            $mime = mime_content_type($archivo['tmp_name']);
-            $extension = self::EXTENSION_POR_MIME[$mime] ?? 'bin';
+            if (!$check['ok']) {
+                $excedentes[] = [
+                    'archivo' => $nombreOriginal,
+                    'tamanio' => $tamano,
+                    'motivo'  => $check['error'],
+                ];
+                continue;
+            }
+
+            $dto = $check['dto'];
+            $mime = $check['mime'];
+            $extension = $check['extension'];
 
             // Subir con aprobado = false para requerir aprobación del fotógrafo (HU12)
             $subidos[] = $this->multimediaService->upload($dto, $archivo, $extension, $mime, aprobado: false);
@@ -255,11 +284,11 @@ class ColaborativoController
         }
 
         if (empty($subidos) && !empty($excedentes)) {
-            Response::error('No se pudo subir ningún archivo porque se excede la cuota de 3 GB del fotógrafo.', 400, $excedentes);
+            Response::error('No se pudo procesar ningún archivo de la carga colaborativa.', 400, $excedentes);
         }
 
         $mensaje = !empty($excedentes)
-            ? 'Carga colaborativa recibida parcialmente: algunos archivos excedieron la cuota de 3 GB.'
+            ? 'Carga colaborativa recibida parcialmente: algunos archivos no pudieron procesarse o excedieron la cuota de 3 GB.'
             : 'Carga colaborativa recibida exitosamente.';
 
         $aviso = 'Tus archivos han sido subidos y serán revisados por el fotógrafo. Los no aprobados se eliminarán en 24 horas.';

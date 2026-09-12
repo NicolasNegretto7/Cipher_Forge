@@ -67,7 +67,6 @@ class AuthService
             'rol'                 => $dto->rol,
             'email_verificado'    => false,
             'email_enviado'       => $enviado,
-            'codigo_verificacion' => $codigo, // Expuesto en dev/entorno local para testing ágil
         ];
     }
 
@@ -178,9 +177,8 @@ class AuthService
         }
 
         return [
-            'email'               => $email,
-            'email_enviado'       => $enviado,
-            'codigo_verificacion' => $codigo,
+            'email'         => $email,
+            'email_enviado' => $enviado,
         ];
     }
 }

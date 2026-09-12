@@ -26,53 +26,48 @@ class MultimediaValidator
     ];
 
     /**
-     * Valida el archivo subido ($_FILES['archivo']) y los metadatos para una colección.
-     * Retorna un MultimediaDto si todo es correcto; de lo contrario corta con un error HTTP.
+     * Evalúa el archivo y metadatos retornando un array con el resultado sin interrumpir la ejecución.
+     * H-06: Permite que subidas múltiples omitan archivos con error y continúen con los válidos.
      */
-    public function validateUpload(array $archivo, array $data, int $coleccionId, bool $esInvitado = false): MultimediaDto
+    public function checkUpload(array $archivo, array $data, int $coleccionId, bool $esInvitado = false): array
     {
-        $errores = [];
-
-        // 1. Verificar que se haya enviado un archivo y que no haya error de subida.
+        // 1. Verificar error de subida o archivo temporal
         if (($archivo['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
-            Response::error('No se recibió ningún archivo o la subida falló.', 400);
+            return ['ok' => false, 'error' => 'No se recibió el archivo o la subida falló.'];
         }
 
         if (!is_uploaded_file($archivo['tmp_name'])) {
-            Response::error('El archivo no proviene de una subida válida.', 400);
+            return ['ok' => false, 'error' => 'El archivo no proviene de una subida válida.'];
         }
 
         $mime = mime_content_type($archivo['tmp_name']);
         $tamano = (int) $archivo['size'];
 
-        // 2. Determinar el tipo ('imagen' o 'video') según el MIME real del archivo.
+        // 2. Determinar tipo y extensión según MIME
         if (isset(self::MIMES_IMAGEN[$mime])) {
             $tipo = 'imagen';
+            $extension = self::MIMES_IMAGEN[$mime];
+            $limite = self::MAX_IMAGEN;
         } elseif (isset(self::MIMES_VIDEO[$mime])) {
             $tipo = 'video';
-        } else {
-            $errores[] = 'Formato no permitido. Solo se aceptan imágenes JPG y videos MP4.';
-            Response::error('Error de validación.', 400, $errores);
-        }
-
-        // 3. Validar el tamaño según el tipo (RF7/RF26: imagen 30MB; video 800MB, CF-04: el mismo límite para invitados).
-        if ($tipo === 'imagen') {
-            $limite = self::MAX_IMAGEN;
-        } else {
+            $extension = self::MIMES_VIDEO[$mime];
             $limite = self::MAX_VIDEO;
+        } else {
+            return ['ok' => false, 'error' => 'Formato no permitido. Solo se aceptan imágenes JPG y videos MP4.'];
         }
 
+        // 3. Validar tamaño máximo
         if ($tamano <= 0 || $tamano > $limite) {
-            $errores[] = 'El archivo excede el tamaño máximo permitido (' . ($limite / (1024 * 1024)) . ' MB).';
-            Response::error('Error de validación.', 400, $errores);
+            $limiteMb = (int) ($limite / (1024 * 1024));
+            return ['ok' => false, 'error' => "El archivo excede el tamaño máximo permitido ({$limiteMb} MB)."];
         }
 
-        // 4. Validar metadatos opcionales de título/descripción.
+        // 4. Validar metadatos opcionales
         $titulo = null;
         if (isset($data['titulo']) && trim((string) $data['titulo']) !== '') {
             $titulo = trim((string) $data['titulo']);
             if (mb_strlen($titulo) > 60) {
-                $errores[] = 'El título no puede superar los 60 caracteres.';
+                return ['ok' => false, 'error' => 'El título no puede superar los 60 caracteres.'];
             }
         }
 
@@ -80,7 +75,73 @@ class MultimediaValidator
         if (isset($data['descripcion']) && trim((string) $data['descripcion']) !== '') {
             $descripcion = trim((string) $data['descripcion']);
             if (mb_strlen($descripcion) > 90) {
+                return ['ok' => false, 'error' => 'La descripción no puede superar los 90 caracteres.'];
+            }
+        }
+
+        $dto = new MultimediaDto(
+            coleccionId: $coleccionId,
+            tipo:        $tipo,
+            titulo:      $titulo,
+            descripcion: $descripcion,
+            esInvitado:  $esInvitado,
+        );
+
+        return [
+            'ok'        => true,
+            'dto'       => $dto,
+            'tipo'      => $tipo,
+            'mime'      => $mime,
+            'extension' => $extension,
+        ];
+    }
+
+    /**
+     * Valida la subida de un archivo individual y corta con HTTP 400 si falla.
+     */
+    public function validateUpload(array $archivo, array $data, int $coleccionId, bool $esInvitado = false): MultimediaDto
+    {
+        $resultado = $this->checkUpload($archivo, $data, $coleccionId, $esInvitado);
+
+        if (!$resultado['ok']) {
+            Response::error('Error de validación.', 400, [$resultado['error']]);
+        }
+
+        return $resultado['dto'];
+    }
+
+    /**
+     * Valida metadatos para la actualización de un archivo multimedia (PUT).
+     * H-04: Controla límites de VARCHAR(60) para título y VARCHAR(90) para descripción.
+     */
+    public function validateUpdate(array $data): array
+    {
+        $errores = [];
+        $sanitizado = [];
+
+        if (array_key_exists('titulo', $data)) {
+            $titulo = trim((string) $data['titulo']);
+            if (mb_strlen($titulo) > 60) {
+                $errores[] = 'El título no puede superar los 60 caracteres.';
+            } else {
+                $sanitizado['titulo'] = $titulo;
+            }
+        }
+
+        if (array_key_exists('descripcion', $data)) {
+            $descripcion = trim((string) $data['descripcion']);
+            if (mb_strlen($descripcion) > 90) {
                 $errores[] = 'La descripción no puede superar los 90 caracteres.';
+            } else {
+                $sanitizado['descripcion'] = $descripcion === '' ? null : $descripcion;
+            }
+        }
+
+        if (array_key_exists('coleccion_id', $data)) {
+            if (!is_numeric($data['coleccion_id']) || (int) $data['coleccion_id'] <= 0) {
+                $errores[] = 'El identificador de la colección destino debe ser un entero positivo.';
+            } else {
+                $sanitizado['coleccion_id'] = (int) $data['coleccion_id'];
             }
         }
 
@@ -88,12 +149,6 @@ class MultimediaValidator
             Response::error('Error de validación.', 400, $errores);
         }
 
-        return new MultimediaDto(
-            coleccionId: $coleccionId,
-            tipo:        $tipo,
-            titulo:      $titulo,
-            descripcion: $descripcion,
-            esInvitado:  $esInvitado,
-        );
+        return $sanitizado;
     }
 }

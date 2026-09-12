@@ -174,7 +174,7 @@ class ColeccionRepository
 
         foreach ($nombresHashtags as $tag) {
             $limpio = strtolower(ltrim(trim($tag), '#'));
-            if ($limpio === '') continue;
+            if ($limpio === '' || mb_strlen($limpio) > 40) continue;
 
             // Insertar o recuperar el hashtag
             $selectStmt = $this->pdo->prepare('SELECT id_hashtags FROM hashtags WHERE nombre_hashtags = :tag LIMIT 1');
@@ -325,12 +325,12 @@ class ColeccionRepository
     }
 
     /**
-     * Obtiene las rutas de archivos (original y vista previa) de los multimedia de una colección.
+     * Obtiene las rutas de archivos (original, vista previa y poster) de los multimedia de una colección (H-10).
      */
     public function obtenerRutasMultimediaDeColeccion(int $coleccionId): array
     {
         $stmt = $this->pdo->prepare(
-            'SELECT ruta_original, vista_previa FROM multimedia WHERE coleccion_id = :id'
+            'SELECT id_multimedia, ruta_original, vista_previa, poster FROM multimedia WHERE coleccion_id = :id'
         );
         $stmt->execute(['id' => $coleccionId]);
         return $stmt->fetchAll();

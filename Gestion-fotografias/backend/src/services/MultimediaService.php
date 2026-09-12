@@ -50,6 +50,10 @@ class MultimediaService
             if ((int) $coleccion['fotografo_id'] !== (int) $usuario['id']) {
                 Response::error('No tienes permiso para subir archivos a esta colección.', 403);
             }
+            // H-07: Verificar que el fotógrafo haya aceptado políticas y Ley 18.331 (RF26 / HU31)
+            if (!$this->userRepository->politicasAceptadas((int) $usuario['id'])) {
+                Response::error('Debes aceptar los Términos, Condiciones y Ley 18.331 antes de subir contenido.', 403);
+            }
         }
 
         // 3. Guardar el archivo original en uploads/originals.
@@ -107,6 +111,10 @@ class MultimediaService
         if ((int) $coleccion['fotografo_id'] !== (int) $usuario['id']) {
             Response::error('No tienes permiso para subir archivos a esta colección.', 403);
         }
+        // H-07: Verificar que el fotógrafo haya aceptado políticas y Ley 18.331 (RF26 / HU31)
+        if (!$this->userRepository->politicasAceptadas((int) $usuario['id'])) {
+            Response::error('Debes aceptar los Términos, Condiciones y Ley 18.331 antes de subir contenido.', 403);
+        }
 
         // Consultar almacenamiento actual usado por el fotógrafo (HU16)
         $espacioUsado = $this->multimediaRepository->espacioUsadoPorFotografo((int) $usuario['id']);
@@ -130,17 +138,29 @@ class MultimediaService
                 continue; // Permite que archivos más pequeños que sí entren sean subidos
             }
 
-            $dto = $validator->validateUpload($archivo, $data, $coleccionId, false);
-            $mime = mime_content_type($archivo['tmp_name']);
-            $extension = $extensionesPorMime[$mime] ?? 'bin';
+            // H-06: Validar formato, integridad y tamaño individual sin abortar todo el lote
+            $check = $validator->checkUpload($archivo, $data, $coleccionId, false);
+            if (!$check['ok']) {
+                $excedentes[] = [
+                    'archivo' => $nombreOriginal,
+                    'tamanio' => $tamano,
+                    'motivo'  => $check['error'],
+                ];
+                continue;
+            }
+
+            $dto = $check['dto'];
+            $mime = $check['mime'];
+            $extension = $check['extension'];
 
             $resultado = $this->upload($dto, $archivo, $extension, $mime, true);
+            $resultado['archivo'] = $nombreOriginal;
             $subidos[] = $resultado;
             $espacioUsado += $tamano;
         }
 
         if (empty($subidos) && !empty($excedentes)) {
-            Response::error('No se pudo subir ningún archivo porque se excede la cuota de 3 GB.', 400, $excedentes);
+            Response::error('No se pudo procesar ningún archivo del lote.', 400, $excedentes);
         }
 
         return [
@@ -187,6 +207,20 @@ class MultimediaService
         ];
         $this->verificarAccesoALaColeccion($coleccion);
 
+        // H-11: Requiere usuario autenticado ('cliente' o 'fotografo') para descargar material (RF10 / HU10).
+        if ($this->usuarioOpcional() === null) {
+            Response::error('Debes iniciar sesión para descargar este archivo.', 401);
+        }
+
+        // H-01: El material no aprobado (colaborativo) no puede descargarse salvo por el fotógrafo dueño.
+        if (!(bool) $multimedia['aprobado']) {
+            $usuarioActual = $this->usuarioOpcional();
+            $esDueno = $usuarioActual !== null && (int) $coleccion['fotografo_id'] === (int) $usuarioActual['id'];
+            if (!$esDueno) {
+                Response::error('Este archivo multimedia está pendiente de moderación.', 403);
+            }
+        }
+
         $rutaOriginalAbsoluta = MediaProcessor::aRutaAbsoluta($multimedia['ruta_original']);
         if (!file_exists($rutaOriginalAbsoluta)) {
             Response::error('El archivo original no está disponible en disco.', 404);
@@ -201,10 +235,11 @@ class MultimediaService
         // Imagen: JPEG 30 con tope Full HD 1920 px. Video: FFmpeg H.264 CRF 28, tope
         // Full HD 1920 px y audio AAC 128 kbps (CC-30). Si no se puede generar, se
         // entrega el original como fallback.
+        // H-08: Se asocia al idMultimedia para caché determinista en uploads/standard/.
         if ($multimedia['tipo'] === 'video') {
-            $rutaBuenaCalidad = MediaProcessor::generarBuenaCalidadVideo($rutaOriginalAbsoluta);
+            $rutaBuenaCalidad = MediaProcessor::generarBuenaCalidadVideo($rutaOriginalAbsoluta, (int) $multimedia['id_multimedia']);
         } else {
-            $rutaBuenaCalidad = MediaProcessor::generarBuenaCalidadImagen($rutaOriginalAbsoluta);
+            $rutaBuenaCalidad = MediaProcessor::generarBuenaCalidadImagen($rutaOriginalAbsoluta, (int) $multimedia['id_multimedia']);
         }
         $rutaBuenaAbsoluta = MediaProcessor::aRutaAbsoluta($rutaBuenaCalidad);
 
@@ -234,6 +269,15 @@ class MultimediaService
             'titulo'           => $multimedia['titulo'],
         ];
         $this->verificarAccesoALaColeccion($coleccion);
+
+        // H-01: El poster de un video no aprobado solo puede ser consultado por el fotógrafo dueño.
+        if (!(bool) $multimedia['aprobado']) {
+            $usuarioActual = $this->usuarioOpcional();
+            $esDueno = $usuarioActual !== null && (int) $coleccion['fotografo_id'] === (int) $usuarioActual['id'];
+            if (!$esDueno) {
+                Response::error('Este archivo multimedia está pendiente de moderación.', 403);
+            }
+        }
 
         if ($multimedia['tipo'] === 'imagen') {
             return MediaProcessor::aRutaAbsoluta($multimedia['vista_previa']);
@@ -274,6 +318,7 @@ class MultimediaService
         MediaProcessor::eliminarArchivoFisico($multimedia['ruta_original']);
         MediaProcessor::eliminarArchivoFisico($multimedia['vista_previa']);
         MediaProcessor::eliminarArchivoFisico($multimedia['poster']);
+        MediaProcessor::eliminarStandard($idMultimedia);
 
         $this->multimediaRepository->delete($idMultimedia);
     }
@@ -425,6 +470,20 @@ class MultimediaService
             'titulo'           => $multimedia['titulo'],
         ];
         $this->verificarAccesoALaColeccion($coleccion);
+
+        // H-01: El material no aprobado (colaborativo) no puede verse salvo por el fotógrafo dueño.
+        if (!(bool) $multimedia['aprobado']) {
+            $usuarioActual = $this->usuarioOpcional();
+            $esDueno = $usuarioActual !== null && (int) $coleccion['fotografo_id'] === (int) $usuarioActual['id'];
+            if (!$esDueno) {
+                Response::error('Este archivo multimedia está pendiente de moderación.', 403);
+            }
+        }
+
+        // H-11: La visualización o descarga del archivo original sin marca de agua exige sesión (RF10 / RF11).
+        if (!$thoughWatermark && $this->usuarioOpcional() === null) {
+            Response::error('Debes iniciar sesión para acceder al archivo original.', 401);
+        }
 
         // 2. Elegir entre vista previa (con marca de agua) u original.
         $rutaRelativa = $thoughWatermark ? $multimedia['vista_previa'] : $multimedia['ruta_original'];

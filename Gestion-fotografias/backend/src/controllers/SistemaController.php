@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace App\controllers;
 
+use App\Core\Config;
 use App\Core\Response;
 use App\services\BackupService;
 use App\services\MultimediaService;
@@ -21,6 +22,78 @@ class SistemaController
     {
         $this->backupService     = new BackupService();
         $this->multimediaService = new MultimediaService();
+        $this->restringirALocal();
+    }
+
+    /**
+     * Restringe los endpoints de /sistema/* a la red local (H02, Riesgo Medio).
+     * Sin lista explícita solo admite tráfico no público (loopback, rangos RFC1918 y
+     * redes de reserva, incluido el NAT del bridge de Docker); opcionalmente la variable
+     * de entorno SISTEMA_ALLOWED_IPS exige coincidencia con CIDRs concretos.
+     * El respaldo automático no se ve afectado: cron-backup.php invoca BackupService y
+     * MultimediaService por CLI (sin HTTP), por lo que HU13/HU12 siguen funcionando.
+     */
+    private function restringirALocal(): void
+    {
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+
+        if ($ip === '' || filter_var($ip, FILTER_VALIDATE_IP) === false) {
+            Response::error('Acceso restringido a la máquina local.', 403);
+        }
+
+        $permitidas = Config::ipsPermitidasSistema();
+        if ($permitidas !== []) {
+            foreach ($permitidas as $permitida) {
+                if ($this->ipEnSubred($ip, $permitida)) {
+                    return;
+                }
+            }
+
+            Response::error('Acceso restringido a la máquina local.', 403);
+        }
+
+        $esPublica = filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) !== false;
+        if ($esPublica) {
+            Response::error('Acceso restringido a la máquina local.', 403);
+        }
+    }
+
+    /**
+     * Verifica si una IP coincide con una subred en notación CIDR o con una IP exacta.
+     */
+    private function ipEnSubred(string $ip, string $subred): bool
+    {
+        $subred = trim($subred);
+        if ($subred === '') {
+            return false;
+        }
+
+        if (strpos($subred, '/') === false) {
+            return $ip === $subred;
+        }
+
+        [$red, $mascara] = explode('/', $subred, 2);
+        $mascara = (int) $mascara;
+        $ipBytes = inet_pton($ip);
+        $redBytes = inet_pton(trim($red));
+
+        if ($ipBytes === false || $redBytes === false || strlen($ipBytes) !== strlen($redBytes)) {
+            return false;
+        }
+
+        $bits = strlen($ipBytes) * 8;
+        if ($mascara < 0 || $mascara > $bits) {
+            return false;
+        }
+
+        $ipBin = '';
+        $redBin = '';
+        for ($i = 0; $i < $bits; $i++) {
+            $ipBin .= (ord($ipBytes[(int) ($i / 8)]) >> (7 - ($i % 8))) & 1;
+            $redBin .= (ord($redBytes[(int) ($i / 8)]) >> (7 - ($i % 8))) & 1;
+        }
+
+        return substr($ipBin, 0, $mascara) === substr($redBin, 0, $mascara);
     }
 
     /**

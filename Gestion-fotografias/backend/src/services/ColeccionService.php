@@ -54,6 +54,11 @@ class ColeccionService
             Response::error('Solo los usuarios con rol fotógrafo pueden crear colecciones.', 403);
         }
 
+        // H-07: Verificar que el fotógrafo haya aceptado políticas y Ley 18.331 (RF26 / HU31)
+        if (!$this->userRepository->politicasAceptadas((int) $usuario['id'])) {
+            Response::error('Debes aceptar los Términos, Condiciones y Ley 18.331 antes de crear colecciones.', 403);
+        }
+
         // 4. Crear la colección en la base de datos
         $coleccionId = $this->coleccionRepository->create($dto);
 
@@ -280,13 +285,16 @@ class ColeccionService
         }
 
         foreach ($this->coleccionRepository->obtenerRutasMultimediaDeColeccion($id) as $fila) {
-            foreach (['ruta_original', 'vista_previa'] as $clave) {
+            foreach (['ruta_original', 'vista_previa', 'poster'] as $clave) {
                 if (!empty($fila[$clave])) {
                     $rutaAbsoluta = MediaProcessor::aRutaAbsoluta((string) $fila[$clave]);
                     if (file_exists($rutaAbsoluta)) {
                         @unlink($rutaAbsoluta);
                     }
                 }
+            }
+            if (!empty($fila['id_multimedia'])) {
+                MediaProcessor::eliminarStandard((int) $fila['id_multimedia']);
             }
         }
 

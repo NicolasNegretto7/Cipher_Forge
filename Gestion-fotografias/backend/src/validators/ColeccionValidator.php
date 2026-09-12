@@ -67,4 +67,78 @@ class ColeccionValidator
             descripcion:     $descripcion,
         );
     }
+
+    /**
+     * Valida los campos de actualización de una colección existente (PUT).
+     * H-04: Controla límites de VARCHAR(60) para título y VARCHAR(90) para descripción.
+     */
+    public function validateUpdate(array $data): array
+    {
+        $errores = [];
+        $sanitizado = [];
+
+        if (array_key_exists('titulo', $data)) {
+            $titulo = trim((string) $data['titulo']);
+            if ($titulo === '') {
+                $errores[] = 'El título no puede estar vacío.';
+            } elseif (mb_strlen($titulo) > 60) {
+                $errores[] = 'El título no puede superar los 60 caracteres.';
+            } else {
+                $sanitizado['titulo'] = $titulo;
+            }
+        }
+
+        if (array_key_exists('descripcion', $data)) {
+            $descripcion = trim((string) $data['descripcion']);
+            if (mb_strlen($descripcion) > 90) {
+                $errores[] = 'La descripción no puede superar los 90 caracteres.';
+            } else {
+                $sanitizado['descripcion'] = $descripcion === '' ? null : $descripcion;
+            }
+        }
+
+        if (array_key_exists('tipo_visibilidad', $data)) {
+            $visibilidad = (string) $data['tipo_visibilidad'];
+            if (!in_array($visibilidad, ['privada', 'publica'], true)) {
+                $errores[] = 'El tipo de visibilidad debe ser estrictamente "privada" o "publica".';
+            } else {
+                $sanitizado['tipo_visibilidad'] = $visibilidad;
+            }
+        }
+
+        if (!empty($errores)) {
+            Response::error('Error de validación.', 400, $errores);
+        }
+
+        return $sanitizado;
+    }
+
+    /**
+     * Valida y normaliza una lista de hashtags (HU26).
+     * H-09: Asegura que ningún hashtag supere el límite de 40 caracteres (VARCHAR(40) en schema.sql).
+     */
+    public function validateHashtags(array $hashtags): array
+    {
+        $errores = [];
+        $normalizados = [];
+
+        foreach ($hashtags as $rawTag) {
+            $tag = strtolower(ltrim(trim((string) $rawTag), '#'));
+            if ($tag === '') {
+                continue;
+            }
+            if (mb_strlen($tag) > 40) {
+                $errores[] = "El hashtag '#{$tag}' supera el límite permitido de 40 caracteres.";
+            } else {
+                $normalizados[] = $tag;
+            }
+        }
+
+        if (!empty($errores)) {
+            Response::error('Error de validación.', 400, $errores);
+        }
+
+        return $normalizados;
+    }
 }
+

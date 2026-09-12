@@ -25,6 +25,9 @@ services:
       - SMTP_PORT=1025
       - MAIL_FROM=no-reply@cipherforge.local
       - MAIL_FROM_NAME=Cipher Forge
+      # Opcional (H02): endurecer los endpoints /sistema/* a CIDRs concretos.
+      # Por defecto solo admite tráfico local/privado (ver SISTEMA_LOCAL.md).
+      # - SISTEMA_ALLOWED_IPS=10.0.0.0/8,192.168.0.0/16
     depends_on:
       - db
       - mailpit

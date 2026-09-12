@@ -81,6 +81,12 @@ class AuthMiddleware
             }
         }
 
+        // Fallback para ventanas/pestañas de impresión o descargas abiertas directamente por el navegador
+        if (isset($_GET['token']) && is_string($_GET['token']) && trim($_GET['token']) !== '') {
+            $tokenQuery = trim($_GET['token']);
+            return str_starts_with($tokenQuery, 'Bearer ') ? $tokenQuery : 'Bearer ' . $tokenQuery;
+        }
+
         return '';
     }
 

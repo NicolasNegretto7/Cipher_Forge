@@ -47,7 +47,7 @@ function Get-CodigoVerificacion($email) {
 }
 
 Write-Output "== 1. Registro fotografo =="
-$regFoto = Invoke-Json 'POST' '/auth/register' @{ nombre_completo='Foto Test'; email=$emailFoto; password=$password; rol='fotografo' }
+$regFoto = Invoke-Json 'POST' '/auth/register' @{ nombre_completo='Foto Test'; email=$emailFoto; password=$password; rol='fotografo'; terminos_aceptados=$true }
 Write-Output "  status=$($regFoto.Status)"
 if ($regFoto.Json) { Write-Output "  ok=$($regFoto.Json.ok) mensaje=$($regFoto.Json.mensaje)" }
 
@@ -68,7 +68,7 @@ Write-Output "  status=$($cuota.Status)"
 if ($cuota.Json) { Write-Output "  ok=$($cuota.Json.ok) mensaje=$($cuota.Json.mensaje)" }
 
 Write-Output "== 5. Registro cliente =="
-$regCli = Invoke-Json 'POST' '/auth/register' @{ nombre_completo='Cliente Test'; email=$emailCli; password=$password; rol='cliente' }
+$regCli = Invoke-Json 'POST' '/auth/register' @{ nombre_completo='Cliente Test'; email=$emailCli; password=$password; rol='cliente'; terminos_aceptados=$true }
 Write-Output "  status=$($regCli.Status)"
 
 Write-Output "== 6. Verificar email cliente =="

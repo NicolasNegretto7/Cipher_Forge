@@ -114,7 +114,10 @@ class MultimediaController
         $request = new Request();
         $data    = $request->getBody();
 
-        $actualizado = $this->multimediaService->actualizarMetadatos((int) $idMultimedia, $data);
+        // H-04: Validar longitud de título (máx 60) y descripción (máx 90) antes de persistir
+        $camposValidados = $this->multimediaValidator->validateUpdate($data);
+
+        $actualizado = $this->multimediaService->actualizarMetadatos((int) $idMultimedia, $camposValidados);
         Response::success($actualizado, 'Datos del archivo actualizados exitosamente.');
     }
 
