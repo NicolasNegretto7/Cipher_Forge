@@ -1,206 +1,211 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Colecciones</title>
-    <link rel="stylesheet" href="../css/panel.css">
-</head>
-<body>
-
-    
-       <div class="Contenedor">
-
-        
-        <div class="Sidebar">
-
-            <div class="Logo">
-                <p>Galería del Fotógrafo</p>
-                <div class="CuentaPerfil">
-                    <button class="BotonCuenta" type="button" aria-expanded="false" aria-label="Abrir menú de cuenta">
-                        <span class="AvatarPerfil">F</span>
-                        <span class="FlechaCuenta">▾</span>
-                    </button>
-                    <div class="MenuCuenta" hidden>
-                        <div class="CabeceraCuenta">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Panel de Colecciones</title>
+        <link rel="stylesheet" href="../css/base.css" />
+        <link rel="stylesheet" href="../css/panel.css" />
+    </head>
+    <body>
+        <div class="Contenedor">
+            <div class="Sidebar">
+                <div class="Logo">
+                    <p>Galería del Fotógrafo</p>
+                    <div class="CuentaPerfil">
+                        <button
+                            class="BotonCuenta"
+                            type="button"
+                            aria-expanded="false"
+                            aria-label="Abrir menú de cuenta"
+                        >
                             <span class="AvatarPerfil">F</span>
-                            <div><strong class="NombreCuenta">Fotógrafo</strong><small class="EmailCuenta">Sin correo</small></div>
+                            <span class="FlechaCuenta">▾</span>
+                        </button>
+                        <div class="MenuCuenta" hidden>
+                            <div class="CabeceraCuenta">
+                                <span class="AvatarPerfil">F</span>
+                                <div>
+                                    <strong class="NombreCuenta">Fotógrafo</strong>
+                                    <small class="EmailCuenta">Sin correo</small>
+                                </div>
+                            </div>
+                            <a class="OpcionCuenta OpcionDestacada" href="editarperfil.html">
+                                Editar perfil
+                            </a>
+                            <div class="SeparadorCuenta"></div>
+                            <button class="OpcionCuenta CerrarSesion" type="button">
+                                Cerrar sesión
+                            </button>
                         </div>
-                        <a class="OpcionCuenta OpcionDestacada" href="editarperfil.html">Editar perfil</a>
-                        <div class="SeparadorCuenta"></div>
-                        <button class="OpcionCuenta CerrarSesion" type="button">Cerrar sesión</button>
                     </div>
                 </div>
-                 </div>
 
-            <Div class="Menu">
-                <a class="ItemMenuActivo" href="panel.html">
-                    <p>Mis Colecciones</p>
-                </a>
+                <div class="Menu">
+                    <a class="ItemMenuActivo" href="panel.html">
+                        <p>Mis Colecciones</p>
+                    </a>
+                </div>
 
-                
-                 </Div>
- 
-            <hr>
+                <hr />
 
-            
-
-            <div class="Almacenamiento">
-                <p class="TextoAlmacenamiento">0 KB de 3 GB usados</p>
-                <div class="BotonMas">+</div>
-            </div>
-
-        </div>
-
-        
-        <div class="Principal">
-
-            <div class="Encabezado">
-                <h1>Mis Colecciones</h1>
-                <a class="BotonNuevaColeccion" href="crearcoleccion.html">Nueva coleccion</a>
-            </div>
-
-            <div class="GaleriaColecciones" id="galeriaColecciones">
-                <div class="Sincolecciones" id="sinColecciones">
-                    <p>No tienes colecciones aún.</p>
+                <div class="Almacenamiento">
+                    <p class="TextoAlmacenamiento">0 KB de 3 GB usados</p>
                 </div>
             </div>
 
-            <div class="BarraAcciones" id="barraAccionesColecciones">
-                <button id="eliminarColeccionesSeleccionadas" type="button">&#128465; Eliminar</button>
-            </div>
+            <main class="Principal">
+                <div class="Encabezado">
+                    <h1>Mis Colecciones</h1>
+                    <a class="BotonNuevaColeccion" href="crearcoleccion.html">Nueva colección</a>
+                </div>
 
-    </div>
+                <p class="Sincolecciones" id="sinColecciones" role="status"></p>
+                <div class="GaleriaColecciones" id="galeriaColecciones"></div>
 
-    <div id="modalPrivacidad" class="modal-privacidad oculto">
-        <div class="modal-privacidad__caja">
-            <h2>Política de privacidad y protección de datos</h2>
-            <p class="modal-privacidad__subtitulo">
-                Debes leer y aceptar esta política antes de continuar como fotógrafo.
-            </p>
-
-            <div id="textoLey" class="modal-privacidad__ley">
-                <h3>Términos y Condiciones</h3>
-
-                <p>
-                    Esta plataforma permite a los fotógrafos publicar colecciones de imágenes y videos, gestionar
-                    aportes colaborativos de invitados y mostrar su trabajo al público. Al usarla aceptas estos
-                    términos.
-                </p>
-
-                <p>
-                    El fotógrafo se compromete a publicar únicamente contenido sobre el cual posee los derechos
-                    y autorizaciones correspondientes, y a no subir material que sea ilegal, difamatorio, que
-                    vulnere la intimidad, el honor, la imagen o los derechos de propiedad intelectual de terceros,
-                    o que infrinja cualquier norma vigente.
-                </p>
-
-                <p>
-                    El fotógrafo asume la plena responsabilidad legal por el contenido que publica, incluyendo
-                    su autoría y la autorización de uso de ese contenido. La plataforma actúa únicamente como
-                    medio de publicación y almacenamiento y no se hace responsable por contenido no autorizado
-                    que sea publicado por sus usuarios.
-                </p>
-
-                <p>
-                    El fotógrafo es responsable de mantener la confidencialidad de sus credenciales de acceso y
-                    de toda la actividad que se realice desde su cuenta. En caso de uso indebido, deberá
-                    notificarlo a la plataforma.
-                </p>
-
-                <p>
-                    La plataforma se reserva el derecho de moderar o eliminar contenido que viole estos términos
-                    y de actualizar los mismos cuando lo considere necesario. El uso continuado de la plataforma
-                    implica la aceptación de los términos vigentes.
-                </p>
-
-                <h3>Política de Privacidad</h3>
-
-                <p>
-                    La plataforma recopila los datos personales necesarios para el funcionamiento del servicio:
-                    nombre, correo electrónico, teléfono y el contenido que el fotógrafo publica, así como
-                    información de uso y consumo de almacenamiento.
-                </p>
-
-                <p>
-                    Estos datos se utilizan exclusivamente para gestionar la cuenta, permitir la publicación
-                    de colecciones, el contacto entre la plataforma y el fotógrafo y el control de la cuota de
-                    almacenamiento. Las contraseñas se almacenan cifradas y no se comparten con terceros.
-                </p>
-
-                <p>
-                    La plataforma no vende ni cede los datos personales a terceros, salvo que exista una
-                    obligación legal o una orden de autoridad competente que lo exija.
-                </p>
-
-                <p>
-                    Conforme a la Ley 18.331, el titular de los datos puede ejercer los derechos de acceso,
-                    rectificación y supresión de sus datos personales, así como oponerse a su tratamiento por
-                    la vía prevista en la normativa vigente.
-                </p>
-
-                <h3>Ley 18.331 - Protección de datos personales y de la intimidad</h3>
-
-                <p>
-                    En Uruguay, la Ley 18.331 establece que los datos personales y la intimidad de las personas
-                    deben ser tratados con responsabilidad, consentimiento y cuidado. Toda persona que reciba,
-                    procese o publique información personal debe actuar de manera responsable y respetuosa del
-                    derecho a la intimidad.
-                </p>
-
-                <p>
-                    El fotógrafo que publica contenido en esta plataforma asume plena responsabilidad legal sobre
-                    la imagen, el material audiovisual, la autoría y la autorización de uso de ese contenido.
-                    Queda prohibido publicar fotografías, videos o materiales que afecten la intimidad, el honor,
-                    la imagen o los derechos de terceros sin la debida autorización.
-                </p>
-
-                <p>
-                    El fotógrafo será responsable de cualquier consecuencia jurídica derivada de la publicación de
-                    imágenes no autorizadas, incluyendo reclamos, denuncias, daños, indemnizaciones o cualquier
-                    otra acción legal que pueda surgir por la utilización indebida de un contenido audiovisual o
-                    fotográfico.
-                </p>
-
-                <p>
-                    La plataforma actúa únicamente como medio de publicación y almacenamiento. No controla ni
-                    verifica previamente cada imagen ni cada publicación y, por tanto, no se hace responsable por
-                    contenido no autorizado que sea publicado por usuarios externos. En caso de que exista una
-                    demanda o reclamo por una publicación no autorizada, la responsabilidad recae sobre el
-                    fotógrafo que cargó y autorizó el material.
-                </p>
-
-                <p>
-                    Asimismo, el fotógrafo garantiza que cuenta con derechos suficientes para publicar el contenido,
-                    y reconoce que debe cumplir con la normativa vigente sobre protección de datos, uso de imagen,
-                    consentimiento de personas retratadas y respeto absoluto a la privacidad.
-                </p>
-
-                <p>
-                    Al aceptar este aviso, el fotógrafo declara haber leído la Ley 18.331, comprende sus
-                    obligaciones y acepta asumir la responsabilidad legal por cualquier contenido publicado en la
-                    plataforma que no cuente con la autorización correspondiente.
-                </p>
-
-                <p>
-                    En caso de conflicto, las consecuencias legales serán de exclusiva responsabilidad del usuario
-                    fotógrafo, y la plataforma queda eximida de responsabilidad frente a demandas, reclamos o
-                    acciones judiciales originadas por publicaciones no autorizadas o por el uso indebido de datos
-                    personales o contenidos sensibles.
-                </p>
-            </div>
-
-            <p id="mensajePoliticas" class="modal-privacidad__mensaje" role="status"></p>
-
-            <button id="aceptarPolitica" class="btn-aceptar" type="button" disabled>
-                Aceptar
-            </button>
+                <div class="BarraAcciones" id="barraAccionesColecciones">
+                    <button id="eliminarColeccionesSeleccionadas" type="button">
+                        &#128465; Eliminar
+                    </button>
+                </div>
+            </main>
         </div>
-    </div>
+        <div id="modalPrivacidad" class="modal-privacidad oculto">
+            <div class="modal-privacidad__caja">
+                <h2>Política de privacidad y protección de datos</h2>
+                <p class="modal-privacidad__subtitulo">
+                    Debes leer y aceptar esta política antes de continuar como fotógrafo.
+                </p>
 
-    <script src="../js/api.js"></script>
-    <script src="../js/almacenamiento.js"></script>
-    <script src="../js/menu-perfil.js"></script>
-    <script src="../js/panel.js"></script>
-</body>
+                <div id="textoLey" class="modal-privacidad__ley">
+                    <h3>Términos y Condiciones</h3>
+
+                    <p>
+                        Esta plataforma permite a los fotógrafos publicar colecciones de imágenes y
+                        videos, gestionar aportes colaborativos de invitados y mostrar su trabajo al
+                        público. Al usarla aceptas estos términos.
+                    </p>
+
+                    <p>
+                        El fotógrafo se compromete a publicar únicamente contenido sobre el cual
+                        posee los derechos y autorizaciones correspondientes, y a no subir material
+                        que sea ilegal, difamatorio, que vulnere la intimidad, el honor, la imagen o
+                        los derechos de propiedad intelectual de terceros, o que infrinja cualquier
+                        norma vigente.
+                    </p>
+
+                    <p>
+                        El fotógrafo asume la plena responsabilidad legal por el contenido que
+                        publica, incluyendo su autoría y la autorización de uso de ese contenido. La
+                        plataforma actúa únicamente como medio de publicación y almacenamiento y no
+                        se hace responsable por contenido no autorizado que sea publicado por sus
+                        usuarios.
+                    </p>
+
+                    <p>
+                        El fotógrafo es responsable de mantener la confidencialidad de sus
+                        credenciales de acceso y de toda la actividad que se realice desde su
+                        cuenta. En caso de uso indebido, deberá notificarlo a la plataforma.
+                    </p>
+
+                    <p>
+                        La plataforma se reserva el derecho de moderar o eliminar contenido que
+                        viole estos términos y de actualizar los mismos cuando lo considere
+                        necesario. El uso continuado de la plataforma implica la aceptación de los
+                        términos vigentes.
+                    </p>
+
+                    <h3>Política de Privacidad</h3>
+
+                    <p>
+                        La plataforma recopila los datos personales necesarios para el
+                        funcionamiento del servicio: nombre, correo electrónico, teléfono y el
+                        contenido que el fotógrafo publica, así como información de uso y consumo de
+                        almacenamiento.
+                    </p>
+
+                    <p>
+                        Estos datos se utilizan exclusivamente para gestionar la cuenta, permitir la
+                        publicación de colecciones, el contacto entre la plataforma y el fotógrafo y
+                        el control de la cuota de almacenamiento. Las contraseñas se almacenan
+                        cifradas y no se comparten con terceros.
+                    </p>
+
+                    <p>
+                        La plataforma no vende ni cede los datos personales a terceros, salvo que
+                        exista una obligación legal o una orden de autoridad competente que lo
+                        exija.
+                    </p>
+
+                    <p>
+                        Conforme a la Ley 18.331, el titular de los datos puede ejercer los derechos
+                        de acceso, rectificación y supresión de sus datos personales, así como
+                        oponerse a su tratamiento por la vía prevista en la normativa vigente.
+                    </p>
+
+                    <h3>Ley 18.331 - Protección de datos personales y de la intimidad</h3>
+
+                    <p>
+                        En Uruguay, la Ley 18.331 establece que los datos personales y la intimidad
+                        de las personas deben ser tratados con responsabilidad, consentimiento y
+                        cuidado. Toda persona que reciba, procese o publique información personal
+                        debe actuar de manera responsable y respetuosa del derecho a la intimidad.
+                    </p>
+
+                    <p>
+                        El fotógrafo que publica contenido en esta plataforma asume plena
+                        responsabilidad legal sobre la imagen, el material audiovisual, la autoría y
+                        la autorización de uso de ese contenido. Queda prohibido publicar
+                        fotografías, videos o materiales que afecten la intimidad, el honor, la
+                        imagen o los derechos de terceros sin la debida autorización.
+                    </p>
+
+                    <p>
+                        El fotógrafo será responsable de cualquier consecuencia jurídica derivada de
+                        la publicación de imágenes no autorizadas, incluyendo reclamos, denuncias,
+                        daños, indemnizaciones o cualquier otra acción legal que pueda surgir por la
+                        utilización indebida de un contenido audiovisual o fotográfico.
+                    </p>
+
+                    <p>
+                        La plataforma actúa únicamente como medio de publicación y almacenamiento.
+                        No controla ni verifica previamente cada imagen ni cada publicación y, por
+                        tanto, no se hace responsable por contenido no autorizado que sea publicado
+                        por usuarios externos. En caso de que exista una demanda o reclamo por una
+                        publicación no autorizada, la responsabilidad recae sobre el fotógrafo que
+                        cargó y autorizó el material.
+                    </p>
+
+                    <p>
+                        Asimismo, el fotógrafo garantiza que cuenta con derechos suficientes para
+                        publicar el contenido, y reconoce que debe cumplir con la normativa vigente
+                        sobre protección de datos, uso de imagen, consentimiento de personas
+                        retratadas y respeto absoluto a la privacidad.
+                    </p>
+
+                    <p>
+                        Al aceptar este aviso, el fotógrafo declara haber leído la Ley 18.331,
+                        comprende sus obligaciones y acepta asumir la responsabilidad legal por
+                        cualquier contenido publicado en la plataforma que no cuente con la
+                        autorización correspondiente.
+                    </p>
+
+                    <p>
+                        En caso de conflicto, las consecuencias legales serán de exclusiva
+                        responsabilidad del usuario fotógrafo, y la plataforma queda eximida de
+                        responsabilidad frente a demandas, reclamos o acciones judiciales originadas
+                        por publicaciones no autorizadas o por el uso indebido de datos personales o
+                        contenidos sensibles.
+                    </p>
+                </div>
+
+                <p id="mensajePoliticas" class="modal-privacidad__mensaje" role="status"></p>
+
+                <button id="aceptarPolitica" class="btn-aceptar" type="button" disabled>
+                    Aceptar
+                </button>
+            </div>
+        </div>
+        <script type="module" src="../dom/colecciones/panel.js"></script>
+    </body>
 </html>

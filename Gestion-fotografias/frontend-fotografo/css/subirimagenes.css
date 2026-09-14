@@ -1,0 +1,324 @@
+/* Subida, visibilidad, etiquetas y códigos QR. */
+
+.DatosNuevaColeccion {
+    margin-top: 0;
+}
+
+.DatosNuevaColeccion h2 {
+    margin: 0;
+    color: var(--primary-color);
+    font-size: 18px;
+}
+
+.DatosNuevaColeccion p {
+    margin: 4px 0 0;
+    color: var(--gris-texto);
+    font-size: 13px;
+}
+
+.BotonPublicar {
+    display: inline-block;
+    padding: 10px 20px;
+    border: 0;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: bold;
+    text-align: center;
+    color: var(--secondary-color);
+    background: var(--verde);
+}
+
+.BotonGenerarQr {
+    margin-left: auto;
+    padding: 9px 14px;
+    border: 1px solid var(--verde);
+    border-radius: 6px;
+    background: var(--secondary-color);
+    color: var(--verde);
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.BotonGenerarQr:hover {
+    background: #eefaf5;
+}
+
+.BotonGenerarQr:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+.ControlesQrColaborativo {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-left: auto;
+}
+
+.ControlesQrColaborativo .BotonGenerarQr {
+    margin-left: 0;
+    white-space: nowrap;
+}
+
+.ControlPublicar {
+    position: relative;
+}
+
+.BotonPublicar .FlechaPublicar {
+    display: inline-block;
+    margin-left: 8px;
+    font-size: 16px;
+    transition: transform 0.2s ease;
+}
+
+.BotonPublicar[aria-expanded="true"] .FlechaPublicar {
+    transform: rotate(180deg);
+}
+
+.MenuVisibilidad {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 10;
+    width: 250px;
+    padding: 6px;
+    border: 1px solid var(--borde);
+    border-radius: 8px;
+    background: var(--secondary-color);
+    box-shadow: var(--sombra);
+}
+
+.MenuVisibilidad button {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 3px;
+    padding: 10px;
+    border: 0;
+    border-radius: 6px;
+    background-color: transparent;
+    color: var(--primary-color);
+    text-align: left;
+    cursor: pointer;
+}
+
+.MenuVisibilidad button:hover {
+    background: #eefaf5;
+}
+
+.MenuVisibilidad button span {
+    color: var(--gris-texto);
+    font-size: 12px;
+}
+
+.BotonPublicar:hover {
+    background: var(--verde-oscuro);
+}
+
+.TagsColeccion {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    margin-left: 0;
+}
+
+.TagsColeccion input {
+    width: 230px;
+    padding: 9px 12px;
+    border: 1px solid var(--borde);
+    border-radius: 6px;
+}
+
+.TagsColeccion .ListaTags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.ZonaCarga {
+    margin: 24px 0;
+    border: 2px dashed var(--borde);
+    border-radius: 12px;
+    background: var(--secondary-color);
+    padding: 90px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition:
+        border-color 0.2s ease,
+        background-color 0.2s ease;
+}
+
+.ZonaCarga.Activa {
+    border-color: var(--verde);
+    background: #eefaf5;
+}
+
+.ZonaCarga p {
+    margin: 4px 0;
+    color: var(--primary-color);
+    font-size: 15px;
+}
+
+.ZonaCarga::before {
+    content: "🖼";
+    display: block;
+    font-size: 34px;
+    margin-bottom: 14px;
+    opacity: 0.4;
+}
+
+.ZonaCarga .Formatos {
+    font-size: 13px;
+    color: var(--gris-texto);
+    margin-top: 8px;
+}
+
+.ModalQr {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background-color: rgba(2, 6, 23, 0.75);
+    z-index: 70;
+}
+
+.ModalQr[hidden] {
+    display: none;
+}
+
+.ModalQrContenido {
+    position: relative;
+    width: min(400px, 100%);
+    padding: 28px;
+    border-radius: 10px;
+    background: var(--secondary-color);
+    box-shadow: var(--sombra);
+    text-align: center;
+}
+
+.ModalQrContenido h2 {
+    margin: 0 0 18px;
+    color: var(--primary-color);
+    font-size: 20px;
+}
+
+.ImagenQr {
+    width: 260px;
+    max-width: 100%;
+    margin: 0 auto 18px;
+}
+
+.ImagenQr img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+.ModalQrContenido label {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--gris-texto);
+    font-size: 13px;
+    text-align: left;
+}
+
+#enlaceQr {
+    width: 100%;
+    padding: 9px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    color: var(--primary-color);
+}
+
+#enlaceQrColaborativo {
+    width: 100%;
+    padding: 9px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    color: var(--primary-color);
+}
+
+.AvisoExpiracionQr {
+    margin: -8px 0 14px;
+    color: var(--advertencia);
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.BotonCerrarQr {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    border: 0;
+    background: transparent;
+    color: var(--gris-texto);
+    font-size: 18px;
+    cursor: pointer;
+}
+
+.AccionesQr {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.BotonQr {
+    padding: 9px 12px;
+    border: 0;
+    border-radius: 6px;
+    background-color: var(--verde);
+    color: var(--secondary-color);
+    font-size: 13px;
+    font-weight: bold;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.BotonQrSecundario {
+    background-color: var(--primary-color);
+}
+.ZonaCarga {
+    width: 100%;
+    color: inherit;
+    font: inherit;
+}
+.ZonaCarga .Formatos {
+    display: block;
+    margin-top: 10px;
+}
+.TagsColeccion .ListaTags {
+    position: static;
+    display: flex;
+    box-shadow: none;
+}
+.ModalQrContenido {
+    max-height: 90vh;
+    overflow: auto;
+}
+.ModalQrContenido input {
+    width: 100%;
+}
+@media print {
+    body > :not(.ModalQr) {
+        display: none;
+    }
+    .ModalQr {
+        position: static;
+        padding: 0;
+        background: white;
+    }
+    .ModalQrContenido {
+        box-shadow: none;
+        max-height: none;
+    }
+    .AccionesQr,
+    .BotonCerrarQr {
+        display: none;
+    }
+}

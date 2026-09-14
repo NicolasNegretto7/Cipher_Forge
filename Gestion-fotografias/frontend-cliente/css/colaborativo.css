@@ -1,9 +1,4 @@
-/* Pantalla de carga colaborativa de invitados (HU11): optimizada para móviles. */
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
+/* Carga colaborativa. Los estilos generales están en base.css. */
 
 body {
     min-height: 100vh;
@@ -11,8 +6,6 @@ body {
     align-items: center;
     justify-content: center;
     padding: 20px;
-    font-family: Arial, Helvetica, sans-serif;
-    background: linear-gradient(160deg, #064e3b 0%, #065f46 45%, #059669 100%);
 }
 
 .CajaInvitado {
@@ -21,36 +14,38 @@ body {
 
 .PanelInvitado {
     padding: 28px;
-    border-radius: 14px;
-    background-color: white;
-    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--borde);
+    border-radius: 12px;
+    background: var(--secondary-color);
+    box-shadow: var(--sombra);
     text-align: center;
 }
 
-.PanelInvitado[hidden] {
-    display: none;
-}
-
 .PanelInvitado h1 {
-    color: #064e3b;
+    margin-top: 0;
+    color: var(--verde-oscuro);
     font-size: 24px;
     line-height: 1.2;
 }
 
-.MensajeCargando {
-    color: #6b7280;
+.MensajeCargando,
+.SubtituloEvento {
+    color: var(--gris-texto);
+}
+
+.MensajeCargando,
+.MensajeError,
+.MensajeExito {
     font-size: 15px;
 }
 
 .MensajeError {
     margin: 12px 0;
-    color: #b91c1c;
-    font-size: 15px;
+    color: var(--error);
 }
 
 .SubtituloEvento {
     margin-top: 6px;
-    color: #6b7280;
     font-size: 14px;
 }
 
@@ -58,17 +53,17 @@ body {
     margin: 18px 0;
     padding: 10px 12px;
     border-radius: 8px;
-    background-color: #fffbeb;
+    color: var(--advertencia);
+    background: #fffbeb;
     font-size: 13px;
-    color: #92400e;
 }
 
-.ContadorCaducidad label {
+.ContadorCaducidad label,
+.ContadorCaducidad span {
     display: block;
 }
 
 .ContadorCaducidad span {
-    display: block;
     margin-top: 2px;
     font-weight: bold;
 }
@@ -84,51 +79,51 @@ body {
     display: flex;
     flex-direction: column;
     gap: 4px;
+    color: var(--primary-color);
     font-size: 13px;
-    color: #374151;
 }
 
 .CampoNombre input {
+    width: 100%;
     padding: 11px 12px;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
     font-size: 16px;
-}
-
-.CampoNombre input:focus {
-    outline: 2px solid #059669;
 }
 
 .ZonaArchivos {
     display: flex;
     flex-direction: column;
-    gap: 4px;
     align-items: center;
+    gap: 4px;
     padding: 26px 14px;
-    border: 2px dashed #059669;
+    border: 2px dashed var(--verde);
     border-radius: 10px;
-    background-color: #f0fdf9;
+    background: #eefaf5;
     cursor: pointer;
     text-align: center;
-    transition: background-color 0.2s ease;
 }
 
 .ZonaArchivos:hover {
-    background-color: #dffaf0;
+    background: #dff5eb;
+}
+
+.ZonaArchivos strong,
+.ZonaArchivos .ListaArchivosSeleccion,
+.MensajeExito {
+    color: var(--verde-oscuro);
 }
 
 .ZonaArchivos strong {
-    color: #065f46;
     font-size: 16px;
 }
 
-.ZonaArchivos .FormatoArchivos {
-    color: #6b7280;
+.ZonaArchivos .FormatoArchivos,
+.NotaPrivacidad,
+.PieInvitado {
+    color: var(--gris-texto);
     font-size: 12px;
 }
 
 .ZonaArchivos .ListaArchivosSeleccion {
-    color: #065f46;
     font-size: 13px;
     font-weight: bold;
 }
@@ -136,40 +131,37 @@ body {
 .BotonEnviar {
     padding: 13px;
     border: 0;
-    border-radius: 9px;
-    background-color: #059669;
-    color: white;
+    border-radius: 6px;
+    color: var(--secondary-color);
+    background: var(--verde);
     font-size: 16px;
     font-weight: bold;
-    cursor: pointer;
 }
 
 .BotonEnviar:hover {
-    background-color: #047857;
-}
-
-.BotonEnviar:disabled {
-    opacity: 0.55;
-    cursor: not-allowed;
+    background: var(--verde-oscuro);
 }
 
 .NotaPrivacidad {
-    color: #9ca3af;
-    font-size: 12px;
     line-height: 1.4;
     text-align: center;
 }
 
 .MensajeExito {
     margin: 12px 0;
-    color: #065f46;
-    font-size: 15px;
 }
 
 .PieInvitado {
     margin-top: 16px;
-    color: #d1fae5;
-    font-size: 12px;
     text-align: center;
-    opacity: 0.85;
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 12px;
+    }
+
+    .PanelInvitado {
+        padding: 22px;
+    }
 }

@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Registro</title>
+        <link rel="stylesheet" href="../css/base.css" />
+        <link rel="stylesheet" href="../css/estilos.css" />
+    </head>
+    <body>
+        <header>
+            <h1>Crear Cuenta</h1>
+            <p>Regístrate como cliente</p>
+        </header>
+
+        <main class="container">
+            <section class="card">
+                <h2>Completa tus datos</h2>
+                <form id="formRegistro">
+                    <div class="form-group">
+                        <label for="nombre">Nombre completo</label>
+                        <input
+                            type="text"
+                            id="nombre"
+                            name="nombre"
+                            placeholder="Tu nombre"
+                            autocomplete="name"
+                            required
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="correo">Correo electrónico</label>
+                        <input
+                            type="email"
+                            id="correo"
+                            name="correo"
+                            placeholder="tugmail@gmail.com"
+                            autocomplete="email"
+                            title="Usa un correo válido"
+                            required
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="contraseña">Contraseña</label>
+                        <input
+                            type="password"
+                            id="contraseña"
+                            name="contraseña"
+                            placeholder="Mínimo 8 caracteres"
+                            autocomplete="new-password"
+                            minlength="8"
+                            title="La contraseña debe tener al menos 8 caracteres"
+                            required
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="telefono">Número de teléfono (opcional)</label>
+                        <input
+                            type="tel"
+                            id="telefono"
+                            name="telefono"
+                            placeholder="Tu número"
+                            autocomplete="tel"
+                            pattern="[0-9]+"
+                            inputmode="numeric"
+                            title="El teléfono solo puede contener números"
+                        />
+                    </div>
+
+                    <div class="form-group CampoTerminos">
+                        <label class="OpcionTerminos" for="terminos">
+                            <input id="terminos" name="terminos" type="checkbox" required />
+                            <span>
+                                He leído y acepto los Términos y Condiciones y la Política de
+                                Privacidad.
+                            </span>
+                        </label>
+                        <details class="ResumenTerminos">
+                            <summary>Leer información importante</summary>
+                            <p>
+                                Tus datos se utilizan para administrar tu cuenta, tus accesos y tus
+                                favoritos. Debes usar la plataforma de forma responsable y respetar
+                                los derechos sobre las fotografías compartidas.
+                            </p>
+                        </details>
+                    </div>
+
+                    <div class="texto-centrado margen-arriba">
+                        <button type="submit" class="btn btn-principal">Registrarse</button>
+                    </div>
+                </form>
+
+                <p id="mensajeRegistro" class="mensaje-perfil" role="status"></p>
+
+                <p class="texto-centrado margen-arriba">
+                    ¿Ya tienes cuenta?
+                    <a id="enlaceLogin" href="../index.html">Inicia sesión aquí.</a>
+                </p>
+            </section>
+        </main>
+
+        <footer>
+            <p>Políticas de Privacidad.</p>
+        </footer>
+        <script type="module" src="../dom/auth/registro.js"></script>
+    </body>
+</html>

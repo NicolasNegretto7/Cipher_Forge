@@ -1,47 +1,52 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Editar perfil</title>
-	<link rel="stylesheet" href="../css/estilos.css">
-</head>
-<body>
-	<header>
-		<h1>Perfil del fotógrafo</h1>
-		<p>Actualiza tus datos personales</p>
-	</header>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Editar perfil</title>
+        <link rel="stylesheet" href="../css/base.css" />
+        <link rel="stylesheet" href="../css/estilos.css" />
+    </head>
+    <body>
+        <header>
+            <h1>Perfil del fotógrafo</h1>
+            <p>Actualiza tus datos personales</p>
+        </header>
 
-	<main class="container">
-		<section class="card tarjeta-coleccion">
-			<h2>Editar perfil</h2>
-			<p>Modifica un dato y presiona Save para guardarlo.</p>
+        <main class="container">
+            <section class="card tarjeta-coleccion">
+                <h2>Editar perfil</h2>
+                <p>Modifica un dato y presiona Guardar para guardarlo.</p>
 
-			<form class="formulario-coleccion formulario-perfil" data-campo="nombre_completo">
-				<div class="campo-coleccion campo-con-boton">
-					<div>
-						<label for="nombreCompleto">Nombre</label>
-						<input type="text" id="nombreCompleto" name="nombre_completo" required>
-					</div>
-					<button class="btn btn-principal boton-save" type="submit">Save</button>
-				</div>
-			</form>
+                <form id="formNombre" class="formulario-coleccion formulario-perfil">
+                    <div class="campo-coleccion campo-con-boton">
+                        <div>
+                            <label for="nombreCompleto">Nombre</label>
+                            <input
+                                type="text"
+                                id="nombreCompleto"
+                                name="nombre_completo"
+                                required
+                            />
+                        </div>
+                        <button class="btn btn-principal boton-save" type="submit">Guardar</button>
+                    </div>
+                </form>
 
-			<form class="formulario-coleccion formulario-perfil" data-campo="telefono">
-				<div class="campo-coleccion campo-con-boton">
-					<div>
-						<label for="telefono">Número de teléfono</label>
-						<input type="tel" id="telefono" name="telefono">
-					</div>
-					<button class="btn btn-principal boton-save" type="submit">Save</button>
-				</div>
-			</form>
+                <form id="formTelefono" class="formulario-coleccion formulario-perfil">
+                    <div class="campo-coleccion campo-con-boton">
+                        <div>
+                            <label for="telefono">Número de teléfono</label>
+                            <input type="tel" id="telefono" name="telefono" />
+                        </div>
+                        <button class="btn btn-principal boton-save" type="submit">Guardar</button>
+                    </div>
+                </form>
 
-			<p id="mensajePerfil" class="mensaje-perfil" role="status"></p>
-		</section>
-	</main>
-
-	<script src="../js/api.js"></script>
-	<script src="../js/editarperfil.js"></script>
-</body>
+                <p id="mensajePerfil" class="mensaje-perfil" role="status"></p>
+                <a href="panel.html">← Volver a mis colecciones</a>
+            </section>
+        </main>
+        <script type="module" src="../dom/perfil/editarperfil.js"></script>
+    </body>
 </html>

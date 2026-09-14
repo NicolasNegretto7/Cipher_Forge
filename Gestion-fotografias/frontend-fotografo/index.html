@@ -1,69 +1,81 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CipherPhoto</title>
-    <link rel="stylesheet" href="css/estilos.css">
-</head>
-<body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Cipher Photo para fotógrafos</title>
+        <link rel="stylesheet" href="css/base.css" />
+        <link rel="stylesheet" href="css/estilos.css" />
+    </head>
+    <body class="PaginaAcceso PaginaAccesoFotografo">
+        <main class="Acceso">
+            <section class="AccesoPresentacion">
+                <p class="AccesoMarca">CIPHER PHOTO</p>
+                <h1>Tu trabajo merece una presentación profesional.</h1>
+                <p class="AccesoDescripcion">
+                    Organiza sesiones, publica colecciones y comparte cada entrega desde un panel
+                    simple.
+                </p>
 
-    <header>
-        <h1>CipherPhoto</h1>
-        <p>Conecta fotógrafos con compradores de forma profesional.</p>
-    </header>
-       <br>
+                <div class="ResumenFunciones" aria-label="Funciones principales">
+                    <div>
+                        <strong>Colecciones</strong>
+                        <span>Ordena cada sesión</span>
+                    </div>
+                    <div>
+                        <strong>Entregas</strong>
+                        <span>Comparte con clientes</span>
+                    </div>
+                    <div>
+                        <strong>QR</strong>
+                        <span>Recibe aportes</span>
+                    </div>
+                </div>
+            </section>
 
-    <main class="container">
-        <section class="card">
-            <h2>Bienvenido</h2>
-            <P>Esta plataforma permite a los fotógrafos subir, organizar y compartir su material fotográfico con sus clientes de manera profesional.</P>
-            <p>Los clientes pueden visualizar las colecciones, solicitar descargas en alta calidad y acceder mediante códigos qr.</p>
-            <Div class="texto-centrado margen-arriba">
-            
-                <a href="pages/registro.html" class="btn btn-principal">Registrarse</a>
-            <a href="pages/login.html" class="btn btn-secundario">Iniciar Sesión</a>
-              
-             </Div>
-        </section>
-        <br>
+            <section class="AccesoFormulario">
+                <div class="AccesoCabecera">
+                    <p class="AccesoEtiqueta">FOTÓGRAFOS</p>
+                    <h2>Iniciar sesión</h2>
+                    <p>Entra a tu espacio de trabajo.</p>
+                </div>
 
-        <section class="card">
-            <h2>¿Cómo funciona?</h2>
-        <table border="1">
-                <tr>
-                    <th>Paso</th>
-                    <th>Descripción.</th>
-                </tr>
-                <tr>
-                <td>1. Registro</td>
-                <td>Crea tu cuenta como fotógrafo o cliente.</td>
-                </tr>
-                <tr>
-                <td>2. Colecciones</td>
-                <td>El fotógrafo crea colecciones públicas o privadas.</td>
-                </tr>
-                <tr>
-                <td>3. Subida</td>
-                <td>Se suben imágenes JPG y videos con marca de agua.</td>
-                </tr>
-                <tr>
-                <td>4. Acceso</td>
-                <td>Los invitados acceden por enlace o código qr.</td>
-                </tr>
-                <tr>
-                <td>5. Descarga</td>
-                <td>El fotógrafo autoriza la descarga en alta calidad.</td>
-                </tr>
-    </table>
-    </section>
-    </main>
+                <form id="formLogin">
+                    <div class="form-group">
+                        <label for="correo">Correo electrónico</label>
+                        <input
+                            id="correo"
+                            name="correo"
+                            type="email"
+                            placeholder="nombre@correo.com"
+                            autocomplete="email"
+                            required
+                        />
+                    </div>
 
-    <footer>
-    <p>CipherPhoto</p>
-    <p>Políticas de Privacidad.</p>
-    </footer>
+                    <div class="form-group">
+                        <label for="contraseña">Contraseña</label>
+                        <input
+                            id="contraseña"
+                            name="contraseña"
+                            type="password"
+                            placeholder="Tu contraseña"
+                            autocomplete="current-password"
+                            required
+                        />
+                    </div>
 
-    <script src="./js/script.js"></script>
-</body>
+                    <button type="submit" class="btn btn-principal BotonAcceso">Ingresar</button>
+                </form>
+
+                <p id="mensajeLogin" class="mensaje-perfil" role="status"></p>
+                <p class="AccesoRegistro">
+                    ¿Todavía no tienes cuenta?
+                    <a id="enlaceRegistro" href="pages/registro.html">Crear cuenta</a>
+                </p>
+            </section>
+        </main>
+
+        <script type="module" src="dom/auth/login.js"></script>
+    </body>
 </html>

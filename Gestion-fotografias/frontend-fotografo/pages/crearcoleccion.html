@@ -1,40 +1,53 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crear Colección</title>
-    <link rel="stylesheet" href="../css/estilos.css">
-</head>
-<body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Crear Colección</title>
+        <link rel="stylesheet" href="../css/base.css" />
+        <link rel="stylesheet" href="../css/estilos.css" />
+    </head>
+    <body>
+        <header>
+            <h1>Crear nueva colección</h1>
+            <p>Organiza tus fotos en una colección personalizada</p>
+        </header>
 
-    <header>
-        <h1>Crear nueva colección</h1>
-        <p>Organiza tus fotos en una colección personalizada</p>
-    </header>
+        <main class="container">
+            <section class="card tarjeta-coleccion">
+                <form id="formColeccion" class="formulario-coleccion">
+                    <div class="campo-coleccion">
+                        <h2>Nombre de la colección</h2>
+                        <label for="nombreColeccion">Escribe un nombre para identificarla</label>
+                        <input
+                            type="text"
+                            id="nombreColeccion"
+                            name="nombreColeccion"
+                            placeholder="Ej. Fiesta de 15 años"
+                            maxlength="60"
+                            required
+                        />
+                    </div>
 
-    <main class="container">
-        <section class="card tarjeta-coleccion">
-            <form id="formColeccion" class="formulario-coleccion" action="SubirImagenes.html" method="get">
-                <div class="campo-coleccion">
-                    <h2>Nombre de la colección</h2>
-                    <label for="nombreColeccion">Escribe un nombre para identificarla</label>
-                    <input type="text" id="nombreColeccion" name="nombreColeccion" placeholder="Ej. Fiesta de 15 años" maxlength="20" required>
-                </div>
+                    <div class="campo-coleccion">
+                        <label for="descripcionColeccion">Descripción (opcional)</label>
+                        <textarea
+                            id="descripcionColeccion"
+                            name="descripcionColeccion"
+                            maxlength="90"
+                            placeholder="Describe brevemente la colección"
+                            rows="3"
+                        ></textarea>
+                    </div>
 
-                <div class="campo-coleccion">
-                    <label for="descripcionColeccion">Descripción (opcional)</label>
-                    <textarea id="descripcionColeccion" name="descripcionColeccion" maxlength="90" placeholder="Describe brevemente la colección" rows="3"></textarea>
-                </div>
-
-                <div class="acciones-coleccion">
-                    <button type="submit" class="btn btn-principal">Crear colección</button>
-                </div>
-            </form>
-        </section>
-    </main>
-
-    <script src="../js/almacenamiento.js"></script>
-    <script src="../js/collection.js"></script>
-</body>
+                    <div class="acciones-coleccion">
+                        <button type="submit" class="btn btn-principal">Crear colección</button>
+                    </div>
+                    <p id="mensajeColeccion" class="mensaje-perfil" role="status"></p>
+                </form>
+                <a href="panel.html">← Volver a mis colecciones</a>
+            </section>
+        </main>
+        <script type="module" src="../dom/colecciones/crearcoleccion.js"></script>
+    </body>
 </html>

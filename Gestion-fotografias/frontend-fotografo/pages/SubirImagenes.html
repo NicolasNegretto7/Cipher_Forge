@@ -1,135 +1,203 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Subir Imágenes</title>
-    <link rel="stylesheet" href="../css/tuscolecciones.css">
-</head>
-<body>
-
-    <div class="Contenedor">
-        <div class="Sidebar">
-
-            <div class="DatosNuevaColeccion">
-                <h2 id="nombreColeccion">Nombre de la colección</h2>
-                <p id="descripcionColeccionTexto"></p>
-                <p id="estadoVisibilidad"></p>
-            </div>
-
-            <hr>
-
-            <div class="Almacenamiento">
-                <p class="TextoAlmacenamiento">0 KB de 3 GB usados</p>
-                <div class="BotonMas">+</div>
-            </div>
-        </div>
-
-        <div class="Principal">
-
-            <div class="Encabezado">
-                <h1>Subir Imágenes</h1>
-
-                <div class="TagsColeccion">
-                    <input id="tagInput" type="text" placeholder="Escribe un tag" list="sugerenciasHashtags">
-                    <datalist id="sugerenciasHashtags"></datalist>
-                    <div class="ListaTags" id="listaTags"></div>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Subir Imágenes</title>
+        <link rel="stylesheet" href="../css/base.css" />
+        <link rel="stylesheet" href="../css/subirimagenes.css" />
+    </head>
+    <body>
+        <div class="Contenedor">
+            <div class="Sidebar">
+                <a class="EnlaceVolver" href="panel.html">← Mis colecciones</a>
+                <div class="DatosNuevaColeccion">
+                    <h2 id="nombreColeccion">Nombre de la colección</h2>
+                    <p id="descripcionColeccionTexto"></p>
+                    <p id="estadoVisibilidad"></p>
                 </div>
 
-                <div class="ControlesQrColaborativo">
-                    <a class="BotonGenerarQr" id="botonModerarColaborativo" href="#" title="Revisar y aprobar los archivos que subieron los invitados">Moderar aportes</a>
-                    <button class="BotonGenerarQr" id="botonQrColaborativo" type="button" title="QR temporal (24 h) para que los invitados suban fotos y videos al evento">
-                        QR colaborativo
-                    </button>
-                    <button class="BotonGenerarQr" id="botonQrAcceso" type="button" title="QR/enlace permanente (sin caducidad) para que los clientes accedan y descarguen la colección">
-                        QR de acceso
-                    </button>
-                </div>
+                <hr />
 
-                <div class="ControlPublicar">
-                    <button class="BotonPublicar" id="botonPublicar" type="button" aria-expanded="false" aria-controls="menuVisibilidad">
-                        Publicar <span class="FlechaPublicar" aria-hidden="true">▾</span>
-                    </button>
-                    <div class="MenuVisibilidad" id="menuVisibilidad" hidden>
-                        <button type="button" data-visibilidad="privada">
-                            <strong>Privada</strong>
-                            <span>No aparece en colecciones públicas</span>
+                <div class="Almacenamiento">
+                    <p class="TextoAlmacenamiento">0 KB de 3 GB usados</p>
+                </div>
+            </div>
+
+            <main class="Principal">
+                <div class="Encabezado">
+                    <h1>Subir Imágenes</h1>
+
+                    <div class="TagsColeccion">
+                        <input
+                            id="tagInput"
+                            type="text"
+                            placeholder="Escribe un tag"
+                            list="sugerenciasHashtags"
+                        />
+                        <datalist id="sugerenciasHashtags"></datalist>
+                        <div class="ListaTags" id="listaTags"></div>
+                    </div>
+
+                    <div class="ControlesQrColaborativo">
+                        <a
+                            class="BotonGenerarQr"
+                            id="botonModerarColaborativo"
+                            href="#"
+                            title="Revisar y aprobar los archivos que subieron los invitados"
+                        >
+                            Moderar aportes
+                        </a>
+                        <button
+                            class="BotonGenerarQr"
+                            id="botonQrColaborativo"
+                            type="button"
+                            title="QR temporal (24 h) para que los invitados suban fotos y videos al evento"
+                        >
+                            QR colaborativo
                         </button>
-                        <button type="button" data-visibilidad="publica">
-                            <strong>Pública</strong>
-                            <span>Aparece en colecciones públicas</span>
+                        <button
+                            class="BotonGenerarQr"
+                            id="botonQrAcceso"
+                            type="button"
+                            title="QR/enlace permanente (sin caducidad) para que los clientes accedan y descarguen la colección"
+                        >
+                            QR de acceso
                         </button>
                     </div>
+
+                    <div class="ControlPublicar">
+                        <button
+                            class="BotonPublicar"
+                            id="botonPublicar"
+                            disabled
+                            type="button"
+                            aria-expanded="false"
+                            aria-controls="menuVisibilidad"
+                        >
+                            Visibilidad
+                            <span class="FlechaPublicar" aria-hidden="true">▾</span>
+                        </button>
+                        <div class="MenuVisibilidad" id="menuVisibilidad" hidden>
+                            <button type="button" data-visibilidad="privada">
+                                <strong>Privada</strong>
+                                <span>No aparece en colecciones públicas</span>
+                            </button>
+                            <button type="button" data-visibilidad="publica">
+                                <strong>Pública</strong>
+                                <span>Aparece en colecciones públicas</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="button" class="ZonaCarga" id="zonaCarga" disabled>
+                    <strong>Seleccionar archivos para subir</strong>
+                    <span class="Formatos">
+                        Formatos permitidos: JPG y MP4. Se guardan en el servidor.
+                    </span>
+                </button>
+                <input
+                    type="file"
+                    id="selectorArchivos"
+                    disabled
+                    accept=".jpg,.jpeg,.mp4,image/jpeg,video/mp4"
+                    multiple
+                    hidden
+                />
+
+                <p class="EstadoVacio" id="estadoVacio" role="status">Cargando colección...</p>
+                <div class="GaleriaMedia" id="galeria"></div>
+            </main>
+        </div>
+
+        <div class="Visor" id="visor">
+            <div class="VisorInterior">
+                <button class="BotonCerrarVisor" id="cerrarVisor">✕</button>
+                <div id="visorContenido"></div>
+            </div>
+        </div>
+
+        <div class="ModalQr" id="modalQrColaborativo" hidden>
+            <div
+                class="ModalQrContenido"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="tituloQrColaborativo"
+            >
+                <button
+                    class="BotonCerrarQr"
+                    id="cerrarQrColaborativo"
+                    type="button"
+                    aria-label="Cerrar"
+                >
+                    ✕
+                </button>
+                <h2 id="tituloQrColaborativo">QR colaborativo de evento</h2>
+                <p class="AvisoExpiracionQr" id="avisoExpiracionQr"></p>
+                <div class="ImagenQr" id="imagenQrColaborativo"></div>
+                <label for="enlaceQrColaborativo">Enlace de subida para invitados</label>
+                <input id="enlaceQrColaborativo" type="text" readonly />
+                <div class="AccionesQr">
+                    <button class="BotonQr" id="copiarEnlaceColaborativo" type="button">
+                        Copiar enlace
+                    </button>
+                    <a
+                        class="BotonQr BotonQrSecundario"
+                        id="abrirEnlaceColaborativo"
+                        href="#"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        Abrir
+                    </a>
+                    <button class="BotonQr" id="imprimirQrColaborativo" type="button">
+                        Imprimir hoja
+                    </button>
                 </div>
             </div>
+        </div>
 
-            <div class="ZonaCarga" id="zonaCarga">
-
-                <P><strong>Haz clic para seleccionar tus imagenes</strong></P>
-
-                <p class="Formatos">Formatos permitidos: JPG y MP4</p>
-            </div>
-            <input type="file" id="selectorArchivos" accept=".jpg,.jpeg,.mp4,image/jpeg,video/mp4" multiple hidden>
-
-            <div class="GaleriaMedia" id="galeria">
-                <div class="EstadoVacio" id="estadoVacio">
-                    <P>Aún no hay archivos subidos.<br>Sube tu primer JPG o MP4 para comenzar. <br> Tu coleccion sera privada hasta que la publiques.</P>
+        <div class="ModalQr" id="modalQrAcceso" hidden>
+            <div
+                class="ModalQrContenido"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="tituloQrAcceso"
+            >
+                <button class="BotonCerrarQr" id="cerrarQrAcceso" type="button" aria-label="Cerrar">
+                    ✕
+                </button>
+                <h2 id="tituloQrAcceso">QR de acceso permanente</h2>
+                <p class="AvisoExpiracionQr" id="avisoQrAcceso"></p>
+                <div class="ImagenQr" id="imagenQrAcceso"></div>
+                <label for="enlaceQrAcceso">Enlace de acceso para clientes</label>
+                <input id="enlaceQrAcceso" type="text" readonly />
+                <div class="AccionesQr">
+                    <button class="BotonQr" id="copiarEnlaceAcceso" type="button">
+                        Copiar enlace
+                    </button>
+                    <a
+                        class="BotonQr BotonQrSecundario"
+                        id="abrirEnlaceAcceso"
+                        href="#"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        Abrir
+                    </a>
                 </div>
             </div>
-
         </div>
-    </div>
 
-    <div class="Visor" id="visor">
-        <div class="VisorInterior">
-            <button class="BotonCerrarVisor" id="cerrarVisor">✕</button>
-            <div id="visorContenido"></div>
+        <div class="ContenedorToasts" id="toasts"></div>
+
+        <div class="BarraAcciones" id="barraAcciones">
+            <button id="seleccionarTodas" type="button">
+                &#9745; Seleccionar todas las imágenes
+            </button>
+            <button id="eliminarSeleccionados" type="button">&#128465; Eliminar</button>
         </div>
-    </div>
-
-    <div class="ModalQr" id="modalQrColaborativo" hidden>
-        <div class="ModalQrContenido" role="dialog" aria-modal="true" aria-labelledby="tituloQrColaborativo">
-            <button class="BotonCerrarQr" id="cerrarQrColaborativo" type="button" aria-label="Cerrar">✕</button>
-            <h2 id="tituloQrColaborativo">QR colaborativo de evento</h2>
-            <p class="AvisoExpiracionQr" id="avisoExpiracionQr"></p>
-            <div class="ImagenQr" id="imagenQrColaborativo"></div>
-            <label for="enlaceQrColaborativo">Enlace de subida para invitados</label>
-            <input id="enlaceQrColaborativo" type="text" readonly>
-            <div class="AccionesQr">
-                <button class="BotonQr" id="copiarEnlaceColaborativo" type="button">Copiar enlace</button>
-                <a class="BotonQr BotonQrSecundario" id="abrirEnlaceColaborativo" href="#" target="_blank" rel="noopener">Abrir</a>
-                <a class="BotonQr" id="imprimirQrColaborativo" href="#" target="_blank" rel="noopener">Imprimir hoja</a>
-            </div>
-        </div>
-    </div>
-
-    <div class="ModalQr" id="modalQrAcceso" hidden>
-        <div class="ModalQrContenido" role="dialog" aria-modal="true" aria-labelledby="tituloQrAcceso">
-            <button class="BotonCerrarQr" id="cerrarQrAcceso" type="button" aria-label="Cerrar">✕</button>
-            <h2 id="tituloQrAcceso">QR de acceso permanente</h2>
-            <p class="AvisoExpiracionQr" id="avisoQrAcceso"></p>
-            <div class="ImagenQr" id="imagenQrAcceso"></div>
-            <label for="enlaceQrAcceso">Enlace de acceso para clientes</label>
-            <input id="enlaceQrAcceso" type="text" readonly>
-            <div class="AccionesQr">
-                <button class="BotonQr" id="copiarEnlaceAcceso" type="button">Copiar enlace</button>
-                <a class="BotonQr BotonQrSecundario" id="abrirEnlaceAcceso" href="#" target="_blank" rel="noopener">Abrir</a>
-            </div>
-        </div>
-    </div>
-
-    <div class="ContenedorToasts" id="toasts"></div>
-
-    <div class="BarraAcciones" id="barraAcciones">
-        <button id="seleccionarTodas" type="button">&#9745; Seleccionar todas las imágenes</button>
-        <button id="eliminarSeleccionados" type="button">&#128465; Eliminar</button>
-    </div>
-
-    <script src="../js/api.js"></script>
-    <script src="../js/almacenamiento.js"></script>
-    <script src="../js/binarios.js"></script>
-    <script src="../js/subirimagenes.js"></script>
-    <script src="../js/qrcolaborativo.js"></script>
-    <script src="../js/qracceso.js"></script>
-</body>
+        <script type="module" src="../dom/colecciones/subirimagenes.js"></script>
+    </body>
 </html>

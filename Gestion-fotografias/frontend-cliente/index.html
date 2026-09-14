@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Galería del cliente</title>
+        <link rel="stylesheet" href="css/base.css" />
+        <link rel="stylesheet" href="css/estilos.css" />
+    </head>
+    <body class="PaginaAcceso">
+        <main class="Acceso">
+            <section class="AccesoPresentacion">
+                <p class="AccesoMarca">CIPHER PHOTO</p>
+                <h1>Tus recuerdos, todos en un mismo lugar.</h1>
+                <p class="AccesoDescripcion">
+                    Ingresa para descubrir colecciones, guardar favoritas y acceder a las fotos
+                    que compartieron contigo.
+                </p>
+
+                <div class="MosaicoPresentacion" aria-hidden="true">
+                    <div class="MosaicoBloque MosaicoAlto">Momentos</div>
+                    <div class="MosaicoBloque MosaicoClaro">Eventos</div>
+                    <div class="MosaicoBloque MosaicoOscuro">Historias</div>
+                    <div class="MosaicoBloque MosaicoAlto MosaicoSuave">Recuerdos</div>
+                    <div class="MosaicoBloque MosaicoClaro">Personas</div>
+                    <div class="MosaicoBloque MosaicoOscuro">Lugares</div>
+                </div>
+            </section>
+
+            <section class="AccesoFormulario">
+                <div class="AccesoCabecera">
+                    <p class="AccesoEtiqueta">CLIENTES</p>
+                    <h2>Iniciar sesión</h2>
+                    <p>Accede a tu galería personal.</p>
+                </div>
+
+                <form id="formLogin">
+                    <div class="form-group">
+                        <label for="correo">Correo electrónico</label>
+                        <input
+                            id="correo"
+                            name="correo"
+                            type="email"
+                            placeholder="nombre@correo.com"
+                            autocomplete="email"
+                            required
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="contraseña">Contraseña</label>
+                        <input
+                            id="contraseña"
+                            name="contraseña"
+                            type="password"
+                            placeholder="Tu contraseña"
+                            autocomplete="current-password"
+                            required
+                        />
+                    </div>
+
+                    <button type="submit" class="btn btn-principal BotonAcceso">Ingresar</button>
+                </form>
+
+                <p id="mensajeLogin" class="mensaje-perfil" role="status"></p>
+                <p class="AccesoRegistro">
+                    ¿Todavía no tienes cuenta?
+                    <a id="enlaceRegistro" href="pages/registro.html">Crear cuenta</a>
+                </p>
+            </section>
+        </main>
+
+        <script type="module" src="dom/auth/login.js"></script>
+    </body>
+</html>

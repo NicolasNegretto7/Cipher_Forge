@@ -1,76 +1,80 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Colecciones Públicas</title>
-    <link rel="stylesheet" href="../css/panelcliente.css">
-</head>
-<body>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Colecciones Públicas</title>
+        <link rel="stylesheet" href="../css/base.css" />
+        <link rel="stylesheet" href="../css/panelcliente.css" />
+    </head>
+    <body>
+        <div class="Contenedor">
+            <div class="Sidebar">
+                <div class="Logo">
+                    <p>Galería del Cliente</p>
+                </div>
 
-    <div class="Contenedor">
+                <div class="Menu">
+                    <a class="ItemMenuActivo" href="panelcliente.html">
+                        <p>Colecciones Públicas</p>
+                    </a>
 
-        <div class="Sidebar">
+                    <a class="ItemMenu" href="tuscoleccionescliente.html">
+                        <p>Tus Colecciones</p>
+                    </a>
 
-            <div class="Logo">
-                <p>Galería del Cliente</p>
-            </div>
+                    <a class="ItemMenu" href="favoritoscliente.html">
+                        <p>Favoritos</p>
+                    </a>
+                </div>
 
-            <Div class="Menu">
-                <a class="ItemMenuActivo" href="panelcliente.html">
-                    <p>Colecciones Públicas</p>
-                </a>
+                <hr />
 
-                <a class="ItemMenu" href="tuscoleccionescliente.html">
-                    <p>Tus Colecciones</p>
-                </a>
-
-                <a class="ItemMenu" href="favoritoscliente.html">
-                    <p>Favoritos</p>
-                </a>
-            </Div>
-
-            <hr>
-
-            <div class="PieSidebar">
-                <button class="BotonCerrarSesion CerrarSesionCliente" type="button">Cerrar sesión</button>
-            </div>
-
-        </div>
-
-        <div class="Principal">
-
-            <div class="Encabezado">
-                <h1>Colecciones Públicas</h1>
-
-                <div class="ZonaBuscadorTags" id="zonaBuscadorTags">
-                    <input id="tagBusqueda" type="text" placeholder="Escribe un tag" list="sugerenciasHashtags">
-                    <div class="BuscadorTags" id="buscadorTags">
-                        <div class="ListaTags" id="tagsBusqueda"></div>
-                        <p>Pulsa Enter para añadir el tag.</p>
-                    </div>
+                <div class="PieSidebar">
+                    <button class="BotonCerrarSesion CerrarSesionCliente" type="button">
+                        Cerrar sesión
+                    </button>
                 </div>
             </div>
 
-            <datalist id="sugerenciasHashtags"></datalist>
+            <main class="Principal">
+                <div class="Encabezado">
+                    <div>
+                        <p class="EtiquetaSeccion">DESCUBRIR</p>
+                        <h1>Colecciones para inspirarte</h1>
+                        <p class="DescripcionSeccion">
+                            Explora historias visuales y guarda las que más te gusten.
+                        </p>
+                    </div>
 
-            <p id="mensajeCarga" class="EstadoCarga">Cargando colecciones...</p>
-            <p id="mensajeError" class="EstadoError" hidden></p>
+                    <div class="ZonaBuscadorTags" id="zonaBuscadorTags">
+                        <input
+                            id="tagBusqueda"
+                            type="text"
+                            placeholder="Escribe un tag"
+                            list="sugerenciasHashtags"
+                        />
+                        <div class="BuscadorTags" id="buscadorTags">
+                            <div class="ListaTags" id="tagsBusqueda"></div>
+                            <p>Pulsa Enter para añadir el tag.</p>
+                        </div>
+                    </div>
+                </div>
 
-            <div class="GaleriaColecciones" id="galeriaPublica"></div>
+                <datalist id="sugerenciasHashtags"></datalist>
 
-            <div class="EstadoVacio" id="estadoVacio" hidden>
-                <p>No hay colecciones públicas con esos hashtags.</p>
-            </div>
+                <p id="mensajeCarga" class="EstadoCarga">Cargando colecciones...</p>
+                <p id="mensajeError" class="EstadoError" hidden></p>
 
+                <div class="GaleriaColecciones" id="galeriaPublica"></div>
+
+                <div class="EstadoVacio" id="estadoVacio" hidden>
+                    <p>No hay colecciones públicas con esos hashtags.</p>
+                </div>
+            </main>
         </div>
-    </div>
 
-    <div class="ContenedorToasts" id="toasts"></div>
-
-    <script src="../js/api.js"></script>
-    <script src="../js/utils.js"></script>
-    <script src="../js/auth.js"></script>
-    <script src="../js/panelcliente.js"></script>
-</body>
+        <div class="ContenedorToasts" id="toasts"></div>
+        <script type="module" src="../dom/colecciones/panelcliente.js"></script>
+    </body>
 </html>

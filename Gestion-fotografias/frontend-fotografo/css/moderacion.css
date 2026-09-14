@@ -20,7 +20,7 @@
 .InfoPurga {
     margin: 18px 0 0;
     padding: 10px 14px;
-    border-left: 4px solid #b45309;
+    border-left: 4px solid var(--advertencia);
     border-radius: 4px;
     background-color: #fff7ed;
     color: #92400e;
@@ -47,8 +47,8 @@
 .BotonModerar {
     padding: 9px 14px;
     border: 0;
-    border-radius: 5px;
-    color: white;
+    border-radius: 6px;
+    color: var(--secondary-color);
     font-size: 13px;
     font-weight: bold;
     cursor: pointer;
@@ -78,9 +78,9 @@
     position: relative;
     width: 210px;
     border-radius: 8px;
-    border: 1px solid #e5e7eb;
-    background-color: white;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    border: 1px solid var(--borde);
+    background: var(--secondary-color);
+    box-shadow: var(--sombra);
     overflow: hidden;
 }
 
@@ -95,6 +95,10 @@
     height: 150px;
     object-fit: cover;
     background-color: #f3f4f6;
+}
+
+.MiniaturaNoDisponible {
+    visibility: hidden;
 }
 
 .CheckPendiente {
@@ -127,7 +131,7 @@
     width: 100%;
     padding: 40px;
     border-radius: 8px;
-    border: 1px dashed #d1d5db;
+    border: 1px dashed var(--borde);
     color: var(--gris-texto);
     text-align: center;
     font-size: 15px;
