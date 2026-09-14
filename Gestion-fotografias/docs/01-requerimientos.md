@@ -1,4 +1,4 @@
-# Proyecto de Egreso UTU – Enfoque Scrum: Plataforma web para fotógrafos y compradores de material fotográfico
+# Proyecto de Egreso de UTU – Enfoque Scrum: Plataforma web para fotógrafos y compradores de material fotográfico
 
 ---
 
@@ -12,7 +12,7 @@
 **Ubicación:** No especificado para una única ubicación.\
 **Tamaño:** Fotógrafo/a independiente; el sistema se concibe como una plataforma multi-fotógrafo (varios vendedores).\
 **Producción:** Fotografías (JPG, sin necesidad de RAW) y videos de eventos, destinados a la venta directa a compradores.\
-**Nivel tecnológico actual:** Medio; el cliente mencionó herramientas como Pixieset o Lumepic para publicar/entregar material, pero ninguna resuelve la protección del contenido y cobro ágil.\
+**Nivel tecnológico actual:** Medio; el cliente mencionó herramientas como Pixieset o Lumepic para publicar/entregar material, pero ninguna resuelve la protección del contenido y el cobro ágil.\
 **Registro actual:** Entrega por WhatsApp (con pérdida notoria de calidad y sin protección del contenido) o por plataformas de terceros que cobran comisión y demoran la liquidación al fotógrafo.
 
 > Debido a que el cliente no proporcionó una respuesta exacta y el equipo de desarrollo no cuenta aún con definiciones adicionales de su parte, se decidió orientar esta plataforma para Uruguay implementando la Ley 18.331 de Protección de Datos Personales. Se informará formalmente al cliente sobre dicha decisión en la próxima entrevista.
@@ -90,7 +90,7 @@ Antes de entrevistar al cliente, el equipo identifica que la solicitud contiene 
 
 **Equipo:** ¿Qué datos deberían pedirse al registrarse, y qué cuidados de seguridad hay que tener?
 
-**Cliente:** Un registro básico, con verificación por celular o correo para confirmar que la cuenta es real, y que no se pueda registrar dos veces con el mismo correo. Le preocupa el manejo de los datos — que no se vendan ni se filtren, porque un hackeo no solo cuesta plata sino también tiempo de trabajo y respaldo perdido —, y pide políticas de privacidad claras, aunque reconoce que en su mayoría pueden ser estándares del rubro.
+**Cliente:** Un registro básico, con verificación por celular o correo para confirmar que la cuenta es real, y que no se pueda registrar dos veces con el mismo correo. Le preocupa el manejo de los datos — que no se vendan ni se filtren, porque un hackeo no solo cuesta plata, sino también tiempo de trabajo y respaldo perdido —, y pide políticas de privacidad claras, aunque reconoce que en su mayoría pueden ser estándares del rubro.
 
 ---
 
@@ -141,13 +141,13 @@ Antes de entrevistar al cliente, el equipo identifica que la solicitud contiene 
 
 Las siguientes decisiones fueron tomadas por el equipo de desarrollo a partir de restricciones institucionales, análisis técnico o definiciones de diseño. Se documentan separadas de la información relevada en la entrevista para mantener la trazabilidad.
 
-> **Restricción institucional (UTU):** Por tratarse de un equipo de estudiantes menores de edad, no es posible contratar hosting ni procesar pagos reales para este proyecto. Esta restricción es ajena tanto al pedido del cliente como a una decisión técnica del equipo. El sistema correrá en entorno local para esta entrega, y se recomendará al cliente, una vez que el equipo se gradúe, migrar el sistema de un servidor local a uno en la nube, adquiriendo hosting y dominio propio, y habilitando en ese momento un método de pago real. 
+> **Restricción institucional (UTU):** Por tratarse de un equipo de estudiantes menores de edad, no es posible contratar hosting ni procesar pagos reales para este proyecto. Esta restricción es ajena tanto al pedido del cliente como a una decisión técnica del equipo. El sistema correrá en un entorno local para esta entrega, y se recomendará al cliente, una vez que el equipo se gradúe, migrar el sistema de un servidor local a uno en la nube, adquiriendo hosting y dominio propio, y habilitando en ese momento un método de pago real. 
 
-> **Requerimiento técnico (escalabilidad de la base de datos):** Debido a esta misma restricción de los métodos de pago se creó el requerimiento técnico de implementar una tabla Usuarios en MySQL, la cual actúa como 'Padre' de la que 'Fotógrafo' y 'Cliente' heredarán atributos para que la estructura sea escalable si en el futuro se amplían los datos de cada rol.  
+> **Requerimiento técnico (escalabilidad de la base de datos):** Debido a esta misma restricción de los métodos de pago se creó el requerimiento técnico de implementar una tabla Usuarios en MySQL, la cual actúa como 'Padre' de la cual 'Fotógrafo' y 'Cliente' heredarán atributos para que la estructura sea escalable si en el futuro se amplían los datos de cada rol.  
 
 > **Roles y Organizadores de Eventos:** El rol "Administrador" propuesto por Polo se implementará bajo el alias comercial propuesto por el cliente como "Fotógrafo" y el rol "Cliente" abarcará a los compradores. Aquel organizador de evento que no contrató fotógrafo profesional utilizará la plataforma registrándose bajo el rol "Fotógrafo" para habilitar la carga colaborativa por QR. Los invitados podrán acceder a subir contenido sin necesidad de ser un "Cliente" registrado, mediante el código QR de carga colaborativa provisto por el "Fotógrafo" / organizador.
 
-> **Decisión sobre visibilidad:** La propuesta de Polo que planteaba que una colección con cero clientes asignados pasara a ser pública queda descartada. El cliente entrevistado estableció lo contrario: el rol "Fotógrafo" decide soberanamente si su colección es privada o pública, independientemente de si cuenta con clientes asignados. Se prioriza el criterio explícito del cliente por sobre la propuesta preliminar.
+> **Decisión sobre visibilidad:** La propuesta de Polo, que planteaba que una colección con cero clientes asignados pasara a ser pública, queda descartada. El cliente entrevistado estableció lo contrario: el rol "Fotógrafo" decide soberanamente si su colección es privada o pública, independientemente de si cuenta con clientes asignados. Se prioriza el criterio explícito del cliente por sobre la propuesta preliminar.
 
 > **Exclusión de "dirección" y "cédula":** Se excluyen la dirección física y el número de cédula de identidad en las tablas de usuarios y seguridad porque es una plataforma 100% virtual y no son necesarios para la operativa del sistema, simplificando el registro y la protección de datos personales.
 
@@ -230,12 +230,12 @@ Quedarán fuera de la primera versión:
 | RF13 | El sistema debe permitir al fotógrafo generar un código QR de carga colaborativa exclusivo para un evento (imprimible y con fecha de caducidad de 1 día a partir de su creación), para permitir a los invitados subir fotos y videos directamente a esa colección durante el evento. |
 | RF14 | Cualquier invitado del evento debe poder escanear el código QR de carga colaborativa para subir fotos (JPG) y videos (MP4) directamente a esa colección, sin necesidad de completar un registro de cuenta previo. El invitado únicamente podrá subir archivos; no tendrá acceso a visualizar ni descargar otros archivos multimedia de esa misma colección. |
 | RF15 | El fotógrafo debe poder visualizar y gestionar todo el material multimedia colaborativo subido por los invitados mediante el QR, aprobando los archivos que desee conservar. El material no aprobado será eliminado tras 24 horas desde su subida. |
-| RF16 | El sistema debe permitir al fotógrafo generar un enlace permanente (sin caducidad) a una colección específica, cualquiera que entre a ese enlace y no se haya registrado previamente lo redirigirá al registro, para facilitar la visualización y descarga directa a clientes autorizados. |
+| RF16 | El sistema debe permitir al fotógrafo generar un enlace permanente (sin caducidad) a una colección específica; cualquiera que entre a ese enlace y no se haya registrado previamente será redirigido al registro, para facilitar la visualización y descarga directa a clientes autorizados. |
 | RF17 | El sistema debe controlar la cuota de almacenamiento del fotógrafo (3 GB), impidiendo la subida si se supera el límite; en subidas múltiples, debe completar la subida de los archivos válidos y mostrar un mensaje de notificación únicamente para los archivos que excedan la cuota restante. |
 | RF18 | El sistema debe enviar un código de verificación al correo electrónico del usuario para asegurar que la casilla registrada realmente existe. |
 | RF19 | El sistema debe permitir crear y editar la información de perfil de los fotógrafos. |
 | RF20 | El sistema debe permitir al fotógrafo modificar los datos básicos (título, descripción) o eliminar cualquier imagen o recorte de video previamente subido a sus colecciones. |
-| RF21 | El sistema debe permitir al usuario marcar y desmarcar como favorita cualquier colección pública completa, visualizándose estas en un apartado de favoritos; esta información no se expone a otros usuarios. |
+| RF21 | El sistema debe permitir al usuario marcar y desmarcar como favorita cualquier colección pública completa, y que estas se visualicen en un apartado de favoritos; esta información no se expone a otros usuarios. |
 | RF24 | Al primer inicio de sesión como fotógrafo, el sistema debe mostrar un modal obligatorio con los Términos y Condiciones & Política de Privacidad y la Ley 18.331 sobre protección de datos personales e intimidad, estableciendo que el fotógrafo asume la responsabilidad legal por el contenido que publica y que la plataforma no se hace responsable ante demandas por publicación no autorizada. |
 | RF25 | El sistema debe hacer que los videos subidos (por fotógrafo o invitado) a una colección sean clips o recortes del video original con una restricción de cantidad máxima por video original subido. |
 | RF26 | El sistema deberá generar automáticamente un recorte de vista previa de cada video subido y almacenar el archivo original completo para su posterior descarga directa. |
@@ -243,8 +243,8 @@ Quedarán fuera de la primera versión:
 **RF26 – Criterios de aceptación:**
 - El recorte de vista previa tendrá una duración máxima de 15 segundos.
 - El recorte se mostrará en la colección como representación del video.
-- La cantidad máxima permitida por video subido será de 800MB por cada uno.
-- La cantidad máxima permitida por imagen (JPG) subida será de 30MB por cada una.
+- La cantidad máxima permitida por video subido será de 800 MB por cada uno.
+- La cantidad máxima permitida por imagen (JPG) subida será de 30 MB por cada una.
 - El video original completo quedará disponible para la descarga directa.
 - El proceso de recorte se realizará de forma automática sin intervención del usuario.
 
@@ -314,15 +314,15 @@ A continuación se detalla la suma exacta de puntos de historia correspondientes
 
 | Código | Épica | Estimación en puntos | Historias asociadas |
 | --- | --- | --- | --- |
-| EP1 | Gestión de usuarios y seguridad | 16 | HU1 , HU8 , HU19 , HU21 , HU25 , HU31  |
-| EP2 | Perfiles de fotógrafos | 3 | HU18  |
-| EP3 | Gestión de colecciones y accesos | 21 | HU2 , HU3 , HU17 , HU20 , HU24 , HU26 , HU27  |
-| EP4 | Carga y procesamiento multimedia | 22 | HU5 , HU6 , HU16 , HU22 , HU28 , HU32  |
-| EP5 | Visualización y descargas | 9 | HU10 , HU14 , HU23 |
-| EP6 | Carga colaborativa por QR | 14 | HU4 , HU7 , HU11 , HU12  |
-| EP7 | Mantenimiento técnico y respaldo | 5 | HU13  |
+| EP1 | Gestión de usuarios y seguridad | 16 | HU1, HU8, HU19, HU21, HU25, HU31 |
+| EP2 | Perfiles de fotógrafos | 3 | HU18 |
+| EP3 | Gestión de colecciones y accesos | 21 | HU2, HU3, HU17, HU20, HU24, HU26, HU27 |
+| EP4 | Carga y procesamiento multimedia | 22 | HU5, HU6, HU16, HU22, HU28, HU32 |
+| EP5 | Visualización y descargas | 9 | HU10, HU14, HU23 |
+| EP6 | Carga colaborativa por QR | 14 | HU4, HU7, HU11, HU12 |
+| EP7 | Mantenimiento técnico y respaldo | 5 | HU13 |
 | EP8 | Capacitación y cierre | 1 | HU15 |
-| **Total** | | **91 puntos** | 
+| **Total** | — | **91 puntos** | — |
 
 ---
 
@@ -347,7 +347,7 @@ El equipo presenta la siguiente propuesta:
 
 Luego de revisar la propuesta, el cliente responde:
 
-> “Pendiente de confirmación formal por parte del cliente. Se continúa con los Sprints debido a que es un proyecto de egreso y esperar una respuesta atrasa las entregas formales de carpetas.”
+> “Pendiente de confirmación formal por parte del cliente. Se continúa con los sprints debido a que es un proyecto de egreso y esperar una respuesta atrasa las entregas formales de carpetas.”
 
 ---
 
@@ -389,7 +389,7 @@ Se utilizará el siguiente formato:
 | HU25 | Como usuario nuevo, quiero registrarme proporcionando mi nombre completo, correo electrónico, contraseña de forma obligatoria y teléfono opcional, aceptando los Términos y Condiciones & Política de Privacidad. | 3 | Media |
 | HU26 | Como fotógrafo, quiero agregar hashtags al crear o editar una colección pública, para facilitar su descubrimiento por temática en el buscador. | 3 | Media |
 | HU27 | Como usuario, quiero filtrar las colecciones públicas mediante hashtags en el buscador, para encontrar contenido específico de mi interés. | 3 | Media |
-| HU28 | Como fotógrafo, quiero que los videos subidos (por mí o por invitados) se gestionen como clips o recortes con un límite máximo de 800MB por video original subido, para optimizar el almacenamiento y no exponer el material completo. | 5 | Alta |
+| HU28 | Como fotógrafo, quiero que los videos subidos (por mí o por invitados) se gestionen como clips o recortes con un límite máximo de 800 MB por video original subido, para optimizar el almacenamiento y no exponer el material completo. | 5 | Alta |
 | HU31 | Como fotógrafo, al iniciar sesión por primera vez quiero aceptar la política de privacidad y la Ley 18.331, para formalizar mi responsabilidad sobre el contenido publicado. | 1 | Alta |
 | HU32 | Como usuario, quiero que los videos subidos generen automáticamente un recorte de 15 segundos para la vista previa en la colección y conserven el video completo para la descarga directa, para garantizar una visualización ligera y reservar el archivo original. | 3 | Media |
 
@@ -425,11 +425,11 @@ El backlog ha sido distribuido equitativamente manteniendo un ritmo de trabajo s
 | 19 | HU26 | Agregar hashtags a colecciones públicas | 3 | Sprint 3 |
 | 20 | HU27 | Filtrado de colecciones públicas por hashtags | 3 | Sprint 3 |
 | 21 | HU16 | Control de cuota (3 GB) y manejo de subida parcial notificando excedentes | 5 | Sprint 4 |
-| 22 | HU28 | Validación de videos (clips/recortes y límite de 800MB) | 5 | Sprint 4 |
+| 22 | HU28 | Validación de videos (clips/recortes y límite de 800 MB) | 5 | Sprint 4 |
 | 23 | HU6 | Eliminación regular de imágenes o videos por el fotógrafo | 3 | Sprint 4 |
 | 24 | HU32 | Procesamiento automático de recortes de video (15s) y almacenamiento del original | 3 | Sprint 4 |
 | 25 | HU22 | Edición de datos básicos (título, descripción) de una colección incluyendo reasignación de visibilidad y adición de hashtags | 3 | Sprint 5 |
-| 26 | HU18 | Edición de perfil de fotógrafo| 3 | Sprint 5 |
+| 26 | HU18 | Edición de perfil de fotógrafo | 3 | Sprint 5 |
 | 27 | HU23 | Marcar como favorita una colección pública | 3 | Sprint 5 |
 | 28 | HU13 | Respaldo automático diario de base de datos (3 copias) | 5 | Sprint 5 |
 | 29 | HU15 | Entrega de guía de uso, capacitación y cierre | 1 | Sprint 5 |
