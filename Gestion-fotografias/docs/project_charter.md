@@ -10,7 +10,7 @@
 
 **Fecha de inicio:** 26/6/2026
 
-**Duración estimada:** 15 semanas (5 sprints de 3 semanas, velocidad promedio: ~20 pts/sprint, 100 puntos de historia totales)
+**Duración estimada:** 15 semanas (5 sprints de 3 semanas, velocidad promedio: ~20 pts/sprint, 91 puntos de historia totales)
 
 ---
 
@@ -23,13 +23,13 @@ Fotógrafo/videógrafo independiente de eventos (bodas, fiestas de 15 años y si
 El cliente agrega que no hace falta que la primera versión resuelva todo: pide priorizar, como mínimo, la subida y bajada de imágenes y videos, la marca de agua, y el tema del cobro.
 
 **Objetivo del proyecto:**
-Desarrollar una plataforma web que permita a fotógrafos subir, organizar y proteger su material fotográfico con marca de agua, y a sus compradores visualizar, solicitar descarga y obtener ese contenido en dos niveles de calidad (buena calidad y alta calidad), integrando carga colaborativa por QR para eventos y directorio de fotógrafos para descubrimiento.
+Desarrollar una plataforma web que permita a fotógrafos subir, organizar y proteger su material fotográfico con marca de agua, y a sus compradores visualizar, solicitar descarga y obtener ese contenido en dos niveles de calidad (buena calidad y alta calidad), integrando carga colaborativa por QR para eventos.
 
 **Justificación del proyecto:**
 Los fotógrafos uruguayos carecen de una herramienta que combine tres necesidades simultáneas: entrega profesional sin pérdida de calidad, protección efectiva del contenido (marca de agua, restricción de descarga) y vínculo comercial directo comprador-vendedor sin intermediarios que retengan comisiones. WhatsApp degrada la calidad y elimina el control; Pixieset/Lumepic cobran comisión y demoran la liquidación.
 
 **Visión del producto:**
-Para fotógrafos y videógrafos que tienen dificultad para entregar su material de forma inmediata, profesional y sin perder calidad, [Nombre de la página web] es una plataforma web que permitirá a fotógrafos subir, organizar y comercializar su material fotográfico, protegido con marca de agua, y a sus compradores visualizar, comprar y descargar ese contenido en dos niveles de calidad (buena calidad y alta calidad). A diferencia de WhatsApp o plataformas como Pixieset y Lumepic, nuestro producto combina protección del contenido, alta calidad de imagen y cobro ágil, sin demoras causadas por intermediarios que retienen el dinero. (Esto último se podrá implementar en un futuro por restricción de edad del equipo).
+Para fotógrafos y videógrafos que tienen dificultad para entregar su material de forma inmediata, profesional y sin perder calidad, [Nombre de la página web] es una plataforma web que permitirá a fotógrafos subir, organizar y comercializar su material fotográfico, protegido con marca de agua, y a sus compradores visualizar, comprar y descargar ese contenido en dos niveles de calidad (buena calidad y alta calidad). A diferencia de WhatsApp o plataformas como Pixieset y Lumepic, nuestro producto combina protección del contenido, alta calidad de imagen y cobro ágil, sin demoras causadas por intermediarios que retienen el dinero. (El cobro ágil queda pospuesto a una versión posterior por restricción institucional UTU —equipo menor de edad sin posibilidad de procesar pagos reales—, ver Decisiones técnicas del equipo).
 
 La primera versión será de subida y bajada de imágenes y videos, y marca de agua.
 
@@ -38,13 +38,13 @@ La primera versión será de subida y bajada de imágenes y videos, y marca de a
 **Alcance incluido:**
 1. Gestión de usuarios y roles (Fotógrafo y Cliente), con registro e inicio de sesión seguro.
 2. Verificación de correo electrónico y aceptación obligatoria de políticas de privacidad / Ley 18.331.
-3. Creación y edición de perfiles profesionales de fotógrafo, con inclusión en un directorio general de descubrimiento y eventos.
+3. Creación y edición de perfiles de fotógrafos.
 4. Creación de colecciones (públicas o privadas) con soporte de hashtags para las públicas.
-5. Subida de imágenes (JPG) y videos con procesamiento en backend mediante FFmpeg (Docker) para generar un recorte de 15 segundos en la vista previa y almacenar el archivo completo en Filesystem (límite de 800MB por video original), marca de agua automática en imágenes y control de cuotas.
+5. Subida de imágenes (JPG) y videos (MP4), con generación automática de recortes de vista previa y almacenamiento del archivo completo (límite de 800 MB por video original), marca de agua automática en la vista previa de imágenes y control de cuotas.
 6. Aplicación de marca de agua en la vista previa de las imágenes mediante librería especializada.
 7. Restricción de descarga en el contenido no autorizado.
-8. Visualización de imágenes en colecciones públicas/privadas y solicitud de descarga en dos niveles de calidad (buena calidad y alta calidad) mediante notificación al fotógrafo, con modo de selección múltiple visual.
-9. Descarga inmediata de imágenes autorizadas (individual o en .zip) con notificación de aceptación al usuario.
+8. Visualización de imágenes y videos en colecciones públicas y privadas.
+9. Descarga directa individual de imágenes o videos en dos niveles de calidad ("Buena Calidad" estándar y "Alta Calidad" original), sin requerir autorización previa ni intermediación de notificaciones al fotógrafo.
 10. Control de espacio de almacenamiento por usuario (cuota inicial de 3 GB) con manejo de subidas parciales ante exceso de cuota.
 11. Generación de un código QR de carga colaborativa para eventos con caducidad de 1 día, permitiendo a invitados subir contenido sin registro complejo, pudiendo ingresar de forma anónima.
 12. Generación de un enlace o QR de acceso directo permanente a una colección específica para visualización y descarga de clientes.
@@ -59,6 +59,9 @@ La primera versión será de subida y bajada de imágenes y videos, y marca de a
 4. Métodos de pago reales con pasarelas bancarias.
 5. Hosting/dominio en producción (despliegue local para evaluación de UTU).
 6. Subida de videos directa a S3/Cloudflare con URLs firmadas con colas asíncronas.
+7. Descarga masiva de archivos comprimidos (.zip) y selección múltiple de descargas.
+8. Flujo de solicitudes y notificaciones de autorización para descargas entre cliente y fotógrafo.
+9. Descarga de archivos masivos comprimidos en formato .zip.
 
 ---
 
@@ -85,7 +88,7 @@ La primera versión será de subida y bajada de imágenes y videos, y marca de a
 Scrum, 5 sprints de 3 semanas (15 semanas totales), velocidad promedio de ~20 puntos por sprint, con revisión del incremento junto al cliente al final de cada sprint.
 
 **Presupuesto / esfuerzo estimado:**
-No hay presupuesto financiero por tratarse de un Proyecto de Egreso de UTU. Esfuerzo estimado: 100 puntos de historia distribuidos en 5 sprints.
+No hay presupuesto financiero por tratarse de un Proyecto de Egreso de UTU. Esfuerzo estimado: 91 puntos de historia distribuidos en 5 sprints.
 
 **Criterios de éxito:**
 > "Con que el fotógrafo pueda subir sus fotos sin problema, que la página y que el cobro funcione. El resto de las funciones puede irse sumando después."

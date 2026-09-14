@@ -172,7 +172,7 @@ erDiagram
         string vista_previa "Ruta de la vista previa procesada"
         bigint tamanio "Tamaño exacto del archivo original en bytes"
         boolean es_invitado "Indica si fue aportada vía QR por un invitado"
-        boolean aprobado "Estado de moderación (TRUE aprobado, FALSE pendiente)"
+        boolean aprobado "Estado de moderación (DEFAULT TRUE; FALSE = pendiente de revisión por el fotógrafo)"
         enum tipo "Tipo de recurso: 'video' o 'imagen'"
         timestamp creado_en "Fecha y hora de subida"
     }
@@ -180,8 +180,6 @@ erDiagram
     ACCESO_COLECCIONES {
         int usuario_id PK,FK "Usuario con acceso (usuarios.id)"
         int coleccion_id PK,FK "Colección asignada (colecciones.id)"
-        boolean permitir_alta_calidad "Permiso de descarga original"
-        boolean permitir_buena_calidad "Permiso de descarga media"
     }
 
     FAVORITOS {
@@ -222,7 +220,7 @@ erDiagram
 * **Separación de Archivo Original y Vista Previa:** La entidad `multimedia` mantiene dos rutas físicas diferenciadas: `ruta_original` (archivo fuente de máxima resolución, inaccesible directamente por URL para evitar robo de contenido) y `vista_previa` (copia optimizada con marca de agua semitransparente o videoclip de 15 segundos para la visualización en el navegador).
 * **Ciclo de Vida y Moderación Colaborativa (RF14, RF15):** Los atributos `es_invitado` y `aprobado` en `multimedia` permiten que las cargas de invitados ingresen con `aprobado = FALSE`. El fotógrafo puede auditar estos archivos en su panel de moderación; los archivos no aprobados que superen las 24 horas desde `creado_en` son depurados automáticamente por la rutina del sistema.
 * **Tokens QR Efímeros vs. Permanentes:** La entidad `qr_tokens` gestiona tanto el QR colaborativo de eventos (tipo `'colaborativo'`, con expiración a las 24 horas para subida anónima) como el QR de acceso permanente (tipo `'acceso'`, con expiración nula) que permite a clientes autorizados acceder a colecciones privadas.
-* **Descarga Directa en Dos Calidades (Control de Cambios CC-01):** Conforme al Control de Cambios CC-01, se eliminó del modelo de base de datos la persistencia de solicitudes intermedias y notificaciones de autorización. La descarga opera de manera directa e individual en dos calidades ("Buena Calidad" = copia con calidad baja y tope Full HD 1920 px y "Alta Calidad" = original) mediante `GET /multimedia/{id}/descargar?calidad={buena|alta}`, simplificando el modelo relacional y optimizando la experiencia de usuario sin fricciones.
+* **Descarga Directa en Dos Calidades (Control de Cambios CC-01):** Conforme al Control de Cambios CC-01, se eliminó del modelo de base de datos la persistencia de solicitudes intermedias y notificaciones de autorización. La descarga opera de manera directa e individual en dos calidades ("Buena Calidad" = copia con calidad baja y tope HD 1280 px y "Alta Calidad" = original) mediante `GET /multimedia/{id}/descargar?calidad={buena|alta}`, simplificando el modelo relacional y optimizando la experiencia de usuario sin fricciones.
 
 ---
 
@@ -287,7 +285,7 @@ sequenceDiagram
     Serv->>Serv: Valida permisos de la colección (pública o acceso privado autorizado)
     alt Calidad solicitada = "buena"
         Serv->>MP: MediaProcessor::generarBuenaCalidadImagen(ruta_original)
-        MP->>FS: Comprueba/Genera copia limpia (calidad baja, máx 1920 px) en /uploads/standard/
+        MP->>FS: Comprueba/Genera copia limpia (calidad baja, máx 1280 px) en /uploads/standard/
         FS-->>Ctrl: Retorna ruta del archivo estándar
     else Calidad solicitada = "alta"
         Serv->>FS: Obtiene archivo original de máxima resolución desde /uploads/originals/

@@ -15,6 +15,7 @@ graph LR
     subgraph Host ["Máquina Host (Desarrollo / Evaluación UTU)"]
         P8080["Puerto 8080\n(HTTP API / Web)"]
         P3306["Puerto 3306\n(MySQL Externo)"]
+        P8025["Puerto 8025\n(Mailpit UI)"]
         CODE["Código Fuente\n(backend/ montado en vivo)"]
     end
 
@@ -30,6 +31,10 @@ graph LR
             WORKER["PHP CLI 8.2\n(cron-backup.php --loop)"]
         end
 
+        subgraph MailpitContainer ["Contenedor: cipher_forge_mail"]
+            MAILPIT["Mailpit SMTP\n(puerto 1025 / UI 8025)"]
+        end
+
         subgraph DBContainer ["Contenedor: cipher_forge_db"]
             MYSQL["MySQL Server 8.0"]
             INIT["/docker-entrypoint-initdb.d\n(schema.sql)"]
@@ -41,8 +46,10 @@ graph LR
 
     P8080 --> APACHE
     P3306 --> MYSQL
+    P8025 --> MAILPIT
     CODE -.->|Bind Mount| AppContainer
     AppContainer -->|Red Interna: DB_HOST=db:3306| DBContainer
+    AppContainer -->|Red Interna: SMTP_HOST=mailpit:1025| MailpitContainer
     WorkerContainer -->|Red Interna: DB_HOST=db:3306| DBContainer
     WorkerContainer -.->|purgarExpirados >24h| V_UPLOADS
     UPLOADS_DIR --- V_UPLOADS
@@ -66,11 +73,13 @@ graph LR
 FROM php:8.2-apache
 
 # 2. Instalación de paquetes del sistema operativo:
-#    - ffmpeg: binario CLI para recortes y transcodificación de videos de hasta 800MB (RF26)
+#    - ffmpeg: binario CLI para recortes y transcodificación de videos de hasta 800 MB (RF26)
+#    - default-mysql-client: cliente MySQL para diagnóstico desde el contenedor
 #    - libpng-dev, libjpeg-dev, libfreetype6-dev: cabeceras C para soporte de fuentes y renderizado de imágenes en GD
 #    - libzip-dev, zip, unzip: utilidades para manipulación de archivos comprimidos
 RUN apt-get update && apt-get install -y \
     ffmpeg \
+    default-mysql-client \
     libpng-dev \
     libjpeg-dev \
     libfreetype6-dev \
@@ -97,9 +106,16 @@ WORKDIR /var/www/html
 #    por defecto de php:8.2-apache, que rechazaban cualquier archivo >2 MB.
 COPY php.ini /usr/local/etc/php/conf.d/99-cipher-forge.ini
 
-# 7. Comando por defecto: Apache en primer plano (CF-12). El entrypoint respeta "$@",
+# 7. Script de entrada: crea carpetas de uploads, aplica migración y respeta CMD
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN chmod +x /usr/local/bin/docker-entrypoint.sh
+
+# 8. Comando por defecto: Apache en primer plano (CF-12). El entrypoint respeta "$@",
 #    por lo que el servicio `worker` de compose lo reemplaza por `php cron-backup.php --loop`.
 CMD ["apache2-foreground"]
+
+# 9. Entry point: ejecuta docker-entrypoint.sh antes de CMD (crea uploads/, aplica migration.sql)
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 ```
 
 Además, la imagen define un entrypoint propio en `backend/docker-entrypoint.sh` que:

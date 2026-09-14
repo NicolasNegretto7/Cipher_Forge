@@ -41,14 +41,16 @@ docker compose up --build -d
 ```
 
 > **¿Qué ocurre internamente?**
-> 1. Docker descarga la imagen oficial de `mysql:8.0` y la imagen base `php:8.2-apache`.
+> 1. Docker descarga la imagen oficial de `mysql:8.0`, la imagen base `php:8.2-apache` y la imagen `axllent/mailpit` (buzón SMTP de desarrollo).
 > 2. Compila en Debian las librerías `ffmpeg`, `libpng`, `libjpeg`, `libfreetype`, `libzip` y extensiones PHP (`gd`, `pdo_mysql`, `zip`).
 > 3. Crea la red puente interna del proyecto.
 > 4. Inicializa el contenedor `cipher_forge_db` y monta `schema.sql` en `/docker-entrypoint-initdb.d/`.
-> 5. Inicializa el contenedor `cipher_forge_app` conectándolo a la base de datos mediante el host `db`.
+> 5. Inicializa el contenedor `cipher_forge_app` conectándolo a la base de datos y al buzón de correo.
+> 6. Inicializa el contenedor `cipher_forge_worker` con el proceso residente de respaldo y purga.
+> 7. Inicializa el contenedor `cipher_forge_mail` (Mailpit) para interceptar correos de verificación.
 
 ### Paso 4: Comprobación del Estado de los Contenedores
-Verifica que ambos contenedores se encuentren en estado `Up`:
+Verifica que los cuatro contenedores se encuentren en estado `Up`:
 
 ```bash
 docker compose ps
@@ -56,9 +58,11 @@ docker compose ps
 
 *Salida esperada:*
 ```text
-NAME               IMAGE                   COMMAND                  SERVICE   STATUS   PORTS
-cipher_forge_app   backend-app             "docker-php-entrypoi…"   app       Up       0.0.0.0:8080->80/tcp
-cipher_forge_db    mysql:8.0               "docker-entrypoint.s…"   db        Up       0.0.0.0:3306->3306/tcp
+NAME                    IMAGE                   COMMAND                  SERVICE   STATUS   PORTS
+cipher_forge_app        cipher-forge:dev        "docker-php-entrypoi…"   app       Up       0.0.0.0:8080->80/tcp
+cipher_forge_db         mysql:8.0               "docker-entrypoint.s…"   db        Up       0.0.0.0:3306->3306/tcp
+cipher_forge_worker     cipher-forge:dev        "php cron-backup.php …"  worker    Up
+cipher_forge_mail       axllent/mailpit:latest  "/usr/local/bin/mail…"   mailpit   Up       0.0.0.0:8025->8025/tcp, 0.0.0.0:1025->1025/tcp
 ```
 
 ### Paso 5: Verificación de la Base de Datos
@@ -96,7 +100,7 @@ curl http://localhost:8080/api/ping
 
 Los archivos del frontend son aplicaciones web cliente servidas de forma estática o consumibles directamente:
 1. **Portal Fotógrafo:** Abre en el navegador el archivo `frontend-fotografo/index.html` (o `pages/login.html`). Permite el registro como rol Fotógrafo, login y administración de colecciones.
-2. **Portal Cliente:** Abre en el navegador el archivo `frontend-cliente/index.html` (o `pages/logincliente.html`). Permite explorar colecciones públicas, ingresar a privadas mediante token y realizar descargas directas en Buena o Alta calidad.
+2. **Portal Cliente:** Abre en el navegador el archivo `frontend-cliente/index.html`. Permite explorar colecciones públicas, ingresar a privadas mediante token y realizar descargas directas en Buena o Alta calidad.
 
 ---
 

@@ -231,7 +231,7 @@ originales) se ven bien. Corrección: `dibujarEnLienzo()` decodifica con
 `createImageBitmap({ colorSpaceConversion: "none", imageOrientation: "from-image" })`
 (ignora el perfil corrupto y respeta EXIF), con fallback al `drawImage` clásico.
 
-La descarga en dos calidades usa `MediaProcessor::generarBuenaCalidadImagen()`: desde CC-24 la "buena" es una copia limpia sin marca de agua con calidad baja (JPEG 30) y resolución máxima Full HD (1920 px, se reescala solo si el original supera ese ancho); la "alta" es el original íntegro. (Semántica previa CC-12: máx 1920 px + JPEG 80.)
+La descarga en dos calidades usa `MediaProcessor::generarBuenaCalidadImagen()`: desde CC-24 la "buena" es una copia limpia sin marca de agua con calidad baja (JPEG 10 tras CC-32) y resolución máxima HD (1280 px tras CC-32, se reescala solo si el original supera ese ancho); la "alta" es el original íntegro. (Semántica previa CC-24: JPEG 30 + 1920 px; CC-32 la refinó a JPEG 10 + 1280 px.)
 
 ### Verificación (evidencia, 2026-09-11)
 

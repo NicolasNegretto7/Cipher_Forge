@@ -37,9 +37,7 @@ Estas son mejoras de UX y defensa en profundidad, no reemplazan la validación s
 ### Archivos relevantes
 
 - `frontend-cliente/js/tuscoleccionescliente.js` (flujo de invitaciones)
-- `frontend-cliente/dom/colecciones/tuscoleccionescliente.js` (flujo de invitaciones moderno)
 - `frontend-cliente/js/gallery.js` (visualización de colecciones)
-- `frontend-cliente/dom/colecciones/coleccion.js` (visualización moderna)
 
 ---
 

@@ -28,7 +28,7 @@
 
 **Resultado:** Ningún documento ni frontend fueron generados íntegramente por inteligencia artificial a partir de un único prompt. La IA se utilizó únicamente como herramienta de apoyo para tareas de organización, generación de una base de estilos CSS, validación y aprendizaje. El análisis,
 las estimaciones y las decisiones (por ejemplo, los ajustes de alcance registrados en el
-[control de cambios](06_control_de_cambios.md)) surgieron de la interacción del equipo
+[control de cambios](08_control_de_cambios.md)) surgieron de la interacción del equipo
 con el cliente y de sus propias evaluaciones técnicas.
 
 **Firmas:**

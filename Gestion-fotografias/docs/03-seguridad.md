@@ -161,7 +161,7 @@ Cada endpoint que devuelve una colección, imagen o dato de usuario deberá veri
 
 ## 3.4 Protección del archivo original frente a la vista previa
 
-El archivo en alta calidad no se expondrá en ninguna ruta pública ni predecible: se servirá únicamente a través de un endpoint que valide el permiso de descarga del cliente en el momento de la solicitud (RF11, RF12), mientras que la vista previa con marca de agua se generará como una copia separada y optimizada (RF8, RF9). Esto protege el objetivo de negocio del cliente frente a la evasión de marca de agua (1.5).
+El archivo en alta calidad no se expondrá en ninguna ruta pública ni predecible: se servirá únicamente a través de un endpoint que valide el permiso de descarga del cliente en el momento de la solicitud (RF11), mientras que la vista previa con marca de agua se generará como una copia separada y optimizada (RF8, RF9). Esto protege el objetivo de negocio del cliente frente a la evasión de marca de agua (1.5).
 
 
 ---
@@ -177,11 +177,11 @@ Cada código QR se generará como un token único asociado a una colección o ev
 Se registrarán eventos como inicios de sesión fallidos y uso de códigos QR, lo que permitirá detectar patrones de abuso (por ejemplo, múltiples intentos de acceso a colecciones privadas).
 ---
 
-## 7. Cambios a futuro (pendientes)
+## 4. Cambios a futuro (pendientes)
 
 Cambios detectados en la auditoría del backend que quedan **documentados y postergados** por decisión del Product Owner. No se implementan en esta versión.
 
-### 7.1 Protección de endpoints de administración `/sistema/*` (CF-08 / CC-14)
+### 4.1 Protección de endpoints de administración `/sistema/*` (CF-08 / CC-14)
 
 **Estado actual:** `POST /sistema/backup`, `GET /sistema/backups` y `POST /sistema/limpiar-colaborativos` (`routes.php`) son públicos: cualquiera que alcance la API puede disparar respaldos, listar el historial o **purgar colaborativos pendientes de cualquier fotógrafo**. El esquema solo admite roles `fotografo`/`cliente` (no existe `admin`).
 
