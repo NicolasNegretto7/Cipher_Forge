@@ -3,6 +3,9 @@ import {
     subirMaterialColaborativo,
 } from "../../services/colaborativo/colaborativoService.js";
 
+const LIMITE_IMAGEN_BYTES = 30 * 1024 * 1024;
+const LIMITE_VIDEO_BYTES = 800 * 1024 * 1024;
+
 // Pantalla del invitado (HU11): valida el token colaborativo y permite subir
 // fotos/videos sin registro, sin acceso a visualizar el contenido del evento.
 const parametros = new URLSearchParams(location.search);
@@ -56,8 +59,19 @@ async function iniciar() {
 
 selectorArchivos.addEventListener("change", function () {
     archivosSeleccionados = [];
+    const excedidos = [];
     for (const archivo of selectorArchivos.files) {
+        const esVideo = String(archivo.type).startsWith("video") || archivo.name.toLowerCase().endsWith(".mp4");
+        const limite = esVideo ? LIMITE_VIDEO_BYTES : LIMITE_IMAGEN_BYTES;
+        const limiteMB = esVideo ? 800 : 30;
+        if (archivo.size > limite) {
+            excedidos.push(archivo.name + " (máximo " + limiteMB + " MB)");
+            continue;
+        }
         archivosSeleccionados.push(archivo);
+    }
+    if (excedidos.length > 0) {
+        alert("Estos archivos superan el límite y no se incluirán:\n" + excedidos.join("\n"));
     }
     if (archivosSeleccionados.length > 0) {
         listaArchivosSeleccion.textContent =

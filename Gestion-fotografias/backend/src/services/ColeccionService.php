@@ -256,6 +256,12 @@ class ColeccionService
             ? (string) $campos['tipo_visibilidad']
             : (string) $coleccion['tipo_visibilidad'];
 
+        // H-08: Si la colección pasa de pública a privada, eliminar de favoritos
+        // para mantener la coherencia de que los favoritos solo apuntan a colecciones públicas (RF21).
+        if ($coleccion['tipo_visibilidad'] === 'publica' && $tipoVisibilidad === 'privada') {
+            $this->coleccionRepository->eliminarFavoritosPorColeccion($id);
+        }
+
         $this->coleccionRepository->actualizar($id, $titulo, $descripcion, $tipoVisibilidad);
 
         if ($hashtags !== null) {

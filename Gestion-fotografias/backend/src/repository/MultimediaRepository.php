@@ -169,13 +169,18 @@ class MultimediaRepository
             return 0;
         }
 
-        $inClause = implode(',', array_map('intval', $ids));
+        $enteros = array_map('intval', $ids);
+        $placeholders = array_map(fn() => '?', $enteros);
+        $inClause = implode(',', $placeholders);
+
         $stmt = $this->pdo->prepare(
             "UPDATE multimedia
              SET aprobado = 1
-             WHERE coleccion_id = :coleccion_id AND id_multimedia IN ({$inClause})"
+             WHERE coleccion_id = ? AND id_multimedia IN ({$inClause})"
         );
-        $stmt->execute(['coleccion_id' => $coleccionId]);
+
+        $params = array_merge([$coleccionId], $enteros);
+        $stmt->execute($params);
         return $stmt->rowCount();
     }
 
@@ -188,13 +193,18 @@ class MultimediaRepository
             return [];
         }
 
-        $inClause = implode(',', array_map('intval', $ids));
+        $enteros = array_map('intval', $ids);
+        $placeholders = array_map(fn() => '?', $enteros);
+        $inClause = implode(',', $placeholders);
+
         $stmt = $this->pdo->prepare(
             "SELECT id_multimedia, ruta_original, vista_previa, poster
              FROM multimedia
-             WHERE coleccion_id = :coleccion_id AND id_multimedia IN ({$inClause})"
+             WHERE coleccion_id = ? AND id_multimedia IN ({$inClause})"
         );
-        $stmt->execute(['coleccion_id' => $coleccionId]);
+
+        $params = array_merge([$coleccionId], $enteros);
+        $stmt->execute($params);
         return $stmt->fetchAll();
     }
 
@@ -217,10 +227,14 @@ class MultimediaRepository
             return [];
         }
 
-        // 2. Eliminar registros de la base de datos
+        // 2. Eliminar registros de la base de datos con parámetros seguros
         $ids = array_column($expirados, 'id_multimedia');
-        $inClause = implode(',', array_map('intval', $ids));
-        $this->pdo->exec("DELETE FROM multimedia WHERE id_multimedia IN ({$inClause})");
+        $enteros = array_map('intval', $ids);
+        $placeholders = array_map(fn() => '?', $enteros);
+        $inClause = implode(',', $placeholders);
+
+        $delStmt = $this->pdo->prepare("DELETE FROM multimedia WHERE id_multimedia IN ({$inClause})");
+        $delStmt->execute($enteros);
 
         return $expirados;
     }

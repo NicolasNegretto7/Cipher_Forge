@@ -55,8 +55,6 @@ CREATE TABLE favoritos (
 CREATE TABLE acceso_colecciones (
     usuario_id INT NOT NULL,
     coleccion_id INT NOT NULL,
-    permitir_alta_calidad BOOLEAN DEFAULT FALSE,
-    permitir_buena_calidad BOOLEAN DEFAULT FALSE,
     PRIMARY KEY (usuario_id, coleccion_id),
     FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE,
     FOREIGN KEY (coleccion_id) REFERENCES colecciones(id) ON DELETE CASCADE

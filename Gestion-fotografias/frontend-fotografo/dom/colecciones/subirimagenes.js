@@ -9,7 +9,8 @@ import {
 } from "../../services/multimedia/multimediaService.js";
 import { requiereSesion } from "../comun/sesion.js";
 import { cargarVista, liberarVistas } from "../multimedia/multimedia.js";
-import { actualizarAlmacenamiento } from "../comun/almacenamiento.js";
+import { actualizarAlmacenamiento, formatearAlmacenamiento } from "../comun/almacenamiento.js";
+import { consultarCuota } from "../../services/fotografo/fotografoService.js";
 import { configurarTags } from "./tags.js";
 import { configurarQr } from "./qr.js";
 
@@ -26,6 +27,9 @@ const botonEliminar = document.getElementById("eliminarSeleccionados");
 const botonSeleccionar = document.getElementById("seleccionarTodas");
 const visor = document.getElementById("visor");
 const contenidoVisor = document.getElementById("visorContenido");
+const LIMITE_IMAGEN_BYTES = 30 * 1024 * 1024;
+const LIMITE_VIDEO_BYTES = 800 * 1024 * 1024;
+
 let archivos = [];
 let seleccionados = [];
 let ocupado = false;
@@ -109,18 +113,50 @@ async function cargarArchivos() {
     actualizarSeleccion();
 }
 
+function validarTamanoArchivo(archivo) {
+    const esVideo = String(archivo.type).startsWith("video") || archivo.name.toLowerCase().endsWith(".mp4");
+    const limite = esVideo ? LIMITE_VIDEO_BYTES : LIMITE_IMAGEN_BYTES;
+    const limiteMB = esVideo ? 800 : 30;
+    if (archivo.size > limite) {
+        return archivo.name + ": supera el límite de " + limiteMB + " MB.";
+    }
+    return null;
+}
+
 async function subirArchivos() {
     if (ocupado || !selectorArchivos.files.length) return;
     indicarTrabajo(true);
     const errores = [];
-    // Confirma cada archivo por separado para conservar las subidas que sí funcionaron.
+    let espacioDisponible = 0;
+    try {
+        const cuota = await consultarCuota();
+        espacioDisponible = Number(cuota.espacio_disponible_bytes) || 0;
+    } catch (error) {
+        errores.push("No se pudo consultar el espacio disponible. Se intentará subir igualmente.");
+        espacioDisponible = Infinity;
+    }
+    const archivosValidos = [];
     for (const archivo of selectorArchivos.files) {
+        const errorTamano = validarTamanoArchivo(archivo);
+        if (errorTamano) {
+            errores.push(errorTamano);
+            continue;
+        }
+        if (espacioDisponible !== Infinity && archivo.size > espacioDisponible) {
+            errores.push(archivo.name + ": no queda espacio disponible (" + formatearAlmacenamiento(espacioDisponible) + " libres).");
+            continue;
+        }
+        archivosValidos.push(archivo);
+    }
+    for (const archivo of archivosValidos) {
         try {
             const resultado = await subirMultimedia(coleccionId, [archivo], {
                 titulo: archivo.name.slice(0, 60),
             });
             if (resultado.excedentes && resultado.excedentes.length > 0) {
                 errores.push(archivo.name + ": no queda espacio disponible.");
+            } else if (espacioDisponible !== Infinity) {
+                espacioDisponible = Math.max(0, espacioDisponible - archivo.size);
             }
         } catch (error) {
             errores.push(archivo.name + ": " + error.message);

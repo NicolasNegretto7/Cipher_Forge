@@ -1,6 +1,6 @@
 -- ========================================================
 -- Respaldo Automático de Base de Datos - Cipher Forge
--- Generado el: 2026-09-14 00:37:11
+-- Generado el: 2026-09-14 16:09:36
 -- ========================================================
 
 SET FOREIGN_KEY_CHECKS = 0;
@@ -161,7 +161,7 @@ CREATE TABLE `colecciones` (
   PRIMARY KEY (`id`),
   KEY `fotografo_id` (`fotografo_id`),
   CONSTRAINT `colecciones_ibfk_1` FOREIGN KEY (`fotografo_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=131 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=133 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Volcado de datos para `colecciones`
 INSERT INTO `colecciones` (`id`, `fotografo_id`, `tipo_visibilidad`, `titulo`, `descripcion`, `creado_en`) VALUES ('1', '1', 'publica', 'Album Publico Test', 'Foto publica', '2026-09-04 19:29:04');
@@ -246,7 +246,7 @@ INSERT INTO `colecciones` (`id`, `fotografo_id`, `tipo_visibilidad`, `titulo`, `
 INSERT INTO `colecciones` (`id`, `fotografo_id`, `tipo_visibilidad`, `titulo`, `descripcion`, `creado_en`) VALUES ('119', '118', 'privada', 'LodeMati', NULL, '2026-09-11 19:26:05');
 INSERT INTO `colecciones` (`id`, `fotografo_id`, `tipo_visibilidad`, `titulo`, `descripcion`, `creado_en`) VALUES ('120', '118', 'privada', 'goty', NULL, '2026-09-11 19:33:20');
 INSERT INTO `colecciones` (`id`, `fotografo_id`, `tipo_visibilidad`, `titulo`, `descripcion`, `creado_en`) VALUES ('128', '126', 'privada', '73e', NULL, '2026-09-12 21:08:36');
-INSERT INTO `colecciones` (`id`, `fotografo_id`, `tipo_visibilidad`, `titulo`, `descripcion`, `creado_en`) VALUES ('130', '82', 'publica', 'df', NULL, '2026-09-13 19:27:11');
+INSERT INTO `colecciones` (`id`, `fotografo_id`, `tipo_visibilidad`, `titulo`, `descripcion`, `creado_en`) VALUES ('132', '82', 'privada', 'we', NULL, '2026-09-14 00:41:40');
 
 -- --------------------------------------------------------
 -- Estructura de tabla `favoritos`
@@ -383,7 +383,7 @@ CREATE TABLE `multimedia` (
   PRIMARY KEY (`id_multimedia`),
   KEY `coleccion_id` (`coleccion_id`),
   CONSTRAINT `multimedia_ibfk_1` FOREIGN KEY (`coleccion_id`) REFERENCES `colecciones` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=243 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=249 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Volcado de datos para `multimedia`
 INSERT INTO `multimedia` (`titulo`, `descripcion`, `id_multimedia`, `ruta_original`, `coleccion_id`, `vista_previa`, `poster`, `tamanio`, `es_invitado`, `aprobado`, `tipo`, `creado_en`) VALUES (NULL, NULL, '1', 'uploads/originals/f047a5087d491e10cc2cac98e8f4c27f.png', '8', 'uploads/previews/2e29d188cfc2c03e3c94405f45de8776.jpg', NULL, '3359', '0', '1', 'imagen', '2026-09-04 19:36:58');
@@ -454,12 +454,12 @@ INSERT INTO `multimedia` (`titulo`, `descripcion`, `id_multimedia`, `ruta_origin
 INSERT INTO `multimedia` (`titulo`, `descripcion`, `id_multimedia`, `ruta_original`, `coleccion_id`, `vista_previa`, `poster`, `tamanio`, `es_invitado`, `aprobado`, `tipo`, `creado_en`) VALUES ('73e', NULL, '231', 'uploads/originals/c1e72e2b0a6fa5ea0f4bc730c2f9d391.jpg', '128', 'uploads/previews/c0192289756ba7b2c52a1b968da8cdff.jpg', NULL, '134137', '0', '1', 'imagen', '2026-09-12 21:08:38');
 INSERT INTO `multimedia` (`titulo`, `descripcion`, `id_multimedia`, `ruta_original`, `coleccion_id`, `vista_previa`, `poster`, `tamanio`, `es_invitado`, `aprobado`, `tipo`, `creado_en`) VALUES ('73e', NULL, '232', 'uploads/originals/f95ced71c714a92f6d0b06fd21d862e2.mp4', '128', 'uploads/previews/819d01ec7ddd183eb652e18467ed936d.mp4', 'uploads/standard/0258d3bfea754ea97bf70229235c87a0.jpg', '24184154', '0', '1', 'video', '2026-09-12 21:08:41');
 INSERT INTO `multimedia` (`titulo`, `descripcion`, `id_multimedia`, `ruta_original`, `coleccion_id`, `vista_previa`, `poster`, `tamanio`, `es_invitado`, `aprobado`, `tipo`, `creado_en`) VALUES ('73e', NULL, '233', 'uploads/originals/726e4fffe325e277c7feae2715322536.mp4', '128', 'uploads/previews/0cd971e1f1a063d8faba89b579076fea.mp4', 'uploads/standard/0415e5747bd301bc93565b417db87da4.jpg', '1613589', '0', '1', 'video', '2026-09-12 21:08:43');
-INSERT INTO `multimedia` (`titulo`, `descripcion`, `id_multimedia`, `ruta_original`, `coleccion_id`, `vista_previa`, `poster`, `tamanio`, `es_invitado`, `aprobado`, `tipo`, `creado_en`) VALUES ('df', NULL, '237', 'uploads/originals/d65b7d9a3967135cd08fd74d4b444578.mp4', '130', 'uploads/previews/d1a4f69d7e2ef39ba0c2bedff73ca1bd.mp4', 'uploads/standard/40322aeb33997633f1165f63a04d7012.jpg', '685877', '0', '1', 'video', '2026-09-13 19:27:13');
-INSERT INTO `multimedia` (`titulo`, `descripcion`, `id_multimedia`, `ruta_original`, `coleccion_id`, `vista_previa`, `poster`, `tamanio`, `es_invitado`, `aprobado`, `tipo`, `creado_en`) VALUES ('df', NULL, '238', 'uploads/originals/282b1305b2e7a2aaa640d8b3e4dfdfee.jpg', '130', 'uploads/previews/ac7e3c01ac095d0234b56bd9b0052f7c.jpg', NULL, '325679', '0', '1', 'imagen', '2026-09-13 19:27:13');
-INSERT INTO `multimedia` (`titulo`, `descripcion`, `id_multimedia`, `ruta_original`, `coleccion_id`, `vista_previa`, `poster`, `tamanio`, `es_invitado`, `aprobado`, `tipo`, `creado_en`) VALUES ('df', NULL, '239', 'uploads/originals/9589d564d081c69562f169592f40b398.jpg', '130', 'uploads/previews/0a05459f8616e81508ea36b2e9b81e64.jpg', NULL, '33383', '0', '1', 'imagen', '2026-09-13 19:27:13');
-INSERT INTO `multimedia` (`titulo`, `descripcion`, `id_multimedia`, `ruta_original`, `coleccion_id`, `vista_previa`, `poster`, `tamanio`, `es_invitado`, `aprobado`, `tipo`, `creado_en`) VALUES ('df', NULL, '240', 'uploads/originals/f7ac475659cbc5811a5bfda68c9b4af9.jpg', '130', 'uploads/previews/0769d4d7f6d43a45aa3cfbb258491abd.jpg', NULL, '325679', '0', '1', 'imagen', '2026-09-13 19:27:13');
-INSERT INTO `multimedia` (`titulo`, `descripcion`, `id_multimedia`, `ruta_original`, `coleccion_id`, `vista_previa`, `poster`, `tamanio`, `es_invitado`, `aprobado`, `tipo`, `creado_en`) VALUES ('df', NULL, '241', 'uploads/originals/e474a55fcb8f8bc1a9c2c4c1deacaeda.jpg', '130', 'uploads/previews/d334bda7fc020b8d808263f726f3c2a9.jpg', NULL, '134137', '0', '1', 'imagen', '2026-09-13 19:27:13');
-INSERT INTO `multimedia` (`titulo`, `descripcion`, `id_multimedia`, `ruta_original`, `coleccion_id`, `vista_previa`, `poster`, `tamanio`, `es_invitado`, `aprobado`, `tipo`, `creado_en`) VALUES ('df', NULL, '242', 'uploads/originals/f9d5a504180861f0d73747329203c34d.mp4', '130', 'uploads/previews/bbc350f51fc5af15cc5f8752118515f9.mp4', 'uploads/standard/49de01a6c682054e8ee326674ca8b726.jpg', '24184154', '0', '1', 'video', '2026-09-13 19:27:16');
+INSERT INTO `multimedia` (`titulo`, `descripcion`, `id_multimedia`, `ruta_original`, `coleccion_id`, `vista_previa`, `poster`, `tamanio`, `es_invitado`, `aprobado`, `tipo`, `creado_en`) VALUES ('cipherforge-138-alta (1).jpg', NULL, '243', 'uploads/originals/f24803f09c011c1db1f399eb39170433.jpg', '132', 'uploads/previews/5ad204a1484040f7846c6ac467c54a13.jpg', NULL, '325679', '0', '1', 'imagen', '2026-09-14 00:41:46');
+INSERT INTO `multimedia` (`titulo`, `descripcion`, `id_multimedia`, `ruta_original`, `coleccion_id`, `vista_previa`, `poster`, `tamanio`, `es_invitado`, `aprobado`, `tipo`, `creado_en`) VALUES ('cipherforge-138-buena (1).jpg', NULL, '244', 'uploads/originals/3132466bffbdb3efe39202fe8315959d.jpg', '132', 'uploads/previews/d5966b3ee13fd2fb79023a43459233ec.jpg', NULL, '33383', '0', '1', 'imagen', '2026-09-14 00:41:46');
+INSERT INTO `multimedia` (`titulo`, `descripcion`, `id_multimedia`, `ruta_original`, `coleccion_id`, `vista_previa`, `poster`, `tamanio`, `es_invitado`, `aprobado`, `tipo`, `creado_en`) VALUES ('cipherforge-138-alta.jpg', NULL, '245', 'uploads/originals/c0f685fde723d35544ab74149fe557c4.jpg', '132', 'uploads/previews/58a3f5ba112b98d232aa9c11461f97d8.jpg', NULL, '325679', '0', '1', 'imagen', '2026-09-14 00:41:46');
+INSERT INTO `multimedia` (`titulo`, `descripcion`, `id_multimedia`, `ruta_original`, `coleccion_id`, `vista_previa`, `poster`, `tamanio`, `es_invitado`, `aprobado`, `tipo`, `creado_en`) VALUES ('cipherforge-138-buena.jpg', NULL, '246', 'uploads/originals/af30c4d27effd0f46240ee839aa03d71.jpg', '132', 'uploads/previews/1501acec52b3bb9b380ef3054b4b2987.jpg', NULL, '134137', '0', '1', 'imagen', '2026-09-14 00:41:46');
+INSERT INTO `multimedia` (`titulo`, `descripcion`, `id_multimedia`, `ruta_original`, `coleccion_id`, `vista_previa`, `poster`, `tamanio`, `es_invitado`, `aprobado`, `tipo`, `creado_en`) VALUES ('cipherforge-139-alta.mp4', NULL, '247', 'uploads/originals/007fb3934a6f92d1bb6eaeeaeea14e5e.mp4', '132', 'uploads/previews/f154d4e4a73f895f3a3587c90a2d1ea3.mp4', 'uploads/standard/cd198205fa631f44e9546efcdeed1e90.jpg', '24184154', '0', '1', 'video', '2026-09-14 00:41:50');
+INSERT INTO `multimedia` (`titulo`, `descripcion`, `id_multimedia`, `ruta_original`, `coleccion_id`, `vista_previa`, `poster`, `tamanio`, `es_invitado`, `aprobado`, `tipo`, `creado_en`) VALUES ('cipherforge-139-buena.mp4', NULL, '248', 'uploads/originals/440efb0a511019696f446abb39dbe80f.mp4', '132', 'uploads/previews/39517f71f296e296f89df5f9b52114dd.mp4', 'uploads/standard/82474cf2b5ff0d59623e59cafd00a891.jpg', '1613589', '0', '1', 'video', '2026-09-14 00:41:52');
 
 -- --------------------------------------------------------
 -- Estructura de tabla `qr_tokens`
@@ -476,7 +476,7 @@ CREATE TABLE `qr_tokens` (
   UNIQUE KEY `token` (`token`),
   KEY `coleccion_id` (`coleccion_id`),
   CONSTRAINT `qr_tokens_ibfk_1` FOREIGN KEY (`coleccion_id`) REFERENCES `colecciones` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=87 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=94 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Volcado de datos para `qr_tokens`
 INSERT INTO `qr_tokens` (`id_token`, `token`, `coleccion_id`, `creacion_token`, `tipo`, `expiracion`) VALUES ('1', '066bf2144305f1acff595a89b15ce364fe7fad36', '4', '2026-09-04 19:29:05', 'acceso', NULL);
@@ -531,10 +531,7 @@ INSERT INTO `qr_tokens` (`id_token`, `token`, `coleccion_id`, `creacion_token`, 
 INSERT INTO `qr_tokens` (`id_token`, `token`, `coleccion_id`, `creacion_token`, `tipo`, `expiracion`) VALUES ('75', '5388aa9f15fc00d211d5b89c7a6749aef14338fd', '103', '2026-09-11 18:31:20', 'acceso', NULL);
 INSERT INTO `qr_tokens` (`id_token`, `token`, `coleccion_id`, `creacion_token`, `tipo`, `expiracion`) VALUES ('76', 'a8e336dc06691694c6ecb550de9091eaad2a3a5e', '103', '2026-09-11 18:31:41', 'colaborativo', '2026-09-12 18:31:41');
 INSERT INTO `qr_tokens` (`id_token`, `token`, `coleccion_id`, `creacion_token`, `tipo`, `expiracion`) VALUES ('79', '3dc32419a42c5a4d3c90ec3152b787b9d8e39ef7', '128', '2026-09-12 21:09:12', 'acceso', NULL);
-INSERT INTO `qr_tokens` (`id_token`, `token`, `coleccion_id`, `creacion_token`, `tipo`, `expiracion`) VALUES ('83', '29573872f3431df4ec407483b59961351b177ae7', '130', '2026-09-13 19:27:38', 'acceso', NULL);
-INSERT INTO `qr_tokens` (`id_token`, `token`, `coleccion_id`, `creacion_token`, `tipo`, `expiracion`) VALUES ('84', '56579c77e58916766447523f77f80bc0132ece2f', '130', '2026-09-13 19:28:02', 'colaborativo', '2026-09-14 19:28:02');
-INSERT INTO `qr_tokens` (`id_token`, `token`, `coleccion_id`, `creacion_token`, `tipo`, `expiracion`) VALUES ('85', 'a3e33f00eff0f174ebb8171cf3c01bab0b9c37d8', '130', '2026-09-13 19:28:06', 'colaborativo', '2026-09-14 19:28:06');
-INSERT INTO `qr_tokens` (`id_token`, `token`, `coleccion_id`, `creacion_token`, `tipo`, `expiracion`) VALUES ('86', '917d223be8fe0f7d3ecf1a1f765f2a4cd5f13fd6', '130', '2026-09-13 19:28:16', 'colaborativo', '2026-09-14 19:28:16');
+INSERT INTO `qr_tokens` (`id_token`, `token`, `coleccion_id`, `creacion_token`, `tipo`, `expiracion`) VALUES ('93', '26d3b31dc52509758c449e7993be09d585dca96e', '132', '2026-09-14 00:42:13', 'colaborativo', '2026-09-15 00:42:13');
 
 -- --------------------------------------------------------
 -- Estructura de tabla `solicitudes_descarga`

@@ -314,9 +314,8 @@ class ColeccionRepository
     public function otorgarAcceso(int $usuarioId, int $coleccionId): bool
     {
         $stmt = $this->pdo->prepare(
-            'INSERT INTO acceso_colecciones (usuario_id, coleccion_id, permitir_buena_calidad, permitir_alta_calidad)
-             VALUES (:usuario_id, :coleccion_id, 1, 1)
-             ON DUPLICATE KEY UPDATE permitir_buena_calidad = 1, permitir_alta_calidad = 1'
+            'INSERT IGNORE INTO acceso_colecciones (usuario_id, coleccion_id)
+             VALUES (:usuario_id, :coleccion_id)'
         );
         return $stmt->execute([
             'usuario_id'   => $usuarioId,
@@ -334,6 +333,17 @@ class ColeccionRepository
         );
         $stmt->execute(['id' => $coleccionId]);
         return $stmt->fetchAll();
+    }
+
+    /**
+     * Elimina todos los registros de favoritos asociados a una colección (H-08).
+     * Se usa cuando una colección pública pasa a ser privada, para mantener
+     * la coherencia de que los favoritos solo apuntan a colecciones públicas (RF21).
+     */
+    public function eliminarFavoritosPorColeccion(int $coleccionId): void
+    {
+        $stmt = $this->pdo->prepare('DELETE FROM favoritos WHERE favorito_id = :id');
+        $stmt->execute(['id' => $coleccionId]);
     }
 
     /**

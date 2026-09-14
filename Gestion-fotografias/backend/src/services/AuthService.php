@@ -50,13 +50,12 @@ class AuthService
         $codigo = (string) random_int(100000, 999999);
         $expiracion = date('Y-m-d H:i:s', time() + 3600);
         $this->userRepository->guardarCodigoVerificacion($dto->email, $codigo, $expiracion);
-
         // 5. Enviar el código por correo con un mensaje personalizado (CF-02 / RF18).
         //    Si el transporte falla (ej. Mailpit caído) se registra y se continúa, de modo
         //    que el registro no se rompa; el código sigue disponible en dev para testing.
         $enviado = Mailer::enviarVerificacion($dto->email, $dto->nombreCompleto, $codigo, $expiracion);
         if (!$enviado) {
-            error_log('[CF-02] No se pudo enviar el correo de verificación a ' . $dto->email . ': ' . Mailer::lastError());
+            error_log('No se pudo enviar el correo de verificación a ' . $dto->email . ': ' . Mailer::lastError());
         }
 
         return [
