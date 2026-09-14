@@ -132,37 +132,37 @@ erDiagram
     
     HASHTAGS ||--o{ COLECCION_HASHTAGS : "asocia temas a"
     COLECCIONES ||--o{ FAVORITOS : "es marcada como favorita"
-
+    
     USUARIOS {
         int id PK "Identificador único autoincremental"
         string nombre_completo "Nombre del usuario (máx 90 car)"
         string email UK "Correo único para login (máx 60 car)"
         string telefono "Teléfono de contacto opcional (máx 30 car)"
-        boolean email_verificado "Estado de verificación de casilla"
+        boolean email_verificado DEFAULT FALSE "Estado de verificación de casilla"
         string codigo_verificacion "Código numérico temporal de validación"
         datetime codigo_expiracion "Fecha y hora límite del código"
         string password_hash "Contraseña hasheada con bcrypt"
         enum rol "Rol asignado: 'fotografo' o 'cliente'"
     }
-
+    
     CLIENTES {
         int id_cliente PK,FK "Referencia a usuarios.id (ON DELETE CASCADE)"
     }
-
+    
     FOTOGRAFOS {
         int id_fotografo PK,FK "Referencia a usuarios.id (ON DELETE CASCADE)"
-        boolean politicas_aceptadas "Aceptación formal Ley 18.331"
+        boolean politicas_aceptadas DEFAULT FALSE "Aceptación formal Ley 18.331"
     }
-
+    
     COLECCIONES {
         int id PK "Identificador único autoincremental"
         int fotografo_id FK "Dueño de la colección (usuarios.id)"
-        enum tipo_visibilidad "Visibilidad: 'privada' o 'publica'"
+        enum tipo_visibilidad DEFAULT 'privada' "Visibilidad: 'privada' o 'publica'"
         string titulo "Título de la colección (máx 60 car)"
         string descripcion "Descripción del evento (máx 90 car)"
-        timestamp creado_en "Fecha y hora de creación automática"
+        timestamp creado_en DEFAULT CURRENT_TIMESTAMP "Fecha y hora de creación automática"
     }
-
+    
     MULTIMEDIA {
         int id_multimedia PK "Identificador único autoincremental"
         int coleccion_id FK "Colección contenedora (colecciones.id)"
@@ -170,47 +170,48 @@ erDiagram
         string descripcion "Detalle del recurso (máx 90 car)"
         string ruta_original "Ruta del archivo original en disco"
         string vista_previa "Ruta de la vista previa procesada"
+        string poster DEFAULT NULL "Ruta del póster del video"
         bigint tamanio "Tamaño exacto del archivo original en bytes"
-        boolean es_invitado "Indica si fue aportada vía QR por un invitado"
-        boolean aprobado "Estado de moderación (DEFAULT TRUE; FALSE = pendiente de revisión por el fotógrafo)"
+        boolean es_invitado DEFAULT FALSE "Indica si fue aportada vía QR por un invitado"
+        boolean aprobado DEFAULT TRUE "Estado de moderación (TRUE = aprobado, FALSE = pendiente de revisión por el fotógrafo)"
         enum tipo "Tipo de recurso: 'video' o 'imagen'"
-        timestamp creado_en "Fecha y hora de subida"
+        timestamp creado_en DEFAULT CURRENT_TIMESTAMP "Fecha y hora de subida"
     }
-
+    
     ACCESO_COLECCIONES {
         int usuario_id PK,FK "Usuario con acceso (usuarios.id)"
         int coleccion_id PK,FK "Colección asignada (colecciones.id)"
     }
-
+    
     FAVORITOS {
         int usuario_id PK,FK "Usuario que marca (usuarios.id)"
         int favorito_id PK,FK "Colección pública marcada (colecciones.id)"
     }
-
+    
     QR_TOKENS {
         int id_token PK "Identificador único autoincremental"
         int coleccion_id FK "Colección asociada (colecciones.id)"
         string token UK "Cadena alfanumérica única (máx 100 car)"
         enum tipo "Tipo de token: 'colaborativo' o 'acceso'"
-        timestamp creacion_token "Fecha y hora de generación"
+        timestamp creacion_token DEFAULT CURRENT_TIMESTAMP "Fecha y hora de generación"
         datetime expiracion "Fecha de caducidad (24h para colaborativo, NULL para acceso)"
     }
-
+    
     HASHTAGS {
         int id_hashtags PK "Identificador único autoincremental"
         string nombre_hashtags UK "Nombre unívoco del tag (máx 40 car)"
     }
-
+    
     COLECCION_HASHTAGS {
         int id_hashtags PK,FK "Hashtag asociado (hashtags.id_hashtags)"
         int coleccion_id PK,FK "Colección vinculada (colecciones.id)"
     }
-
+    
     BACKUPS {
         int id_backup PK "Identificador único autoincremental"
         string ruta_backup "Ruta del archivo .sql en disco"
         string nombre_backup "Nombre con marca de tiempo del backup"
-        timestamp fecha_backup "Fecha y hora exacta del respaldo"
+        timestamp fecha_backup DEFAULT CURRENT_TIMESTAMP "Fecha y hora exacta del respaldo"
     }
 ```
 
@@ -221,6 +222,7 @@ erDiagram
 * **Ciclo de Vida y Moderación Colaborativa (RF14, RF15):** Los atributos `es_invitado` y `aprobado` en `multimedia` permiten que las cargas de invitados ingresen con `aprobado = FALSE`. El fotógrafo puede auditar estos archivos en su panel de moderación; los archivos no aprobados que superen las 24 horas desde `creado_en` son depurados automáticamente por la rutina del sistema.
 * **Tokens QR Efímeros vs. Permanentes:** La entidad `qr_tokens` gestiona tanto el QR colaborativo de eventos (tipo `'colaborativo'`, con expiración a las 24 horas para subida anónima) como el QR de acceso permanente (tipo `'acceso'`, con expiración nula) que permite a clientes autorizados acceder a colecciones privadas.
 * **Descarga Directa en Dos Calidades (Control de Cambios CC-01):** Conforme al Control de Cambios CC-01, se eliminó del modelo de base de datos la persistencia de solicitudes intermedias y notificaciones de autorización. La descarga opera de manera directa e individual en dos calidades ("Buena Calidad" = copia con calidad baja y tope HD 1280 px y "Alta Calidad" = original) mediante `GET /multimedia/{id}/descargar?calidad={buena|alta}`, simplificando el modelo relacional y optimizando la experiencia de usuario sin fricciones.
+* **Modelo de Datos Actualizado:** El ERD ahora refleja fielmente el esquema de base de datos incluyendo el campo `poster` en la entidad `MULTIMEDIA` y las restricciones NOT NULL y DEFAULT correspondientes a cada campo, asegurando consistencia entre el modelo conceptual y la implementación física.
 
 ---
 
