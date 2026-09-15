@@ -1,5 +1,7 @@
 # 8. Control de Cambios
 
+> **Nota:** Los cambios tecnológicos e implementación se han separado en el nuevo documento **[09_control_de_cambios_tecnicos.md](09_control_de_cambios_tecnicos.md)**. Este archivo (08) conserva exclusivamente los cambios de documentación, alcance, alcance funcional y decisiones de producto que afectaron a `01-requerimientos.md` y otros documentos de documentación derivada.
+
 ## ¿Para qué sirve este documento?
 
 En Scrum es normal y esperable que el alcance se ajuste durante el proyecto: el

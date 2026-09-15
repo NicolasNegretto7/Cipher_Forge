@@ -348,7 +348,7 @@ class ColaborativoController
      * CÓMO: En producción se usa la variable de entorno FRONTEND_URL (raíz del servidor
      * estático que contiene las carpetas frontend-cliente y frontend-fotografo). En
      * desarrollo se deduce la raíz a partir del Referer que envía la página estática.
-     * Si no se puede deducir, se conserva la URL del API (comportamiento histórico).
+     * Si el Referer es solo el origin (cross-origin policy), se usa como base.
      */
     private function armarUrlColaborativo(string $token): string
     {
@@ -360,22 +360,24 @@ class ColaborativoController
         $referer = $_SERVER['HTTP_REFERER'] ?? '';
         if (is_string($referer) && $referer !== '') {
             $partes = parse_url($referer);
-            if (isset($partes['scheme'], $partes['host'], $partes['path']) && $partes['host'] !== '') {
-                $rutaDerivada = preg_replace('#/frontend-(fotografo|cliente)(/.*)?$#', '', $partes['path']);
+            if (isset($partes['scheme'], $partes['host']) && $partes['host'] !== '') {
+                $origen = $partes['scheme'] . '://' . $partes['host'];
+                if (isset($partes['port'])) {
+                    $origen .= ':' . $partes['port'];
+                }
 
-                // Solo se puede deducir la raíz si el Referer proviene de una página
-                // real de las apps (frontend-fotografo o frontend-cliente), nunca de
-                // la raíz del servidor estático o de listados de carpetas.
-                $esOrigenFrontend = is_string($rutaDerivada)
-                    && $rutaDerivada !== $partes['path']
-                    && $partes['path'] !== '/';
-                if ($esOrigenFrontend) {
-                    $origen = $partes['scheme'] . '://' . $partes['host'];
-                    if (isset($partes['port'])) {
-                        $origen .= ':' . $partes['port'];
-                    }
+                $path = $partes['path'] ?? '/';
+                $rutaDerivada = preg_replace('#/frontend-(fotografo|cliente)(/.*)?$#', '', $path);
+
+                // Si el regex extrajo la raíz (el path contenía /frontend-fotografo/ o
+                // /frontend-cliente/), usar la raíz derivada. Si el path es "/" (Referer
+                // reducido al origin por política cross-origin), usar la raíz del origin.
+                if (is_string($rutaDerivada) && $rutaDerivada !== $path) {
                     $rutaDerivada = rtrim($rutaDerivada, '/');
                     return $origen . $rutaDerivada . '/frontend-cliente/pages/colaborativo.html?token=' . rawurlencode($token);
+                }
+                if ($path === '/') {
+                    return $origen . '/frontend-cliente/pages/colaborativo.html?token=' . rawurlencode($token);
                 }
             }
         }
@@ -398,19 +400,21 @@ class ColaborativoController
         $referer = $_SERVER['HTTP_REFERER'] ?? '';
         if (is_string($referer) && $referer !== '') {
             $partes = parse_url($referer);
-            if (isset($partes['scheme'], $partes['host'], $partes['path']) && $partes['host'] !== '') {
-                $rutaDerivada = preg_replace('#/frontend-(fotografo|cliente)(/.*)?$#', '', $partes['path']);
+            if (isset($partes['scheme'], $partes['host']) && $partes['host'] !== '') {
+                $origen = $partes['scheme'] . '://' . $partes['host'];
+                if (isset($partes['port'])) {
+                    $origen .= ':' . $partes['port'];
+                }
 
-                $esOrigenFrontend = is_string($rutaDerivada)
-                    && $rutaDerivada !== $partes['path']
-                    && $partes['path'] !== '/';
-                if ($esOrigenFrontend) {
-                    $origen = $partes['scheme'] . '://' . $partes['host'];
-                    if (isset($partes['port'])) {
-                        $origen .= ':' . $partes['port'];
-                    }
+                $path = $partes['path'] ?? '/';
+                $rutaDerivada = preg_replace('#/frontend-(fotografo|cliente)(/.*)?$#', '', $path);
+
+                if (is_string($rutaDerivada) && $rutaDerivada !== $path) {
                     $rutaDerivada = rtrim($rutaDerivada, '/');
                     return $origen . $rutaDerivada . '/frontend-cliente/pages/tuscoleccionescliente.html?invitacion=' . rawurlencode($token);
+                }
+                if ($path === '/') {
+                    return $origen . '/frontend-cliente/pages/tuscoleccionescliente.html?invitacion=' . rawurlencode($token);
                 }
             }
         }

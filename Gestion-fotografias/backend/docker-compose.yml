@@ -17,7 +17,7 @@ services:
       - DB_USER=cipher_user
       - DB_PASS=cipher_password
       - DB_PORT=3306
-      - FRONTEND_URL=http://127.0.0.1:5500/Gestion-fotografias
+      - FRONTEND_URL=http://127.0.0.1:5501/Gestion-fotografias
       # Buzón SMTP de desarrollo (CF-02): la app envía el código de verificación por correo
       # a "mailpit" y la bandeja se consulta en http://localhost:8025. Gmail/proveedores
       # externos quedan excluidos del alcance (ver EMAIL_CONFIG.md).

@@ -40,6 +40,31 @@
                         ></textarea>
                     </div>
 
+                    <div class="campo-coleccion">
+                        <label>Visibilidad</label>
+                        <div class="opciones-visibilidad">
+                            <label>
+                                <input type="radio" name="tipo_visibilidad" value="privada" required />
+                                Privada
+                            </label>
+                            <label>
+                                <input type="radio" name="tipo_visibilidad" value="publica" />
+                                Pública
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="campo-coleccion">
+                        <label>Hashtags (opcional, separado por comas)</label>
+                        <input
+                            type="text"
+                            id="hashtagsColeccion"
+                            name="hashtagsColeccion"
+                            placeholder "#fotografia #evento"
+                            maxlength="80"
+                        />
+                    </div>
+
                     <div class="acciones-coleccion">
                         <button type="submit" class="btn btn-principal">Crear colección</button>
                     </div>
