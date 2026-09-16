@@ -1,0 +1,67 @@
+/* Selección de rol en la página principal */
+.SeleccionRol {
+    display: grid;
+    gap: 14px;
+    margin-top: 32px;
+}
+
+.TarjetaRol {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px;
+    color: inherit;
+    border: 1px solid var(--borde);
+    border-radius: 12px;
+    background: var(--secondary-color);
+    text-decoration: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.TarjetaRol:hover {
+    border-color: var(--verde);
+    box-shadow: var(--sombra);
+    transform: translateY(-2px);
+}
+
+.TarjetaRol:focus-visible {
+    outline: 3px solid #147bce;
+    outline-offset: 3px;
+}
+
+.TarjetaRolIcono {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 48px;
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    color: var(--verde);
+    background: #e9f7f0;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.TarjetaRolTexto {
+    min-width: 0;
+}
+
+.TarjetaRol strong {
+    display: block;
+    font-size: 17px;
+}
+
+.TarjetaRolTexto span {
+    display: block;
+    margin-top: 2px;
+    color: var(--gris-texto);
+    font-size: 13px;
+}
+
+.TarjetaRolFlecha {
+    margin-left: auto;
+    color: var(--verde);
+    font-size: 20px;
+    font-weight: bold;
+}

@@ -12,15 +12,10 @@ async function guardarColeccion(evento) {
     boton.disabled = true;
     mensaje.textContent = "Creando colección...";
     try {
-        const tipoVisibilidad = document.querySelector('input[name="tipo_visibilidad"]:checked').value;
-        const hashtagsInput = document.getElementById("hashtagsColeccion").value.trim();
-        const hashtags = hashtagsInput ? hashtagsInput.split(",").map(t => t.trim()).filter(t => t) : [];
-
         const coleccion = await crearColeccion({
             titulo: document.getElementById("nombreColeccion").value.trim(),
             descripcion: document.getElementById("descripcionColeccion").value.trim(),
-            tipo_visibilidad: tipoVisibilidad,
-            ...(hashtags.length > 0 && { hashtags })
+            tipo_visibilidad: "privada"
         });
         location.href = "SubirImagenes.html?coleccionId=" + coleccion.id;
     } catch (error) {
