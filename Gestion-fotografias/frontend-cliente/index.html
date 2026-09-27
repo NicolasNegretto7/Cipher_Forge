@@ -7,33 +7,15 @@
         <link rel="stylesheet" href="css/base.css" />
         <link rel="stylesheet" href="css/estilos.css" />
     </head>
-    <body class="PaginaAcceso">
-        <main class="Acceso">
-            <section class="AccesoPresentacion">
-                <p class="AccesoMarca">CIPHER PHOTO</p>
-                <h1>Tus recuerdos, todos en un mismo lugar.</h1>
-                <p class="AccesoDescripcion">
-                    Ingresa para descubrir colecciones, guardar favoritas y acceder a las fotos
-                    que compartieron contigo.
-                </p>
+    <body>
+        <header>
+            <h1>Iniciar sesión</h1>
+            <p>Accede a tu galería como cliente</p>
+        </header>
 
-                <div class="MosaicoPresentacion" aria-hidden="true">
-                    <div class="MosaicoBloque MosaicoAlto">Momentos</div>
-                    <div class="MosaicoBloque MosaicoClaro">Eventos</div>
-                    <div class="MosaicoBloque MosaicoOscuro">Historias</div>
-                    <div class="MosaicoBloque MosaicoAlto MosaicoSuave">Recuerdos</div>
-                    <div class="MosaicoBloque MosaicoClaro">Personas</div>
-                    <div class="MosaicoBloque MosaicoOscuro">Lugares</div>
-                </div>
-            </section>
-
-            <section class="AccesoFormulario">
-                <div class="AccesoCabecera">
-                    <p class="AccesoEtiqueta">CLIENTES</p>
-                    <h2>Iniciar sesión</h2>
-                    <p>Accede a tu galería personal.</p>
-                </div>
-
+        <main class="container">
+            <section class="card">
+                <h2>Completa tus datos</h2>
                 <form id="formLogin">
                     <div class="form-group">
                         <label for="correo">Correo electrónico</label>
@@ -43,6 +25,7 @@
                             type="email"
                             placeholder="nombre@correo.com"
                             autocomplete="email"
+                            title="Usa un correo válido"
                             required
                         />
                     </div>
@@ -59,17 +42,23 @@
                         />
                     </div>
 
-                    <button type="submit" class="btn btn-principal BotonAcceso">Ingresar</button>
+                    <div class="texto-centrado margen-arriba">
+                        <button type="submit" class="btn btn-principal">Ingresar</button>
+                    </div>
                 </form>
 
                 <p id="mensajeLogin" class="mensaje-perfil" role="status"></p>
-                <p class="AccesoRegistro">
+
+                <p class="texto-centrado margen-arriba">
                     ¿Todavía no tienes cuenta?
                     <a id="enlaceRegistro" href="pages/registro.html">Crear cuenta</a>
                 </p>
             </section>
         </main>
 
+        <footer>
+            <p>Políticas de Privacidad.</p>
+        </footer>
         <script type="module" src="dom/auth/login.js"></script>
     </body>
 </html>
