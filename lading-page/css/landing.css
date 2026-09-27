@@ -6,7 +6,7 @@
     --blanco: #ffffff;
     --texto-principal: #0f172a;
     --texto-gris: #6b7280;
-    --fondo: #ffffff;
+    --fondo: #eceff1;
     --borde: #dce3e0;
     --sombra: 0 8px 24px rgba(15, 23, 42, 0.1);
 }
@@ -87,9 +87,10 @@ body {
     min-height: calc(100vh - 140px);
     margin: 24px auto;
     padding: 56px 60px;
-    background: #eceff1;
-    border: 1px solid #cbd5e1;
+    background: var(--blanco);
+    border: 1px solid var(--borde);
     border-radius: 20px;
+    box-shadow: var(--sombra);
 }
 
 .HeroContenido {
