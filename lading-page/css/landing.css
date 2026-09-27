@@ -1,0 +1,174 @@
+/* Landing page */
+:root {
+    --verde: #0d6a4e;
+    --verde-oscuro: #09553d;
+    --turquesa: #0e7490;
+    --blanco: #ffffff;
+    --texto-principal: #0f172a;
+    --texto-gris: #6b7280;
+    --fondo: #ffffff;
+    --borde: #dce3e0;
+    --sombra: 0 8px 24px rgba(15, 23, 42, 0.1);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    color: var(--texto-principal);
+    background: var(--fondo);
+    line-height: 1.5;
+}
+
+/* Barra superior */
+.Barra {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 22px 48px;
+    background: var(--blanco);
+    border-bottom: 1px solid var(--borde);
+}
+
+.Marca {
+    margin: 0;
+    font-size: 18px;
+    font-weight: bold;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+/* Botones */
+.BotonHero {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 260px;
+    height: 48px;
+    padding: 0 18px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--verde);
+    color: var(--blanco);
+    font-weight: bold;
+    font-size: 15px;
+    text-decoration: none;
+    text-align: center;
+}
+
+.BotonHero:hover {
+    background: var(--verde-oscuro);
+}
+
+.BotonHero:focus-visible {
+    outline: 3px solid #147bce;
+    outline-offset: 3px;
+}
+
+.Accesos {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+/* Hero */
+.Hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 48px;
+    width: min(1280px, calc(100% - 48px));
+    min-height: calc(100vh - 140px);
+    margin: 24px auto;
+    padding: 56px 60px;
+    background: #eceff1;
+    border: 1px solid #cbd5e1;
+    border-radius: 20px;
+}
+
+.HeroContenido {
+    align-self: center;
+    max-width: 620px;
+}
+
+.HeroCartel {
+    margin: 0 0 20px;
+    color: var(--turquesa);
+    font-size: 13px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.HeroContenido h1 {
+    margin: 0 0 22px;
+    font-size: 52px;
+    line-height: 1.1;
+    letter-spacing: -0.5px;
+}
+
+.HeroParrafo {
+    margin: 0 0 36px;
+    color: var(--texto-gris);
+    font-size: 17px;
+    max-width: 520px;
+}
+
+.HeroBotones {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+/* Imagen de vista previa */
+.HeroImagen {
+    display: flex;
+    justify-content: center;
+    align-self: center;
+}
+
+.HeroImagen img {
+    display: block;
+    width: min(100%, 560px);
+    max-height: 74vh;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    border: 1px solid var(--borde);
+    border-radius: 16px;
+    box-shadow: var(--sombra);
+}
+
+@media (max-width: 900px) {
+    .Barra {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 20px 24px;
+    }
+
+    .Accesos {
+        justify-content: flex-start;
+    }
+
+    .Hero {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        min-height: 0;
+        width: calc(100% - 32px);
+        margin: 16px auto;
+        padding: 36px 24px;
+    }
+
+    .HeroContenido h1 {
+        font-size: 36px;
+    }
+
+    .HeroImagen img {
+        aspect-ratio: 16 / 10;
+    }
+}
