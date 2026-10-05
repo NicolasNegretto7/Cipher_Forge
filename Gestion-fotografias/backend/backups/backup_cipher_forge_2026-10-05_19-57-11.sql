@@ -1,6 +1,6 @@
 -- ========================================================
 -- Respaldo Automático de Base de Datos - Cipher Forge
--- Generado el: 2026-09-28 16:43:48
+-- Generado el: 2026-10-05 19:57:11
 -- ========================================================
 
 SET FOREIGN_KEY_CHECKS = 0;
@@ -118,10 +118,6 @@ CREATE TABLE `favoritos` (
   CONSTRAINT `favoritos_ibfk_1` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE,
   CONSTRAINT `favoritos_ibfk_2` FOREIGN KEY (`favorito_id`) REFERENCES `colecciones` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
--- Volcado de datos para `favoritos`
-INSERT INTO `favoritos` (`usuario_id`, `favorito_id`) VALUES ('59', '50');
-INSERT INTO `favoritos` (`usuario_id`, `favorito_id`) VALUES ('59', '54');
 
 -- --------------------------------------------------------
 -- Estructura de tabla `fotografos`
