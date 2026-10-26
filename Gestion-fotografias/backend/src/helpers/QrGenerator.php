@@ -88,8 +88,8 @@ SVG;
     public static function renderPrintableHtml(string $tituloEvento, string $urlAcceso, string $svgQr, ?string $expiracion = null): string
     {
         $expiracionHtml = $expiracion
-            ? "<p class=\"expira\">⚡ Código válido hasta: <strong>{$expiracion}</strong> (caduca en 24 horas)</p>"
-            : "<p class=\"permanente\">🔒 Enlace de acceso exclusivo</p>";
+            ? "<p class=\"expira\"> Código válido hasta: <strong>{$expiracion}</strong> (caduca en 24 horas)</p>"
+            : "<p class=\"permanente\"> Enlace de acceso exclusivo</p>";
 
         return <<<HTML
 <!DOCTYPE html>
