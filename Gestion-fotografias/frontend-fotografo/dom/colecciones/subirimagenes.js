@@ -307,6 +307,12 @@ async function cargarArchivos() {
     seleccionados = [];
     const hayArchivos = archivos.length > 0;
     mensaje.hidden = true;
+    if (!hayArchivos && estadoVisibilidad && estadoVisibilidad.classList.contains("EstadoPublica")) {
+        actualizarEstadoVisibilidad("privada");
+        actualizarColeccion(coleccionId, { tipo_visibilidad: "privada" }).catch(function (error) {
+            console.warn("No se pudo actualizar la visibilidad a privada en el servidor.", error);
+        });
+    }
 
     barraAcciones.classList.toggle("Visible", hayArchivos);
     if (zonaCarga && "hidden" in zonaCarga) {
