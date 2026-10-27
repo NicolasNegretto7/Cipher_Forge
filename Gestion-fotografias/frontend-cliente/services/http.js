@@ -17,16 +17,31 @@ async function parsear(respuesta) {
     } catch (error) {
         throw new Error("El servidor no devolvió una respuesta válida.");
     }
+    // Validar que la respuesta sea un objeto para evitar usar datos maliciosos arbitrarios.
+    if (json === null || typeof json !== "object") {
+        throw new Error("El servidor no devolvió una respuesta válida.");
+    }
     if (!respuesta.ok) {
-        let mensaje = json.mensaje || "No se pudo completar la solicitud.";
-        for (const detalle of json.errores || []) {
+        const mensajeBase = typeof json.mensaje === "string" ? json.mensaje : "No se pudo completar la solicitud.";
+        let mensaje = mensajeBase;
+        const errores = Array.isArray(json.errores) ? json.errores : [];
+        for (const detalle of errores) {
             if (typeof detalle === "string") mensaje += "\n" + detalle;
-            else mensaje += "\n" + (detalle.motivo || "Archivo inválido.");
+            else if (detalle && typeof detalle === "object") {
+                const motivo = typeof detalle.motivo === "string" ? detalle.motivo : "Archivo inválido.";
+                mensaje += "\n" + motivo;
+            }
         }
         const error = new Error(mensaje);
         error.status = respuesta.status;
-        error.errores = json.errores || [];
+        error.errores = errores;
         throw error;
+    }
+    if (json.datos === undefined) {
+        return json;
+    }
+    if (json.datos === null || typeof json.datos !== "object") {
+        throw new Error("El servidor no devolvió una respuesta válida.");
     }
     return json.datos;
 }

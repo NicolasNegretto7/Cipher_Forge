@@ -30,14 +30,36 @@ function leerLista(clave) {
     }
 }
 
+function esIdValido(valor) {
+    const numero = Number(valor);
+    return Number.isInteger(numero) && numero > 0;
+}
+
+function esTituloValido(valor) {
+    if (typeof valor !== "string") return false;
+    const titulo = valor.trim();
+    if (titulo.length === 0 || titulo.length > 255) return false;
+    return true;
+}
+
 function guardarAcceso(id, titulo) {
-    const lista = leerLista(claveColecciones);
+    if (!esIdValido(id)) return;
+    if (!esTituloValido(titulo)) return;
+    const lista = leerLista(claveColecciones)
+        .filter(function (item) {
+            return item && esIdValido(item.id) && esTituloValido(item.titulo);
+        })
+        .map(function (item) {
+            return { id: Number(item.id), titulo: String(item.titulo).trim() };
+        });
     if (
         !lista.some(function (item) {
-            return Number(item.id) === Number(id);
+            return item.id === Number(id);
         })
     ) {
-        lista.push({ id: Number(id), titulo: titulo });
+        lista.push({ id: Number(id), titulo: String(titulo).trim() });
+        localStorage.setItem(claveColecciones, JSON.stringify(lista));
+    } else {
         localStorage.setItem(claveColecciones, JSON.stringify(lista));
     }
 }
@@ -50,11 +72,13 @@ function quitarPendiente(token) {
 }
 
 async function concederAcceso(token, estado) {
-    if (estado.tiene_acceso) {
+    if (estado && estado.tiene_acceso) {
         guardarAcceso(estado.coleccion_id, estado.coleccion_titulo);
     } else {
         const resultado = await canjearInvitacion(token);
-        guardarAcceso(resultado.coleccion.id, resultado.coleccion.titulo);
+        if (resultado && resultado.coleccion) {
+            guardarAcceso(resultado.coleccion.id, resultado.coleccion.titulo);
+        }
     }
     quitarPendiente(token);
 }
@@ -105,18 +129,28 @@ async function cargarColecciones() {
         return;
     }
     mensajeCarga.hidden = false;
-    const guardadas = leerLista(claveColecciones);
+    const guardadas = leerLista(claveColecciones)
+        .filter(function (item) {
+            return item && esIdValido(item.id) && esTituloValido(item.titulo);
+        })
+        .map(function (item) {
+            return { id: Number(item.id), titulo: String(item.titulo).trim() };
+        });
+    // Persistir lista saneada
+    localStorage.setItem(claveColecciones, JSON.stringify(guardadas));
     const vistos = [];
     const errores = [];
     for (const item of guardadas) {
-        if (vistos.includes(Number(item.id))) continue;
-        vistos.push(Number(item.id));
+        if (vistos.includes(item.id)) continue;
+        vistos.push(item.id);
         try {
             const coleccion = await detalleColeccion(item.id);
-            guardarAcceso(coleccion.id, coleccion.titulo);
-            galeria.appendChild(crearTarjetaColeccion(coleccion));
+            if (coleccion && esIdValido(coleccion.id) && esTituloValido(coleccion.titulo)) {
+                guardarAcceso(coleccion.id, coleccion.titulo);
+                galeria.appendChild(crearTarjetaColeccion(coleccion));
+            }
         } catch (error) {
-            if (error.status !== 403 && error.status !== 404) errores.push(error.message);
+            if (error.status !== 403 && error.status !== 404 && error.message) errores.push(error.message);
         }
     }
     mensajeCarga.hidden = true;
