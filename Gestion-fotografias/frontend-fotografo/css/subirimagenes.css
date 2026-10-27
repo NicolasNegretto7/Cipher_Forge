@@ -286,6 +286,9 @@
 }
 
 .ZonaCarga {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
     margin: 24px 0;
     border: 2px dashed var(--borde);
     border-radius: 12px;
@@ -296,6 +299,16 @@
     transition:
         border-color 0.2s ease,
         background-color 0.2s ease;
+}
+
+.ZonaCarga[aria-disabled="true"] {
+    opacity: 0.6;
+    cursor: wait;
+    pointer-events: none;
+}
+
+.ZonaCarga strong {
+    display: block;
 }
 
 .ZonaCarga.Activa {
@@ -493,6 +506,9 @@
     color: var(--verde);
 }
 .ZonaCarga {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
     width: 100%;
     color: inherit;
     font: inherit;

@@ -306,8 +306,8 @@ async function cargarArchivos() {
     for (const tarjeta of galeria.querySelectorAll(".TarjetaMedia")) tarjeta.remove();
     seleccionados = [];
     const hayArchivos = archivos.length > 0;
-    mensaje.hidden = hayArchivos;
-    mensaje.textContent = "Aún no hay archivos. Sube un JPG o MP4 para comenzar.";
+    mensaje.hidden = true;
+
     barraAcciones.classList.toggle("Visible", hayArchivos);
     if (zonaCarga && "hidden" in zonaCarga) {
         zonaCarga.hidden = hayArchivos;
@@ -451,7 +451,9 @@ async function iniciar() {
     indicarTrabajo(true);
     if (!usuario) return;
     if (!Number.isInteger(coleccionId) || coleccionId <= 0) {
+        mensaje.hidden = false;
         mensaje.textContent = "La colección no es válida. Vuelve al panel.";
+        if (zonaCarga) zonaCarga.hidden = true;
         return;
     }
     try {
@@ -469,11 +471,16 @@ async function iniciar() {
     } catch (error) {
         mensaje.hidden = false;
         mensaje.textContent = error.message;
+        if (zonaCarga) zonaCarga.hidden = true;
     }
 }
 
 if (zonaCarga) {
     zonaCarga.addEventListener("click", function (evento) {
+        if (ocupado || zonaCarga.getAttribute("aria-disabled") === "true") {
+            evento.preventDefault();
+            return;
+        }
         if (zonaCarga.tagName === "LABEL") return;
         evento.preventDefault();
         selectorArchivos.click();
