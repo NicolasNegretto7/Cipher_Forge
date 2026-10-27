@@ -1,4 +1,6 @@
-# Toma la imagen definida en el Dockerfile y la imagen oficial de mysql:8.0, y las pone a ejecutar juntas como contenedores. Define en qué puertos escuchan (8080 y 3306), cómo se comunican entre sí por red interna (DB_HOST=db) y qué carpetas de tu disco local se montan en vivo.
+# Toma la imagen definida en el Dockerfile y la imagen oficial de mysql:8.0, y las pone a ejecutar
+# juntas como contenedores. La base de datos NO se publica al host (solo se accede por la red interna
+# de Docker) y la app escucha solo en 127.0.0.1:8080; Nginx es el que publica al exterior (reverse proxy).
 services:
   app:
     build:
@@ -6,44 +8,42 @@ services:
       dockerfile: Dockerfile
     image: cipher-forge:dev
     container_name: cipher_forge_app
+    restart: unless-stopped
     ports:
-      - "8080:80"
+      # Solo loopback: accesible por Nginx (mismo host) y no expuesto a la LAN.
+      - "127.0.0.1:8080:8080"
     volumes:
       - .:/var/www/html
       - uploads_data:/var/www/html/uploads
     environment:
       - DB_HOST=db
-      - DB_NAME=cipher_forge
-      - DB_USER=cipher_user
+      - DB_NAME=${MYSQL_DATABASE:-cipher_forge}
+      - DB_USER=${MYSQL_USER:-cipher_user}
+      # C-03: la contraseña de la BD es obligatoria (sin fallback en el código).
+      - DB_PASS=${MYSQL_PASSWORD:?define MYSQL_PASSWORD en .env}
       - DB_PORT=3306
-      # El host del frontend DEBE ser "localhost" (mismo host que el backend
-      # en http://localhost:8080): SameSite=Strict solo envía la cookie cuando
-      # frontend y backend comparten site (el puerto no importa). Live Server:
-      # configurar "Server host: localhost" y publicar en el puerto 5501.
-      - FRONTEND_URL=http://localhost:5501/Gestion-fotografias
-      # Buzón SMTP de desarrollo (CF-02): la app envía el código de verificación por correo
-      # a "mailpit" y la bandeja se consulta en http://localhost:8025. Gmail/proveedores
-      # externos quedan excluidos del alcance (ver EMAIL_CONFIG.md).
+      # El host del frontend DEBE usar el mismo host que el navegador para que SameSite=Strict envíe la cookie.
+      - FRONTEND_URL=${FRONTEND_URL:?define FRONTEND_URL en .env}
+      # Buzón SMTP de desarrollo (CF-02 / RF18): la app envía el código a "mailpit".
       - SMTP_HOST=mailpit
       - SMTP_PORT=1025
       - MAIL_FROM=no-reply@cipherforge.local
       - MAIL_FROM_NAME=Cipher Forge
       # Cookies de sesión (JWT + Cookies): el JWT viaja en cookie HttpOnly.
-      # El contenedor expone HTTP (puerto 80), así que Secure=false.
-      # En producción (HTTPS) usar COOKIE_SECURE=true.
+      # El contenedor expone HTTP detrás de Nginx, así que Secure=false; en producción (HTTPS) usar COOKIE_SECURE=true.
       - COOKIE_NAME=cipher_forge_token
       - COOKIE_SECURE=false
       - COOKIE_SAMESITE=Strict
-      # Opcional (H02): endurecer los endpoints /sistema/* a CIDRs concretos.
-      # Por defecto solo admite tráfico local/privado (ver SISTEMA_LOCAL.md).
+      # C-01: la firma de los JWT es obligatoria (sin fallback en uploads/).
+      - JWT_SECRET=${JWT_SECRET:?define JWT_SECRET en .env}
+      # H-01: los endpoints /sistema/* exigen sesión y admiten además filtrado por CIDRs.
       # - SISTEMA_ALLOWED_IPS=10.0.0.0/8,192.168.0.0/16
     depends_on:
       - db
       - mailpit
 
   # Worker de mantenimiento (CF-12): ejecuta cron-backup.php --loop en la misma imagen.
-  # Automatiza el respaldo diario (HU13) y la purga de colaborativos no aprobados > 24h (HU12)
-  # sin depender del host ni de tráfico web. Intervalos configurables por entorno.
+  # Automatiza el respaldo diario (HU13) y la purga de colaborativos no aprobados > 24h (HU12).
   worker:
     build:
       context: .
@@ -57,36 +57,35 @@ services:
       - uploads_data:/var/www/html/uploads
     environment:
       - DB_HOST=db
-      - DB_NAME=cipher_forge
-      - DB_USER=cipher_user
+      - DB_NAME=${MYSQL_DATABASE:-cipher_forge}
+      - DB_USER=${MYSQL_USER:-cipher_user}
+      - DB_PASS=${MYSQL_PASSWORD:?define MYSQL_PASSWORD en .env}
       - DB_PORT=3306
       - BACKUP_INTERVAL_SEG=86400
       - PURGE_INTERVAL_SEG=3600
     depends_on:
       - db
 
-  # Buzón de correo de desarrollo (CF-02 / RF18): recibe los correos generados por la app,
-  # los guarda y los expone en una interfaz web. Nada sale de tu máquina.
+  # Buzón de correo de desarrollo (CF-02 / RF18): recibe los correos generados por la app.
   mailpit:
     image: axllent/mailpit:latest
     container_name: cipher_forge_mail
-    restart: always
+    restart: unless-stopped
     ports:
-      - "8025:8025"   # Interfaz web para leer los correos
-      - "1025:1025"   # SMTP de entrada usado por la app
+      # Solo loopback. Para verlo desde otra máquina, usar un túnel SSH.
+      - "127.0.0.1:8025:8025"
+      - "127.0.0.1:1025:1025"
 
   db:
     image: mysql:8.0
     container_name: cipher_forge_db
-    restart: always
-    ports:
-      - "3306:3306"
+    restart: unless-stopped
     environment:
-      # MYSQL_ROOT_PASSWORD, MYSQL_DATABASE y MYSQL_PASSWORD se cargan
-      # desde el archivo .env (no hardcodeado en compose por seguridad)
-      - MYSQL_ROOT_PASSWORD
-      - MYSQL_DATABASE
-      - MYSQL_USER=cipher_user
+      # C-03: credenciales obligatorias desde .env (nada hardcodeado, sin puerto publicado).
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:?define MYSQL_ROOT_PASSWORD en .env}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-cipher_forge}
+      - MYSQL_USER=${MYSQL_USER:-cipher_user}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:?define MYSQL_PASSWORD en .env}
     volumes:
       - db_data:/var/lib/mysql
       - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
