@@ -45,12 +45,14 @@ class AuthValidator
             $errores[] = 'La contraseña debe tener al menos 8 caracteres.';
         }
 
-        if (empty($data['telefono'])) {
-            $errores[] = 'El teléfono es obligatorio.';
-        } elseif (!ctype_digit((string) $data['telefono'])) {
-            $errores[] = 'El teléfono debe contener solo números.';
-        } elseif (strlen((string) $data['telefono']) > 30) {
-            $errores[] = 'El teléfono no debe superar los 30 caracteres.';
+        $telefono = $data['telefono'] ?? '';
+        if ($telefono !== '' && $telefono !== null) {
+            $telefonoStr = (string) $telefono;
+            if (!ctype_digit($telefonoStr)) {
+                $errores[] = 'El teléfono debe contener solo números.';
+            } elseif (strlen($telefonoStr) > 30) {
+                $errores[] = 'El teléfono no debe superar los 30 caracteres.';
+            }
         }
 
         if (empty($data['rol'])) {

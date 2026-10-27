@@ -11,6 +11,7 @@ export async function cargarVista(elemento, archivo) {
         if (elemento.isConnected) elemento.src = url;
         else URL.revokeObjectURL(url);
     } catch (error) {
+        console.warn("No se pudo cargar la vista previa.", error);
         elemento.setAttribute("aria-label", "Vista previa no disponible");
         elemento.classList.add("VistaNoDisponible");
     }
@@ -35,6 +36,7 @@ export async function cargarPortada(contenedor, coleccion) {
         contenedor.replaceChildren(imagen);
     } catch (error) {
         // Conserva el nombre y el enlace de la colección si falta su portada.
+        console.warn("No se pudo cargar la portada de la colección.", error);
     }
 }
 

@@ -94,7 +94,15 @@ function cerrarConfirmacion(resultado) {
 function indicarTrabajo(enCurso) {
     ocupado = enCurso;
     selectorArchivos.disabled = enCurso;
-    zonaCarga.disabled = enCurso;
+    if (zonaCarga.tagName === "BUTTON") {
+        zonaCarga.disabled = enCurso;
+    } else if (zonaCarga.tagName === "LABEL") {
+        if (enCurso) {
+            zonaCarga.setAttribute("aria-disabled", "true");
+        } else {
+            zonaCarga.removeAttribute("aria-disabled");
+        }
+    }
     botonAgregar.disabled = enCurso;
     botonPublicar.disabled = enCurso;
     botonEliminar.disabled = enCurso;
@@ -208,7 +216,23 @@ function configurarCampoEditable(campo, clave) {
         const texto = (evento.clipboardData || window.clipboardData)
             .getData("text")
             .replace(/\s+/g, " ");
-        document.execCommand("insertText", false, texto);
+        const seleccion = window.getSelection();
+        if (seleccion && seleccion.rangeCount > 0) {
+            try {
+                const rango = seleccion.getRangeAt(0);
+                rango.deleteContents();
+                rango.insertNode(document.createTextNode(texto));
+                rango.collapse(false);
+                seleccion.removeAllRanges();
+                seleccion.addRange(rango);
+                return;
+            } catch (error) {
+                // Fallback
+            }
+        }
+        if (typeof document.execCommand === "function") {
+            document.execCommand("insertText", false, texto);
+        }
     });
     // Sin Enter no se guarda: se restaura el último valor.
     campo.addEventListener("blur", function () {
@@ -266,7 +290,13 @@ function crearTarjeta(archivo) {
         actualizarSeleccion();
     });
     tarjeta.appendChild(selector);
-    galeria.insertBefore(tarjeta, botonAgregar);
+    if (botonAgregar && typeof botonAgregar.before === "function") {
+        botonAgregar.before(tarjeta);
+    } else if (galeria && botonAgregar) {
+        galeria.insertBefore(tarjeta, botonAgregar);
+    } else if (galeria) {
+        galeria.appendChild(tarjeta);
+    }
     return vista;
 }
 
@@ -279,7 +309,9 @@ async function cargarArchivos() {
     mensaje.hidden = hayArchivos;
     mensaje.textContent = "Aún no hay archivos. Sube un JPG o MP4 para comenzar.";
     barraAcciones.classList.toggle("Visible", hayArchivos);
-    zonaCarga.hidden = hayArchivos;
+    if (zonaCarga && "hidden" in zonaCarga) {
+        zonaCarga.hidden = hayArchivos;
+    }
     botonAgregar.hidden = !hayArchivos;
     for (const archivo of archivos) {
         const vista = crearTarjeta(archivo);
@@ -298,6 +330,23 @@ function validarTamanoArchivo(archivo) {
     return null;
 }
 
+async function subirUnArchivo(archivo, espacioDisponible) {
+    const errorTamano = validarTamanoArchivo(archivo);
+    if (errorTamano) {
+        throw new Error(errorTamano);
+    }
+    if (espacioDisponible !== Infinity && archivo.size > espacioDisponible) {
+        throw new Error(archivo.name + ": no queda espacio disponible (" + formatearAlmacenamiento(espacioDisponible) + " libres).");
+    }
+    const resultado = await subirMultimedia(coleccionId, [archivo], {
+        titulo: archivo.name.slice(0, 60),
+    });
+    if (resultado && resultado.excedentes && resultado.excedentes.length > 0) {
+        throw new Error(archivo.name + ": no queda espacio disponible.");
+    }
+    return { resultado, size: archivo.size };
+}
+
 async function subirArchivos() {
     if (ocupado || !selectorArchivos.files.length) return;
     indicarTrabajo(true);
@@ -307,40 +356,26 @@ async function subirArchivos() {
         const cuota = await consultarCuota();
         espacioDisponible = Number(cuota.espacio_disponible_bytes) || 0;
     } catch (error) {
+        console.warn("No se pudo consultar el espacio disponible.", error);
         errores.push("No se pudo consultar el espacio disponible. Se intentará subir igualmente.");
         espacioDisponible = Infinity;
     }
-    const archivosValidos = [];
-    for (const archivo of selectorArchivos.files) {
-        const errorTamano = validarTamanoArchivo(archivo);
-        if (errorTamano) {
-            errores.push(errorTamano);
-            continue;
-        }
-        if (espacioDisponible !== Infinity && archivo.size > espacioDisponible) {
-            errores.push(archivo.name + ": no queda espacio disponible (" + formatearAlmacenamiento(espacioDisponible) + " libres).");
-            continue;
-        }
-        archivosValidos.push(archivo);
-    }
-    for (const archivo of archivosValidos) {
+    const archivos = Array.from(selectorArchivos.files);
+    for (const archivo of archivos) {
         try {
-            const resultado = await subirMultimedia(coleccionId, [archivo], {
-                titulo: archivo.name.slice(0, 60),
-            });
-            if (resultado.excedentes && resultado.excedentes.length > 0) {
-                errores.push(archivo.name + ": no queda espacio disponible.");
-            } else if (espacioDisponible !== Infinity) {
-                espacioDisponible = Math.max(0, espacioDisponible - archivo.size);
+            const info = await subirUnArchivo(archivo, espacioDisponible);
+            if (espacioDisponible !== Infinity && info && typeof info.size === "number") {
+                espacioDisponible = Math.max(0, espacioDisponible - info.size);
             }
         } catch (error) {
-            errores.push(archivo.name + ": " + error.message);
+            errores.push(archivo.name + ": " + (error.message || "Error al subir el archivo."));
         }
     }
     try {
         await cargarArchivos();
         await actualizarAlmacenamiento();
     } catch (error) {
+        console.warn("No se pudo actualizar la galería tras subir archivos.", error);
         errores.push("No se pudo actualizar la galería: " + error.message);
     } finally {
         selectorArchivos.value = "";
@@ -369,6 +404,7 @@ async function eliminarSeleccionados() {
         await cargarArchivos();
         await actualizarAlmacenamiento();
     } catch (error) {
+        console.warn("No se pudo actualizar la galería tras eliminar archivos.", error);
         errores.push(error.message);
     } finally {
         indicarTrabajo(false);
@@ -436,9 +472,13 @@ async function iniciar() {
     }
 }
 
-zonaCarga.addEventListener("click", function () {
-    selectorArchivos.click();
-});
+if (zonaCarga) {
+    zonaCarga.addEventListener("click", function (evento) {
+        if (zonaCarga.tagName === "LABEL") return;
+        evento.preventDefault();
+        selectorArchivos.click();
+    });
+}
 botonAgregar.addEventListener("click", function () {
     selectorArchivos.click();
 });

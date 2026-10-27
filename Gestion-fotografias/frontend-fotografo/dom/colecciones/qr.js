@@ -38,6 +38,7 @@ function mostrarImagenQr(contenedor, svg) {
 function configurarModal(tipo, coleccionId) {
     const boton = document.getElementById("botonQr" + tipo);
     const modal = document.getElementById("modalQr" + tipo);
+    const dialogo = modal ? modal.querySelector("dialog") : null;
     const imagen = document.getElementById("imagenQr" + tipo);
     const enlace = document.getElementById("enlaceQr" + tipo);
     const copiar = document.getElementById("copiarEnlace" + tipo);
@@ -64,7 +65,15 @@ function configurarModal(tipo, coleccionId) {
             document.getElementById("abrirEnlace" + tipo).href = urlAcceso;
             copiar.textContent = "Copiar enlace";
             modal.hidden = false;
+            if (dialogo && typeof dialogo.showModal === "function") {
+                try {
+                    dialogo.showModal();
+                } catch (error) {
+                    // Si no puede abrir como modal, mantener comportamiento actual.
+                }
+            }
         } catch (error) {
+            console.warn("No se pudo generar el código QR.", error);
             alert(error.message);
         } finally {
             boton.disabled = false;
@@ -82,14 +91,28 @@ function configurarModal(tipo, coleccionId) {
     }
 
     function cerrar() {
+        if (dialogo && typeof dialogo.close === "function" && dialogo.open) {
+            try {
+                dialogo.close();
+            } catch (error) {
+                // Ignorar
+            }
+        }
         modal.hidden = true;
     }
     boton.addEventListener("click", mostrarQr);
     copiar.addEventListener("click", copiarEnlace);
     document.getElementById("cerrarQr" + tipo).addEventListener("click", cerrar);
-    modal.addEventListener("click", function (evento) {
-        if (evento.target === modal) cerrar();
-    });
+    if (modal) {
+        modal.addEventListener("click", function (evento) {
+            if (evento.target === modal) cerrar();
+        });
+    }
+    if (dialogo) {
+        dialogo.addEventListener("close", function () {
+            modal.hidden = true;
+        });
+    }
     document.addEventListener("keydown", function (evento) {
         if (evento.key === "Escape") cerrar();
     });

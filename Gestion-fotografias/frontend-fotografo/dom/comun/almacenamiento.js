@@ -18,6 +18,7 @@ export async function actualizarAlmacenamiento() {
                 " usados";
         }
     } catch (error) {
+        console.warn("No se pudo consultar el espacio usado.", error);
         for (const texto of textos) texto.textContent = "No se pudo consultar el espacio usado.";
     }
 }

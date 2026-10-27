@@ -90,5 +90,6 @@ export async function configurarTags(coleccion) {
         }
     } catch (error) {
         // Se pueden escribir etiquetas aunque no carguen las sugerencias.
+        console.warn("No se pudieron cargar sugerencias de hashtags.", error);
     }
 }

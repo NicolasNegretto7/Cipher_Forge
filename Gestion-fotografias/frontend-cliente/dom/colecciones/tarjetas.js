@@ -8,7 +8,7 @@ export function crearTarjetaColeccion(coleccion, opciones) {
 
     const portada = document.createElement("div");
     portada.className = "CubiertaTarjeta";
-    portada.textContent = (coleccion.titulo || "?").charAt(0).toUpperCase();
+    portada.textContent = (coleccion?.titulo || "?").charAt(0).toUpperCase();
     enlace.appendChild(portada);
     const nombre = document.createElement("p");
     nombre.className = "NombreColeccion";

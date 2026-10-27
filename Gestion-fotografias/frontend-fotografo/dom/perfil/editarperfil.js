@@ -8,7 +8,7 @@ const campoTelefono = document.getElementById("telefono");
 const LIMITE_TELEFONO = 9;
 
 function limpiarTelefono(valor) {
-    return String(valor || "").replace(/[^0-9]/g, "").slice(0, LIMITE_TELEFONO);
+    return String(valor || "").replace(/\D/g, "").slice(0, LIMITE_TELEFONO);
 }
 
 function moverCursorTelefono(posicion) {

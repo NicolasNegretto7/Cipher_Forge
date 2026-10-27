@@ -190,8 +190,8 @@ body {
     font-weight: 700;
     letter-spacing: 0.4px;
     text-align: center;
-    color: white;
-    background-color: #2bb58a;
+    color: #ffffff;
+    background-color: #167a5b;
     box-shadow: 0 4px 8px rgba(13, 92, 68, 0.18);
     cursor: pointer;
     transition: background-color 0.5s ease, transform 0.2s ease;
@@ -425,7 +425,7 @@ body {
     cursor: pointer;
 }
 
-.SelectorArchivo { top: 8px; left: 8px; background: rgba(255, 255, 255, 0.85); color: white; }
+.SelectorArchivo { top: 8px; left: 8px; background: rgba(15, 23, 42, 0.75); color: #ffffff; }
 .SelectorArchivo.Seleccionado { background: var(--verde); }
 .BotonFavorito { top: 8px; right: 8px; background: rgba(255, 255, 255, 0.9); color: #d9365f; font-size: 19px; }
 .BotonFavorito.FavoritoActivo { background: #d9365f; color: white; }
@@ -493,7 +493,7 @@ body {
 
 .BotonEliminar {
     margin-left: auto;
-    background-color: #e74c3c;
+    background-color: #b42318;
     color: white;
     border: none;
     border-radius: 6px;

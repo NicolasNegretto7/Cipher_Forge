@@ -44,6 +44,7 @@
                     <h1>Subir Imágenes</h1>
 
                     <div class="TagsColeccion" id="zonaTags">
+                        <label class="VisualmenteOculto" for="tagInput">Añadir etiqueta</label>
                         <input
                             id="tagInput"
                             type="text"
@@ -120,12 +121,12 @@
                     </div>
                 </div>
 
-                <button type="button" class="ZonaCarga" id="zonaCarga" disabled>
+                <label class="ZonaCarga" for="selectorArchivos" id="zonaCarga">
                     <strong>Seleccionar archivos para subir</strong>
                     <span class="Formatos">
                         Formatos permitidos: JPG y MP4.
                     </span>
-                </button>
+                </label>
                 <input
                     type="file"
                     id="selectorArchivos"
@@ -135,7 +136,7 @@
                     hidden
                 />
 
-                <p class="EstadoVacio" id="estadoVacio" role="status">Cargando colección...</p>
+                <output class="EstadoVacio" id="estadoVacio">Cargando colección...</output>
                 <div class="GaleriaMedia" id="galeria">
                     <button
                         type="button"
@@ -158,10 +159,8 @@
         </div>
 
         <div class="ModalQr" id="modalQrColaborativo" hidden>
-            <div
+            <dialog
                 class="ModalQrContenido"
-                role="dialog"
-                aria-modal="true"
                 aria-labelledby="tituloQrColaborativo"
             >
                 <button
@@ -193,15 +192,13 @@
                     <button class="BotonQr" id="imprimirQrColaborativo" type="button">
                         Imprimir hoja
                     </button>
-                </div>
+                </dialog>
             </div>
         </div>
 
         <div class="ModalQr" id="modalQrAcceso" hidden>
-            <div
+            <dialog
                 class="ModalQrContenido"
-                role="dialog"
-                aria-modal="true"
                 aria-labelledby="tituloQrAcceso"
             >
                 <button class="BotonCerrarQr" id="cerrarQrAcceso" type="button" aria-label="Cerrar">
@@ -226,7 +223,7 @@
                         Abrir
                     </a>
                 </div>
-            </div>
+            </dialog>
         </div>
 
         <div class="ModalConfirmacion" id="modalConfirmacion" hidden>

@@ -30,9 +30,9 @@ function normalizarTag(tag) {
 // Posición del primer tag seleccionado que tiene la colección: las del primer
 // tag van primero, después las del segundo, etc. Infinity si no coincide.
 function prioridadTags(coleccion) {
-    const tags = (coleccion.hashtags || []).map(normalizarTag);
+    const tags = new Set((coleccion.hashtags || []).map(normalizarTag));
     for (let i = 0; i < tagsSeleccionados.length; i += 1) {
-        if (tags.includes(tagsSeleccionados[i])) return i;
+        if (tags.has(tagsSeleccionados[i])) return i;
     }
     return Infinity;
 }
@@ -151,6 +151,7 @@ async function cargarSugerencias() {
         }
     } catch (error) {
         // El buscador también acepta etiquetas escritas a mano.
+        console.warn("No se pudieron cargar sugerencias de hashtags.", error);
     }
 }
 

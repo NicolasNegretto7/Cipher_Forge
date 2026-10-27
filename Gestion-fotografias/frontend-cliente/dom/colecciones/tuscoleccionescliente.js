@@ -26,6 +26,7 @@ function leerLista(clave) {
         const lista = JSON.parse(localStorage.getItem(clave) || "[]");
         return Array.isArray(lista) ? lista : [];
     } catch (error) {
+        console.warn("No se pudo leer datos almacenados.", error);
         return [];
     }
 }
@@ -178,6 +179,7 @@ async function iniciar() {
                 await concederAcceso(token, estado);
             } catch (error) {
                 // Conserva la invitación para reintentar desde su enlace.
+                console.warn("No se pudo procesar una invitación pendiente.", error);
             }
         }
     }
