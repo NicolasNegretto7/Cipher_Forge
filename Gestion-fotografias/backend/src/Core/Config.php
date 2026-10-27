@@ -10,10 +10,11 @@ namespace App\Core;
 class Config
 {
     // Clave secreta para firmar los tokens JWT (CF-13).
-    // Preferencia: variable de entorno JWT_SECRET. Si no está definida, se genera una
-    // clave aleatoria de 256 bits en la primera ejecución y se persiste en uploads/.jwt_secret
-    // (carpeta git-ignored y denegada por HTTP), de modo que los tokens sobrevivan reinicios
-    // y nunca se use una clave conocida/versionada como fallback.
+    // Debe definirse SIEMPRE por variable de entorno JWT_SECRET (mínimo 32 bytes aleatorios;
+    // generar con `openssl rand -hex 32`).
+    // C-01: ya NO se genera ni persiste un secreto en uploads/.jwt_secret. Ese archivo quedaba
+    // dentro de una carpeta servida por Apache, lo que permitía leer el secreto y forjar tokens.
+    // Sin JWT_SECRET la aplicación falla cerrada en lugar de usar una clave débil o expuesta.
     public static function jwtSecret(): string
     {
         $env = getenv('JWT_SECRET');
@@ -21,19 +22,9 @@ class Config
             return trim($env);
         }
 
-        $archivo = self::uploadsDir() . '/.jwt_secret';
-        if (is_file($archivo)) {
-            $guardado = @file_get_contents($archivo);
-            if (is_string($guardado) && trim($guardado) !== '') {
-                return trim($guardado);
-            }
-        }
-
-        $secreto = bin2hex(random_bytes(32));
-        @file_put_contents($archivo, $secreto, LOCK_EX);
-        @chmod($archivo, 0600);
-
-        return $secreto;
+        throw new \RuntimeException(
+            'Falta la variable de entorno JWT_SECRET. Definila con al menos 32 bytes aleatorios (openssl rand -hex 32).'
+        );
     }
 
     // Horas de validez de un token de acceso.

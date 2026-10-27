@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Core;
 use PDO;
+use RuntimeException;
 
 
 class Database{
@@ -19,24 +20,46 @@ class Database{
 
 
 public function __construct(
-    string $host= 'db',
-    string $user = 'cipher_user',
-    string $password = 'cipher_password',
-    string $port = '3306',
-    string $name = 'cipher_forge',
-    string $charset = 'utf8mb4',
-    
-    
+    ?string $host = null,
+    ?string $user = null,
+    ?string $password = null,
+    ?string $port = null,
+    ?string $name = null,
+    ?string $charset = null,
+
 )
 
 {
-    $this->host = getenv("DB_HOST") ?: $host;
-    $this->user = getenv("DB_USER") ?: $user;
-    $this->password = getenv("DB_PASS") ?: $password;
-    $this->port = getenv('DB_PORT') ?: $port;   
-    $this->name = getenv("DB_NAME") ?: $name;
-    $this->charset = getenv("DB_CHARSET") ?: $charset;
+    // Valores NO secretos: pueden tener un default razonable (red interna de Docker).
+    $this->host = self::env('DB_HOST', $host, 'db');
+    $this->user = self::env('DB_USER', $user, 'cipher_user');
+    $this->port = self::env('DB_PORT', $port, '3306');
+    $this->name = self::env('DB_NAME', $name, 'cipher_forge');
+    $this->charset = self::env('DB_CHARSET', $charset, 'utf8mb4');
+
+    // C-03: la contraseña NUNCA tiene un valor por defecto. Debe venir por entorno
+    // (DB_PASS) o por parámetro explícito; así se elimina el fallback inseguro
+    // 'cipher_password' que permitía conectar con credenciales conocidas.
+    $clave = getenv('DB_PASS');
+    if (is_string($clave) && $clave !== '') {
+        $this->password = $clave;
+    } elseif (is_string($password) && $password !== '') {
+        $this->password = $password;
+    } else {
+        throw new RuntimeException('Falta la variable de entorno DB_PASS (contraseña de la base de datos).');
+    }
 }
+
+/** Devuelve la variable de entorno si está definida; si no, el valor recibido o el default. */
+private static function env(string $var, ?string $valor, string $default): string
+{
+    $env = getenv($var);
+    if (is_string($env) && $env !== '') {
+        return $env;
+    }
+    return $valor !== null && $valor !== '' ? $valor : $default;
+}
+
 public function getConnection(): PDO
     {
         if($this->connection !==null){

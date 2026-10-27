@@ -84,11 +84,12 @@ $router->add('GET', '/favoritos', FavoritoController::class, 'listar', 'auth');
 
 // -------------------------------------------------------------
 // 7. Respaldos y Mantenimiento del Sistema (HU13 / RNF5, RNF6, RNF7)
-// H02 (RESUELTO): restringidos a la red local en SistemaController (restringirALocal).
+// H-01: estas rutas exigen sesión ('auth') además del filtro por IP de SistemaController.
 // El respaldo automático corre por CLI (cron-backup.php) y no depende de estas rutas.
+// En el despliegue con Nginx, /sistema/* se deniega por completo (reverse proxy).
 // -------------------------------------------------------------
-$router->add('POST', '/sistema/backup', SistemaController::class, 'backup');
-$router->add('GET', '/sistema/backups', SistemaController::class, 'listarBackups');
-$router->add('POST', '/sistema/limpiar-colaborativos', SistemaController::class, 'limpiarColaborativos');
+$router->add('POST', '/sistema/backup', SistemaController::class, 'backup', 'auth');
+$router->add('GET', '/sistema/backups', SistemaController::class, 'listarBackups', 'auth');
+$router->add('POST', '/sistema/limpiar-colaborativos', SistemaController::class, 'limpiarColaborativos', 'auth');
 
 return $router;
