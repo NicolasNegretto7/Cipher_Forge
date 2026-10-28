@@ -14,6 +14,7 @@ use App\Core\Request;
 use App\Core\Response;
 use App\repository\MultimediaRepository;
 use App\repository\UserRepository;
+use LengthException;
 
 class FotografoController
 {
@@ -85,7 +86,22 @@ class FotografoController
             Response::error('El nombre completo no puede estar vacío.', 400);
         }
 
-        $telefono     = isset($data['telefono']) ? trim((string) $data['telefono']) : $usuario['telefono'];
+        // H-03 / N3: Validar longitud máxima según schema.sql (VARCHAR 30).
+        if (strlen($nombre) > 30) {
+            Response::error('El nombre completo no debe superar los 30 caracteres.', 400);
+        }
+
+        $telefono = isset($data['telefono']) ? trim((string) $data['telefono']) : $usuario['telefono'];
+
+        if ($telefono !== null && $telefono !== '') {
+            if (!ctype_digit($telefono)) {
+                Response::error('El teléfono debe contener solo números.', 400);
+            }
+
+            if (strlen($telefono) !== 9) {
+                Response::error('El teléfono debe tener exactamente 9 caracteres.', 400);
+            }
+        }
 
         $this->userRepository->actualizarPerfilFotografo(
             (int) $usuario['id'],
