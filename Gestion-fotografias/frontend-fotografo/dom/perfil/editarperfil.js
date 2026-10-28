@@ -5,7 +5,14 @@ import { guardarUsuario } from "../../services/sesion/sesionService.js";
 const usuarioGuardado = requiereSesion("fotografo");
 const campoNombre = document.getElementById("nombreCompleto");
 const campoTelefono = document.getElementById("telefono");
+const LIMITE_NOMBRE = 30;
 const LIMITE_TELEFONO = 9;
+
+function limpiarNombre(valor) {
+    return String(valor || "")
+        .replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]/g, "")
+        .slice(0, LIMITE_NOMBRE);
+}
 
 function limpiarTelefono(valor) {
     return String(valor || "").replace(/\D/g, "").slice(0, LIMITE_TELEFONO);
@@ -17,15 +24,12 @@ function moverCursorTelefono(posicion) {
 }
 
 function mostrarDatos() {
-    campoNombre.value = (usuarioGuardado.nombre_completo || "").replace(
-        /[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]/g,
-        ""
-    );
+    campoNombre.value = limpiarNombre(usuarioGuardado.nombre_completo);
     campoTelefono.value = limpiarTelefono(usuarioGuardado.telefono);
 }
 
 campoNombre.addEventListener("input", function () {
-    campoNombre.value = campoNombre.value.replace(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]/g, "");
+    campoNombre.value = limpiarNombre(campoNombre.value);
 });
 
 campoTelefono.addEventListener("input", function () {
@@ -113,7 +117,7 @@ if (usuarioGuardado) {
     mostrarDatos();
     document.getElementById("formNombre").addEventListener("submit", async function (evento) {
         const datos = {
-            nombre_completo: document.getElementById("nombreCompleto").value.trim(),
+            nombre_completo: limpiarNombre(document.getElementById("nombreCompleto").value).trim(),
         };
         await enviarFormulario(evento, datos);
     });
