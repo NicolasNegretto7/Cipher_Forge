@@ -22,6 +22,7 @@ const botonAceptarConfirmacion = document.getElementById("confirmacionAceptar");
 let seleccionados = [];
 let eliminando = false;
 let resolverConfirmacion = null;
+let focoAntesDeConfirmar = null;
 let accionAlCerrar = null;
 
 function cerrarConfirmacion(resultado) {
@@ -31,20 +32,35 @@ function cerrarConfirmacion(resultado) {
     const accion = accionAlCerrar;
     resolverConfirmacion = null;
     accionAlCerrar = null;
+    if (focoAntesDeConfirmar && typeof focoAntesDeConfirmar.focus === "function") {
+        focoAntesDeConfirmar.focus();
+    }
+    focoAntesDeConfirmar = null;
     if (resolver) resolver(resultado);
     if (accion) accion();
 }
 
-function pedirConfirmacion(texto) {
-    return new Promise(function (resolve) {
-        textoConfirmacion.textContent = texto;
-        botonCancelarConfirmacion.hidden = false;
-        botonAceptarConfirmacion.textContent = "Aceptar";
-        resolverConfirmacion = resolve;
-        accionAlCerrar = null;
-        modalConfirmacion.hidden = false;
-        botonCancelarConfirmacion.focus();
-    });
+function esPregunta(texto) {
+    if (!texto) return false;
+    return /[?¿]/.test(String(texto));
+}
+
+function esErrorDePermisos(texto) {
+    if (!texto) return false;
+    const lower = String(texto).toLowerCase();
+    return (
+        lower.includes("dueño") ||
+        lower.includes("dueÃ±o") ||
+        lower.includes("modificar la colección") ||
+        lower.includes("modificar la coleccion") ||
+        lower.includes("eliminar la colección") ||
+        lower.includes("eliminar la coleccion") ||
+        lower.includes("no autorizado") ||
+        lower.includes("sesión") ||
+        lower.includes("sesion") ||
+        lower.includes("403") ||
+        lower.includes("401")
+    );
 }
 
 function redirigirAlLoginCorrespondiente() {
@@ -82,25 +98,46 @@ function redirigirAlLoginCorrespondiente() {
     }
 }
 
-function mostrarAlertaError(texto) {
+function mostrarDialogo(texto, opciones = {}) {
     return new Promise(function (resolve) {
         textoConfirmacion.textContent = texto;
-        botonCancelarConfirmacion.hidden = true;
-        botonAceptarConfirmacion.textContent = "Ok";
+        focoAntesDeConfirmar = document.activeElement;
         resolverConfirmacion = resolve;
-        accionAlCerrar = redirigirAlLoginCorrespondiente;
-        modalConfirmacion.hidden = false;
-        botonAceptarConfirmacion.focus();
+
+        const pregunta = opciones.pregunta !== undefined ? opciones.pregunta : esPregunta(texto);
+        const redirigir = opciones.redirigir !== undefined ? opciones.redirigir : esErrorDePermisos(texto);
+
+        if (pregunta) {
+            botonCancelarConfirmacion.hidden = false;
+            botonAceptarConfirmacion.textContent = "Aceptar";
+            accionAlCerrar = null;
+            modalConfirmacion.hidden = false;
+            botonCancelarConfirmacion.focus();
+        } else {
+            botonCancelarConfirmacion.hidden = true;
+            botonAceptarConfirmacion.textContent = "Ok";
+            accionAlCerrar = redirigir ? redirigirAlLoginCorrespondiente : null;
+            modalConfirmacion.hidden = false;
+            botonAceptarConfirmacion.focus();
+        }
     });
 }
 
-// Sobrescribir alert y confirm para que todos los llamados usen este modal
+function pedirConfirmacion(texto) {
+    return mostrarDialogo(texto, { pregunta: true });
+}
+
+function mostrarAlertaError(texto) {
+    return mostrarDialogo(texto, { pregunta: false });
+}
+
+// Sobrescribir alert y confirm para que no haya alerts nativos
 window.alert = function (texto) {
-    return mostrarAlertaError(texto);
+    return mostrarDialogo(texto);
 };
 
 window.confirm = function (texto) {
-    return pedirConfirmacion(texto);
+    return mostrarDialogo(texto, { pregunta: true });
 };
 
 function crearTarjeta(coleccion) {
