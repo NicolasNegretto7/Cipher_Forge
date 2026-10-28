@@ -1051,8 +1051,6 @@ escaneo automatizado no puede resolver por sí solo:
 
 ## 1.6. Pruebas de Carga y Rendimiento (Benchmarking)
 
-### 1.6.1. Información General del Entorno de Pruebas
-
 * **Objetivo:** Evaluar la capacidad de respuesta, rendimiento y estabilidad de la API REST frente a un flujo de solicitudes concurrentes ejecutadas desde una máquina atacante/evaluadora (Kali Linux).
 * **Plataforma de Despliegue:** Docker (Contenedores)
 * **Host del Servidor:** `192.168.1.247`
@@ -1061,7 +1059,7 @@ escaneo automatizado no puede resolver por sí solo:
 * **Servidor Web / Runtime:** Apache/2.4.69 (Debian) con PHP 8.2
 * **Herramienta de Evaluación:** ApacheBench (ab) v2.3
 
-### 1.6.2. Parámetros de la Prueba
+### Parámetros de la Prueba
 
 * **Solicitudes Totales (`-n`):** 100
 * **Nivel de Concurrencia (`-c`):** 2
@@ -1070,7 +1068,7 @@ escaneo automatizado no puede resolver por sí solo:
 ab -n 100 -c 2 http://192.168.1.247:8081/api/ping
 ```
 
-### 1.6.3. Resultados de la Prueba de Carga (ApacheBench)
+### Resultados de la Prueba de Carga (ApacheBench)
 
 #### Resumen de Métricas Principales
 
@@ -1102,7 +1100,7 @@ ab -n 100 -c 2 http://192.168.1.247:8081/api/ping
 * **99% de las solicitudes:** atendidas en menos de **67 ms**
 * **100% (peor tiempo):** **67 ms**
 
-### 1.6.4. Estado e Impacto en la Infraestructura (Docker)
+### Estado e Impacto en la Infraestructura (Docker)
 
 Durante la ejecución de la prueba, se monitoreó el consumo de recursos de los contenedores mediante el comando `docker stats`:
 
@@ -1113,7 +1111,7 @@ Durante la ejecución de la prueba, se monitoreó el consumo de recursos de los 
 | **`cipher_forge_worker`** | `ff32479fa2c4` | **0.00%** | 6.84 MiB / 7.708 GiB | 0.09% | 42.6 kB / 15.4 kB | 0 B / 8.19 kB | 1 |
 | **`cipher_forge_mail`** | `90abd4c4d32a` | **0.00%** | 7.84 MiB / 7.708 GiB | 0.10% | 22.8 kB / 23.1 kB | 0 B / 496 kB | 9 |
 
-### 1.6.5. Conclusiones y Análisis de Seguridad
+### Conclusiones y Análisis de Seguridad
 
 1. **Estabilidad del Servicio:** La API mantuvo una disponibilidad del **100%** sin registrar errores de red, caídas de conexión o errores del servidor HTTP (0 peticiones fallidas).
 2. **Eficiencia en el Procesamiento:** La arquitectura basada en Docker y Apache/PHP 8.2 mostró un rendimiento fluido con una tasa promedio de **71.49 solicitudes por segundo** y latencias máximas controladas (67 ms).
