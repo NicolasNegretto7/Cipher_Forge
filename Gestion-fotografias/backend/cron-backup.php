@@ -29,6 +29,10 @@ spl_autoload_register(function (string $class): void {
 use App\services\BackupService;
 use App\services\MultimediaService;
 
+// Zona horaria de la aplicación (Uruguay): alinea las fechas de logs y respaldos del
+// worker/cron con la hora local real y no con la del contenedor (UTC).
+date_default_timezone_set(\App\Core\Config::zonaHoraria());
+
 $modoLoop = in_array('--loop', $argv, true);
 
 // Intervalos (segundos) entre ejecuciones en modo --loop; sobrescribibles por entorno.

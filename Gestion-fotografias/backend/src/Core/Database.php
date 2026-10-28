@@ -74,6 +74,12 @@ public function getConnection(): PDO
     PDO::ATTR_DEFAULT_FETCH_MODE=> PDO::FETCH_ASSOC,
     
     PDO::ATTR_EMULATE_PREPARES=> false,
+
+    // Zona horaria de la sesión MySQL en hora de Uruguay (UTC-3): asegura que
+    // CURRENT_TIMESTAMP/NOW() —usados por los DEFAULT de creado_en y la purga a 24 h—
+    // guarden y devuelvan la hora local real y no la del contenedor (UTC).
+    // El valor proviene de Config (constante '-03:00'), no de entrada del usuario.
+    PDO::MYSQL_ATTR_INIT_COMMAND => "SET time_zone = '" . Config::offsetZonaHoraria() . "'",
     ];
 $this->connection = new PDO($dsn, $this->user, $this->password, $options);
     return $this->connection;

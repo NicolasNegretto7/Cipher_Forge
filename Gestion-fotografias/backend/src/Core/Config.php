@@ -33,6 +33,23 @@ class Config
         return 24;
     }
 
+    // Zona horaria oficial de la aplicación (Uruguay).
+    // Se usa para que las fechas generadas por PHP y por MySQL (CURRENT_TIMESTAMP/NOW())
+    // coincidan con la hora local del usuario y no con la del contenedor (UTC).
+    public static function zonaHoraria(): string
+    {
+        return 'America/Montevideo';
+    }
+
+    // Desplazamiento fijo de Uruguay respecto a UTC.
+    // Desde 2015 Uruguay no aplica horario de verano: es siempre UTC-3.
+    // Se usa un offset explícito para MySQL porque la imagen de MySQL no siempre
+    // tiene cargadas las tablas de zonas horarias por nombre (America/Montevideo).
+    public static function offsetZonaHoraria(): string
+    {
+        return '-03:00';
+    }
+
     // Raíz de almacenamiento de archivos multimedia (sistema de archivos del contenedor).
     public static function uploadsDir(): string
     {

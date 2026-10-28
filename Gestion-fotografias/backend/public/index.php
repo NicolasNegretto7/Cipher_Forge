@@ -47,9 +47,14 @@ spl_autoload_register(function (string $class): void {
     }
 });
 
+use App\Core\Config;
 use App\Core\Response;
 use App\Core\Router;
 use App\middlewares\RateLimitMiddleware;
+
+// Zona horaria de la aplicación (Uruguay): asegura que date()/time() generen la hora
+// local real (respaldos, logs, expiración de tokens) y no la del contenedor (UTC).
+date_default_timezone_set(Config::zonaHoraria());
 
 //Cabeceras CORS (para permitir peticiones desde el frontend)
 //Las cookies de sesión (JWT) requieren Allow-Credentials y un origen

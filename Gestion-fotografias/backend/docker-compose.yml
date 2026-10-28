@@ -16,6 +16,8 @@ services:
       - .:/var/www/html
       - uploads_data:/var/www/html/uploads
     environment:
+      # Zona horaria de Uruguay: alinea las fechas generadas por PHP con la hora local.
+      - TZ=America/Montevideo
       - DB_HOST=db
       - DB_NAME=${MYSQL_DATABASE:-cipher_forge}
       - DB_USER=${MYSQL_USER:-cipher_user}
@@ -56,6 +58,7 @@ services:
       - .:/var/www/html
       - uploads_data:/var/www/html/uploads
     environment:
+      - TZ=America/Montevideo
       - DB_HOST=db
       - DB_NAME=${MYSQL_DATABASE:-cipher_forge}
       - DB_USER=${MYSQL_USER:-cipher_user}
@@ -81,6 +84,8 @@ services:
     container_name: cipher_forge_db
     restart: unless-stopped
     environment:
+      # Zona horaria del servidor MySQL (Uruguay): CURRENT_TIMESTAMP/NOW() en hora local.
+      - TZ=America/Montevideo
       # C-03: credenciales obligatorias desde .env (nada hardcodeado, sin puerto publicado).
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:?define MYSQL_ROOT_PASSWORD en .env}
       - MYSQL_DATABASE=${MYSQL_DATABASE:-cipher_forge}
