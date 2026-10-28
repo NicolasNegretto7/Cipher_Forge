@@ -64,34 +64,42 @@ function esErrorDePermisos(texto) {
 }
 
 function redirigirAlLoginCorrespondiente() {
-    let esCliente = false;
+    let rol = "fotografo";
     try {
-        const clienteStorage = localStorage.getItem("cliente-usuario");
-        const fotografoStorage = localStorage.getItem("fotografo-usuario");
-        const clienteObj = clienteStorage ? JSON.parse(clienteStorage) : null;
-        const fotografoObj = fotografoStorage ? JSON.parse(fotografoStorage) : null;
-
-        if (clienteObj && clienteObj.rol === "cliente") {
-            esCliente = true;
-        } else if (fotografoObj && fotografoObj.rol === "cliente") {
-            esCliente = true;
-        } else if (usuario && usuario.rol === "cliente") {
-            esCliente = true;
+        if (usuario && usuario.rol) {
+            rol = usuario.rol;
+        } else {
+            const fotografoStorage = localStorage.getItem("fotografo-usuario");
+            if (fotografoStorage) {
+                const fotografoObj = JSON.parse(fotografoStorage);
+                if (fotografoObj && fotografoObj.rol) {
+                    rol = fotografoObj.rol;
+                }
+            } else {
+                const clienteStorage = localStorage.getItem("cliente-usuario");
+                if (clienteStorage) {
+                    const clienteObj = JSON.parse(clienteStorage);
+                    if (clienteObj && clienteObj.rol === "cliente") {
+                        rol = "cliente";
+                    }
+                }
+            }
         }
     } catch (e) {}
 
     try {
-        localStorage.removeItem("fotografo-usuario");
-        localStorage.removeItem("fotografo-token");
-        localStorage.removeItem("fotografo-cuota-almacenamiento");
-        if (esCliente) {
+        if (rol === "cliente") {
             localStorage.removeItem("cliente-usuario");
             localStorage.removeItem("cliente-token");
             localStorage.removeItem("cliente-cuota-almacenamiento");
+        } else {
+            localStorage.removeItem("fotografo-usuario");
+            localStorage.removeItem("fotografo-token");
+            localStorage.removeItem("fotografo-cuota-almacenamiento");
         }
     } catch (e) {}
 
-    if (esCliente) {
+    if (rol === "cliente") {
         window.location.href = new URL("../../frontend-cliente/pages/login.html", window.location.href).href;
     } else {
         window.location.href = new URL("login.html", window.location.href).href;
