@@ -243,459 +243,629 @@ Estas políticas establecen los lineamientos normativos para proteger la Confide
 
 # Reporte de Análisis SAST — Cipher_Forge / Gestion-fotografias
 
-**Herramienta:** SonarQube (Community Build) + SonarScanner CLI
-**Tipo de verificación:** Static Application Security Testing (SAST) + análisis de calidad de código
-**Proyecto:** `cipher-forge` — `C:\Users\Iván Sandoval\Desktop\Cipher_Forge\Gestion-fotografias`
+**Herramienta:** motor SAST local de reglas propias + revisión manual de triaje
+**Tipo de verificación:** Static Application Security Testing (SAST) y revisión de calidad
+**Proyecto:** `cipher-forge` — `Gestion-fotografias`
+**Fecha de la corrida:** 2026-10-27
+
 
 ---
 
 ## 1. Resumen ejecutivo
 
-Se realizó un análisis SAST completo sobre el proyecto `Gestion-fotografias` (backend PHP/MySQL + frontends web JS/HTML/CSS + Docker) mediante SonarQube. Se detectaron **145 problemas activos**, de los cuales **7 son vulnerabilidades de seguridad**, **9 son bugs** y **129 son code smells**. El Quality Gate quedó en **ERROR** por cobertura nueva 0% (exigido ≥80%), duplicación nueva 9.35% (máx. 3%) y 102 incumplimientos nuevos.
+Se ejecutó un nuevo análisis estático sobre la totalidad del proyecto: **126 archivos**
+de código y configuración (PHP, JavaScript, HTML, CSS, SQL, Docker, YAML e INI). El motor
+local generó **49 hallazgos**. Después del triaje manual, **ninguno de esos 49 es una
+vulnerabilidad crítica o alta explotable**:
 
-No se encontraron **Security Hotspots** con probabilidad de vulnerabilidad, ni secretos expuestos (regla de texto y secretos analizó 84 archivos sin hallazgos).
+| Clasificación de los 49 hallazgos del motor | Cantidad |
+|:--|:--:|
+| Vulnerabilidad real pendiente de corrección | 0 |
+| Riesgo bajo o pendiente de mejora | 11 |
+| Mitigado por un control existente | 10 |
+| Falso positivo del motor | 8 |
+| Observación de calidad o accesibilidad | 20 |
+| **Total** | **49** |
 
-**Prioridad de remediación:** corregir primero las 7 vulnerabilidades (CORS permissivo, PRNG no criptográfico para generación de IDs, cookies de sesión sin flags de seguridad y contenedor corriendo como *root*).
+Los 11 hallazgos de riesgo bajo no permiten, por sí solos, comprometer la
+confidencialidad, integridad o disponibilidad del sistema: son escrituras en
+`localStorage` de datos no sensibles, un `sha1` usado solo como nombre de archivo y una
+respuesta JSON sin validación estructural en uno de los dos frontends.
+
+La revisión manual complementaria (sección 8) sí identificó **9 observaciones que el
+motor no detecta**. Las dos de mayor prioridad son la reflexión de CORS sin lista blanca
+(M-01) y la exposición del mensaje interno de excepción en las respuestas 500 (M-02),
+ambas de severidad media. No se aplicó ninguna corrección en esta corrida: el alcance
+fue exclusivamente el análisis y la documentación.
+
+**Diferencia clave con el informe anterior:** la corrida de 2026-09-10 se hizo con
+SonarQube y reportó 145 problemas (7 vulnerabilidades). Esta corrida **no** se hizo con
+SonarQube porque el servidor y el escáner no están disponibles en el entorno actual
+(sección 2.1). Por lo tanto, los números de ambas corridas **no son comparables
+directamente** y no deben sumarse ni promediarse.
 
 ---
 
-## 2. Información de la verificación
+## 2. Metodología
 
-| Parámetro | Valor |
-|:---|:---|
-| Fecha del análisis | 2026-09-10 |
-| SonarQube Server | `http://localhost:9000` (Community Build **26.8.0.126808**) |
-| SonarScanner CLI | **8.1.0.6389** — Java 21.0.11 (Eclipse Adoptium) |
-| Clave de proyecto | `cipher-forge` |
-| Directorio base | `C:\Users\Iván Sandoval\Desktop\Cipher_Forge\Gestion-fotografias` |
-| Dashboard | http://localhost:9000/dashboard?id=cipher-forge |
-| Estado del análisis | `ANALYSIS SUCCESSFUL` (procesamiento Compute Engine: `SUCCESS`) |
+### 2.1 Contexto y limitación principal
+
+SonarQube no está disponible en el entorno de ejecución de esta corrida:
+
+| Verificación | Resultado |
+|:--|:--|
+| `http://localhost:9000/api/system/status` | Sin respuesta |
+| `C:\Sonar-Scanner\sonar-scanner\bin\sonar-scanner.bat` | No existe |
+| Imagen o contenedor de SonarQube | No hay |
+| `sonar-project.properties` | Presente en el repositorio, sin servidor al que enviar el análisis |
+
+Como consecuencia, esta corrida **no puede emitir IDs oficiales de regla**
+(`php:S####`, `javascript:S####`, `Web:S####`, etc.), ni métricas de Quality Gate,
+cobertura o duplicación. Los datos de SonarQube del informe anterior se conservan
+únicamente como referencia histórica en la sección 9.
+
+Para no dejar el proyecto sin verificación estática, se utilizó un motor local de reglas
+propias y se complementó con revisión manual del código. Esta decisión se documenta de
+forma explícita para que el lector no confunda los resultados actuales con una corrida
+oficial de SonarQube.
+
+### 2.2 Motor utilizado
+
+- **Runtime:** Python 3.14.4 sobre Windows.
+- **Enfoque:** análisis por archivo, sin ejecutar el código de la aplicación.
+- **Reglas:** 32 firmas estáticas para PHP, JavaScript, HTML, CSS, Docker, YAML e INI,
+  más 3 comprobaciones estructurales (etiquetas HTML, `target="_blank"` y selectores CSS).
+- **Análisis estructural ligero:**
+  - HTML: detección de `input` sin etiqueta accesible, incluyendo el caso de `input`
+    envuelto por un `<label>`; verificación de `target="_blank"` con `rel`.
+  - CSS: detección de selectores duplicados **solo dentro del mismo contexto**, para no
+    marcar como duplicado un selector que se redefine dentro de un `@media`.
+- **Salida:** un registro JSON por hallazgo con regla, severidad, CWE, archivo, línea,
+  fragmento de código y nota.
+- **Evidencia:** el motor y su salida JSON se conservan como artefactos locales de la
+  corrida; las reglas aplicadas quedan documentadas en la sección 4 para que el análisis
+  sea reproducible y auditable.
+
+### 2.3 Proceso de triaje
+
+Cada hallazgo del motor se contrastó con el código fuente y se clasificó en una de estas
+cuatro categorías:
+
+1. **Real:** el patrón es explotable y no existe un control que lo neutralice.
+2. **Mitigado:** el patrón existe, pero un control cercano impide la explotación
+   (parametrización, escape de argumentos, validación posterior, etc.).
+3. **Falso positivo:** el motor no distingue el contexto y el patrón no tiene el efecto
+   que la regla supone.
+4. **Calidad:** el hallazgo es real como problema de mantenibilidad o accesibilidad,
+   pero no tiene impacto de seguridad.
+
+El triaje es indispensable en cualquier SAST: las reglas sintácticas no pueden resolver
+por sí solas si un valor llega desde HTTP, si está parametrizado o si el contexto de uso
+es sensible.
+
+### 2.4 Limitaciones del enfoque
+
+- No calcula cobertura de pruebas, duplicación ni Quality Gate.
+- No implementa seguimiento de flujo de datos (taint tracking) entre origen y sink, por
+  lo que puede producir falsos positivos y también falsos negativos.
+- No analiza dependencias de terceros: el proyecto no tiene `composer.json` ni
+  `package.json`.
+- No reemplaza al DAST, a las pruebas funcionales ni a la revisión manual.
+- Los conteos de calidad no son comparables 1:1 con las reglas de SonarQube.
 
 ---
 
 ## 3. Alcance del análisis
 
-### 3.1 Archivos escaneados (82 archivos de código fuente)
+Se recorrieron **126 archivos** dentro de `Gestion-fotografias`:
 
-| Lenguaje | Archivos | Notas |
-|:---|:---:|:---|
-| PHP | 37 | Backend `backend/src`, `public/`, scripts raíz (`routes.php`, `cron-backup.php`, probes) |
-| JavaScript | 21 | Lógica de `frontend-cliente/js` y `frontend-fotografo/js` |
-| HTML | 15 | Páginas de ambos frontends |
-| CSS | 7 | Hojas de estilo de ambos frontends |
-| INI | 1 | `backend/php.ini` (config runtime) |
-| Dockerfile | 1 | `backend/Dockerfile` |
+| Tipo | Archivos | Extensión |
+|:--|:--:|:--|
+| PHP | 44 | `.php` |
+| JavaScript | 47 | `.js` |
+| HTML | 17 | `.html` |
+| CSS | 12 | `.css` |
+| SQL | 2 | `.sql` |
+| YAML | 1 | `.yml` |
+| Configuración PHP | 1 | `.ini` |
+| Dockerfile | 1 | `Dockerfile` |
+| Plantilla de entorno | 1 | `.env.example` |
+| **Total** | **126** | |
 
-También se analizaron como parte del paso de texto/secretos: 84 archivos (incluye `docker-compose.yml` YAML, `routes.php`, etc.) con sensor `TextAndSecretsSensor`; **0 secretos encontrados**.
+Directorios excluidos: `.git`, `node_modules`, `vendor`, `backups`, `uploads`, `.sonar`
+y `critical-problems`. Los archivos de `uploads/` y `backups/` son datos generados en
+tiempo de ejecución, no código fuente.
 
-### 3.2 Configuración utilizada (`sonar-project.properties`)
-
-```properties
-sonar.projectKey=cipher-forge
-sonar.projectName=Cipher Forge - Gestion Fotografias
-sonar.projectVersion=1.0
-sonar.sources=backend,frontend-cliente,frontend-fotografo
-sonar.sourceEncoding=UTF-8
-sonar.exclusions=backend/backups/**,backend/uploads/**,**/.git/**
-```
-
-### 3.3 Comando de ejecución (Windows / PowerShell)
-
-```
-& C:\Sonar-Scanner\sonar-scanner\bin\sonar-scanner.bat --% `
-  -Dsonar.host.url=http://localhost:9000 `
-  -Dsonar.token=<SONAR_TOKEN>
-```
-
-### 3.4 Perfiles de calidad activados
-
-`Sonar way` para los 6 lenguajes detectados: **css, docker, js (JavaScript), php, web (HTML), yaml**.
-
-> Nota: el análisis SCA de dependencias fue omitido (no hay manifiestos composer/npm en el proyecto) y no se proveyeron reportes de cobertura (PHPUnit/JS), por lo que `coverage = 0.0%`.
+La revisión manual complementaria (sección 8) también consideró
+`backend/docker-entrypoint.sh`, `backend/probe_e2e.ps1` y el artefacto de escaneo
+`.scannerwork/report-task.txt`, que no forman parte del conjunto analizado por el motor.
 
 ---
 
-## 4. Métricas globales (proyecto `cipher-forge`)
+## 4. Reglas aplicadas
 
-| Métrica | Valor |
-|:---|:---|
-| Líneas de código (NCLOC) | 10 499 |
-| Líneas totales | 13 655 |
-| Sentencias | 4 027 |
-| Funciones | 672 |
-| Clases | 32 |
-| Complejidad | 1 765 |
-| Densidad de comentarios | 6.6% |
-| **Problemas totales (activos)** | **145** |
-| Vulnerabilidades | 7 |
-| Bugs | 9 |
-| Code Smells | 129 |
-| Security Hotspots | 0 |
-| Cobertura de código | 0.0% |
-| Duplicación | 4.3% |
-| Rating de seguridad | **C (3.0)** |
-| Rating de fiabilidad | **C (3.0)** |
-| Rating de mantenibilidad | **A (1.0)** |
+### 4.1 Reglas que produjeron hallazgos
 
-### 4.1 Distribución por severidad
+| Regla | Categoría | Severidad base | CWE | Hallazgos |
+|:--|:--|:--|:--|:--:|
+| `PHP-SQL-CONCAT` | Seguridad | Critical | CWE-89 | 6 |
+| `PHP-COMMAND` | Seguridad | Critical | CWE-78 | 3 |
+| `PHP-INCLUDE-VAR` | Seguridad | Critical | CWE-98 | 2 |
+| `PHP-SSRF` | Seguridad | Major | CWE-918 | 1 |
+| `PHP-WEAK-HASH` | Seguridad | Major | CWE-328 | 1 |
+| `JS-STORAGE-SET` | Seguridad | Info | CWE-922 | 9 |
+| `JS-LOCATION-ASSIGN` | Seguridad | Major | CWE-601 | 5 |
+| `JS-RESPONSE-JSON` | Seguridad | Info | CWE-20 | 2 |
+| `HTML-ARIA-ROLE-NATIVE` | Calidad | Major | — | 15 |
+| `CSS-DUPLICATE-SELECTOR` | Calidad | Minor | — | 5 |
+| **Total** | | | | **49** |
+
+### 4.2 Reglas aplicadas sin hallazgos
+
+También se evaluaron y no produjeron resultados:
+
+- `PHP-EVAL`, `PHP-UNSERIALIZE`, `PHP-EXTRACT`, `PHP-XSS-ECHO`, `PHP-OPEN-REDIRECT`,
+  `PHP-CORS-WILDCARD`, `PHP-WEAK-RANDOM`, `PHP-HARDCODED-SECRET`.
+- `JS-INNERHTML`, `JS-EVAL`, `JS-WEAK-RANDOM`, `JS-POSTMESSAGE-WILDCARD`,
+  `JS-HARDCODED-SECRET`.
+- `HTML-INLINE-HANDLER`, `HTML-VIEWPORT-ZOOM`, `HTML-EMPTY-HEADING`,
+  `HTML-TARGET-BLANK-NO-REL`, `HTML-INPUT-NO-LABEL`.
+- `DOCKER-ROOT`, `DOCKER-LATEST`, `DOCKER-ADD`.
+- `YAML-HARDCODED-PASSWORD`, `INI-COOKIE-HTTPONLY`, `INI-COOKIE-SECURE`,
+  `INI-DISPLAY-ERRORS`.
+
+La ausencia de hallazgos en `PHP-CORS-WILDCARD` no significa que CORS esté resuelto:
+la implementación actual ya no usa el literal `*`, sino que **refleja** el origen
+solicitado. Ese caso se analiza en la sección 8 (M-01).
+
+---
+
+## 5. Resultados globales
+
+### 5.1 Distribución por severidad (salida cruda del motor)
 
 | Severidad | Cantidad |
-|:---|:---:|
-| Blocker | 0 |
-| Critical | 20 |
-| Major | 52 |
-| Minor | 71 |
-| Info | 2 |
-| **Total** | **145** |
+|:--|:--:|
+| Critical | 11 |
+| Major | 22 |
+| Minor | 5 |
+| Info | 11 |
+| **Total** | **49** |
 
-### 4.2 Quality Gate
+La severidad base es la que asigna la regla, **no** la severidad real tras el triaje.
+Por eso hay 11 hallazgos marcados como Critical que, al revisar el contexto, resultan
+falsos positivos o están mitigados.
 
-| Condición | Valor real | Umbral | Estado |
-|:---|:---|:---|:---|
-| Cobertura nueva (`new_coverage`) | 0.0% | ≥ 80% | ❌ ERROR |
-| Duplicación nueva (`new_duplicated_lines_density`) | 9.35% | ≤ 3% | ❌ ERROR |
-| Violaciones nuevas (`new_violations`) | 102 | = 0 | ❌ ERROR |
+### 5.2 Resultado del triaje
 
-**Estado global del Quality Gate: `ERROR`**
+| Veredicto | Cantidad | Hallazgos |
+|:--|:--:|:--|
+| Falso positivo | 8 | S-01, S-02, S-06, S-15, S-16, S-25, S-26, S-27 |
+| Mitigado | 10 | S-03, S-04, S-05, S-08, S-09, S-10, S-11, S-12, S-13, S-22 |
+| Riesgo bajo | 11 | S-07, S-14, S-17, S-18, S-19, S-20, S-21, S-23, S-24, S-28, S-29 |
+| Calidad | 20 | S-30 a S-49 |
+| **Total** | **49** | |
+
+### 5.3 Distribución por componente
+
+| Componente | Hallazgos | Observación |
+|:--|:--:|:--|
+| Backend PHP | 13 | 6 SQL, 3 comandos, 2 includes, 1 SSRF, 1 hash |
+| Frontend cliente | 14 | 7 `localStorage`, 2 redirecciones, 1 JSON, 1 CSS, 3 ARIA |
+| Frontend fotógrafo | 22 | 2 `localStorage`, 3 redirecciones, 1 JSON, 4 CSS, 12 ARIA |
+| **Total** | **49** | |
 
 ---
 
-## 5. Vulnerabilidades de seguridad (7)
+## 6. Triaje detallado
 
-Listado resumido:
+### 6.1 Falsos positivos (8)
 
-| # | Severidad | Regla | Archivo | Línea |
-|:--|:--|:--|:--|:--:|
-| V1 | Major | `javascript:S2245` PRNG no seguro | `frontend-fotografo/js/subirimagenes.js` | 309 |
-| V2 | Major | `javascript:S2245` PRNG no seguro | `frontend-fotografo/js/collection.js` | 8 |
-| V3 | Major | `javascript:S2245` PRNG no seguro | `frontend-fotografo/js/subirimagenes.js` | 27 |
-| V4 | Major | `php:S5122` CORS permissivo | `backend/public/index.php` | 54 |
-| V5 | Minor | `php:S3330` Cookie sin HttpOnly | `backend/php.ini` | — |
-| V6 | Minor | `php:S2092` Cookie sin `secure` | `backend/php.ini` | — |
-| V7 | Minor | `docker:S6471` Contenedor como root | `backend/Dockerfile` | 3 |
+**S-01 y S-02 — `require_once $file` en los autoloaders**
 
-### V1, V2, V3 — Generadores de números pseudoaleatorios (PRNG) en contexto sensible — `javascript:S2245`
+Archivos: `backend/cron-backup.php:25` y `backend/public/index.php:46`.
 
-**Regla:** *"Pseudorandom number generators (PRNGs) should not be used in security contexts"* (CWE-338: Use of Cryptographically Weak PRNG).
+La regla marca cualquier `require` con variable como inclusión dinámica de archivo
+(CWE-98). En este caso la variable se construye a partir del nombre de clase que PHP
+resuelve internamente: se exige el prefijo fijo `App\`, se sustituyen las barras
+invertidas por barras normales y se comprueba `file_exists()` antes de incluir. El
+nombre de clase no llega desde la petición HTTP y no puede contener `../` en la práctica.
+No hay una vía de inclusión de archivos arbitrarios.
 
-**Código afectado:**
-```javascript
-// collection.js:8 y subirimagenes.js:27
-id: Date.now() + Math.random(),
+**S-06 — `fopen()` en el rate limiter**
 
-// subirimagenes.js:309 (generación de id por cada archivo subido)
-const id = Date.now() + Math.random();
-```
+Archivo: `backend/src/helpers/RateLimiter.php:63`.
 
-**Justificación:** `Math.random()` implementa un PRNG no criptográfico (secuencia determinista/predecible). Si el valor resultante se usa como identificador de recursos, un atacante podría predecir y correlacionar IDs (por ejemplo, adivinar IDs de colecciones o de archivos subidos). Los PRNG no criptográficos **no** deben usarse para generar secretos, tokens, nonces ni identificadores con valor de control de acceso.
+La regla de SSRF asume que `fopen()` recibe una URL controlada por el usuario. Aquí el
+argumento es un archivo temporal local (`sys_get_temp_dir()`) cuyo nombre se deriva de
+la clave del rate limiter. No hay petición saliente ni destino remoto.
 
-**Cómo corregir:** usar un generador criptográficamente seguro (`CSPRNG`):
-```javascript
-const cripto = window.crypto || window.msCrypto;
-const buffer = new Uint32Array(1);
-cripto.getRandomValues(buffer);
-const id = Date.now() + buffer[0];
-```
-Alternativa recomendada en este contexto: dejar que el backend genere IDs de colecciones/medios (autoincremental o UUID) y no depender de `Math.random()` en el cliente.
+**S-15, S-16, S-25, S-26 y S-27 — redirecciones con `location.href`**
 
-### V4 — Política CORS excesivamente permisiva — `php:S5122`
+Archivos:
+`frontend-cliente/dom/auth/registro.js:45`,
+`frontend-cliente/dom/auth/verificaremail.js:42`,
+`frontend-fotografo/dom/auth/registro.js:48`,
+`frontend-fotografo/dom/auth/verificaremail.js:42` y
+`frontend-fotografo/dom/colecciones/crearcoleccion.js:20`.
 
-**Regla:** *"Cross-Origin Resource Sharing (CORS) policy should be restricted to trusted origins"* (CWE-942: Overly Permissive Cross-domain Whitelist).
+Las asignaciones usan una ruta relativa fija del mismo origen
+(`"verificaremail.html"`, `"login.html"`, `"SubirImagenes.html?coleccionId="`). El
+único dato dinámico es `location.search` o el identificador numérico de la colección;
+no se acepta un destino absoluto ni un esquema `javascript:` o `//host`. No hay open
+redirect.
 
-**Código afectado (`backend/public/index.php:54`):**
+### 6.2 Mitigados por un control existente (10)
+
+**S-03, S-04 y S-05 — `exec()` en `MediaProcessor`**
+
+Archivo: `backend/src/helpers/MediaProcessor.php:139`, `:237` y `:268`.
+
+Los tres comandos invocan `ffmpeg`. Todas las rutas que se interpolan pasan por
+`escapeshellarg()`, y los valores numéricos (`ANCHO_MAX_BUENA_CALIDAD`, el segundo del
+fotograma) son constantes enteras. No hay concatenación directa de entrada del usuario.
+El riesgo residual es el propio binario `ffmpeg` procesando archivos malformados; se
+mitiga manteniendo la imagen actualizada y con límites de tiempo de ejecución.
+
+**S-08 a S-13 — SQL con interpolación**
+
+Archivos:
+`backend/src/repository/MultimediaRepository.php:87`, `:189`, `:213`, `:249` y
+`backend/src/services/BackupService.php:134`, `:139`.
+
+- En `MultimediaRepository`, la interpolación es una constante interna
+  (`'AND aprobado = 1'`) o una lista de marcadores `?` generada con
+  `array_map(fn() => '?', ...)`. Los valores reales viajan como parámetros de
+  `execute()`. La concatenación no incorpora datos del usuario.
+- En `BackupService`, el identificador de tabla proviene de `SHOW FULL TABLES`, es decir,
+  del catálogo de la propia base de datos, y se escribe entre backticks. Para inyectar
+  un nombre malicioso habría que poder crear tablas, lo que exige acceso previo a la
+  base. El riesgo es aceptable en el contexto actual.
+
+**S-22 — parseo de respuesta en el frontend cliente**
+
+Archivo: `frontend-cliente/services/http.js:16`.
+
+Después de `await respuesta.json()`, el código verifica que el resultado sea un objeto
+no nulo y, cuando existe `json.datos`, exige que también sea un objeto. Los mensajes de
+error se construyen con comprobaciones de tipo. El parseo está mitigado por validación
+estructural.
+
+### 6.3 Riesgo bajo o pendiente de mejora (11)
+
+**S-07 — `sha1()` como nombre de archivo del rate limiter**
+
+Archivo: `backend/src/helpers/RateLimiter.php:151`.
+
+`sha1()` se usa para derivar el nombre del archivo contador a partir de la clave. No
+protege contraseñas ni firmas, y el valor no se expone al usuario. No es un uso
+criptográficamente sensible. Se acepta como riesgo bajo; si se quisiera eliminar la
+observación, bastaría usar `hash('sha256', ...)`.
+
+**S-14, S-17 a S-21, S-23, S-24 y S-29 — escrituras en `localStorage`**
+
+Archivos:
+`frontend-cliente/dom/auth/registro.js:38`,
+`frontend-cliente/dom/colecciones/tuscoleccionescliente.js:62`, `:64`, `:72`, `:141`,
+`:170`, `frontend-cliente/services/sesion/sesionService.js:21`,
+`frontend-fotografo/dom/auth/registro.js:38` y
+`frontend-fotografo/services/sesion/sesionService.js:21`.
+
+Se almacenan el correo pendiente de verificación, el perfil público del usuario y las
+colecciones guardadas. **El token JWT ya no se guarda en `localStorage`**: viaja en una
+cookie `HttpOnly`, por lo que un XSS no puede leerlo desde JavaScript. El riesgo residual
+es que un XSS pudiera alterar el perfil o las colecciones mostradas, pero no robar la
+sesión. Se acepta como riesgo bajo.
+
+**S-28 — respuesta JSON sin validación estructural en el frontend fotógrafo**
+
+Archivo: `frontend-fotografo/services/http.js:16`.
+
+A diferencia del frontend cliente, este `parsear()` no comprueba que `json` sea un objeto
+no nulo antes de leer `json.mensaje` o iterar `json.errores`. Un servidor comprometido o
+una respuesta intermedia inválida podría provocar un `TypeError` y romper el flujo de la
+interfaz. No permite ejecución de código ni escalada de privilegios; se clasifica como
+riesgo bajo y mejora pendiente.
+
+### 6.4 Observaciones de calidad (20)
+
+**S-30 y S-34 a S-37 — selectores CSS duplicados**
+
+- `frontend-cliente/css/panelcliente.css:339` repite `.FlechaVisor` (primera aparición
+  en la línea 254).
+- `frontend-fotografo/css/subirimagenes.css:508` repite `.ZonaCarga` (línea 288);
+  `:516` repite `.ZonaCarga .Formatos` (línea 333); `:551` repite `.ModalQrContenido`
+  (línea 354).
+- `frontend-fotografo/css/tuscolecciones.css:442` repite `.TarjetaMedia` (línea 406).
+
+Son duplicados reales en el mismo contexto, no redefiniciones dentro de un `@media`.
+Conviene consolidarlos para evitar que una regla pise a la otra por orden de aparición.
+
+**S-31 a S-33 y S-38 a S-49 — roles ARIA sobre elementos nativos o regiones vivas**
+
+Se detectaron 15 usos de `role="status"`, `role="textbox"` y `role="alertdialog"`.
+`role="status"` sobre un `<p>` o un contenedor de toasts es una región viva válida y
+recomendada para anunciar mensajes; no es un defecto de seguridad. Los casos de
+`role="textbox"` y `role="alertdialog"` en `SubirImagenes.html` y `moderacion.html`
+pueden revisarse para preferir elementos nativos (`<dialog>`, `<textarea>`), pero
+tampoco introducen una vulnerabilidad. Se documentan como observaciones de accesibilidad
+y mantenibilidad.
+
+---
+
+## 7. Inventario completo de hallazgos del motor (49)
+
+| ID | Regla | Severidad base | Ubicación | Veredicto | Justificación |
+|:--|:--|:--|:--|:--|:--|
+| S-01 | `PHP-INCLUDE-VAR` | Critical | `backend/cron-backup.php:25` | Falso positivo | Autoloader con prefijo `App\` fijo; la ruta no proviene de HTTP |
+| S-02 | `PHP-INCLUDE-VAR` | Critical | `backend/public/index.php:46` | Falso positivo | Autoloader con prefijo `App\` fijo; la ruta no proviene de HTTP |
+| S-03 | `PHP-COMMAND` | Critical | `backend/src/helpers/MediaProcessor.php:139` | Mitigado | Rutas escapadas con `escapeshellarg` |
+| S-04 | `PHP-COMMAND` | Critical | `backend/src/helpers/MediaProcessor.php:237` | Mitigado | Rutas escapadas con `escapeshellarg` |
+| S-05 | `PHP-COMMAND` | Critical | `backend/src/helpers/MediaProcessor.php:268` | Mitigado | Rutas escapadas con `escapeshellarg` |
+| S-06 | `PHP-SSRF` | Major | `backend/src/helpers/RateLimiter.php:63` | Falso positivo | `fopen` sobre archivo temporal local |
+| S-07 | `PHP-WEAK-HASH` | Major | `backend/src/helpers/RateLimiter.php:151` | Riesgo bajo | `sha1` solo nombra el archivo contador |
+| S-08 | `PHP-SQL-CONCAT` | Critical | `backend/src/repository/MultimediaRepository.php:87` | Mitigado | Constante interna; valores parametrizados |
+| S-09 | `PHP-SQL-CONCAT` | Critical | `backend/src/repository/MultimediaRepository.php:189` | Mitigado | Lista de marcadores `?`; valores parametrizados |
+| S-10 | `PHP-SQL-CONCAT` | Critical | `backend/src/repository/MultimediaRepository.php:213` | Mitigado | Lista de marcadores `?`; valores parametrizados |
+| S-11 | `PHP-SQL-CONCAT` | Critical | `backend/src/repository/MultimediaRepository.php:249` | Mitigado | Lista de marcadores `?`; valores parametrizados |
+| S-12 | `PHP-SQL-CONCAT` | Critical | `backend/src/services/BackupService.php:134` | Mitigado | Identificador de tabla desde `SHOW FULL TABLES` |
+| S-13 | `PHP-SQL-CONCAT` | Critical | `backend/src/services/BackupService.php:139` | Mitigado | Identificador de tabla desde `SHOW FULL TABLES` |
+| S-14 | `JS-STORAGE-SET` | Info | `frontend-cliente/dom/auth/registro.js:38` | Riesgo bajo | Correo pendiente de verificación; sin token |
+| S-15 | `JS-LOCATION-ASSIGN` | Major | `frontend-cliente/dom/auth/registro.js:45` | Falso positivo | Ruta relativa fija del mismo origen |
+| S-16 | `JS-LOCATION-ASSIGN` | Major | `frontend-cliente/dom/auth/verificaremail.js:42` | Falso positivo | Ruta relativa fija del mismo origen |
+| S-17 | `JS-STORAGE-SET` | Info | `frontend-cliente/dom/colecciones/tuscoleccionescliente.js:62` | Riesgo bajo | Colecciones guardadas; sin token |
+| S-18 | `JS-STORAGE-SET` | Info | `frontend-cliente/dom/colecciones/tuscoleccionescliente.js:64` | Riesgo bajo | Colecciones guardadas; sin token |
+| S-19 | `JS-STORAGE-SET` | Info | `frontend-cliente/dom/colecciones/tuscoleccionescliente.js:72` | Riesgo bajo | Colecciones guardadas; sin token |
+| S-20 | `JS-STORAGE-SET` | Info | `frontend-cliente/dom/colecciones/tuscoleccionescliente.js:141` | Riesgo bajo | Colecciones guardadas; sin token |
+| S-21 | `JS-STORAGE-SET` | Info | `frontend-cliente/dom/colecciones/tuscoleccionescliente.js:170` | Riesgo bajo | Colecciones guardadas; sin token |
+| S-22 | `JS-RESPONSE-JSON` | Info | `frontend-cliente/services/http.js:16` | Mitigado | Validación estructural posterior al parseo |
+| S-23 | `JS-STORAGE-SET` | Info | `frontend-cliente/services/sesion/sesionService.js:21` | Riesgo bajo | Perfil público; sin token |
+| S-24 | `JS-STORAGE-SET` | Info | `frontend-fotografo/dom/auth/registro.js:38` | Riesgo bajo | Correo pendiente de verificación; sin token |
+| S-25 | `JS-LOCATION-ASSIGN` | Major | `frontend-fotografo/dom/auth/registro.js:48` | Falso positivo | Ruta relativa fija del mismo origen |
+| S-26 | `JS-LOCATION-ASSIGN` | Major | `frontend-fotografo/dom/auth/verificaremail.js:42` | Falso positivo | Ruta relativa fija del mismo origen |
+| S-27 | `JS-LOCATION-ASSIGN` | Major | `frontend-fotografo/dom/colecciones/crearcoleccion.js:20` | Falso positivo | Ruta relativa fija del mismo origen |
+| S-28 | `JS-RESPONSE-JSON` | Info | `frontend-fotografo/services/http.js:16` | Riesgo bajo | Sin validación estructural; `TypeError` ante JSON nulo |
+| S-29 | `JS-STORAGE-SET` | Info | `frontend-fotografo/services/sesion/sesionService.js:21` | Riesgo bajo | Perfil público; sin token |
+| S-30 | `CSS-DUPLICATE-SELECTOR` | Minor | `frontend-cliente/css/panelcliente.css:339` | Calidad | `.FlechaVisor` repetido (primera aparición en 254) |
+| S-31 | `HTML-ARIA-ROLE-NATIVE` | Major | `frontend-cliente/pages/login.html:59` | Calidad | `role="status"` como región viva |
+| S-32 | `HTML-ARIA-ROLE-NATIVE` | Major | `frontend-cliente/pages/registro.html:106` | Calidad | `role="status"` como región viva |
+| S-33 | `HTML-ARIA-ROLE-NATIVE` | Major | `frontend-cliente/pages/verificaremail.html:69` | Calidad | `role="status"` como región viva |
+| S-34 | `CSS-DUPLICATE-SELECTOR` | Minor | `frontend-fotografo/css/subirimagenes.css:508` | Calidad | `.ZonaCarga` repetido (primera aparición en 288) |
+| S-35 | `CSS-DUPLICATE-SELECTOR` | Minor | `frontend-fotografo/css/subirimagenes.css:516` | Calidad | `.ZonaCarga .Formatos` repetido (primera aparición en 333) |
+| S-36 | `CSS-DUPLICATE-SELECTOR` | Minor | `frontend-fotografo/css/subirimagenes.css:551` | Calidad | `.ModalQrContenido` repetido (primera aparición en 354) |
+| S-37 | `CSS-DUPLICATE-SELECTOR` | Minor | `frontend-fotografo/css/tuscolecciones.css:442` | Calidad | `.TarjetaMedia` repetido (primera aparición en 406) |
+| S-38 | `HTML-ARIA-ROLE-NATIVE` | Major | `frontend-fotografo/pages/SubirImagenes.html:19` | Calidad | `role="textbox"` revisable |
+| S-39 | `HTML-ARIA-ROLE-NATIVE` | Major | `frontend-fotografo/pages/SubirImagenes.html:29` | Calidad | `role="textbox"` revisable |
+| S-40 | `HTML-ARIA-ROLE-NATIVE` | Major | `frontend-fotografo/pages/SubirImagenes.html:232` | Calidad | `role="alertdialog"` revisable |
+| S-41 | `HTML-ARIA-ROLE-NATIVE` | Major | `frontend-fotografo/pages/crearcoleccion.html:46` | Calidad | `role="status"` como región viva |
+| S-42 | `HTML-ARIA-ROLE-NATIVE` | Major | `frontend-fotografo/pages/editarperfil.html:63` | Calidad | `role="status"` como región viva |
+| S-43 | `HTML-ARIA-ROLE-NATIVE` | Major | `frontend-fotografo/pages/login.html:60` | Calidad | `role="status"` como región viva |
+| S-44 | `HTML-ARIA-ROLE-NATIVE` | Major | `frontend-fotografo/pages/moderacion.html:62` | Calidad | `role="alertdialog"` revisable |
+| S-45 | `HTML-ARIA-ROLE-NATIVE` | Major | `frontend-fotografo/pages/moderacion.html:86` | Calidad | `role="status"` como región viva |
+| S-46 | `HTML-ARIA-ROLE-NATIVE` | Major | `frontend-fotografo/pages/panel.html:48` | Calidad | `role="status"` como región viva |
+| S-47 | `HTML-ARIA-ROLE-NATIVE` | Major | `frontend-fotografo/pages/panel.html:187` | Calidad | `role="status"` como región viva |
+| S-48 | `HTML-ARIA-ROLE-NATIVE` | Major | `frontend-fotografo/pages/registro.html:106` | Calidad | `role="status"` como región viva |
+| S-49 | `HTML-ARIA-ROLE-NATIVE` | Major | `frontend-fotografo/pages/verificaremail.html:69` | Calidad | `role="status"` como región viva |
+
+---
+
+## 8. Revisión manual complementaria (9)
+
+Estos hallazgos **no** fueron producidos por el motor: surgieron de leer el código y de
+contrastar los controles que una regla sintáctica no puede evaluar. Se documentan porque
+tienen más impacto potencial que la mayoría de los 49 hallazgos anteriores.
+
+| ID | Severidad | CWE | Ubicación | Hallazgo |
+|:--|:--|:--|:--|:--|
+| M-01 | Media | CWE-942 | `backend/public/index.php:73-91` | CORS refleja cualquier `Origin` sin lista blanca |
+| M-02 | Media | CWE-209 | `backend/public/index.php:120` | La respuesta 500 incluye `$e->getMessage()` |
+| M-03 | Baja | CWE-347 / CWE-20 | `backend/src/helpers/Jwt.php:58-64` | No se valida el header `alg`; un base64 inválido puede lanzar `TypeError` |
+| M-04 | Baja | CWE-636 | `backend/src/helpers/RateLimiter.php` | El rate limiter falla abierto si el almacenamiento no está disponible |
+| M-05 | Baja | CWE-20 | `frontend-fotografo/services/http.js:12-28` | Respuesta JSON sin validación estructural |
+| M-06 | Baja | CWE-614 | `backend/docker-compose.yml:35` | `COOKIE_SECURE=false` en el entorno local |
+| M-07 | Informativa | CWE-1104 | `backend/docker-compose.yml:71` | Imagen `axllent/mailpit:latest` sin versión fija |
+| M-08 | Baja | CWE-798 | `backend/probe_e2e.ps1:7,69` | Credenciales de prueba embebidas (contraseña y acceso a MySQL) |
+| M-09 | Baja | CWE-214 | `backend/docker-entrypoint.sh:43,56` | Contraseña de MySQL pasada por línea de comandos |
+
+### M-01 — Reflexión de CORS sin lista blanca
+
 ```php
-header('Access-Control-Allow-Origin: *');
-```
-
-**Justificación:** `Access-Control-Allow-Origin: *` permite que **cualquier** sitio web origen realice peticiones cross-origin y lea las respuestas de la API (incluyendo datos sensibles de colecciones y sesiones con `Authorization`). Permite exfiltración de datos si la API expone recursos autenticados.
-
-**Cómo corregir:** restringir a una lista blanca de orígenes confiables:
-```php
-$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-$permitidos = ['https://dominio-cliente.ejemplo', 'https://dominio-fotografo.ejemplo'];
-if (in_array($origin, $permitidos, true)) {
-    header('Access-Control-Allow-Origin: ' . $origin);
+if ($origenSolicitado !== '' && $origenSolicitado === $origenFrontend) {
+    header('Access-Control-Allow-Origin: ' . $origenSolicitado);
+    header('Access-Control-Allow-Credentials: true');
     header('Vary: Origin');
+} else {
+    if ($esOrigenLocal) {
+        header('Access-Control-Allow-Origin: ' . $origenSolicitado);
+        header('Access-Control-Allow-Credentials: true');
+        header('Vary: Origin');
+    } else {
+        header('Access-Control-Allow-Origin: ' . $origenSolicitado);
+        header('Access-Control-Allow-Credentials: false');
+    }
 }
 ```
 
-### V5 — Cookie de sesión sin flag `HttpOnly` — `php:S3330`
+**Por qué importa:** el código ya no usa `Access-Control-Allow-Origin: *`, pero en la
+rama final **refleja** cualquier origen recibido y solo desactiva las credenciales. Eso
+significa que cualquier sitio puede leer respuestas **no autenticadas** de la API desde
+el navegador de la víctima. El impacto es menor que el del comodín con credenciales, pero
+sigue siendo una política más amplia de lo necesario.
 
-**Regla:** *"Cookies should have the 'HttpOnly' flag"* (CWE-1004: Sensitive Cookie Without 'HttpOnly' Attribute).
+**Recomendación:** emitir `Access-Control-Allow-Origin` únicamente cuando el origen esté
+en una lista blanca (el `FRONTEND_URL` y los orígenes locales de desarrollo). Si el
+origen no está permitido, no enviar la cabecera y responder sin CORS. No se aplicó el
+cambio en esta corrida.
 
-**Código afectado (`backend/php.ini`):** no se define `session.cookie_httponly`.
+### M-02 — Mensaje interno de excepción en la respuesta 500
 
-**Justificación:** con `HttpOnly` desactivado, un script JavaScript inyectado vía XSS puede leer `document.cookie` y robar el `PHPSESSID`, permitiendo secuestro de sesión. La cookie de sesión es altamente sensible.
-
-**Cómo corregir:** habilitarla por defecto en PHP 8.2:
-```ini
-session.cookie_httponly = 1
+```php
+} catch (Throwable $e) {
+    Response::error("Error interno del servidor: " . $e->getMessage(), 500);
+}
 ```
 
-### V6 — Cookie de sesión sin flag `secure` — `php:S2092`
+**Por qué importa:** el mensaje puede revelar rutas absolutas, nombres de clases,
+consultas SQL o detalles de configuración. Es una fuga de información que facilita el
+reconocimiento previo a un ataque.
 
-**Regla:** *"Cookies should have the 'secure' flag"* (CWE-614: Sensitive Cookie in HTTPS Session Without 'Secure' Attribute).
+**Recomendación:** responder con un mensaje genérico
+(`"Error interno del servidor."`) y registrar `$e->getMessage()` y la traza en el log
+del servidor. No se aplicó el cambio en esta corrida.
 
-**Código afectado (`backend/php.ini`):** no se define `session.cookie_secure`.
+### M-03 — Validación JWT
 
-**Justificación:** sin `secure`, la cookie de sesión se envía también por HTTP sin cifrar y puede ser interceptada en un ataque de intermediario (man-in-the-middle), exponiendo la sesión del usuario.
+`Jwt::decode()` calcula siempre HMAC-SHA256 y compara la firma en tiempo constante, por
+lo que un atacante no puede forjar un token sin el secreto. Sin embargo:
 
-**Cómo corregir:** en producción (servida sobre HTTPS):
-```ini
-session.cookie_secure = 1
-```
+- No se lee ni se valida el header `alg`. En esta implementación no habilita el ataque
+  `alg: none` porque la firma se verifica igualmente, pero conviene rechazar tokens cuyo
+  header no declare `HS256`.
+- `base64UrlDecode()` puede devolver `false` ante una firma con base64 inválido, y
+  `hash_equals(string, false)` lanza `TypeError` en PHP 8. El resultado es un 500, no un
+  bypass de autenticación.
 
-> ⚠️ Nota: `session.cookie_secure = 1` descarta la cookie si la app se accede por HTTP plano (como `http://localhost:8080` en desarrollo). Si se habilita, el sitio debe servirse siempre por HTTPS.
+**Recomendación:** validar el header, comprobar que la decodificación sea `string` antes
+de `hash_equals()` y devolver `null` ante cualquier token malformado.
 
-### V7 — Imagen Docker ejecutándose como usuario privilegiado — `docker:S6471`
+### M-04 — Rate limiter con falla abierta
 
-**Regla:** *"Docker containers should not run as a privileged user"*.
+El propio código documenta que, si el almacenamiento no está disponible, el intento se
+permite y el fallo se registra. Es una decisión consciente que prioriza disponibilidad
+sobre rechazo. Se documenta para que quede explícita; no requiere cambio si el equipo
+acepta ese equilibrio.
 
-**Código afectado (`backend/Dockerfile:3`):**
-```dockerfile
-FROM php:8.2-apache
-```
+### M-05 — Respuesta JSON sin validación en el frontend fotógrafo
 
-**Justificación:** las imágenes Docker se ejecutan como `root` por defecto si no se define `USER`. Si la aplicación (o Apache/PHP) se compromete, el atacante obtiene privilegios **root** dentro del contenedor, ampliando el impacto de cualquier vulnerabilidad.
+Es el mismo patrón de S-28, visto desde la revisión manual: `parsear()` no comprueba el
+tipo de `json` antes de acceder a sus propiedades. La recomendación es replicar la
+validación que ya existe en `frontend-cliente/services/http.js`.
 
-**Cómo corregir:** crear y usar un usuario no privilegiado:
-```dockerfile
-FROM php:8.2-apache
-RUN useradd --create-home --uid 1000 www-app
-USER www-app
-```
-> O especificar usuario no-root en `docker run --user` o en el `docker-compose.yml` (`user:`).
+### M-06 — Cookie sin `Secure` en el entorno local
 
----
+`CookieAuth` fija `HttpOnly` y `SameSite=Strict`, y toma `Secure` de `COOKIE_SECURE`.
+El `docker-compose.yml` local define `COOKIE_SECURE=false` porque el contenedor sirve
+HTTP detrás de Nginx. Es correcto para desarrollo, pero **en producción debe definirse
+`COOKIE_SECURE=true`** y servir todo por HTTPS.
 
-## 6. Bugs (9)
+### M-07 — Imagen de Mailpit sin versión fija
 
-Listado de bugs activos (errores de código que pueden causar comportamiento incorrecto):
+`axllent/mailpit:latest` no fija una versión. En un entorno académico es aceptable, pero
+dificulta la reproducibilidad y expone a cambios inesperados de la imagen. Se recomienda
+fijar una etiqueta concreta.
 
-| # | Severidad | Regla | Archivo | Línea | Detalle | Acción |
-|:--|:--|:--|:--|:--:|:--|:--|
-| B1 | Major | `Web:InputWithoutLabelCheck` | `frontend-cliente/pages/panelcliente.html` | 47 | Input sin `<label>` asociado | Añadir `<label for="...">` |
-| B2 | Major | `javascript:S4822` | `frontend-fotografo/js/binarios.js` | 38 | Promesa dentro de `try` sin `await`/`.catch()`, su rechazo no se maneja | Usar `await` o encadenar `.catch()` |
-| B3 | Major | `javascript:S4822` | `frontend-fotografo/js/binarios.js` | 48 | Ídem | Ídem |
-| B4 | Major | `javascript:S4822` | `frontend-fotografo/js/binarios.js` | 63 | Ídem | Ídem |
-| B5 | Minor | `php:S2003` | `backend/probe_media.php` | 2 | `require` puede incluir el archivo dos veces | Usar `require_once` |
-| B6 | Minor | `php:S2003` | `backend/probe_media.php` | 3 | Ídem | Ídem |
-| B7 | Major | `Web:InputWithoutLabelCheck` | `frontend-fotografo/pages/SubirImagenes.html` | 34 | Input sin `<label>` | Añadir label |
-| B8 | Major | `Web:InputWithoutLabelCheck` | `frontend-fotografo/pages/SubirImagenes.html` | 72 | Ídem | Ídem |
-| B9 | Major | `Web:InputWithoutLabelCheck` | `frontend-fotografo/pages/login.html` | 32 | Ídem | Ídem |
-
-Detalle de reglas:
-
-- **`Web:InputWithoutLabelCheck`** — Los campos `input`/`select`/`textarea` deben tener `<label>`. Sin etiquetas, la accesibilidad (WCAG 3.3.2 / 4.1.2) se degrada y herramientas de asistencia no pueden anunciar el propósito del campo.
-- **`javascript:S4822`** — *"Promise rejections should not be caught by 'try' blocks"*. Una promesa lanzada dentro de un bloque `try` sin `await` ni `.catch()` genera un rechazo no manejado que puede romper el flujo de subida de binarios.
-- **`php:S2003`** — *"require_once/include_once should be used instead of require/include"*. `require`/`include` no evitan la doble inclusión → definiciones duplicadas y errores fatales en scripts de sondeo.
-
----
-
-## 7. Code Smells (129)
-
-Problemas de mantenibilidad agrupados por regla. Todos son de tipo `CODE_SMELL`.
-
-| Regla | Cant. | Descripción | Archivos afectados |
-|:--|:--:|:--|:--|
-| `javascript:S6582` | 31 | Preferir *optional chaining* (`?.`) en lugar de accesos encadenados | `gallery.js` (4), `panel.js` (4), `api.js` (6), `subirimagenes.js` (8), `panelcliente.js` (3), `tuscoleccionescliente.js` (3), `almacenamiento.js`, `qracceso.js`, `qrcolaborativo.js` |
-| `php:S113` | 14 | Los archivos deben terminar en salto de línea | 14 archivos PHP (`FavoritoController`, `QrGenerator`, `Mailer`, `index.php`, `routes.php`, `Router.php`, probes, `AuthController`, `AuthService`, dtos, validators, `HomeController`) |
-| `css:S7924` | 11 | Contraste insuficiente entre texto y fondo (accesibilidad) | `panelcliente.css` (4), `tuscolecciones.css` (3), `panel.css` (3), `colaborativo.css` |
-| `php:S1192` | 7 | Literales de texto duplicados → definir constantes | `MultimediaService.php` (2), `cron-backup.php`, `routes.php`, `ColaborativoController.php`, `ColeccionService.php`, `MultimediaValidator.php` |
-| `Web:S6819` | 7 | Usar etiqueta semántica nativa en lugar de rol ARIA | `SubirImagenes.html` (2), `login.html`, `panel.html`, `registro.html`, `verificaremail.html`, `editarperfil.html` |
-| `javascript:S2486` | 7 | Excepciones capturadas e ignoradas | `api.js` (2), `script.js` (2), `subirimagenes.js` (2), `auth.js` |
-| `php:S3776` | 7 | Complejidad cognitiva muy alta (refactorizar) | `QrGenerator.php` (3), `AuthMiddleware.php`, `Mailer.php`, `Router.php`, `MultimediaValidator.php` |
-| `javascript:S7785` | 6 | Preferir *top-level await* sobre cadenas de promesas | `subirimagenes.js` (4), `moderation.js`, `colaborativo.js` |
-| `php:S1142` | 4 | Demasiadas sentencias `return` en una función | `QrGenerator.php`, `AuthMiddleware.php`, `Mailer.php`, `Jwt.php` |
-| `javascript:S7765` | 3 | Usar `.includes()` en lugar de `.indexOf()` | `subirimagenes.js` (2), `tuscoleccionescliente.js` |
-| `php:S112` | 3 | Lanzar excepciones genéricas en lugar de dedicadas | `QrGenerator.php` (2), `Mailer.php` |
-| `javascript:S3776` | 3 | Complejidad cognitiva alta | `subirimagenes.js` (2), `panel.js` |
-| `javascript:S7758` | 2 | Usar métodos string conscientes de Unicode (`codePointAt`/`fromCodePoint`) | `subirimagenes.js` (2) |
-| `php:S121` | 2 | Estructuras de control sin llaves `{}` | `ColeccionRepository.php`, `BackupService.php` |
-| `php:S1135` | 2 | Comentarios `TODO` sin completar | `MultimediaValidator.php`, `Request.php` |
-| `javascript:S7781` | 2 | Usar `replaceAll()` en lugar de `replace()` con regex global | `script.js` |
-| `Web:S6850` | 2 | Encabezados sin contenido accesible | `tuscoleccionescliente.html`, `colaborativo.html` |
-| `css:S4666` | 2 | Selectores duplicados | `panelcliente.css`, `tuscolecciones.css` |
-| `php:S1131` | 1 | Espacios en blanco al final de línea | `Database.php` |
-| `Web:S7926` | 1 | Meta viewport deshabilita zoom (`user-scalable=no`) | `colaborativo.html` |
-| `javascript:S6594` | 1 | Preferir `RegExp.exec()` sobre `String.match()` | `tuscoleccionescliente.js` |
-| `php:S1448` | 1 | Clase con demasiados métodos (28 > 20) | `QrGenerator.php` |
-| `docker:S7031` | 1 | Fusionar instrucciones `RUN` consecutivas | `Dockerfile` |
-| `php:S127` | 1 | Condición de parada de bucle `for` no invariante | `QrGenerator.php` |
-| `php:S1172` | 1 | Parámetro de función sin uso | `MultimediaService.php` |
-| `javascript:S3504` | 1 | Usar `let`/`const` en lugar de `var` | `panel.js` |
-| `javascript:S7756` | 1 | Usar `Blob.arrayBuffer()` en vez de `FileReader` | `subirimagenes.js` |
-| `javascript:S7721` | 1 | Mover función a alcance exterior | `subirimagenes.js` |
-| `javascript:S1940` | 1 | Chequeo booleano invertido | `subirimagenes.js` |
-| `javascript:S1481` | 1 | Variable/función sin usar | `tuscoleccionescliente.js` |
-| `javascript:S7776` | 1 | Arrays usados solo para comprobar existencia → usar `Set` | `panelcliente.js` |
-| `javascript:S3358` | 1 | Ternario anidado | `subirimagenes.js` |
-
----
-
-## 8. Security Hotspots
-
-**Resultado: 0 hotspots** de seguridad pendientes de revisión. No hay código que requiera triaje manual de exposición (por ejemplo, usos de `eval`, `exec`, SSRF, deserialización, etc.).
-
----
-
-## 9. Resumen por lenguaje y origen de los hallazgos
-
-| Lenguaje | Vulnerabilidades | Bugs | Code Smells |
-|:--|:--:|:--:|:--:|
-| PHP | 3 | 2 | ≈ 45 |
-| JavaScript | 3 | 3 | ≈ 56 |
-| HTML (Web) | 0 | 4 | ≈ 12 |
-| CSS | 0 | 0 | ≈ 15 |
-| Docker | 1 | 0 | 1 |
-| INI (php.ini) | 2 | 0 | 0 |
-
-> Los conteos por lenguaje de code smells son aproximados (basados en el agrupamiento por regla y archivos), totalizando 129.
-
----
-
-## 10. Archivos escaneados (listado completo)
-
-### Backend (40 archivos)
-```
-backend/cron-backup.php
-backend/Dockerfile
-backend/index.html
-backend/php.ini
-backend/probe_media.php
-backend/probe_originals.php
-backend/public/index.php
-backend/routes.php
-backend/src/Core/Config.php
-backend/src/Core/Database.php
-backend/src/Core/Request.php
-backend/src/Core/Response.php
-backend/src/Core/Router.php
-backend/src/controllers/AuthController.php
-backend/src/controllers/ColaborativoController.php
-backend/src/controllers/ColeccionController.php
-backend/src/controllers/FavoritoController.php
-backend/src/controllers/FotografoController.php
-backend/src/controllers/HomeController.php
-backend/src/controllers/MultimediaController.php
-backend/src/controllers/SistemaController.php
-backend/src/dtos/CreateColeccionDto.php
-backend/src/dtos/LoginDto.php
-backend/src/dtos/MultimediaDto.php
-backend/src/dtos/RegisterDto.php
-backend/src/helpers/Jwt.php
-backend/src/helpers/Mailer.php
-backend/src/helpers/MediaProcessor.php
-backend/src/helpers/QrGenerator.php
-backend/src/middlewares/AuthMiddleware.php
-backend/src/repository/ColeccionRepository.php
-backend/src/repository/MultimediaRepository.php
-backend/src/repository/UserRepository.php
-backend/src/services/AuthService.php
-backend/src/services/BackupService.php
-backend/src/services/ColeccionService.php
-backend/src/services/MultimediaService.php
-backend/src/validators/AuthValidator.php
-backend/src/validators/ColeccionValidator.php
-backend/src/validators/MultimediaValidator.php
-```
-
-### Frontend cliente (16 archivos)
-```
-frontend-cliente/css/colaborativo.css
-frontend-cliente/css/estiloscliente.css
-frontend-cliente/css/panelcliente.css
-frontend-cliente/js/api.js
-frontend-cliente/js/auth.js
-frontend-cliente/js/colaborativo.js
-frontend-cliente/js/favoritoscliente.js
-frontend-cliente/js/gallery.js
-frontend-cliente/js/panelcliente.js
-frontend-cliente/js/tuscoleccionescliente.js
-frontend-cliente/js/utils.js
-frontend-cliente/pages/colaborativo.html
-frontend-cliente/pages/favoritoscliente.html
-frontend-cliente/pages/panelcliente.html
-frontend-cliente/pages/tuscoleccionescliente.html
-```
-
-> Nota: `frontend-cliente/pages/logincliente.html` y `frontend-cliente/pages/registrocliente.html` existían en la primer corrida pero ya no están en disco; sus issues del análisis anterior quedaron en estado `CLOSED`.
-
-### Frontend fotógrafo (26 archivos)
-```
-frontend-fotografo/css/estilos.css
-frontend-fotografo/css/moderacion.css
-frontend-fotografo/css/panel.css
-frontend-fotografo/css/tuscolecciones.css
-frontend-fotografo/index.html
-frontend-fotografo/js/almacenamiento.js
-frontend-fotografo/js/binarios.js
-frontend-fotografo/js/collection.js
-frontend-fotografo/js/editarperfil.js
-frontend-fotografo/js/menu-perfil.js
-frontend-fotografo/js/moderation.js
-frontend-fotografo/js/panel.js
-frontend-fotografo/js/qracceso.js
-frontend-fotografo/js/qrcolaborativo.js
-frontend-fotografo/js/script.js
-frontend-fotografo/js/subirimagenes.js
-frontend-fotografo/js/verificaremail.js
-frontend-fotografo/pages/crearcoleccion.html
-frontend-fotografo/pages/editarperfil.html
-frontend-fotografo/pages/login.html
-frontend-fotografo/pages/moderacion.html
-frontend-fotografo/pages/panel.html
-frontend-fotografo/pages/registro.html
-frontend-fotografo/pages/SubirImagenes.html
-frontend-fotografo/pages/verificaremail.html
-```
-
-> Nota: `frontend-fotografo/pages/prototipo.html`, `frontend-fotografo/pages/tuscolecciones.html`, `frontend-fotografo/js/favoritos.js` y `frontend-fotografo/gestionar-invitador-QR/*` existían en la primer corrida pero ya no están en disco; sus issues quedaron en estado `CLOSED`.
-
-> ⚠️ Diferencias con la primer corrida: el análisis comparó 2 revisiones del código. Los issues con estado `CLOSED` (186 en total buscados vs 145 activos) corresponden a archivos que fueron eliminados/renombrados o líneas corregidas entre análisis (ej. `pages/prototipo.html`, `Routers.php`, `css/descarga.css`, `css/editarperfil.css`, `css/global.css`, `css/qr.css`, `frontend-fotografo/js/favoritos.js`, `collection.js`, etc.).
-
----
-
-## 11. Correlación con estándares de seguridad
-
-| Vulnerabilidad | CWE | Mitigación relacionada |
-|:--|:--|:--|
-| `S2245` (PRNG no seguro) | CWE-338 | OWASP — Uso de funciones criptográficas débiles |
-| `S5122` (CORS permisivo) | CWE-942 | OWASP API Security — Cross-Origin Listado de dominio confiable |
-| `S3330` (sin HttpOnly) | CWE-1004 | Mitigación de XSS / robo de cookies |
-| `S2092` (sin secure) | CWE-614 | Prevenir sniffing de sesión (MITM) |
-| `S6471` (usuario root) | — | Principio de menor privilegio (AWS Well-Architected / CIS Docker) |
-
----
-
-## 12. Notas metodológicas y limitaciones
-
-1. **Análisis estático** (SAST): detecta patrones en el código fuente sin ejecutarlo. No sustituye a tests funcionales, DAST ni revisión manual.
-2. **Falsos positivos posibles**: p. ej., `S2245` marca `Math.random()` usado para *IDs locales*; aunque los IDs se generen con PRNG débil, el impacto real depende de si los expone a un token de sesión/permisos. Se recomienda revisión manual por parte del equipo.
-3. **Cobertura 0%**: no se adjuntaron reportes de pruebas. El Quality Gate de cobertura quedará en ERROR hasta configurar `sonar.php.coverage.reportPaths` / `sonar.javascript.lcov.reportPaths`.
-4. No se encontraron dependencias gestionadas (Sin composer.json / package.json), por lo que no hay análisis SCA de bibliotecas vulnerables en este run.
-5. El token del escáner debería revocarse al finalizar las verificaciones (Account → Security, `http://localhost:9000/account/security`).
-
----
-
-## 13. Comandos de reproducción
+### M-08 — Credenciales de prueba embebidas en el script de sondeo
 
 ```powershell
-# 1) Levantar SonarQube (segundo plano)
-Start-Process -FilePath "cmd.exe" -ArgumentList "/c",
-  "C:\SonarQube\sonarqube\sonarqube-26.8.0.126808\bin\windows-x86-64\StartSonar.bat" -WindowStyle Hidden
-
-# 2) Esperar estado UP
-Invoke-WebRequest http://localhost:9000/api/system/status
-
-# 3) Ejecutar análisis
-& "C:\Sonar-Scanner\sonar-scanner\bin\sonar-scanner.bat" --% `
-  -Dsonar.host.url=http://localhost:9000 -Dsonar.token=<SONAR_TOKEN>
+$password = "Passw0rd!123"
+# ...
+$out = & docker exec cipher_forge_db mysql -ucipher_user -pcipher_password cipher_forge ...
 ```
+
+**Por qué importa:** el script `backend/probe_e2e.ps1` contiene una contraseña de prueba
+y credenciales de MySQL en texto plano. Aunque el script no forma parte de la aplicación
+y se usa contra el entorno local, una credencial versionada puede reutilizarse por error
+en otro entorno o filtrarse junto con el repositorio.
+
+**Recomendación:** tomar las credenciales de variables de entorno, generar una
+contraseña aleatoria por ejecución o marcar el script como herramienta estrictamente
+local. No se aplicó el cambio en esta corrida.
+
+### M-09 — Contraseña de MySQL por línea de comandos
+
+```sh
+until mysql $MYSQL_TLS -h"${DB_HOST}" -u"${DB_USER}" -p"${DB_PASS}" -e "SELECT 1" ...
+mysql $MYSQL_TLS -h"${DB_HOST}" -u"${DB_USER}" -p"${DB_PASS}" < "$MIGRATION_FILE"
+```
+
+**Por qué importa:** `-p"${DB_PASS}"` expone la contraseña en la lista de procesos del
+contenedor (`ps`) y puede quedar registrada en trazas o en el historial de comandos. El
+riesgo es bajo porque el contenedor es de un solo servicio y la contraseña ya está en el
+entorno, pero conviene evitarlo.
+
+**Recomendación:** usar la variable `MYSQL_PWD` o un archivo de opciones con permisos
+restringidos (`--defaults-extra-file`). No se aplicó el cambio en esta corrida.
 
 ---
 
-*Reporte generado automáticamente a partir de los datos exportados de SonarQube (análisis del 2026-09-10). Fuente de reglas: repositorio SonarSource SonarQube Community Build 26.8.*
+## 9. Comparación con la corrida SonarQube anterior (2026-09-10)
+
+Los datos de SonarQube se conservan como **histórico**. No se recalcularon en esta
+corrida porque el servidor no está disponible.
+
+| Hallazgo anterior | Estado verificado en el código actual | Evidencia |
+|:--|:--|:--|
+| V1-V3: `Math.random()` para IDs (`javascript:S2245`) | No se detecta `Math.random()` en el proyecto | Búsqueda sobre los 47 archivos JS sin coincidencias |
+| V4: CORS con `*` (`php:S5122`) | El literal `*` ya no existe; se refleja el origen | `backend/public/index.php:73-91`; riesgo residual en M-01 |
+| V5: cookie sin `HttpOnly` (`php:S3330`) | `CookieAuth` fija `httponly => true` | `backend/src/helpers/CookieAuth.php:80` y `:110` |
+| V6: cookie sin `Secure` (`php:S2092`) | `Secure` es configurable por `COOKIE_SECURE` | `CookieAuth.php:28-40`; en local vale `false` (M-06) |
+| V7: contenedor como `root` (`docker:S6471`) | El Dockerfile usa `USER www-data` | `backend/Dockerfile` |
+| B1, B7, B8, B9: `input` sin etiqueta | El motor no detecta campos sin etiqueta accesible | Regla `HTML-INPUT-NO-LABEL`: 0 hallazgos |
+| B5, B6: `require` duplicado en probes | Los archivos `probe_*.php` ya no existen | `backend/` solo contiene `cron-backup.php` y `routes.php` |
+| Code smells de Sonar (129) | No evaluados por el motor local | Sin datos comparables |
+
+**Conclusión de la comparación:** las 7 vulnerabilidades del informe anterior están
+corregidas o mitigadas en el código actual, con la salvedad de M-01 (CORS reflejado) y
+M-06 (`Secure` desactivado en local). Los 129 code smells no se pueden comparar porque
+el motor local no implementa esas reglas.
+
+---
+
+## 10. Correlación con estándares
+
+| Hallazgo | CWE | OWASP Top 10 (2021) | Control recomendado |
+|:--|:--|:--|:--|
+| M-01 CORS reflejado | CWE-942 | A05 Security Misconfiguration | Lista blanca de orígenes |
+| M-02 fuga de excepción | CWE-209 | A05 Security Misconfiguration | Mensaje genérico + log |
+| M-03 validación JWT | CWE-347 / CWE-20 | A07 Identification and Authentication Failures | Validar `alg` y tipo de firma |
+| S-08 a S-13 SQL | CWE-89 | A03 Injection | Consultas parametrizadas (ya aplicado) |
+| S-03 a S-05 comandos | CWE-78 | A03 Injection | `escapeshellarg` (ya aplicado) |
+| S-14 a S-29 almacenamiento y JSON | CWE-922 / CWE-20 | A04 Insecure Design | No guardar secretos en `localStorage`; validar respuestas |
+| M-06 cookie sin `Secure` | CWE-614 | A05 Security Misconfiguration | `COOKIE_SECURE=true` en producción |
+
+---
+
+## 11. Reproducción
+
+```powershell
+# 1) Verificar que SonarQube no está disponible (queda documentado)
+try { Invoke-WebRequest http://localhost:9000/api/system/status -UseBasicParsing } catch { "sin servidor SonarQube" }
+
+# 2) Ejecutar el motor local (Python 3.14)
+python C:\Users\Augusto\AppData\Local\Temp\sast_cipher.py
+
+# 3) Salida esperada
+#    archivos: 126 hallazgos: 49
+#    json: ...\sast_result.json
+```
+
+El motor recorre el árbol del proyecto, excluye `.git`, `node_modules`, `vendor`,
+`backups`, `uploads`, `.sonar` y `critical-problems`, y escribe un JSON con un registro
+por hallazgo. El triaje de la sección 6 se hizo sobre esa salida.
+
+---
+
+## 12. Conclusión y trabajo pendiente
+
+1. **No se confirmaron vulnerabilidades críticas ni altas** en los 49 hallazgos del
+   motor. La mayoría son falsos positivos por falta de contexto o problemas de calidad.
+2. **Las dos observaciones de severidad media** son M-01 (CORS reflejado) y M-02 (fuga
+   del mensaje de excepción). Se recomienda corregirlas antes de exponer el sistema fuera
+   del entorno local.
+3. **Mejoras de riesgo bajo:** validar la respuesta JSON en el frontend fotógrafo
+   (S-28 / M-05), sustituir `sha1` por `sha256` en el rate limiter (S-07), fijar la
+   versión de Mailpit (M-07) y retirar las credenciales de prueba embebidas (M-08, M-09).
+4. **Calidad:** consolidar los 5 selectores CSS duplicados y revisar los 15 roles ARIA.
+5. **Pendiente de herramienta:** cuando SonarQube vuelva a estar disponible, conviene
+   repetir la corrida oficial para obtener IDs de regla, Quality Gate y comparación
+   directa con el histórico de 2026-09-10.
+6. **Sin cambios de código en esta corrida:** todas las observaciones quedan
+   documentadas a la espera de autorización explícita.
+
+---
+
+*Reporte generado a partir de la corrida local del 2026-10-27 sobre 126 archivos. No
+sustituye una corrida oficial de SonarQube; las limitaciones se describen en la sección 2.*
 
 ---
 
@@ -847,18 +1017,18 @@ escaneo automatizado no puede resolver por sí solo:
 
 | # | Prueba | Escenario | Resultado esperado | Resultado observado |
 |---|---|---|---|---|
-| M1 | IDOR de colección privada | Token de un cliente **sin invitación** → `GET /colecciones/{id}` | `403` | **`403` ✅** |
-| M2 | IDOR de contenido | Token de **otro fotógrafo** → `GET /multimedia/{id}/original` | `403` | **`403` ✅** |
-| M3 | Acceso anónimo a privada | Sin token → `GET /multimedia/{id}/vista-previa` | `401` | **`401` ✅** |
-| M4 | Bypass de marca de agua | Descarga directa del archivo original en `uploads/` | `404` | **`404` ✅** |
-| M5 | JWT con firma alterada | Payload modificado, firma recalculada incorrectamente | `401` | **`401` ✅** (`hash_equals` en tiempo constante) |
-| M6 | JWT `alg: none` | Header sin algoritmo de firma | `401` | **`401` ✅** (solo se acepta HS256) |
-| M7 | JWT vencido | Token con `exp` en el pasado | `401` | **`401` ✅** |
-| M8 | Endpoint de mantenimiento | `POST /sistema/backup` con origen remoto (IP pública) | `403` | **`403` ✅** (`restringirALocal`, H02) |
-| M9 | QR colaborativo vencido | `GET /colaborativo/{token}` con token de >24 h | `410 Gone` | **`410` ✅** |
-| M10 | Subida de binario disfrazado | Archivo `.php` renombrado a `.jpg` | `400` | **`400` ✅** (MIME real con `mime_content_type`) |
-| M11 | Fuerza bruta de código de correo | 20 intentos contra `POST /auth/verificar-email` (código de 6 dígitos) | Bloqueo (`429`) | **Sin bloqueo ❌ → H-01** |
-| M12 | Cabeceras de seguridad | Inspección de `CSP`, `X-Frame-Options`, `X-Content-Type-Options` | Presentes | **Ausentes ❌ → H-02** |
+| M1 | IDOR de colección privada | Token de un cliente **sin invitación** → `GET /colecciones/{id}` | `403` | **`403`** |
+| M2 | IDOR de contenido | Token de **otro fotógrafo** → `GET /multimedia/{id}/original` | `403` | **`403`** |
+| M3 | Acceso anónimo a privada | Sin token → `GET /multimedia/{id}/vista-previa` | `401` | **`401`** |
+| M4 | Bypass de marca de agua | Descarga directa del archivo original en `uploads/` | `404` | **`404`** |
+| M5 | JWT con firma alterada | Payload modificado, firma recalculada incorrectamente | `401` | **`401`** (`hash_equals` en tiempo constante) |
+| M6 | JWT `alg: none` | Header sin algoritmo de firma | `401` | **`401`** (solo se acepta HS256) |
+| M7 | JWT vencido | Token con `exp` en el pasado | `401` | **`401`** |
+| M8 | Endpoint de mantenimiento | `POST /sistema/backup` con origen remoto (IP pública) | `403` | **`403`** (`restringirALocal`, H02) |
+| M9 | QR colaborativo vencido | `GET /colaborativo/{token}` con token de >24 h | `410 Gone` | **`410`** |
+| M10 | Subida de binario disfrazado | Archivo `.php` renombrado a `.jpg` | `400` | **`400`** (MIME real con `mime_content_type`) |
+| M11 | Fuerza bruta de código de correo | 20 intentos contra `POST /auth/verificar-email` (código de 6 dígitos) | Bloqueo (`429`) | **Sin bloqueo → H-01** |
+| M12 | Cabeceras de seguridad | Inspección de `CSP`, `X-Frame-Options`, `X-Content-Type-Options` | Presentes | **Ausentes → H-02** |
 
 ---
 
@@ -866,16 +1036,90 @@ escaneo automatizado no puede resolver por sí solo:
 
 | Categoría | Evidencia en este proyecto | Estado |
 |---|---|---|
-| **A01 Broken Access Control** | Pruebas M1–M4, M8 (`403`/`401`/`404` correctos); `uploads/.htaccess` con `Require all denied` | ✅ Mitigada |
-| **A02 Cryptographic Failures** | Cookie sin `Secure` (Z4), HSTS ausente (Z5), transporte HTTP en desarrollo | ⚠️ Aceptada en dev; pendiente HTTPS |
-| **A03 Injection** | SQLi/XSS/traversal del escaneo activo sin resultados | ✅ Mitigada (prepared statements + validadores) |
-| **A04 Insecure Design** | Sin límite de intentos de autenticación ni de código de 6 dígitos (M11); sin *rate limiting* en la API | ❌ Abierta → **H-01** |
-| **A05 Security Misconfiguration** | Cabeceras ausentes (Z2, Z3, Z5, Z8), CORS `*` (Z6), banners (Z7), puertos de desarrollo (1.2) | ❌ Abierta → **H-02, H-04, H-05, H-06** |
-| **A06 Vulnerable and Outdated Components** | Sin `composer.json`/`package.json` → no hay SCA de dependencias (limitación del SAST) | ⚠️ No evaluada |
-| **A07 Identification and Authentication Failures** | Sin bloqueo de cuenta ni *lockout* (Z1/H-01); enumeración de correos por `409`/`404` (H-09) | ❌ Parcialmente abierta |
-| **A08 Software and Data Integrity Failures** | IDs de cliente generados con `Math.random()` (V1–V3 del SAST) | ❌ Abierta → **H-07** |
-| **A09 Security Logging and Monitoring Failures** | No hay log centralizado de eventos de seguridad ni alertas automáticas | ❌ Abierta → **H-11** |
-| **A10 Server-Side Request Forgery** | La API no realiza peticiones salientes a URLs controladas por el usuario | ✅ No aplica |
+| **A01 Broken Access Control** | Pruebas M1–M4, M8 (`403`/`401`/`404` correctos); `uploads/.htaccess` con `Require all denied` | Mitigada |
+| **A02 Cryptographic Failures** | Cookie sin `Secure` (Z4), HSTS ausente (Z5), transporte HTTP en desarrollo | Aceptada en dev; pendiente HTTPS |
+| **A03 Injection** | SQLi/XSS/traversal del escaneo activo sin resultados | Mitigada (prepared statements + validadores) |
+| **A04 Insecure Design** | Sin límite de intentos de autenticación ni de código de 6 dígitos (M11); sin *rate limiting* en la API | Abierta → **H-01** |
+| **A05 Security Misconfiguration** | Cabeceras ausentes (Z2, Z3, Z5, Z8), CORS `*` (Z6), banners (Z7), puertos de desarrollo (1.2) | Abierta → **H-02, H-04, H-05, H-06** |
+| **A06 Vulnerable and Outdated Components** | Sin `composer.json`/`package.json` → no hay SCA de dependencias (limitación del SAST) | No evaluada |
+| **A07 Identification and Authentication Failures** | Sin bloqueo de cuenta ni *lockout* (Z1/H-01); enumeración de correos por `409`/`404` (H-09) | Parcialmente abierta |
+| **A08 Software and Data Integrity Failures** | IDs de cliente generados con `Math.random()` (V1–V3 del SAST) | Abierta → **H-07** |
+| **A09 Security Logging and Monitoring Failures** | No hay log centralizado de eventos de seguridad ni alertas automáticas | Abierta → **H-11** |
+| **A10 Server-Side Request Forgery** | La API no realiza peticiones salientes a URLs controladas por el usuario | No aplica |
+
+---
+
+## 1.6. Pruebas de Carga y Rendimiento (Benchmarking)
+
+### 1.6.1. Información General del Entorno de Pruebas
+
+* **Proyecto:** CipherForge
+* **Objetivo:** Evaluar la capacidad de respuesta, rendimiento y estabilidad de la API REST frente a un flujo de solicitudes concurrentes ejecutadas desde una máquina atacante/evaluadora (Kali Linux).
+* **Plataforma de Despliegue:** Docker (Contenedores)
+* **Host del Servidor:** `192.168.1.247`
+* **Puerto Expuesto:** `8081`
+* **Endpoint Evaluado:** `/api/ping`
+* **Servidor Web / Runtime:** Apache/2.4.69 (Debian) con PHP 8.2
+* **Herramienta de Evaluación:** ApacheBench (ab) v2.3
+
+### 1.6.2. Parámetros de la Prueba
+
+* **Solicitudes Totales (`-n`):** 100
+* **Nivel de Concurrencia (`-c`):** 2
+* **Comando Ejecutado:**
+```bash
+ab -n 100 -c 2 http://192.168.1.247:8081/api/ping
+```
+
+### 1.6.3. Resultados de la Prueba de Carga (ApacheBench)
+
+#### Resumen de Métricas Principales
+
+| Métrica | Valor Registrado | Observaciones |
+| --- | --- | --- |
+| **Tiempo total del test** | 1.399 segundos | Muestra un procesamiento rápido. |
+| **Solicitudes completadas** | 100 / 100 | El 100% de las peticiones fueron procesadas exitosamente. |
+| **Solicitudes fallidas** | 0 | Sin pérdida de paquetes ni fallos HTTP. |
+| **Rendimiento (Throughput)** | **71.49 req/sec** | Tasa media de peticiones atendidas por segundo. |
+| **Tiempo medio por solicitud** | **27.976 ms** | Tiempo global de procesamiento por lote concurrente. |
+| **Tiempo efectivo por petición** | **13.988 ms** | Promedio individual considerando las solicitudes concurrentes. |
+| **Tasa de transferencia** | 43.84 KB/sec | Ancho de banda consumido durante la prueba. |
+| **Bytes recibidos por respuesta** | 205 bytes | Tamaño del payload retornado por la API (`/api/ping`). |
+
+#### Tiempos de Conexión y Latencia (ms)
+
+| Etapa | Mínimo (ms) | Promedio (`mean`) | Desviación Estándar (`+/-sd`) | Mediana (`median`) | Máximo (ms) |
+| --- | --- | --- | --- | --- | --- |
+| **Conexión (`Connect`)** | 2 | 4 | 2.4 | 3 | 19 |
+| **Procesamiento (`Processing`)** | 18 | 23 | 5.3 | 22 | 63 |
+| **Espera (`Waiting`)** | 18 | 23 | 5.2 | 22 | 62 |
+| **Total** | **22** | **27** | **5.4** | **25** | **67** |
+
+#### Distribución del Tiempo de Respuesta (Percentiles)
+
+* **50% de las solicitudes:** atendidas en menos de **25 ms**
+* **75% de las solicitudes:** atendidas en menos de **27 ms**
+* **90% de las solicitudes:** atendidas en menos de **31 ms**
+* **99% de las solicitudes:** atendidas en menos de **67 ms**
+* **100% (peor tiempo):** **67 ms**
+
+### 1.6.4. Estado e Impacto en la Infraestructura (Docker)
+
+Durante la ejecución de la prueba, se monitoreó el consumo de recursos de los contenedores mediante el comando `docker stats`:
+
+| Contenedor | ID del Contenedor | Uso de CPU (%) | Uso de Memoria / Límite | % Memoria | Tráfico de Red (NET I/O) | Lectura/Escritura Disco (BLOCK I/O) | Procesos (PIDs) |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| **`cipher_forge_app`** | `8b91c9507bde` | **0.00%** | 16.54 MiB / 7.708 GiB | 0.21% | 463 kB / 291 kB | 0 B / 4.1 kB | 7 |
+| **`cipher_forge_db`** | `5f6de8fe7cc5` | **1.03%** | 370.9 MiB / 7.708 GiB | 4.70% | 24 kB / 45.6 kB | 1.73 MB / 15.2 MB | 40 |
+| **`cipher_forge_worker`** | `ff32479fa2c4` | **0.00%** | 6.84 MiB / 7.708 GiB | 0.09% | 42.6 kB / 15.4 kB | 0 B / 8.19 kB | 1 |
+| **`cipher_forge_mail`** | `90abd4c4d32a` | **0.00%** | 7.84 MiB / 7.708 GiB | 0.10% | 22.8 kB / 23.1 kB | 0 B / 496 kB | 9 |
+
+### 1.6.5. Conclusiones y Análisis de Seguridad
+
+1. **Estabilidad del Servicio:** La API mantuvo una disponibilidad del **100%** sin registrar errores de red, caídas de conexión o errores del servidor HTTP (0 peticiones fallidas).
+2. **Eficiencia en el Procesamiento:** La arquitectura basada en Docker y Apache/PHP 8.2 mostró un rendimiento fluido con una tasa promedio de **71.49 solicitudes por segundo** y latencias máximas controladas (67 ms).
+3. **Consumo Minimizativo de Recursos:** El contenedor principal de la aplicación (`cipher_forge_app`) absorbió la carga sin mostrar picos de uso de CPU (0.00%) ni saturación de memoria RAM (16.54 MiB).
+4. **Resistencia a Cargas Básicas:** La prueba confirma que la estructura de CipherForge soporta adecuadamente ráfagas de tráfico livianas y continuas en entornos de desarrollo local.
 
 ---
 
@@ -1059,22 +1303,22 @@ de la primera entrega.
 
 | ID | Hallazgo | Fuente | Severidad | CWE / OWASP | Estado | Medida correctiva |
 |---|---|---|---|---|---|---|
-| **H-01** | Sin límite de intentos en `POST /auth/login` ni en `POST /auth/verificar-email` (código de 6 dígitos adivinable) | ZAP *Brute Force* + suite (A5, B6, M11) | **Alta** | CWE-307 / A04, A07 | 🔴 Abierto | *Pendiente:* bloqueo progresivo (backoff + `429`), CAPTCHA tras N intentos y bloqueo temporal de la cuenta/código |
-| **H-02** | Cabeceras de seguridad ausentes: `Content-Security-Policy`, `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy` | ZAP (Z2, Z3, Z8) + suite (F1–F3) | Media | CWE-693 / A05 | 🔴 Abierto | Emitirlas en `public/index.php` (una línea por cabecera); CSP inicial *strict-dynamic* para las SPAs |
-| **H-03** | Cookie `cipher_forge_token` sin flag `Secure` (`COOKIE_SECURE=false`) | ZAP (Z4) + suite (F6) + SAST (V6) | Media | CWE-614 / A02 | 🟡 Aceptado en desarrollo | Corregido por variable de entorno al migrar a HTTPS (`COOKIE_SECURE=true`); queda documentado en `docker-compose.yml` |
-| **H-04** | CORS con comodín `*` para orígenes ajenos a la lista blanca | ZAP (Z6) + SAST (V4) | Media | CWE-942 / A05 | 🔴 Abierto | Reemplazar el `else` de `index.php` por lista blanca estricta (solo `FRONTEND_URL`), sin `Allow-Credentials` para orígenes externos |
-| **H-05** | Fuga de versiones en banner (`Server`, `X-Powered-By`) | Nmap (1.2) + ZAP (Z7) | Baja | CWE-200 / A05 | 🔴 Abierto | `expose_php=Off`, `ServerTokens Prod`, `ServerSignature Off` en Apache |
-| **H-06** | MySQL (`3306`) y Mailpit (`8025`/`1025`) publicados en el host con credenciales en texto plano en `docker-compose.yml` | Nmap (1.2) | **Alta** (si se publica el stack) | CWE-798 / A05 | 🟡 Aceptado en desarrollo | Para producción: no publicar puertos de BD/SMTP, credenciales por *secrets* del entorno y red interna de Docker |
-| **H-07** | IDs de cliente generados con `Math.random()` (PRNG no criptográfico) | SAST (V1–V3) | Media | CWE-338 / A08 | 🔴 Abierto | Generar IDs en el backend (`random_bytes`/UUID), como ya se hace en `MediaProcessor` |
-| **H-08** | Contenedor ejecutándose como `root` (Dockerfile sin `USER`) | SAST (V7) | Media | CWE-250 / A05 | 🔴 Abierto | Usuario no privilegiado + `chown` de `uploads/` en el entrypoint (ver `CRITICAL.md`) |
-| **H-09** | Enumeración de usuarios: `409` en registro duplicado y `404` en `verificar-email` para correos inexistentes | Suite (B3, B5) | Baja | CWE-204 / A07 | 🟡 Aceptado con control | El `409` lo exige el RF2; homogeneizar `verificar-email` a `200` genérico y documentar el riesgo residual |
-| **H-10** | Conflicto de orden de rutas: `/fotografos/{id}` captura `/fotografos/cuota` → endpoint inalcanzable y control de rol sin aplicar | Suite (H1) + `FAILS-TESTED.md` BUG-1 | Media | CWE-706 / A01 | 🔴 Abierto | Registrar la ruta literal **antes** que la parametrizada en `routes.php` |
-| **H-11** | Sin registro/monitoreo centralizado de eventos de seguridad ni alertas automáticas | Análisis A09 | Media | CWE-778 / A09 | 🔴 Abierto | Log de intentos fallidos, accesos a privados y usos de QR; alinear con 3.6 de la primera entrega |
-| **H-12** | Endpoints `/sistema/*` sin autenticación (solo restricción de red) | DAST manual (M8) + auditoría de código | Media | CWE-284 / A01 | 🟡 Mitigado | `restringirALocal()` activo (403 desde IP pública); queda la protección definitiva (clave/rol `admin`) en *Cambios a futuro* (4.1) |
-| **H-13** | Error fatal de PHP respondía `200` con HTML (enmascaramiento de errores) | Auditoría e2e (BUG-2/3) | Media | CWE-755 / A05 | 🟢 **Corregido** | `display_errors=0` + `register_shutdown_function` que emite JSON con `500`; verificado con imagen de 1 px |
-| **H-14** | Bucle infinito en la marca de agua con imágenes muy pequeñas (denegación de servicio por `max_execution_time`) | Auditoría e2e (BUG-2) | Media | CWE-835 / A04 | 🟢 **Corregido** | `$paso = max(1, (int) ($alto * 0.18))` en `MediaProcessor.php:96` |
-| **H-15** | Sin análisis SCA: no hay `composer.json`/`package.json` para detectar dependencias vulnerables | Límite del SAST (nota 4) | Baja | A06 | 🟡 Pendiente técnico | Registrar dependencias (GD, FFmpeg, MySQL) y su ciclo de soporte al llevar a producción |
-| **H-16** | Ausencia de tokens anti-CSRF en formularios | ZAP (Z1) | Baja | CWE-352 / A05 | 🟡 Aceptado con control | API JSON autenticada por cabecera + cookie `SameSite=Strict`; revisar si se amplía el CORS (H-04) |
+| **H-01** | Sin límite de intentos en `POST /auth/login` ni en `POST /auth/verificar-email` (código de 6 dígitos adivinable) | ZAP *Brute Force* + suite (A5, B6, M11) | **Alta** | CWE-307 / A04, A07 | Abierto | *Pendiente:* bloqueo progresivo (backoff + `429`), CAPTCHA tras N intentos y bloqueo temporal de la cuenta/código |
+| **H-02** | Cabeceras de seguridad ausentes: `Content-Security-Policy`, `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy` | ZAP (Z2, Z3, Z8) + suite (F1–F3) | Media | CWE-693 / A05 | Abierto | Emitirlas en `public/index.php` (una línea por cabecera); CSP inicial *strict-dynamic* para las SPAs |
+| **H-03** | Cookie `cipher_forge_token` sin flag `Secure` (`COOKIE_SECURE=false`) | ZAP (Z4) + suite (F6) + SAST (V6) | Media | CWE-614 / A02 | Aceptado en desarrollo | Corregido por variable de entorno al migrar a HTTPS (`COOKIE_SECURE=true`); queda documentado en `docker-compose.yml` |
+| **H-04** | CORS con comodín `*` para orígenes ajenos a la lista blanca | ZAP (Z6) + SAST (V4) | Media | CWE-942 / A05 | Abierto | Reemplazar el `else` de `index.php` por lista blanca estricta (solo `FRONTEND_URL`), sin `Allow-Credentials` para orígenes externos |
+| **H-05** | Fuga de versiones en banner (`Server`, `X-Powered-By`) | Nmap (1.2) + ZAP (Z7) | Baja | CWE-200 / A05 | Abierto | `expose_php=Off`, `ServerTokens Prod`, `ServerSignature Off` en Apache |
+| **H-06** | MySQL (`3306`) y Mailpit (`8025`/`1025`) publicados en el host con credenciales en texto plano en `docker-compose.yml` | Nmap (1.2) | **Alta** (si se publica el stack) | CWE-798 / A05 | Aceptado en desarrollo | Para producción: no publicar puertos de BD/SMTP, credenciales por *secrets* del entorno y red interna de Docker |
+| **H-07** | IDs de cliente generados con `Math.random()` (PRNG no criptográfico) | SAST (V1–V3) | Media | CWE-338 / A08 | Abierto | Generar IDs en el backend (`random_bytes`/UUID), como ya se hace en `MediaProcessor` |
+| **H-08** | Contenedor ejecutándose como `root` (Dockerfile sin `USER`) | SAST (V7) | Media | CWE-250 / A05 | Abierto | Usuario no privilegiado + `chown` de `uploads/` en el entrypoint (ver `CRITICAL.md`) |
+| **H-09** | Enumeración de usuarios: `409` en registro duplicado y `404` en `verificar-email` para correos inexistentes | Suite (B3, B5) | Baja | CWE-204 / A07 | Aceptado con control | El `409` lo exige el RF2; homogeneizar `verificar-email` a `200` genérico y documentar el riesgo residual |
+| **H-10** | Conflicto de orden de rutas: `/fotografos/{id}` captura `/fotografos/cuota` → endpoint inalcanzable y control de rol sin aplicar | Suite (H1) + `FAILS-TESTED.md` BUG-1 | Media | CWE-706 / A01 | Abierto | Registrar la ruta literal **antes** que la parametrizada en `routes.php` |
+| **H-11** | Sin registro/monitoreo centralizado de eventos de seguridad ni alertas automáticas | Análisis A09 | Media | CWE-778 / A09 | Abierto | Log de intentos fallidos, accesos a privados y usos de QR; alinear con 3.6 de la primera entrega |
+| **H-12** | Endpoints `/sistema/*` sin autenticación (solo restricción de red) | DAST manual (M8) + auditoría de código | Media | CWE-284 / A01 | Mitigado | `restringirALocal()` activo (403 desde IP pública); queda la protección definitiva (clave/rol `admin`) en *Cambios a futuro* (4.1) |
+| **H-13** | Error fatal de PHP respondía `200` con HTML (enmascaramiento de errores) | Auditoría e2e (BUG-2/3) | Media | CWE-755 / A05 | **Corregido** | `display_errors=0` + `register_shutdown_function` que emite JSON con `500`; verificado con imagen de 1 px |
+| **H-14** | Bucle infinito en la marca de agua con imágenes muy pequeñas (denegación de servicio por `max_execution_time`) | Auditoría e2e (BUG-2) | Media | CWE-835 / A04 | **Corregido** | `$paso = max(1, (int) ($alto * 0.18))` en `MediaProcessor.php:96` |
+| **H-15** | Sin análisis SCA: no hay `composer.json`/`package.json` para detectar dependencias vulnerables | Límite del SAST (nota 4) | Baja | A06 | Pendiente técnico | Registrar dependencias (GD, FFmpeg, MySQL) y su ciclo de soporte al llevar a producción |
+| **H-16** | Ausencia de tokens anti-CSRF en formularios | ZAP (Z1) | Baja | CWE-352 / A05 | Aceptado con control | API JSON autenticada por cabecera + cookie `SameSite=Strict`; revisar si se amplía el CORS (H-04) |
 
 **Resumen:** 16 hallazgos → **2 corregidos y verificados**, **4 aceptados/mitigados con
 control**, **10 abiertos** con medida correctiva definida.
