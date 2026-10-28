@@ -131,6 +131,82 @@
     background: var(--verde-oscuro);
 }
 
+.ModalConfirmacion {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(2, 6, 23, 0.75);
+}
+
+.ModalConfirmacion[hidden] {
+    display: none;
+}
+
+.ConfirmacionContenido {
+    width: min(420px, 100%);
+    padding: 28px;
+    border-radius: 12px;
+    background: var(--secondary-color);
+    box-shadow: var(--sombra);
+    text-align: center;
+}
+
+.ConfirmacionContenido p {
+    margin: 0 0 24px;
+    color: var(--primary-color);
+    font-size: 16px;
+    line-height: 1.5;
+    white-space: pre-line;
+}
+
+.AccionesConfirmacion {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+.BotonAceptarConfirmacion,
+.BotonCancelarConfirmacion {
+    min-width: 110px;
+    padding: 10px 18px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease;
+}
+
+.BotonAceptarConfirmacion {
+    border: 1px solid var(--verde);
+    background: var(--verde);
+    color: var(--secondary-color);
+}
+
+.BotonAceptarConfirmacion:hover {
+    border-color: var(--verde-oscuro);
+    background: var(--verde-oscuro);
+}
+
+.BotonCancelarConfirmacion {
+    border: 1px solid var(--borde);
+    background: var(--secondary-color);
+    color: var(--primary-color);
+}
+
+.BotonCancelarConfirmacion:hover {
+    border-color: var(--verde);
+    background: #eefaf5;
+    color: var(--verde);
+}
+
 @media (max-width: 760px) {
     .BotonCerrarSesion {
         position: static;

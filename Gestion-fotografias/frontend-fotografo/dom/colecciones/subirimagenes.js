@@ -69,27 +69,130 @@ function mostrarToast(texto, tipo) {
     }, 3000);
 }
 
-function pedirConfirmacion(texto) {
-    return new Promise(function (resolve) {
-        textoConfirmacion.textContent = texto;
-        focoAntesDeConfirmar = document.activeElement;
-        resolverConfirmacion = resolve;
-        modalConfirmacion.hidden = false;
-        botonCancelarConfirmacion.focus();
-    });
-}
+let accionAlCerrar = null;
 
 function cerrarConfirmacion(resultado) {
     if (modalConfirmacion.hidden) return;
     modalConfirmacion.hidden = true;
     const resolver = resolverConfirmacion;
+    const accion = accionAlCerrar;
     resolverConfirmacion = null;
+    accionAlCerrar = null;
     if (focoAntesDeConfirmar && typeof focoAntesDeConfirmar.focus === "function") {
         focoAntesDeConfirmar.focus();
     }
     focoAntesDeConfirmar = null;
     if (resolver) resolver(resultado);
+    if (accion) accion();
 }
+
+function esPregunta(texto) {
+    if (!texto) return false;
+    return /[?¿]/.test(String(texto));
+}
+
+function esErrorDePermisos(texto) {
+    if (!texto) return false;
+    const lower = String(texto).toLowerCase();
+    return (
+        lower.includes("dueño") ||
+        lower.includes("dueÃ±o") ||
+        lower.includes("modificar la colección") ||
+        lower.includes("modificar la coleccion") ||
+        lower.includes("eliminar la colección") ||
+        lower.includes("eliminar la coleccion") ||
+        lower.includes("no autorizado") ||
+        lower.includes("sesión") ||
+        lower.includes("sesion") ||
+        lower.includes("403") ||
+        lower.includes("401")
+    );
+}
+
+function redirigirAlLoginCorrespondiente() {
+    let rol = "fotografo";
+    try {
+        if (usuario && usuario.rol) {
+            rol = usuario.rol;
+        } else {
+            const fotografoStorage = localStorage.getItem("fotografo-usuario");
+            if (fotografoStorage) {
+                const fotografoObj = JSON.parse(fotografoStorage);
+                if (fotografoObj && fotografoObj.rol) {
+                    rol = fotografoObj.rol;
+                }
+            } else {
+                const clienteStorage = localStorage.getItem("cliente-usuario");
+                if (clienteStorage) {
+                    const clienteObj = JSON.parse(clienteStorage);
+                    if (clienteObj && clienteObj.rol === "cliente") {
+                        rol = "cliente";
+                    }
+                }
+            }
+        }
+    } catch (e) {}
+
+    try {
+        if (rol === "cliente") {
+            localStorage.removeItem("cliente-usuario");
+            localStorage.removeItem("cliente-token");
+            localStorage.removeItem("cliente-cuota-almacenamiento");
+        } else {
+            localStorage.removeItem("fotografo-usuario");
+            localStorage.removeItem("fotografo-token");
+            localStorage.removeItem("fotografo-cuota-almacenamiento");
+        }
+    } catch (e) {}
+
+    if (rol === "cliente") {
+        window.location.href = new URL("../../frontend-cliente/pages/login.html", window.location.href).href;
+    } else {
+        window.location.href = new URL("login.html", window.location.href).href;
+    }
+}
+
+function mostrarDialogo(texto, opciones = {}) {
+    return new Promise(function (resolve) {
+        textoConfirmacion.textContent = texto;
+        focoAntesDeConfirmar = document.activeElement;
+        resolverConfirmacion = resolve;
+
+        const pregunta = opciones.pregunta !== undefined ? opciones.pregunta : esPregunta(texto);
+        const redirigir = opciones.redirigir !== undefined ? opciones.redirigir : esErrorDePermisos(texto);
+
+        if (pregunta) {
+            botonCancelarConfirmacion.hidden = false;
+            botonAceptarConfirmacion.textContent = "Aceptar";
+            accionAlCerrar = null;
+            modalConfirmacion.hidden = false;
+            botonCancelarConfirmacion.focus();
+        } else {
+            botonCancelarConfirmacion.hidden = true;
+            botonAceptarConfirmacion.textContent = "Ok";
+            accionAlCerrar = redirigir ? redirigirAlLoginCorrespondiente : null;
+            modalConfirmacion.hidden = false;
+            botonAceptarConfirmacion.focus();
+        }
+    });
+}
+
+function pedirConfirmacion(texto) {
+    return mostrarDialogo(texto, { pregunta: true });
+}
+
+function mostrarAlertaError(texto) {
+    return mostrarDialogo(texto, { pregunta: false });
+}
+
+// Sobrescribir alert y confirm para que no haya alerts nativos
+window.alert = function (texto) {
+    return mostrarDialogo(texto);
+};
+
+window.confirm = function (texto) {
+    return mostrarDialogo(texto, { pregunta: true });
+};
 
 function indicarTrabajo(enCurso) {
     ocupado = enCurso;
