@@ -1053,7 +1053,6 @@ escaneo automatizado no puede resolver por sí solo:
 
 ### 1.6.1. Información General del Entorno de Pruebas
 
-* **Proyecto:** CipherForge
 * **Objetivo:** Evaluar la capacidad de respuesta, rendimiento y estabilidad de la API REST frente a un flujo de solicitudes concurrentes ejecutadas desde una máquina atacante/evaluadora (Kali Linux).
 * **Plataforma de Despliegue:** Docker (Contenedores)
 * **Host del Servidor:** `192.168.1.247`
