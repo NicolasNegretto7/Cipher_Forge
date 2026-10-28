@@ -84,16 +84,17 @@ Agregar validación de magic bytes en el frontend antes de subir archivos. Como 
 ## 3. Mailpit solo para entorno de desarrollo
 
 **Fecha de identificación:** 2026-10-21
-**Referencia:** `Gestion-fotografias/docs/infraestructura.md` §5.6, §6 B6
+**Referencia:** [infraestructura.md, Sección 5.6](infraestructura.md#56-dependencias-y-ejecución), [Sección 6, B6](infraestructura.md#6-riesgos-restricciones-y-decisiones-pendientes)
 
 ### Contexto
 
-El servicio Mailpit (`axllent/mailpit:latest`) está configurado y funciona exclusivamente en el entorno local de desarrollo (`docker-compose.yml`). Cumple el requisito RF18 de envío de códigos de verificación por correo durante el desarrollo y pruebas del proyecto UTU.
+El servicio Mailpit (`axllent/mailpit:latest`) se usa exclusivamente como buzón de desarrollo y laboratorio. Cumple el requisito RF18 de envío de códigos de verificación por correo durante el desarrollo y las pruebas del proyecto UTU.
 
 ### Estado actual
 
-- **Local (desarrollo):** Mailpit está activo en puertos `8025` (UI) y `1025` (SMTP). Permite capturar y revisar los correos de verificación enviados por la aplicación durante el desarrollo.
-- **Producción:** No está implementado. Para un entorno de producción se requiere contratar un servicio de correo externo (SendGrid, Mailgun, Amazon SES, etc.) o integrar una API de envío de correos. El uso continuado de Mailpit en producción no está recomendado ni soportado.
+- **LOCAL Windows:** Mailpit está activo en los puertos `8025` (UI) y `1025` (SMTP), publicados por Docker Compose. Permite capturar y revisar los correos de verificación enviados por la aplicación durante el desarrollo.
+- **SERVIDOR UBUNTU (Server Ubuntu Lab):** Mailpit corre en el mismo stack, pero escucha solo en `127.0.0.1:8025/1025`. Se consulta por túnel SSH (`ssh -p 2222 -L 8025:127.0.0.1:8025 sysadmin@127.0.0.1`) y no está expuesto a la LAN.
+- **PRODUCCIÓN:** no está implementado. Para un entorno de producción se requiere contratar un servicio de correo externo (SendGrid, Mailgun, Amazon SES, etc.) o integrar una API de envío de correos. El uso continuado de Mailpit en producción no está recomendado ni soportado.
 
 ### Recomendación
 
