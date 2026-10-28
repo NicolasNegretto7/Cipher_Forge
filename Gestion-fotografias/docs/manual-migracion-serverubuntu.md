@@ -1,8 +1,9 @@
 # Manual completo: mover Cipher Forge a Ubuntu Server y usar el QR desde el celular
 
 **Proyecto:** Gestion-fotografias / Cipher Forge  
-**Última actualización:** 26/10/2026  
-**Objetivo:** mover el stack completo desde Windows + Docker Desktop a un Ubuntu Server, conservar la base de datos, las fotos/videos y los respaldos, y dejar el QR funcionando para un celular conectado a la misma WiFi.
+**Última actualización:** 28/10/2026  
+**Estado:** migración ejecutada en la VM `Ubuntu-Server-Lab`. El QR fue validado desde un celular real el **28/10/2026** y funciona correctamente. El entorno es HTTP en LAN, no producción. Pendientes: backup programado, restore probado, copia off-site y autostart de la VM.  
+**Objetivo:** mover el stack completo desde Windows + Docker Desktop a un Ubuntu Server, conservar la base de datos, las fotos/videos y los respaldos, y dejar el QR funcionando y validado para un celular conectado a la misma WiFi.
 
 **Tiempo estimado:** 2 a 4 horas. Docker ya está instalado; la mayor parte del tiempo suele ser la transferencia de fotos/videos.
 
@@ -69,12 +70,14 @@ Reemplazá estos valores por los tuyos:
 | `IP_WINDOWS` | IP de la PC Windows en la WiFi; es la que usa el celular | `10.244.239.215` |
 | `PUERTO_PUBLICO` | Puerto del port forwarding de Nginx en VirtualBox | `8080` |
 | `IP_VM` | IP interna de la VM en la red NAT; **no** se usa desde el celular | `10.0.2.50` |
-| `USUARIO` | Usuario de Ubuntu con permisos de `sudo` | `ivan` |
+| `USUARIO` | Usuario de Ubuntu con permisos de `sudo` | `sysadmin` |
 | `RUTA` | Carpeta del proyecto en Ubuntu | `/opt/cipher-forge/Gestion-fotografias` |
 | `PASSWORD_APP` | Contraseña nueva para el usuario MySQL de la app | `CipherApp_2026_xxx` |
 | `PASSWORD_ROOT` | Contraseña nueva para el root de MySQL | `CipherRoot_2026_xxx` |
 
 En las URLs, lo que escribís desde el celular o desde otra PC es `http://IP_WINDOWS:PUERTO_PUBLICO`. En tu caso: `http://10.244.239.215:8080`. La IP `IP_VM` (`10.0.2.50`) solo existe dentro de la red NAT de VirtualBox.
+
+> En este entorno el usuario SSH es `sysadmin`. Los comandos de abajo usan `USUARIO` como placeholder; reemplazalo por `sysadmin` si trabajás sobre la VM actual.
 
 Los comandos de Windows van en **PowerShell**. Los de Ubuntu van en **bash**. Para entrar a Ubuntu desde Windows, usá el forward de SSH:
 
@@ -88,7 +91,7 @@ ssh -p 2222 USUARIO@127.0.0.1
 
 ### 1.1 Inventario de lo que hay que mover
 
-| Componente | Dónde está hoy | Cómo se mueve |
+| Componente | Dónde está antes de migrar | Cómo se mueve |
 |---|---|---|
 | Base de datos | Volumen Docker `backend_db_data` | Dump lógico con `mysqldump` |
 | Fotos y videos | Volumen Docker `backend_uploads_data` | Copia de la carpeta `/var/www/html/uploads` |
@@ -108,6 +111,8 @@ ssh -p 2222 USUARIO@127.0.0.1
 - La PC con Windows y el stack actual funcionando.
 - Un celular con cámara y navegador, conectado a la **misma WiFi que la PC Windows**.
 - Windows 10/11 con cliente SSH (`ssh -V`). Si no lo tiene, se puede usar WinSCP o un pendrive.
+
+> **Windows sigue siendo necesario después de migrar:** en NAT, Windows aporta la IP de la WiFi (`10.244.239.215`) y el port forwarding `8080 → 80`. La VM por sí sola (`10.0.2.50`) no es accesible desde el celular. Podés dejar el stack Docker de Windows detenido, pero no apagar Windows mientras quieras que el QR funcione.
 
 ### 1.3 Decisiones que tenés que tomar antes
 
@@ -524,7 +529,7 @@ chmod 600 .env
 
 ### 4.3 Corregir `docker-compose.yml`
 
-El `docker-compose.yml` actual tiene un problema para una instalación nueva: no pasa `MYSQL_PASSWORD` al servicio `db` ni `DB_PASS` a `app`/`worker`. Hoy funciona en Windows porque el volumen ya estaba inicializado, pero en un volumen nuevo de Ubuntu MySQL no va a inicializar correctamente.
+El `docker-compose.yml` actual tiene un problema para una instalación nueva: no pasa `MYSQL_PASSWORD` al servicio `db` ni `DB_PASS` a `app`/`worker`. En Windows funciona porque el volumen ya estaba inicializado, pero en un volumen nuevo de Ubuntu MySQL no va a inicializar correctamente.
 
 Reemplazá el contenido de `backend/docker-compose.yml` por este:
 
@@ -903,17 +908,19 @@ Los valores del proyecto ya están preparados para 800 MB de video.
 
 ## 7. Arreglar el QR para el celular
 
-### 7.1 Por qué falla hoy
+> **Estado validado (28/10/2026):** el QR ya fue probado desde un celular real conectado a la misma WiFi y **funciona correctamente**. La URL validada es `http://10.244.239.215:8080/frontend-cliente/pages/colaborativo.html?token=...`. Esta sección queda como referencia de cómo se configuró y cómo regenerarlo si cambia la IP.
+
+### 7.1 Por qué fallaba antes de la migración
 
 `QrGenerator.php` no tiene el problema: genera un QR estándar a partir de un texto. El texto se arma en `ColaborativoController::armarUrlColaborativo()` usando `FRONTEND_URL`.
 
-Hoy `FRONTEND_URL` vale `http://localhost:5501/Gestion-fotografias`. Entonces el QR contiene:
+Antes de la migración, `FRONTEND_URL` valía `http://localhost:5501/Gestion-fotografias`. Entonces el QR contenía:
 
 ```text
 http://localhost:5501/Gestion-fotografias/frontend-cliente/pages/colaborativo.html?token=...
 ```
 
-Cuando el celular escanea `localhost`, lo interpreta como **el propio celular**, no como tu PC. Por eso no abre nada.
+Cuando el celular escanea `localhost`, lo interpreta como **el propio celular**, no como tu PC. Por eso no abría nada.
 
 ### 7.2 Confirmar `FRONTEND_URL`
 
@@ -1103,6 +1110,8 @@ Si funciona desde otra PC pero no desde el celular, el problema es la red WiFi, 
 
 5. Generá un QR nuevo desde el panel del fotógrafo (en la PC) y abrí el enlace en el celular. También podés probar el acceso permanente con `?invitacion=...`.
 
+> **Validado el 28/10/2026:** el escaneo del QR desde un celular real, conectado a la misma WiFi, funciona correctamente. Si cambiás la IP de Windows o la configuración de red, repetí esta prueba.
+
 ### 8.5 Si el celular no puede entrar
 
 Revisá en este orden:
@@ -1127,7 +1136,7 @@ Si el WiFi de la institución aísla clientes, tenés estas alternativas:
 
 - **Tu caso:** NAT + port forwarding. Es válido y **no hace falta cambiar a Bridged**.
 - Ventajas: la VM no está expuesta directamente; la PC Windows hace de puerta y vos controlás qué puerto se publica.
-- Limitaciones: Windows debe estar encendido y la VM corriendo; el rendimiento de red es menor que Bridged; la IP pública es la de Windows y puede cambiar por DHCP; el celular no puede usar `10.0.2.50`.
+- Limitaciones: Windows debe estar encendido y la VM corriendo; el rendimiento de red es menor que Bridged; la IP pública es la de Windows y puede cambiar por DHCP; el celular no puede usar `10.0.2.50`. **Windows no es opcional en NAT:** sin él no hay IP de WiFi ni port forwarding, y la VM sola no es accesible desde el celular.
 - Si usás **Bridged**: la VM tiene una IP de la LAN, el celular entra directo a `http://IP_UBUNTU` por el puerto 80 y no necesitás la regla 8080. En ese caso cambiá `FRONTEND_URL` y regenerá los QR.
 - Si usás **NAT sin port forwarding**: el celular no puede entrar. No alcanza con estar en la misma WiFi.
 
@@ -1160,6 +1169,8 @@ Con el **stack de Docker de Windows** detenido (no apagues la PC: la VM y el por
 - [ ] La foto aparece en moderación.
 - [ ] El worker genera un respaldo en `backend/backups/`.
 - [ ] Los conteos de la DB coinciden con los de Windows.
+
+> **Estado a 28/10/2026:** el QR ya fue validado desde un celular real y funciona. El backup one-shot fue ejecutado y verificado. La ejecución programada del worker, el restore y la copia off-site siguen pendientes de confirmación.
 
 ### 9.2 Corte definitivo
 
@@ -1492,6 +1503,8 @@ Así ves los correos sin exponer Mailpit a la LAN.
 - [ ] El celular, en la misma WiFi, abre el QR.
 - [ ] El celular puede subir una foto.
 - [ ] La foto aparece en moderación.
+
+> **Validado el 28/10/2026:** el celular abre el QR y el escaneo funciona. La subida desde el celular y la moderación deben re-verificarse si se reconstruye el entorno.
 
 ### Operación
 

@@ -6,6 +6,8 @@
 
 El sistema **Cipher_Forge** adopta una **arquitectura en capas (Layered Architecture)** basada en el patrón **Cliente-Servidor desacoplado**, donde el frontend (interfaz de usuario) interactúa con el backend exclusivamente a través de una **API RESTful** sobre HTTP emitiendo y recibiendo cargas en formato JSON o binarios multipart. La persistencia de datos reside en un motor relacional MySQL 8.0 y los archivos multimedia se almacenan de forma estructurada en un volumen de almacenamiento persistente montado en el contenedor de la aplicación.
 
+> **Estado de implementación:** la arquitectura lógica es común a todos los entornos, pero el despliegue no. `LOCAL Windows` usa Docker Desktop y Apache publicado en `:8080`. `SERVIDOR UBUNTU (Server Ubuntu Lab)` usa la misma aplicación en contenedores detrás de Nginx `:80`, con VirtualBox NAT y port forwarding desde Windows; es una demo/laboratorio en LAN, sin TLS ni dominio. `PRODUCCIÓN` **no está implementada**: depende de las decisiones y brechas de [infraestructura.md, Sección 5](infraestructura.md#5-arquitectura-y-requisitos-de-producción-producción--brechas-no-hechos). La migración a Ubuntu no cambia el ERD ni las 11 tablas.
+
 ### 1.1 Diagrama de Arquitectura Global
 
 ```mermaid
@@ -17,7 +19,8 @@ graph TD
     end
 
     subgraph Red ["Capa de Entrada y Servidor Web"]
-        APACHE["Servidor Web Apache 2.4\n(Puerto 8080 - .htaccess a public/index.php)"]
+        NGINX["Nginx 1.24 (solo SERVIDOR UBUNTU)\n(Puerto 80 - estáticos + proxy_pass)"]
+        APACHE["Servidor Web Apache 2.4\n(Puerto 8080 - .htaccess a public/index.php)\nLOCAL Windows y contenedor app"]
     end
 
     subgraph Backend ["Capa de Aplicación (PHP 8.2 Backend Puro)"]
@@ -49,9 +52,10 @@ graph TD
         BACKUP["Sistema de Respaldos y Purga Diaria\n(worker cipher_forge_worker: cron-backup.php --loop / BackupService / PDO / rotación 3 copias)"]
     end
 
-    FC -->|HTTP REST / JSON / Multipart| APACHE
-    FU -->|HTTP REST / JSON| APACHE
-    INV -->|HTTP REST / Multipart| APACHE
+    FC -->|"LOCAL: HTTP :8080 / SERVIDOR UBUNTU: :8080 → Nginx :80"| NGINX
+    FU -->|"LOCAL: HTTP :8080 / SERVIDOR UBUNTU: :8080 → Nginx :80"| NGINX
+    INV -->|"LOCAL: HTTP :8080 / SERVIDOR UBUNTU: QR → Nginx :80"| NGINX
+    NGINX -->|proxy_pass a 127.0.0.1:8080| APACHE
     
     APACHE --> ROUTER
     ROUTER --> AUTH_MID
@@ -74,7 +78,79 @@ graph TD
     BACKUP -.->|purga 24h| FS
 ```
 
-### 1.2 Descripción Detallada de Capas
+> En `LOCAL Windows` los clientes entran directo a Apache `:8080`; Nginx solo existe en `SERVIDOR UBUNTU` como borde HTTP. El diagrama muestra ambas rutas de entrada para no duplicar la arquitectura lógica.
+
+### 1.2 Estado de Implementación y Diagrama de Despliegue
+
+| Entorno | Estado | Entrada web | Base de datos | Multimedia | Notas |
+|---|---|---|---|---|---|
+| `LOCAL Windows` | Implementado | Apache `:8080` | `db` con `3306` publicado | Volumen `uploads_data` | Docker Desktop; frontend con Live Server `:5501` |
+| `SERVIDOR UBUNTU (Server Ubuntu Lab)` | Implementado como demo/laboratorio | Windows `:8080` → VirtualBox NAT → Nginx `:80` → `app` en `127.0.0.1:8080` | `db` sin puerto publicado | Volumen `backend_uploads_data` | Nginx sirve frontends y API en el mismo origen; QR validado desde celular el 28/10/2026 |
+| `PRODUCCIÓN` | **No implementado** | HTTPS con dominio `PENDIENTE DE DEFINICIÓN` | Gestionada, sin puerto público | Almacenamiento externo o gestionado `PENDIENTE DE DEFINICIÓN` | Requiere TLS, SMTP real, backups off-site y restore probado |
+
+**Despliegue concreto del laboratorio:**
+
+```mermaid
+graph LR
+    subgraph CLIENTES["Clientes en la misma WiFi"]
+        CEL["Celular\n(escaneo de QR)"]
+        PC["PC\n(navegador)"]
+    end
+
+    subgraph WINDOWS["Windows host"]
+        FW["Firewall Windows\nTCP 8080 para LocalSubnet"]
+        VB["VirtualBox NAT\nhost 8080 → guest 10.0.2.50:80\nSSH host 2222 → guest 22"]
+
+        subgraph LOCAL["LOCAL Windows (Docker Desktop)"]
+            LAPP["app\nApache :8080"]
+            LDB[("db\nMySQL :3306")]
+            LMAIL["mailpit\n:8025 / :1025"]
+            LWORKER["worker"]
+        end
+
+        subgraph UBUNTU["Ubuntu-Server-Lab (SERVIDOR UBUNTU)"]
+            NGX["Nginx :80\nestáticos + proxy_pass"]
+            STATIC["Frontends + landing\n/opt/cipher-forge/Gestion-fotografias"]
+            UAPP["app\n127.0.0.1:8080"]
+            UDB[("db\nsin puerto publicado")]
+            UMAIL["mailpit\n127.0.0.1:8025/1025"]
+            UWORKER["worker\ncron-backup.php --loop"]
+            UVOL[("backend_uploads_data")]
+            UDBVOL[("backend_db_data")]
+        end
+    end
+
+    PROD["PRODUCCIÓN\nNo implementada\nTLS + dominio + SMTP real\nbackups off-site + restore\nPENDIENTE DE DEFINICIÓN"]
+
+    CEL -->|"http://10.244.239.215:8080\nQR colaborativo"| FW
+    PC -->|"http://10.244.239.215:8080"| FW
+    PC -->|"LOCAL: http://localhost:8080"| LAPP
+    PC -.->|"LOCAL: frontend Live Server :5501"| LAPP
+    FW --> VB
+    VB --> NGX
+    NGX -->|"/, /lading-page, /frontend-*"| STATIC
+    NGX -->|"/auth, /colecciones, /multimedia, /qr, ..."| UAPP
+    UAPP --> UDB
+    UAPP --> UMAIL
+    UAPP --> UVOL
+    UWORKER --> UDB
+    UDB --> UDBVOL
+    LAPP --> LDB
+    LAPP --> LMAIL
+    LWORKER --> LDB
+    PROD -.->|"brechas pendientes"| NGX
+```
+
+**Lectura del despliegue:**
+
+* **Windows es necesario en NAT:** aporta la IP de la WiFi (`10.244.239.215`) y el port forwarding `8080 → 80`; la VM sola (`10.0.2.50`) no es accesible desde el celular.
+* **Nginx es el borde del Server Ubuntu:** sirve la landing y los dos frontends como estáticos y proxya la API a `127.0.0.1:8080`. El backend deja de estar publicado a la LAN y `/sistema/*` se deniega en Nginx.
+* **Mismo origen:** al servir frontend y API por el mismo puerto, el navegador no hace CORS y la cookie `SameSite=Strict` funciona. Los dos `config.js` usan `API_URL=""`.
+* **Datos persistentes:** `backend_db_data` y `backend_uploads_data` viven en la VM. `docker compose down -v` los destruye; los backups de `backend/backups/` sobreviven en el filesystem de la VM.
+* **Mailpit** solo escucha en `127.0.0.1` y se consulta por túnel SSH, no está expuesto a la LAN.
+* **PRODUCCIÓN** no es una variante de este diagrama: es un entorno pendiente, con TLS, dominio y decisiones sin resolver.
+
+### 1.3 Descripción Detallada de Capas
 
 1. **Capa de Presentación (Frontend):**
    - **Estructura desacoplada:** Dividida en dos portales independientes según el rol del usuario: `frontend-fotografo` (gestión de colecciones, panel de subida con control de cuota de 3 GB, generación de códigos QR y moderación de invitados) y `frontend-cliente` (exploración de colecciones públicas por hashtags, favoritos, acceso privado por token y descarga directa en dos calidades).
@@ -573,9 +649,9 @@ A continuación se fundamenta la selección técnica del stack de **Cipher_Forge
 | Componente | Tecnología Seleccionada | Justificación Técnica | Alternativas Descartadas y Motivo |
 | :--- | :--- | :--- | :--- |
 | **Backend** | **PHP 8.2 (Vanilla OOP con PSR-4 nativo)** | Tipado estricto (`declare(strict_types=1)`), manejo robusto de excepciones y soporte nativo de extensiones para flujos de datos binarios y procesamiento de imágenes. Un autoloader PSR-4 escrito desde cero mediante `spl_autoload_register` garantiza portabilidad total y despliegue rápido sin requerir herramientas intermedias. | **Node.js / Express:** Mayor complejidad para el manejo eficiente de streams binarios pesados (imágenes de alta resolución y videos de hasta 800 MB) en entornos locales sin colas dedicadas.<br>**Laravel / Symfony:** Sobrecarga innecesaria de dependencias y falta de conocimientos tecnológicos para defenderlo ante los evaluadores de UTU. |
-| **Servidor Web** | **Apache 2.4 con mod_rewrite** | Integración nativa con PHP vía `mod_php` en la imagen oficial de Docker, alta estabilidad y configuración directa mediante directivas en `.htaccess` para canalizar todas las rutas de la API hacia el Front Controller (`public/index.php`). | **Nginx + PHP-FPM:** Excelente desempeño en alta concurrencia, pero requiere administrar y coordinar dos procesos/contenedores separados, aumentando la fricción operativa durante las demostraciones locales del equipo. |
+| **Servidor Web** | **Apache 2.4 con mod_rewrite + Nginx 1.24 como borde en Server Ubuntu** | Apache mantiene la integración nativa con PHP vía `mod_php` en la imagen oficial y la canalización de rutas con `.htaccess` hacia `public/index.php`. En `SERVIDOR UBUNTU` se antepone Nginx para servir frontends y landing como estáticos, proxear la API a `127.0.0.1:8080` y unificar el origen: eso elimina CORS en el navegador, permite `SameSite=Strict` y hace que el QR use una única URL pública. Nginx también deniega `/backend`, `/docs`, `/sistema` y extensiones sensibles. | **Nginx + PHP-FPM como reemplazo total:** buen desempeño en alta concurrencia, pero exige administrar dos procesos y cambiar la imagen/base del proyecto; no se adoptó. **Publicar Apache directo a la LAN:** obliga a CORS entre puertos, expone el backend y complica las cookies y el QR; se descartó para el laboratorio. |
 | **Frontend** | **HTML5 Semántico, Vanilla CSS y Vanilla JavaScript** | **HTML5 Semántico:** Estructuración accesible y limpia de la interfaz.<br>**Vanilla CSS:** Control milimétrico de la apariencia mediante Variables CSS (`:root`), Flexbox y Grid, evitando conflictos de especificidad o carga de estilos innecesarios.<br>**Vanilla JS:** Empleo nativo de `fetch`, Promesas, `async/await`, manipulación directa del DOM y `localStorage`, garantizando comprensión integral del código línea por línea sin intermediarios. | **Bootstrap 5 / Tailwind:** Descartados para evitar el peso muerto de hojas de estilo prefabricadas con clases genéricas y dependencias externas que restan mérito a la maquetación propia del equipo.<br>**React / Vue / Angular:** Requerirían un entorno de compilación adicional (Node.js, Vite, npm) que desvía el foco del proyecto de los fundamentos de red, seguridad y arquitectura cliente-servidor. |
 | **Helpers Nativos (Seguridad y QR)** | **PHP Puro sin Composer (`Jwt.php` y `QrGenerator.php`)** | Máxima independencia tecnológica: la generación de tokens JWT HS256 mediante `hash_hmac` y la construcción de la matriz modular QR en SVG vectorial se programaron algorítmicamente en PHP puro, logrando un backend liviano, seguro y sin dependencias de paquetes externos. | **Librerías Composer (`firebase/php-jwt`, `endroid/qr-code`):** Descartadas para eliminar riesgos asociados a la cadena de suministros, evitar dependencias de Composer en la entrega y demostrar solvencia algorítmica ante UTU. |
 | **Base de Datos** | **MySQL 8.0 Relacional** | Soporte estricto para transacciones ACID, integridad referencial (`FOREIGN KEY` con `ON DELETE CASCADE`), tipos ENUM para roles y visibilidad, y funciones de agregación para el cómputo exacto de cuotas de almacenamiento en bytes. | **PostgreSQL:** Prestaciones similares, pero MySQL ofrece mayor compatibilidad directa con las herramientas didácticas y el entorno curricular de UTU.<br>**MongoDB:** Descartado categóricamente debido a la naturaleza estrictamente relacional de las colecciones, permisos de usuario y auditoría de eventos. |
 | **Procesamiento de Video** | **FFmpeg en Contenedor Docker** | Herramienta líder a nivel industrial para manipulación y transcodificación audiovisual. Permite recortar clips ligeros de 15 segundos sin saturar la memoria RAM del servidor web, aislando los códecs en la capa del contenedor Linux. | **Librerías JavaScript en el cliente:** Técnicamente incapaces de procesar videos de hasta 800 MB sin bloquear el hilo principal y saturar la memoria del navegador del usuario. |
-| **Contenedores y Despliegue** | **Docker & Docker Compose** | Garantiza paridad absoluta e inmediata entre los entornos de desarrollo de los tres integrantes del equipo y la computadora de evaluación del tribunal de UTU. Un solo comando (`docker compose up`) levanta la base de datos, el servidor Apache con PHP 8.2 y los binarios de FFmpeg. | **Instalaciones locales con XAMPP / WampServer:** Fuente constante de conflictos por discrepancias entre versiones de PHP/MySQL en los sistemas Windows de los alumnos, sumado a la carencia de FFmpeg preinstalado. |
+| **Contenedores y Despliegue** | **Docker & Docker Compose + VirtualBox NAT en el laboratorio** | Garantiza paridad entre los entornos de desarrollo y la computadora de evaluación del tribunal de UTU. Un solo comando (`docker compose up`) levanta la base de datos, el servidor Apache con PHP 8.2 y los binarios de FFmpeg. En `SERVIDOR UBUNTU`, Docker Compose corre dentro de la VM `Ubuntu-Server-Lab` y VirtualBox NAT con port forwarding `8080 → 80` permite que el celular acceda por la IP de Windows. La misma imagen y el mismo código se reutilizan; solo cambia la configuración del borde (Nginx) y el `.env`. | **Instalaciones locales con XAMPP / WampServer:** Fuente constante de conflictos por discrepancias entre versiones de PHP/MySQL en los sistemas Windows de los alumnos, sumado a la carencia de FFmpeg preinstalado. **Servidor físico dedicado:** descartado para esta etapa por costo y por no aportar nada a la demo; la VM en NAT es suficiente para el laboratorio, aunque depende de que Windows esté encendido. |
