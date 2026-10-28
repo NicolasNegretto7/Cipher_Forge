@@ -527,3 +527,16 @@ body.AuthPixie .AuthBarra {
     font-weight: 600;
 }
 
+@media (max-width: 600px) {
+    body.AuthPixie .AuthBarra {
+        gap: 12px;
+        padding: 16px 20px;
+        min-height: auto;
+    }
+
+    .AuthMarca {
+        font-size: 15px;
+        letter-spacing: 3px;
+    }
+}
+

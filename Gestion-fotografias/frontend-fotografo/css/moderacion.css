@@ -76,7 +76,9 @@
 
 .TarjetaPendiente {
     position: relative;
-    width: 210px;
+    width: auto;
+    flex: 1 1 210px;
+    max-width: 260px;
     border-radius: 8px;
     border: 1px solid var(--borde);
     background: var(--secondary-color);
