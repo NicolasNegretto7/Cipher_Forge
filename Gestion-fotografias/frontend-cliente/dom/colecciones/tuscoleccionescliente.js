@@ -5,6 +5,7 @@ import {
 } from "../../services/invitaciones/invitacionesService.js";
 import { haySesion } from "../../services/sesion/sesionService.js";
 import { requiereSesion } from "../comun/sesion.js";
+import { cargarPortada, liberarVistas } from "../multimedia/multimedia.js";
 import { crearTarjetaColeccion } from "./tarjetas.js";
 import "../comun/auth.js";
 
@@ -134,6 +135,7 @@ async function mostrarInvitacion(token) {
 }
 
 async function cargarColecciones() {
+    liberarVistas(galeria);
     galeria.replaceChildren();
     if (!haySesion()) {
         mensajeCarga.textContent = "Inicia sesión para consultar tus colecciones.";
@@ -158,7 +160,9 @@ async function cargarColecciones() {
             const coleccion = await detalleColeccion(item.id);
             if (coleccion && esIdValido(coleccion.id) && esTituloValido(coleccion.titulo)) {
                 guardarAcceso(coleccion.id, coleccion.titulo);
-                galeria.appendChild(crearTarjetaColeccion(coleccion));
+                const tarjeta = crearTarjetaColeccion(coleccion);
+                galeria.appendChild(tarjeta);
+                await cargarPortada(tarjeta.querySelector(".CubiertaTarjeta"), coleccion);
             }
         } catch (error) {
             if (error.status !== 403 && error.status !== 404 && error.message) errores.push(error.message);

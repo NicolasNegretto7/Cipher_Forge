@@ -50,7 +50,19 @@ class ColeccionRepository
     {
         $stmt = $this->pdo->prepare(
             'SELECT c.id, c.fotografo_id, c.titulo, c.tipo_visibilidad, c.descripcion, c.creado_en,
-                    u.nombre_completo AS fotografo_nombre
+                    u.nombre_completo AS fotografo_nombre,
+                    (SELECT m.vista_previa FROM multimedia m
+                     WHERE m.coleccion_id = c.id AND m.aprobado = 1
+                     ORDER BY CASE WHEN m.tipo = "imagen" THEN 0 ELSE 1 END, m.id_multimedia ASC
+                     LIMIT 1) AS portada_preview,
+                    (SELECT m.id_multimedia FROM multimedia m
+                     WHERE m.coleccion_id = c.id AND m.aprobado = 1
+                     ORDER BY CASE WHEN m.tipo = "imagen" THEN 0 ELSE 1 END, m.id_multimedia ASC
+                     LIMIT 1) AS portada_id_multimedia,
+                    (SELECT m.tipo FROM multimedia m
+                     WHERE m.coleccion_id = c.id AND m.aprobado = 1
+                     ORDER BY CASE WHEN m.tipo = "imagen" THEN 0 ELSE 1 END, m.id_multimedia ASC
+                     LIMIT 1) AS portada_tipo
              FROM colecciones c
              INNER JOIN usuarios u ON u.id = c.fotografo_id
              WHERE c.id = :id
