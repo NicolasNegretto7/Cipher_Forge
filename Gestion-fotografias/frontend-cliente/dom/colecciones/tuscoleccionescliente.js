@@ -16,10 +16,20 @@ const estadoInvitacion = document.getElementById("estadoInvitacion");
 const acciones = document.getElementById("accionesInvitacion");
 const parametros = new URLSearchParams(location.search);
 const tokenInvitacion = parametros.get("invitacion") || parametros.get("token");
-const usuario = requiereSesion("cliente");
-// El backend guarda el permiso. Esta lista solo recuerda qué colecciones abrir en este navegador.
-const claveColecciones = "cliente-colecciones-" + (usuario ? usuario.id : "invitado");
 const clavePendientes = "cliente-invitaciones-pendientes";
+
+
+if (tokenInvitacion) {
+    const pendientes = leerLista(clavePendientes);
+    if (!pendientes.includes(tokenInvitacion)) {
+        pendientes.push(tokenInvitacion);
+        localStorage.setItem(clavePendientes, JSON.stringify(pendientes));
+    }
+}
+
+const usuario = requiereSesion("cliente");
+//
+const claveColecciones = "cliente-colecciones-" + (usuario ? usuario.id : "invitado");
 
 function leerLista(clave) {
     try {

@@ -11,7 +11,10 @@ export function requiereSesion(rol) {
     const usuario = obtenerUsuario();
     if (!haySesion() || (rol && usuario.rol !== rol)) {
         limpiarSesion();
-        location.href = LOGIN_URL;
+      
+        const destino = new URL(LOGIN_URL);
+        destino.search = location.search;
+        location.href = destino.href;
         return null;
     }
     return usuario;

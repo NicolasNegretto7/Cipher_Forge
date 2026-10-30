@@ -10,18 +10,18 @@ Proyecto de gestión de fotografías para estudiantes. El frontend usa HTML, CSS
     docker compose up -d --build
     ```
 
-2. Abre la carpeta `Cipher_Forge` con Live Server. Usa `127.0.0.1` y el puerto `5500`.
+2. Abre la carpeta `Cipher_Forge` con Live Server. Usa `127.0.0.1` y el puerto `5501`.
 
 3. Abre el frontend que quieras usar:
 
-    - Fotógrafo: [frontend-fotografo](http://127.0.0.1:5500/Gestion-fotografias/frontend-fotografo/index.html)
-    - Cliente: [frontend-cliente](http://127.0.0.1:5500/Gestion-fotografias/frontend-cliente/index.html)
+    - Fotógrafo: [frontend-fotografo](http://127.0.0.1:5501/Gestion-fotografias/frontend-fotografo/index.html)
+    - Cliente: [frontend-cliente](http://127.0.0.1:5501/Gestion-fotografias/frontend-cliente/index.html)
 
-El backend escucha en `http://localhost:8081`. El correo de desarrollo llega a [Mailpit](http://localhost:8025), donde puedes leer el código de verificación.
+El backend escucha en `http://localhost:8080`. El correo de desarrollo llega a [Mailpit](http://localhost:8025), donde puedes leer el código de verificación.
 
 Los enlaces QR del Docker Compose están configurados para esa dirección.
 
-No abras los HTML con doble clic: los módulos `import/export` necesitan un servidor HTTP. Si cambias el puerto o el host, ajusta `FRONTEND_URL` en `backend/docker-compose.yml`. Cada frontend tiene su propio `services/config.js` para indicar la dirección del backend.
+No abras los HTML con doble clic: los módulos `import/export` necesitan un servidor HTTP. Si cambias el puerto o el host, ajusta `FRONTEND_URL` en `backend/.env` (debe incluir la carpeta `Gestion-fotografias`, por ejemplo `http://127.0.0.1:5501/Gestion-fotografias`) y vuelve a crear el contenedor. Cada frontend tiene su propio `services/config.js` para indicar la dirección del backend.
 
 ## Organización
 
