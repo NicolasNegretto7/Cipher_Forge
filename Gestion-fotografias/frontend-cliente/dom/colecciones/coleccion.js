@@ -80,6 +80,10 @@ async function abrirVisor(indice) {
     if (archivo.tipo === "video") medio.controls = true;
     else medio.alt = archivo.titulo || "Fotografía";
     contenidoVisor.appendChild(medio);
+    const pregunta = document.createElement("p");
+    pregunta.className = "PreguntaCalidad";
+    pregunta.textContent = "¿En qué calidad quieres descargar el archivo?";
+    accionesVisor.appendChild(pregunta);
     accionesVisor.appendChild(crearDescargas(archivo));
     document.getElementById("anteriorVisor").hidden = indice === 0;
     document.getElementById("siguienteVisor").hidden = indice === archivos.length - 1;
