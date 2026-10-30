@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="es">
     <head>
         <meta charset="UTF-8" />
@@ -33,6 +33,9 @@
                             type="text"
                             id="nombre"
                             name="nombre"
+                            maxlength="30"
+                            pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]+"
+                            title="Solo se permiten letras y espacios"
                             placeholder="Tu nombre"
                             autocomplete="name"
                             required
@@ -61,7 +64,8 @@
                             placeholder="Mínimo 8 caracteres"
                             autocomplete="new-password"
                             minlength="8"
-                            title="La contraseña debe tener al menos 8 caracteres"
+                            maxlength="30"
+                            title="La contraseña debe tener entre 8 y 30 caracteres"
                             required
                         />
                     </div>
@@ -74,9 +78,11 @@
                             name="telefono"
                             placeholder="Tu número"
                             autocomplete="tel"
-                            pattern="[0-9]+"
                             inputmode="numeric"
-                            title="El teléfono solo puede contener números"
+                            maxlength="9"
+                            minlength="9"
+                            pattern="[0-9]{9}"
+                            title="Ingresá exactamente 9 números, sin espacios ni guiones"
                         />
                     </div>
 
