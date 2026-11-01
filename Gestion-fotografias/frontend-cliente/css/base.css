@@ -1,61 +1,182 @@
-/* 1. Colores, tipografía y controles básicos */
+/* ==========================================================================
+   CipherPhotos · Cliente
+   Sistema base: galería editorial, papel cálido y verde de marca.
+   Orden: 1. Tokens · 2. Reset · 3. Estructura · 4. Controles
+          5. Tarjetas · 6. Estados · 7. Visor y avisos · 8. Adaptación
+   ========================================================================== */
+
+/* 1. Tokens ---------------------------------------------------------------- */
 :root {
-    --primary-color: #0f172a;
-    --secondary-color: #ffffff;
-    --verde: #16835f;
-    --verde-oscuro: #0d5c44;
-    --fondo: #f4f8f6;
-    --gris-texto: #6b7280;
-    --borde: #dce3e0;
-    --error: #b91c1c;
-    --advertencia: #b45309;
-    --sombra: 0 8px 24px rgba(15, 23, 42, 0.1);
+    /* Marca: el verde claro es el acento; el profundo se usa para texto. */
+    --verde: #3f8b6d;
+    /* Hover de botones verdes: un paso más oscuro para que el texto blanco
+       siga superando 4.5:1 sobre el fondo. */
+    --verde-hover: #357a5f;
+    --verde-claro: #b9d6c6;
+    --verde-suave: #e8f1eb;
+    --verde-oscuro: #245943;
+
+    /* Neutros cálidos, cercanos al papel de una sala de exposiciones. */
+    --tinta: #1d1c19;
+    --tinta-media: #4d4a43;
+    --gris-texto: #6f6a60;
+    --fondo: #f6f4ee;
+    --fondo-alt: #edeae2;
+    --superficie: #fffdf9;
+    --borde: #e2ddd2;
+    --borde-fuerte: #cdc6b8;
+
+    /* Estados */
+    --error: #9c3a2c;
+    --advertencia: #8a5b21;
+
+    /* Alias usados por el marcado y el JS existentes. */
+    --primary-color: var(--tinta);
+    --secondary-color: var(--superficie);
+
+    /* Tipografía: serif editorial para títulos, sans neutra para interfaz. */
+    --fuente-titulo: "Iowan Old Style", "Palatino Linotype", "Book Antiqua",
+        Palatino, Georgia, serif;
+    --fuente-texto: "Segoe UI Variable Text", "Segoe UI", Inter, system-ui,
+        -apple-system, sans-serif;
+
+    /* Forma y movimiento */
+    --radio: 2px;
+    --radio-suave: 4px;
+    --sombra: 0 18px 48px -30px rgb(29 28 25 / 55%);
+    --sombra-suave: 0 10px 28px -22px rgb(29 28 25 / 45%);
+    --transicion: 180ms cubic-bezier(0.2, 0.6, 0.2, 1);
+    --ancho-contenido: 1440px;
 }
 
-* {
+/* 2. Reset y base ---------------------------------------------------------- */
+*,
+*::before,
+*::after {
     box-sizing: border-box;
 }
+
+html {
+    -webkit-text-size-adjust: 100%;
+}
+
 body {
     margin: 0;
-    font-family: Arial, Helvetica, sans-serif;
-    color: var(--primary-color);
+    min-height: 100vh;
+    font-family: var(--fuente-texto);
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--tinta);
     background: var(--fondo);
-    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
 }
+
 [hidden] {
     display: none !important;
 }
+
+h1,
+h2,
+h3,
+h4 {
+    margin: 0 0 0.5em;
+    font-family: var(--fuente-titulo);
+    font-weight: 400;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    color: var(--tinta);
+    text-wrap: balance;
+}
+
+p {
+    margin: 0 0 1em;
+    text-wrap: pretty;
+}
+
+img,
+video {
+    max-width: 100%;
+}
+
+a {
+    color: var(--verde-oscuro);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+}
+
+a:hover {
+    text-decoration-color: var(--verde-claro);
+}
+
+::selection {
+    color: var(--tinta);
+    background: var(--verde-claro);
+}
+
 button,
 input,
 select,
 textarea {
     font: inherit;
 }
+
 button,
 a {
     touch-action: manipulation;
 }
+
 button {
     cursor: pointer;
 }
+
 button:disabled {
-    opacity: 0.55;
+    opacity: 0.5;
     cursor: not-allowed;
 }
+
 input:not([type="checkbox"]),
 select,
 textarea {
-    padding: 10px;
-    border: 1px solid var(--borde);
-    border-radius: 6px;
-    background: var(--secondary-color);
+    padding: 11px 12px;
+    border: 1px solid var(--borde-fuerte);
+    border-radius: var(--radio);
+    color: var(--tinta);
+    background: var(--superficie);
+    transition: border-color var(--transicion), box-shadow var(--transicion);
 }
+
+input:not([type="checkbox"]):focus,
+select:focus,
+textarea:focus {
+    border-color: var(--verde);
+    outline: none;
+    box-shadow: 0 0 0 3px rgb(63 139 109 / 14%);
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: #9d978c;
+}
+
 input[type="checkbox"] {
-    accent-color: var(--verde);
+    width: 18px;
+    height: 18px;
+    accent-color: var(--verde-oscuro);
+    cursor: pointer;
 }
-a {
-    color: var(--verde);
+
+label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--tinta-media);
 }
+
+:focus-visible {
+    outline: 2px solid var(--verde-oscuro);
+    outline-offset: 3px;
+}
+
 .VisualmenteOculto {
     position: absolute;
     width: 1px;
@@ -67,232 +188,413 @@ a {
     white-space: nowrap;
     border: 0;
 }
-:focus-visible {
-    outline: 3px solid #147bce;
-    outline-offset: 3px;
-}
 
-/* 2. Navegación lateral y contenido */
+/* 3. Estructura ------------------------------------------------------------ */
 .Contenedor {
     display: flex;
     min-height: 100vh;
 }
+
 .Sidebar {
-    flex: 0 0 240px;
-    padding: 24px 16px;
+    flex: 0 0 236px;
+    padding: 28px 20px;
     border-right: 1px solid var(--borde);
-    background: var(--secondary-color);
+    background: var(--superficie);
 }
+
 .Logo {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    font-weight: bold;
 }
+
+.Logo p {
+    margin: 0;
+    font-family: var(--fuente-titulo);
+    font-size: 19px;
+    letter-spacing: 0.01em;
+}
+
 .Menu {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    margin: 24px 0;
+    gap: 2px;
+    margin: 28px 0;
 }
+
 .ItemMenu,
 .ItemMenuActivo {
-    padding: 0 12px;
-    color: inherit;
-    border-radius: 6px;
+    display: block;
+    padding: 8px 10px;
+    border-left: 2px solid transparent;
+    border-radius: 0;
+    color: var(--gris-texto);
+    font-size: 13px;
+    letter-spacing: 0.01em;
     text-decoration: none;
+    transition: color var(--transicion), background var(--transicion);
 }
+
+.ItemMenu p,
+.ItemMenuActivo p {
+    margin: 0;
+}
+
 .ItemMenu:hover {
-    background: #e9f7f0;
+    color: var(--tinta);
+    background: var(--fondo);
 }
+
 .ItemMenuActivo {
-    color: var(--secondary-color);
-    background: var(--verde);
+    border-left-color: var(--verde);
+    color: var(--tinta);
+    background: var(--verde-suave);
+    font-weight: 600;
 }
+
 .Principal {
     flex: 1;
     min-width: 0;
-    padding: 32px;
-    padding-bottom: 100px;
+    width: 100%;
+    max-width: var(--ancho-contenido);
+    margin: 0 auto;
+    padding: 48px 48px 120px;
 }
+
 .Encabezado {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
+    align-items: flex-end;
     justify-content: space-between;
-    gap: 20px;
-    margin-bottom: 28px;
+    gap: 24px;
+    margin-bottom: 40px;
 }
+
 .Encabezado h1 {
     margin: 0;
-    font-size: 30px;
+    font-size: clamp(1.75rem, 3.4vw, 2.6rem);
 }
+
 .Almacenamiento,
 .PieSidebar {
-    margin-top: 28px;
+    margin-top: 32px;
 }
+
 .TextoAlmacenamiento {
+    margin: 0;
     color: var(--gris-texto);
-    font-size: 14px;
+    font-size: 12px;
+    letter-spacing: 0.02em;
 }
+
+hr {
+    height: 1px;
+    margin: 24px 0;
+    border: 0;
+    background: var(--borde);
+}
+
+/* 4. Controles ------------------------------------------------------------- */
 .BotonNuevaColeccion,
 .BotonVerde,
 .BotonDescargar,
 .BotonCerrarSesion {
     display: inline-block;
-    padding: 10px 16px;
-    border: 0;
-    border-radius: 6px;
-    background: var(--verde);
-    color: var(--secondary-color);
-    font-weight: bold;
+    padding: 11px 18px;
+    border: 1px solid transparent;
+    border-radius: var(--radio);
+    background: var(--verde-claro);
+    color: var(--verde-oscuro);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    line-height: 1.2;
+    text-align: center;
     text-decoration: none;
-}
-.BotonNuevaColeccion:hover,
-.BotonVerde:hover,
-.BotonDescargar:hover,
-.BotonCerrarSesion:hover {
-    background: var(--verde-oscuro);
-}
-.EnlaceVolver {
-    display: inline-block;
-    margin-bottom: 16px;
+    transition: background var(--transicion), color var(--transicion),
+        border-color var(--transicion);
 }
 
-/* 3. Colecciones, archivos y etiquetas */
+.BotonNuevaColeccion:hover,
+.BotonVerde:hover,
+.BotonDescargar:hover {
+    background: var(--verde-hover);
+    color: #fff;
+}
+
+.BotonCerrarSesion {
+    border-color: var(--borde-fuerte);
+    background: transparent;
+    color: var(--tinta-media);
+}
+
+.BotonCerrarSesion:hover {
+    border-color: var(--tinta);
+    background: transparent;
+    color: var(--tinta);
+}
+
+.EnlaceVolver {
+    display: inline-block;
+    margin-bottom: 18px;
+    color: var(--gris-texto);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color var(--transicion);
+}
+
+.EnlaceVolver:hover {
+    color: var(--verde-oscuro);
+}
+
+/* 5. Tarjetas y etiquetas -------------------------------------------------- */
 .GaleriaColecciones,
 .GaleriaMedia {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 24px;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 40px 28px;
 }
+
 .TarjetaColeccion,
 .TarjetaMedia {
     position: relative;
     min-width: 0;
-    background: var(--secondary-color);
-    border: 1px solid var(--borde);
-    border-radius: 10px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
 }
+
 .TarjetaColeccion.Seleccionada,
 .TarjetaMedia.Seleccionada {
-    outline: 3px solid var(--verde);
+    outline: 2px solid var(--verde-oscuro);
+    outline-offset: 3px;
 }
+
 .EnlaceColeccion {
     display: block;
     color: inherit;
     text-decoration: none;
 }
+
 .CubiertaTarjeta {
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 180px;
-    background: #dcefe6;
-    border-radius: 10px 10px 0 0;
-    font-size: 48px;
-    color: var(--verde);
+    aspect-ratio: 4 / 5;
     overflow: hidden;
+    border-radius: var(--radio);
+    color: var(--verde-oscuro);
+    background: var(--fondo-alt);
+    font-family: var(--fuente-titulo);
+    font-size: clamp(3rem, 6vw, 5rem);
+    line-height: 1;
 }
-.ImagenTarjeta,
+
+.ImagenTarjeta {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: var(--radio);
+    transition: transform 600ms cubic-bezier(0.2, 0.6, 0.2, 1);
+}
+
+.TarjetaColeccion:hover .ImagenTarjeta,
+.TarjetaMedia:hover .VistaMiniatura {
+    transform: scale(1.015);
+}
+
 .VistaMiniatura {
     display: block;
     width: 100%;
-    height: 180px;
+    aspect-ratio: 4 / 5;
     object-fit: cover;
-    border-radius: 10px 10px 0 0;
+    border-radius: var(--radio);
+    background: var(--fondo-alt);
+    cursor: zoom-in;
+    transition: transform 600ms cubic-bezier(0.2, 0.6, 0.2, 1);
 }
-.VistaMiniatura {
-    cursor: pointer;
-    background: #e5e7eb;
+
+.VistaMiniatura:focus-visible {
+    outline-offset: 4px;
 }
+
 .VistaNoDisponible {
     min-height: 180px;
-    background: #e5e7eb;
+    background: var(--fondo-alt);
 }
+
 .NombreColeccion {
-    margin: 12px 16px 6px;
-    font-weight: bold;
+    margin: 16px 0 4px;
+    color: var(--tinta);
+    font-family: var(--fuente-titulo);
+    font-size: 20px;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
     overflow-wrap: anywhere;
 }
+
 .DatosColeccion,
 .DescripcionImagen {
-    margin: 6px 16px 16px;
+    margin: 0;
     color: var(--gris-texto);
-    font-size: 14px;
+    font-size: 12px;
+    letter-spacing: 0.02em;
 }
+
+.DescripcionImagen {
+    margin-top: 8px;
+    font-size: 13px;
+    line-height: 1.5;
+    letter-spacing: 0;
+}
+
 .ListaTags,
 .ListaTagsColeccion {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 10px;
 }
+
 .ListaTagsColeccion {
-    padding: 0 16px 14px;
+    padding: 0;
+    margin-top: 12px;
 }
+
 .ChipTag,
 .EtiquetaTag {
-    padding: 6px 10px;
+    padding: 0;
     border: 0;
-    border-radius: 5px;
-    color: var(--verde);
-    background: #e9f7f0;
-    font-size: 14px;
+    border-bottom: 1px solid transparent;
+    border-radius: 0;
+    color: var(--gris-texto);
+    background: transparent;
+    font-size: 12px;
+    letter-spacing: 0.03em;
+    line-height: 1.6;
+    transition: color var(--transicion), border-color var(--transicion);
 }
+
+.ChipTag:hover,
+.EtiquetaTag:hover {
+    border-bottom-color: var(--verde-claro);
+    color: var(--verde-oscuro);
+}
+
+.EtiquetaTag {
+    padding: 4px 8px;
+    border: 1px solid var(--borde-fuerte);
+    border-radius: var(--radio);
+    background: var(--superficie);
+}
+
+.EtiquetaTag:hover {
+    border-color: var(--verde);
+}
+
+.ListaTags .ChipTag {
+    font-size: 12px;
+}
+
 .SelectorColeccion,
 .SelectorArchivo {
     position: absolute;
-    top: 10px;
-    left: 10px;
-    width: 24px;
-    height: 24px;
-    z-index: 1;
+    top: 12px;
+    left: 12px;
+    z-index: 2;
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    border: 1px solid var(--borde-fuerte);
+    border-radius: 2px;
+    background: var(--superficie);
+    appearance: none;
     cursor: pointer;
+    transition: background var(--transicion), border-color var(--transicion);
 }
 
-/* 4. Estados y acciones de selección */
+.SelectorColeccion:checked,
+.SelectorArchivo:checked {
+    border-color: var(--verde-oscuro);
+    background: var(--verde-oscuro);
+    box-shadow: inset 0 0 0 2px var(--superficie);
+}
+
+/* 6. Estados --------------------------------------------------------------- */
 .EstadoVacio,
 .Sincolecciones,
 .Sinfavoritos {
-    padding: 40px 20px;
+    padding: 64px 24px;
+    border-top: 1px solid var(--borde);
+    color: var(--gris-texto);
+    font-family: var(--fuente-titulo);
+    font-size: 19px;
     text-align: center;
-    color: var(--gris-texto);
 }
+
+.EstadoVacio p,
+.Sincolecciones p,
+.Sinfavoritos p {
+    margin: 0;
+}
+
 .EstadoCarga {
+    margin: 0 0 24px;
     color: var(--gris-texto);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
 }
+
 .EstadoError {
+    max-width: 640px;
+    margin: 0 0 24px;
+    padding-left: 12px;
+    border-left: 2px solid var(--error);
     color: var(--error);
+    font-size: 13px;
 }
+
 .BarraAcciones {
-    display: none;
     position: fixed;
     bottom: 20px;
     left: 50%;
-    transform: translateX(-50%);
     z-index: 10;
-    gap: 8px;
-    padding: 10px;
-    border-radius: 8px;
-    background: var(--primary-color);
-    max-width: calc(100% - 24px);
+    display: none;
+    gap: 4px;
+    max-width: calc(100% - 32px);
+    padding: 8px;
+    border-radius: var(--radio);
+    background: var(--tinta);
+    transform: translateX(-50%);
 }
+
 .BarraAcciones.Visible {
     display: flex;
 }
+
 .BarraAcciones button {
+    padding: 9px 12px;
     border: 0;
-    border-radius: 4px;
-    padding: 10px;
-    color: var(--secondary-color);
+    border-radius: var(--radio);
+    color: #f6f4ee;
     background: transparent;
-}
-.BarraAcciones button:hover {
-    background: #374151;
+    font-size: 13px;
+    transition: background var(--transicion);
 }
 
-/* 5. Visor y mensajes temporales */
+.BarraAcciones button:hover {
+    background: #3a3833;
+}
+
+/* 7. Visor y avisos -------------------------------------------------------- */
 .Visor {
     position: fixed;
     inset: 0;
@@ -300,34 +602,52 @@ a {
     display: none;
     align-items: center;
     justify-content: center;
-    padding: 50px 24px;
-    background: rgb(15 23 42 / 94%);
+    padding: 56px 24px;
+    background: rgb(23 22 20 / 94%);
 }
+
 .Visor.Abierto {
     display: flex;
 }
+
 .VisorInterior {
     position: relative;
     width: min(100%, 1000px);
     text-align: center;
 }
+
 .VisorInterior img,
 .VisorInterior video {
     max-width: 100%;
-    max-height: 70vh;
+    max-height: 72vh;
     object-fit: contain;
+    border-radius: var(--radio);
 }
+
 .BotonCerrarVisor {
     position: absolute;
+    top: -44px;
     right: 0;
-    top: -42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     width: 36px;
     height: 36px;
+    padding: 0;
     border: 0;
     border-radius: 50%;
-    background: var(--secondary-color);
-    font-size: 20px;
+    color: var(--tinta);
+    background: var(--superficie);
+    font-size: 18px;
+    line-height: 1;
+    transition: background var(--transicion), transform var(--transicion);
 }
+
+.BotonCerrarVisor:hover {
+    background: var(--verde-claro);
+    transform: rotate(90deg);
+}
+
 .ContenedorToasts {
     position: fixed;
     right: 20px;
@@ -336,43 +656,128 @@ a {
     display: grid;
     gap: 10px;
 }
+
 .Toast {
     width: min(340px, calc(100vw - 40px));
-    padding: 14px;
-    color: var(--secondary-color);
-    border-radius: 8px;
-    background: var(--primary-color);
-}
-.Toast.Exito {
-    background: var(--verde);
-}
-.Toast.Error {
-    background: var(--error);
+    padding: 14px 16px;
+    border-left: 2px solid var(--verde-claro);
+    border-radius: var(--radio);
+    color: #f6f4ee;
+    background: var(--tinta);
+    font-size: 13px;
+    line-height: 1.45;
 }
 
-/* 6. Pantallas pequeñas */
+.Toast.Exito {
+    border-left-color: var(--verde-claro);
+}
+
+.Toast.Error {
+    border-left-color: #e08a7c;
+}
+
+.Toast.Info {
+    border-left-color: #b8b1a4;
+}
+
+/* 8. Adaptación ------------------------------------------------------------ */
+@media (max-width: 900px) {
+    .Principal {
+        padding: 40px 28px 104px;
+    }
+
+    .GaleriaColecciones,
+    .GaleriaMedia {
+        grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+        gap: 32px 20px;
+    }
+}
+
 @media (max-width: 760px) {
     .Contenedor {
         flex-direction: column;
     }
+
     .Sidebar {
         flex-basis: auto;
         border-right: 0;
         border-bottom: 1px solid var(--borde);
     }
+
     .Menu {
         flex-direction: row;
         flex-wrap: wrap;
-        margin: 12px 0;
+        margin: 16px 0 0;
     }
+
+    .ItemMenu,
+    .ItemMenuActivo {
+        border-left: 0;
+        border-bottom: 2px solid transparent;
+    }
+
+    .ItemMenuActivo {
+        border-bottom-color: var(--verde);
+    }
+
     .Principal {
-        padding: 20px 16px 100px;
+        padding: 32px 20px 104px;
     }
+
+    .Encabezado {
+        align-items: flex-start;
+        margin-bottom: 32px;
+    }
+
     .Encabezado h1 {
-        font-size: 26px;
+        font-size: 1.65rem;
     }
+
     .GaleriaColecciones,
     .GaleriaMedia {
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 28px 16px;
+    }
+
+    .NombreColeccion {
+        margin-top: 12px;
+        font-size: 17px;
+    }
+
+    .Visor {
+        padding: 48px 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .GaleriaColecciones,
+    .GaleriaMedia {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .ContenedorToasts {
+        right: 12px;
+        bottom: 12px;
+        left: 12px;
+    }
+
+    .Toast {
+        width: 100%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+
+    .TarjetaColeccion:hover .ImagenTarjeta,
+    .TarjetaMedia:hover .VistaMiniatura {
+        transform: none;
     }
 }

@@ -1,61 +1,102 @@
-/* Carga colaborativa. Los estilos generales están en base.css. */
+/* ==========================================================================
+   CipherPhotos · Cliente · Carga colaborativa
+   Depende de base.css. Pantalla de invitado: una sola tarjeta, tipografía
+   editorial y un único gesto claro (elegir archivos y subirlos).
+   ========================================================================== */
 
 body {
     min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
+    padding: 40px 20px;
+    background: var(--fondo);
 }
 
 .CajaInvitado {
-    width: min(420px, 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: min(560px, 100%);
+    min-height: calc(100vh - 80px);
+    margin: 0 auto;
 }
 
 .PanelInvitado {
-    padding: 28px;
+    padding: clamp(28px, 5vw, 44px);
     border: 1px solid var(--borde);
-    border-radius: 12px;
-    background: var(--secondary-color);
-    box-shadow: var(--sombra);
-    text-align: center;
+    border-top: 2px solid var(--verde);
+    border-radius: var(--radio);
+    background: var(--superficie);
+    text-align: left;
 }
 
 .PanelInvitado h1 {
-    margin-top: 0;
-    color: var(--verde-oscuro);
-    font-size: 24px;
-    line-height: 1.2;
+    margin: 0;
+    font-size: clamp(1.9rem, 4.4vw, 2.6rem);
+    line-height: 1.02;
+    letter-spacing: -0.03em;
 }
 
-.MensajeCargando,
-.SubtituloEvento {
+.MensajeCargando {
+    margin: 0;
     color: var(--gris-texto);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-align: center;
+    text-transform: uppercase;
 }
 
-.MensajeCargando,
+.MensajeCargando::before {
+    content: "";
+    display: block;
+    width: 28px;
+    height: 28px;
+    margin: 0 auto 18px;
+    border: 1px solid var(--borde-fuerte);
+    border-top-color: var(--verde);
+    border-radius: 50%;
+    animation: giroInvitado 900ms linear infinite;
+}
+
+@keyframes giroInvitado {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.SubtituloEvento {
+    max-width: 46ch;
+    margin: 12px 0 0;
+    color: var(--gris-texto);
+    font-size: 14px;
+    line-height: 1.55;
+}
+
 .MensajeError,
 .MensajeExito {
-    font-size: 15px;
-}
-
-.MensajeError {
-    margin: 12px 0;
+    margin: 18px 0 0;
+    padding-left: 12px;
+    border-left: 2px solid var(--error);
     color: var(--error);
-}
-
-.SubtituloEvento {
-    margin-top: 6px;
     font-size: 14px;
+    line-height: 1.5;
 }
 
+.MensajeExito {
+    border-left-color: var(--verde);
+    color: var(--verde-oscuro);
+}
+
+/* Aviso de caducidad: informativo, nunca alarmante. */
 .ContadorCaducidad {
-    margin: 18px 0;
-    padding: 10px 12px;
-    border-radius: 8px;
-    color: var(--advertencia);
-    background: #fffbeb;
-    font-size: 13px;
+    margin: 28px 0 0;
+    padding: 14px 16px;
+    border: 1px solid var(--borde);
+    border-radius: var(--radio);
+    color: var(--tinta-media);
+    background: var(--fondo);
+    font-size: 12px;
+    line-height: 1.5;
+    letter-spacing: 0.01em;
 }
 
 .ContadorCaducidad label,
@@ -63,105 +104,162 @@ body {
     display: block;
 }
 
-.ContadorCaducidad span {
-    margin-top: 2px;
-    font-weight: bold;
+.ContadorCaducidad label {
+    color: var(--gris-texto);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
 }
 
+.ContadorCaducidad span {
+    margin-top: 4px;
+    color: var(--tinta);
+    font-weight: 600;
+    letter-spacing: 0;
+}
+
+/* Formulario --------------------------------------------------------------- */
 #formularioColaborativo {
     display: flex;
     flex-direction: column;
-    gap: 14px;
-    text-align: left;
+    gap: 18px;
+    margin-top: 28px;
 }
 
 .CampoNombre {
     display: flex;
     flex-direction: column;
-    gap: 4px;
-    color: var(--primary-color);
-    font-size: 13px;
+    gap: 6px;
+    color: var(--tinta-media);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
 }
 
 .CampoNombre input {
     width: 100%;
-    padding: 11px 12px;
+    padding: 12px 13px;
     font-size: 16px;
 }
 
+/* Zona de archivos: el gesto central de la página. */
 .ZonaArchivos {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
-    padding: 26px 14px;
-    border: 2px dashed var(--verde);
-    border-radius: 10px;
-    background: #eefaf5;
+    gap: 6px;
+    padding: 34px 18px;
+    border: 1px dashed var(--borde-fuerte);
+    border-radius: var(--radio);
+    color: var(--tinta);
+    background: var(--fondo);
     cursor: pointer;
     text-align: center;
+    transition: border-color var(--transicion), background var(--transicion);
 }
 
-.ZonaArchivos:hover {
-    background: #dff5eb;
-}
-
-.ZonaArchivos strong,
-.ZonaArchivos .ListaArchivosSeleccion,
-.MensajeExito {
-    color: var(--verde-oscuro);
+.ZonaArchivos:hover,
+.ZonaArchivos:focus-within {
+    border-color: var(--verde);
+    background: var(--verde-suave);
 }
 
 .ZonaArchivos strong {
-    font-size: 16px;
+    color: var(--verde-oscuro);
+    font-family: var(--fuente-titulo);
+    font-size: 20px;
+    font-weight: 400;
+    letter-spacing: -0.01em;
 }
 
-.ZonaArchivos .FormatoArchivos,
-.NotaPrivacidad,
-.PieInvitado {
+.ZonaArchivos .FormatoArchivos {
     color: var(--gris-texto);
-    font-size: 12px;
+    font-size: 11px;
+    letter-spacing: 0.04em;
 }
 
 .ZonaArchivos .ListaArchivosSeleccion {
-    font-size: 13px;
-    font-weight: bold;
+    margin-top: 10px;
+    color: var(--verde-oscuro);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.ZonaArchivos .ListaArchivosSeleccion:empty {
+    display: none;
 }
 
 .BotonEnviar {
-    padding: 13px;
-    border: 0;
-    border-radius: 6px;
-    color: var(--secondary-color);
-    background: var(--verde);
-    font-size: 16px;
-    font-weight: bold;
+    width: 100%;
+    padding: 14px 20px;
+    border: 1px solid var(--verde-oscuro);
+    border-radius: var(--radio);
+    color: var(--superficie);
+    background: var(--verde-oscuro);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    transition: background var(--transicion), border-color var(--transicion);
 }
 
-.BotonEnviar:hover {
-    background: var(--verde-oscuro);
+.BotonEnviar:hover:not(:disabled) {
+    border-color: var(--verde-hover);
+    background: var(--verde-hover);
+}
+
+.BotonEnviar:disabled {
+    border-color: var(--borde-fuerte);
+    color: var(--gris-texto);
+    background: var(--fondo-alt);
+    opacity: 1;
 }
 
 .NotaPrivacidad {
-    line-height: 1.4;
+    margin: 4px 0 0;
+    color: var(--gris-texto);
+    font-size: 11px;
+    line-height: 1.55;
+    letter-spacing: 0.01em;
     text-align: center;
-}
-
-.MensajeExito {
-    margin: 12px 0;
 }
 
 .PieInvitado {
-    margin-top: 16px;
+    margin: 24px 0 0;
+    color: var(--gris-texto);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
     text-align: center;
+    text-transform: uppercase;
 }
 
+/* Adaptación --------------------------------------------------------------- */
 @media (max-width: 480px) {
     body {
-        padding: 12px;
+        padding: 20px 16px;
+    }
+
+    .CajaInvitado {
+        min-height: calc(100vh - 40px);
     }
 
     .PanelInvitado {
-        padding: 22px;
+        padding: 24px 20px;
+    }
+
+    .ZonaArchivos {
+        padding: 28px 14px;
+    }
+
+    .ZonaArchivos strong {
+        font-size: 18px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .MensajeCargando::before {
+        animation: none;
     }
 }

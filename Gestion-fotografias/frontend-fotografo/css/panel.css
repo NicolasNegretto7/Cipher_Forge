@@ -1,22 +1,30 @@
-/* Cuenta, cierre de sesión y política de privacidad. */
+/* ==========================================================================
+   CipherPhotos · Fotógrafo · Panel y cuenta
+   Depende de base.css. Chrome del espacio de trabajo y política de privacidad.
+   ========================================================================== */
 
-.BotonCerrarSesion {
-    position: fixed;
-    bottom: 24px;
-    left: 16px;
-    width: 208px;
+/* Cuenta en la barra lateral ---------------------------------------------- */
+.Sidebar .BotonCerrarSesion {
+    width: 100%;
+    margin-top: auto;
     text-align: center;
 }
 
 .BotonCuenta {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: 4px;
-    padding: 3px;
+    gap: 6px;
+    padding: 0;
     border: 0;
+    border-radius: 50%;
     background: transparent;
     text-decoration: none;
     cursor: pointer;
+    transition: box-shadow var(--transicion);
+}
+
+.BotonCuenta:hover {
+    box-shadow: 0 0 0 3px var(--verde-suave);
 }
 
 .AvatarPerfil {
@@ -26,21 +34,25 @@
     width: 32px;
     height: 32px;
     border-radius: 50%;
-    background: var(--verde);
-    color: var(--secondary-color);
-    font-weight: bold;
-    font-size: 15px;
+    color: #fbfcfb;
+    background: var(--verde-oscuro);
+    font-family: var(--fuente-titulo);
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1;
+    text-transform: uppercase;
 }
 
+/* Política de privacidad --------------------------------------------------- */
 .modal-privacidad {
     position: fixed;
     inset: 0;
-    background: rgba(15, 23, 42, 0.45);
-    display: flex;
-    justify-content: center;
-    align-items: center;
     z-index: 999;
-    padding: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgb(12 16 14 / 62%);
 }
 
 .modal-privacidad.oculto {
@@ -48,169 +60,128 @@
 }
 
 .modal-privacidad__caja {
-    width: min(820px, 92vw);
-    max-height: 88vh;
-    background: var(--secondary-color);
-    border-radius: 12px;
-    box-shadow: var(--sombra);
-    padding: 28px 28px 22px 28px;
+    display: flex;
+    flex-direction: column;
+    width: min(840px, 94vw);
+    max-height: 90vh;
+    padding: 28px;
+    overflow: hidden;
     border: 1px solid var(--borde);
+    border-top: 3px solid var(--verde-oscuro);
+    border-radius: var(--radio);
+    background: var(--superficie);
+    box-shadow: var(--sombra);
 }
 
 .modal-privacidad__caja h2 {
-    margin: 0 0 8px 0;
-    color: var(--primary-color);
-    text-align: center;
-    font-size: 28px;
+    margin: 0 0 6px;
+    font-size: 24px;
+    letter-spacing: -0.02em;
 }
 
 .modal-privacidad__subtitulo {
-    margin: 0 0 18px 0;
-    text-align: center;
+    margin: 0 0 16px;
     color: var(--gris-texto);
-    font-size: 14px;
+    font-size: 12px;
+    line-height: 1.5;
 }
 
 .modal-privacidad__ley {
-    background: #f8fafc;
-    border: 1px solid var(--borde);
-    border-radius: 12px;
-    height: 360px;
-    padding: 20px 18px;
+    flex: 1;
+    min-height: 0;
+    padding: 18px;
     overflow-y: auto;
-    line-height: 1.7;
-    color: var(--primary-color);
-    text-align: justify;
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+    border: 1px solid var(--borde);
+    border-radius: var(--radio-pequeno);
+    color: var(--tinta-media);
+    background: var(--fondo);
+    font-size: 12.5px;
+    line-height: 1.65;
 }
 
 .modal-privacidad__ley h3 {
+    margin: 22px 0 8px;
+    color: var(--tinta);
+    font-size: 15px;
+    letter-spacing: -0.01em;
+}
+
+.modal-privacidad__ley h3:first-child {
     margin-top: 0;
-    color: var(--primary-color);
-    text-align: center;
-    font-size: 20px;
 }
 
 .modal-privacidad__ley p {
-    margin: 0 0 14px 0;
+    margin: 0 0 12px;
 }
 
-.btn-aceptar {
-    display: block;
-    margin: 20px auto 0 auto;
-    width: 220px;
-    padding: 14px 18px;
-    border: none;
-    border-radius: 10px;
-    background: var(--verde);
-    color: var(--secondary-color);
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
+.modal-privacidad__ley p:last-child {
+    margin-bottom: 0;
 }
 
 .modal-privacidad__mensaje {
-    min-height: 22px;
-    margin: 14px 0 0 0;
+    min-height: 18px;
+    margin: 12px 0 0;
+    color: var(--verde-oscuro);
+    font-size: 12px;
     text-align: center;
-    color: var(--verde);
-    font-size: 14px;
 }
 
 .modal-privacidad__mensaje.error {
     color: var(--error);
 }
 
-.btn-aceptar:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
+.btn-aceptar {
+    width: min(280px, 100%);
+    padding: 11px 18px;
+    margin: 12px auto 0;
+    border: 1px solid var(--verde-oscuro);
+    border-radius: var(--radio);
+    color: #fbfcfb;
+    background: var(--verde-oscuro);
+    font-size: 13px;
+    font-weight: 600;
+    transition: background var(--transicion), border-color var(--transicion);
 }
 
 .btn-aceptar:not(:disabled):hover {
-    background: var(--verde-oscuro);
+    border-color: var(--verde-hover);
+    background: var(--verde-hover);
 }
 
-.ModalConfirmacion {
-    position: fixed;
-    inset: 0;
-    z-index: 80;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    background: rgba(2, 6, 23, 0.75);
+.btn-aceptar:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
-.ModalConfirmacion[hidden] {
+/* Estados del panel -------------------------------------------------------- */
+#sinColecciones {
+    margin: 0;
+}
+
+#sinColecciones:empty {
     display: none;
 }
 
-.ConfirmacionContenido {
-    width: min(420px, 100%);
-    padding: 28px;
-    border-radius: 12px;
-    background: var(--secondary-color);
-    box-shadow: var(--sombra);
-    text-align: center;
-}
-
-.ConfirmacionContenido p {
-    margin: 0 0 24px;
-    color: var(--primary-color);
-    font-size: 16px;
-    line-height: 1.5;
-    white-space: pre-line;
-}
-
-.AccionesConfirmacion {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-}
-
-.BotonAceptarConfirmacion,
-.BotonCancelarConfirmacion {
-    min-width: 110px;
-    padding: 10px 18px;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-    transition:
-        background-color 0.2s ease,
-        border-color 0.2s ease,
-        color 0.2s ease;
-}
-
-.BotonAceptarConfirmacion {
-    border: 1px solid var(--verde);
-    background: var(--verde);
-    color: var(--secondary-color);
-}
-
-.BotonAceptarConfirmacion:hover {
-    border-color: var(--verde-oscuro);
-    background: var(--verde-oscuro);
-}
-
-.BotonCancelarConfirmacion {
-    border: 1px solid var(--borde);
-    background: var(--secondary-color);
-    color: var(--primary-color);
-}
-
-.BotonCancelarConfirmacion:hover {
-    border-color: var(--verde);
-    background: #eefaf5;
-    color: var(--verde);
-}
-
 @media (max-width: 760px) {
-    .BotonCerrarSesion {
-        position: static;
+    .Sidebar .BotonCerrarSesion {
+        margin-top: 20px;
+    }
+
+    .modal-privacidad {
+        padding: 16px;
+    }
+
+    .modal-privacidad__caja {
         width: 100%;
-        margin-top: 24px;
+        max-height: 92vh;
+        padding: 20px;
+    }
+
+    .modal-privacidad__caja h2 {
+        font-size: 20px;
+    }
+
+    .modal-privacidad__ley {
+        padding: 14px;
     }
 }

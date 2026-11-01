@@ -1,43 +1,57 @@
-    /* Subida, visibilidad, etiquetas y códigos QR. */
+/* ==========================================================================
+   CipherPhotos · Fotógrafo · Subida, visibilidad, etiquetas y QR
+   Depende de base.css. Esta es la mesa de trabajo: cabecera de acciones,
+   campos editables en línea y una única zona de carga prominente.
+   ========================================================================== */
 
+/* Datos de la colección en la barra lateral ------------------------------- */
 .DatosNuevaColeccion {
     margin-top: 0;
 }
 
 .DatosNuevaColeccion h2 {
     margin: 0;
-    color: var(--primary-color);
-    font-size: 18px;
+    color: var(--tinta);
+    font-size: 17px;
+    line-height: 1.25;
+    letter-spacing: -0.015em;
+    overflow-wrap: anywhere;
 }
 
 .DatosNuevaColeccion p {
-    margin: 4px 0 0;
+    margin: 6px 0 0;
     color: var(--gris-texto);
-    font-size: 13px;
+    font-size: 11.5px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
 }
 
-/* Título y descripción editables en línea: al pasar el cursor aparece un
-   pequeño badge gris claro que indica que el campo puede modificarse. */
+/* Título y descripción editables en línea. El badge aparece al pasar el
+   cursor o al enfocar para no ensuciar la lectura normal. */
 .CampoEditable {
     position: relative;
-    border-radius: 4px;
-    cursor: text;
+    padding: 3px 6px;
+    margin-left: -6px;
+    border-radius: var(--radio-pequeno);
     outline: none;
+    cursor: text;
+    transition: background var(--transicion), box-shadow var(--transicion);
 }
 
 .CampoEditable::after {
     content: "✎";
     position: absolute;
-    top: -2px;
-    right: -16px;
+    top: -7px;
+    right: -4px;
     padding: 0 4px;
-    border-radius: 4px;
-    background: #e5e7eb;
+    border-radius: 3px;
     color: var(--gris-texto);
-    font-size: 10px;
+    background: var(--fondo-alt);
+    font-size: 9px;
+    line-height: 1.6;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.15s ease;
+    transition: opacity var(--transicion);
 }
 
 .CampoEditable:hover::after,
@@ -45,69 +59,97 @@
     opacity: 1;
 }
 
+.CampoEditable:hover {
+    background: var(--fondo);
+}
+
 .CampoEditable:focus {
-    background: #f3f4f6;
-    box-shadow: 0 0 0 2px #e5e7eb;
+    background: var(--fondo);
+    box-shadow: 0 0 0 1px var(--borde-fuerte) inset;
 }
 
 .CampoEditable:empty::before {
     content: attr(data-placeholder);
-    color: #9ca3af;
+    color: #9aa49e;
     font-style: italic;
 }
 
-.BotonPublicar {
-    display: inline-block;
-    padding: 10px 20px;
-    border: 0;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: bold;
-    text-align: center;
-    color: var(--secondary-color);
-    background: var(--verde);
+/* Controles de la cabecera ------------------------------------------------ */
+.TagsColeccion {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
 }
 
-.BotonGenerarQr {
-    margin-left: auto;
-    padding: 9px 14px;
-    border: 1px solid var(--verde);
-    border-radius: 6px;
-    background: var(--secondary-color);
-    color: var(--verde);
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
+.TagsColeccion input {
+    width: 220px;
+    max-width: 100%;
+    padding: 8px 10px;
+    border: 1px solid var(--borde-fuerte);
+    border-radius: var(--radio-pequeno);
+    background: var(--superficie);
+    font-size: 12px;
 }
 
-.BotonGenerarQr:hover {
-    background: #eefaf5;
+.TagsColeccion .ListaTags {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    z-index: 20;
+    min-width: 220px;
+    max-width: 340px;
+    padding: 10px;
+    border: 1px solid var(--borde);
+    border-radius: var(--radio);
+    background: var(--superficie);
+    box-shadow: var(--sombra-suave);
 }
 
-.BotonGenerarQr:disabled {
-    opacity: 0.6;
-    cursor: wait;
+.TagsColeccion .ListaTags[hidden] {
+    display: none;
 }
 
 .ControlesQrColaborativo {
     position: relative;
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 6px;
     margin-left: auto;
 }
 
-.ControlesQrColaborativo .BotonGenerarQr {
-    margin-left: 0;
+.BotonGenerarQr {
+    padding: 8px 13px;
+    border: 1px solid var(--borde-fuerte);
+    border-radius: var(--radio-pequeno);
+    color: var(--tinta-media);
+    background: transparent;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.2;
     white-space: nowrap;
+    cursor: pointer;
+    transition: border-color var(--transicion), color var(--transicion),
+        background var(--transicion);
 }
 
-/* Menú "Más" con las acciones de la colección. */
+.BotonGenerarQr:hover {
+    border-color: var(--verde);
+    color: var(--verde-oscuro);
+    background: var(--verde-suave);
+}
+
+.BotonGenerarQr:disabled {
+    opacity: 0.55;
+    cursor: wait;
+}
+
 .BotonMasOpciones .FlechaMas {
     display: inline-block;
     margin-left: 6px;
-    font-size: 14px;
-    transition: transform 0.2s ease;
+    font-size: 10px;
+    transition: transform var(--transicion);
 }
 
 .BotonMasOpciones[aria-expanded="true"] .FlechaMas {
@@ -118,90 +160,118 @@
     position: absolute;
     top: calc(100% + 8px);
     right: 0;
-    z-index: 10;
+    z-index: 20;
     display: flex;
     flex-direction: column;
-    min-width: 190px;
-    padding: 6px;
+    min-width: 196px;
+    padding: 5px;
     border: 1px solid var(--borde);
-    border-radius: 8px;
-    background: var(--secondary-color);
-    box-shadow: var(--sombra);
+    border-radius: var(--radio);
+    background: var(--superficie);
+    box-shadow: var(--sombra-suave);
+}
+
+.MenuMasOpciones[hidden] {
+    display: none;
 }
 
 .OpcionMas {
     display: block;
     width: 100%;
-    padding: 10px;
+    padding: 9px 10px;
     border: 0;
-    border-radius: 6px;
+    border-radius: var(--radio-pequeno);
+    color: var(--tinta);
     background: transparent;
-    color: var(--primary-color);
     font: inherit;
-    font-size: 14px;
-    font-weight: bold;
+    font-size: 12.5px;
+    font-weight: 600;
     text-align: left;
     text-decoration: none;
     cursor: pointer;
+    transition: background var(--transicion), color var(--transicion);
 }
 
 .OpcionMas:hover {
-    background: #eefaf5;
+    color: var(--verde-oscuro);
+    background: var(--verde-suave);
 }
 
 .OpcionMas:disabled {
-    opacity: 0.6;
+    opacity: 0.55;
     cursor: wait;
 }
 
+/* Visibilidad -------------------------------------------------------------- */
 .ControlPublicar {
     position: relative;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 9px;
 }
 
-/* Estado actual de la colección, junto al botón de visibilidad. */
 .EstadoVisibilidad {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 6px 11px;
+    padding: 5px 10px;
     border: 1px solid transparent;
     border-radius: 999px;
-    font-size: 12px;
-    font-weight: bold;
+    font-size: 11px;
+    font-weight: 600;
     line-height: 1.3;
+    letter-spacing: 0.02em;
     white-space: nowrap;
-    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    transition: background var(--transicion), border-color var(--transicion),
+        color var(--transicion);
 }
 
 .EstadoVisibilidad::before {
     content: "";
-    width: 7px;
-    height: 7px;
+    flex: 0 0 auto;
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
     background: currentColor;
-    flex: 0 0 auto;
 }
 
 .EstadoPrivada {
-    background: #eef1f0;
-    border-color: #dde3e1;
-    color: #4b5563;
+    border-color: var(--borde);
+    color: var(--gris-texto);
+    background: var(--fondo);
 }
 
 .EstadoPublica {
-    background: #e9f7f0;
-    border-color: #bfe6d5;
+    border-color: var(--verde-claro);
     color: var(--verde-oscuro);
+    background: var(--verde-suave);
+}
+
+.BotonPublicar {
+    padding: 8px 13px;
+    border: 1px solid var(--borde-fuerte);
+    border-radius: var(--radio-pequeno);
+    color: var(--tinta-media);
+    background: transparent;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: nowrap;
+    transition: border-color var(--transicion), color var(--transicion),
+        background var(--transicion);
+}
+
+.BotonPublicar:hover:not(:disabled) {
+    border-color: var(--verde);
+    color: var(--verde-oscuro);
+    background: var(--verde-suave);
 }
 
 .BotonPublicar .FlechaPublicar {
     display: inline-block;
-    margin-left: 8px;
-    font-size: 16px;
-    transition: transform 0.2s ease;
+    margin-left: 7px;
+    font-size: 10px;
+    transition: transform var(--transicion);
 }
 
 .BotonPublicar[aria-expanded="true"] .FlechaPublicar {
@@ -212,139 +282,163 @@
     position: absolute;
     top: calc(100% + 8px);
     right: 0;
-    z-index: 10;
-    width: 250px;
-    padding: 6px;
+    z-index: 20;
+    width: 252px;
+    padding: 5px;
     border: 1px solid var(--borde);
-    border-radius: 8px;
-    background: var(--secondary-color);
-    box-shadow: var(--sombra);
+    border-radius: var(--radio);
+    background: var(--superficie);
+    box-shadow: var(--sombra-suave);
+}
+
+.MenuVisibilidad[hidden] {
+    display: none;
 }
 
 .MenuVisibilidad button {
     display: flex;
     flex-direction: column;
+    gap: 2px;
     width: 100%;
-    gap: 3px;
-    padding: 10px;
+    padding: 9px 10px;
     border: 0;
-    border-radius: 6px;
-    background-color: transparent;
-    color: var(--primary-color);
+    border-radius: var(--radio-pequeno);
+    color: var(--tinta);
+    background: transparent;
     text-align: left;
     cursor: pointer;
+    transition: background var(--transicion);
 }
 
 .MenuVisibilidad button:hover {
-    background: #eefaf5;
+    background: var(--verde-suave);
+}
+
+.MenuVisibilidad button strong {
+    font-family: var(--fuente-titulo);
+    font-size: 12.5px;
+    font-weight: 600;
 }
 
 .MenuVisibilidad button span {
     color: var(--gris-texto);
-    font-size: 12px;
+    font-size: 11px;
+    line-height: 1.4;
 }
 
-.BotonPublicar:hover {
-    background: var(--verde-oscuro);
-}
-
-.TagsColeccion {
-    position: relative;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    align-items: center;
-    margin-left: 0;
-}
-
-.TagsColeccion input {
-    width: 230px;
-    padding: 9px 12px;
-    border: 1px solid var(--borde);
-    border-radius: 6px;
-}
-
-.TagsColeccion .ListaTags {
-    position: absolute;
-    top: calc(100% + 8px);
-    left: 0;
-    z-index: 20;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    min-width: 230px;
-    max-width: 340px;
-    background: var(--secondary-color, #fff);
-    border: 1px solid var(--borde);
-    border-radius: 8px;
-    box-shadow: var(--sombra);
-    padding: 10px;
-}
-
-.TagsColeccion .ListaTags[hidden] {
-    display: none;
-}
-
+/* Zona de carga ------------------------------------------------------------ */
 .ZonaCarga {
     display: block;
-    box-sizing: border-box;
     width: 100%;
-    margin: 24px 0;
-    border: 2px dashed var(--borde);
-    border-radius: 12px;
-    background: var(--secondary-color);
-    padding: 90px 20px;
+    padding: clamp(48px, 8vw, 88px) 24px;
+    margin: 26px 0 0;
+    border: 1px dashed var(--borde-fuerte);
+    border-radius: var(--radio);
+    color: var(--tinta);
+    background: var(--superficie);
     text-align: center;
     cursor: pointer;
-    transition:
-        border-color 0.2s ease,
-        background-color 0.2s ease;
+    transition: border-color var(--transicion), background var(--transicion);
 }
 
-.ZonaCarga[aria-disabled="true"] {
-    opacity: 0.6;
-    cursor: wait;
-    pointer-events: none;
+.ZonaCarga::before {
+    content: "+";
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    margin: 0 auto 16px;
+    border: 1px solid var(--borde-fuerte);
+    border-radius: 50%;
+    color: var(--verde-oscuro);
+    font-family: var(--fuente-titulo);
+    font-size: 26px;
+    font-weight: 300;
+    line-height: 1;
+    transition: border-color var(--transicion), background var(--transicion);
 }
 
 .ZonaCarga strong {
     display: block;
-}
-
-.ZonaCarga.Activa {
-    border-color: var(--verde);
-    background: #eefaf5;
-}
-
-.ZonaCarga p {
-    margin: 4px 0;
-    color: var(--primary-color);
-    font-size: 15px;
-}
-
-.ZonaCarga::before {
-    content: "🖼";
-    display: block;
-    font-size: 34px;
-    margin-bottom: 14px;
-    opacity: 0.4;
+    font-family: var(--fuente-titulo);
+    font-size: 16px;
+    font-weight: 600;
 }
 
 .ZonaCarga .Formatos {
-    font-size: 13px;
-    color: var(--gris-texto);
+    display: block;
     margin-top: 8px;
+    color: var(--gris-texto);
+    font-size: 11px;
+    letter-spacing: 0.03em;
 }
 
-.ModalQr {
-    position: fixed;
-    inset: 0;
+.ZonaCarga:hover,
+.ZonaCarga.Activa,
+.ZonaCarga:focus-within {
+    border-color: var(--verde);
+    background: var(--verde-suave);
+}
+
+.ZonaCarga:hover::before,
+.ZonaCarga.Activa::before,
+.ZonaCarga:focus-within::before {
+    border-color: var(--verde);
+    background: var(--superficie);
+}
+
+.ZonaCarga[aria-disabled="true"] {
+    opacity: 0.6;
+    pointer-events: none;
+    cursor: wait;
+}
+
+/* Retícula de archivos ----------------------------------------------------- */
+#galeria {
+    padding-top: 22px;
+}
+
+.TarjetaAgregar {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 20px;
-    background-color: rgba(2, 6, 23, 0.75);
+    padding: 0;
+    aspect-ratio: 4 / 3;
+    border: 1px dashed var(--borde-fuerte);
+    border-radius: var(--radio);
+    color: var(--gris-texto);
+    background: transparent;
+    font-family: var(--fuente-titulo);
+    font-size: 34px;
+    font-weight: 300;
+    line-height: 1;
+    transition: border-color var(--transicion), background var(--transicion),
+        color var(--transicion);
+}
+
+.TarjetaAgregar:hover,
+.TarjetaAgregar:focus-visible {
+    border-color: var(--verde);
+    color: var(--verde-oscuro);
+    background: var(--verde-suave);
+}
+
+.TarjetaAgregar:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+/* Diálogos de código QR ---------------------------------------------------- */
+.ModalQr {
+    position: fixed;
+    inset: 0;
     z-index: 70;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgb(12 16 14 / 62%);
 }
 
 .ModalQr[hidden] {
@@ -352,25 +446,49 @@
 }
 
 .ModalQrContenido {
-    position: relative;
-    width: min(400px, 100%);
-    padding: 28px;
-    border-radius: 10px;
-    background: var(--secondary-color);
+    /* El diálogo se abre con showModal(), así que se centra como capa fija
+       en lugar de depender del contenedor de fondo. */
+    position: fixed;
+    inset: 0;
+    width: min(400px, calc(100vw - 48px));
+    height: fit-content;
+    max-height: 90vh;
+    padding: 26px;
+    margin: auto;
+    overflow: auto;
+    border: 1px solid var(--borde);
+    border-top: 3px solid var(--verde-oscuro);
+    border-radius: var(--radio);
+    color: var(--tinta);
+    background: var(--superficie);
     box-shadow: var(--sombra);
     text-align: center;
 }
 
+.ModalQrContenido::backdrop {
+    background: transparent;
+}
+
 .ModalQrContenido h2 {
-    margin: 0 0 18px;
-    color: var(--primary-color);
+    margin: 0 0 8px;
     font-size: 20px;
+    letter-spacing: -0.02em;
+}
+
+.AvisoExpiracionQr {
+    margin: 0 0 16px;
+    color: var(--advertencia);
+    font-size: 11.5px;
+    line-height: 1.45;
 }
 
 .ImagenQr {
-    width: 260px;
-    max-width: 100%;
+    width: min(240px, 100%);
+    padding: 10px;
     margin: 0 auto 18px;
+    border: 1px solid var(--borde);
+    border-radius: var(--radio-pequeno);
+    background: #fff;
 }
 
 .ImagenQr img {
@@ -383,201 +501,214 @@
     display: block;
     margin-bottom: 6px;
     color: var(--gris-texto);
-    font-size: 13px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
     text-align: left;
 }
 
-#enlaceQr {
+.ModalQrContenido input {
     width: 100%;
-    padding: 9px;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    color: var(--primary-color);
-}
-
-#enlaceQrColaborativo {
-    width: 100%;
-    padding: 9px;
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    color: var(--primary-color);
-}
-
-.AvisoExpiracionQr {
-    margin: -8px 0 14px;
-    color: var(--advertencia);
-    font-size: 13px;
-    line-height: 1.4;
+    padding: 9px 10px;
+    border: 1px solid var(--borde-fuerte);
+    border-radius: var(--radio-pequeno);
+    color: var(--tinta);
+    background: var(--fondo);
+    font-size: 12px;
 }
 
 .BotonCerrarQr {
     position: absolute;
-    top: 10px;
-    right: 10px;
-    border: 0;
-    background: transparent;
+    top: 9px;
+    right: 9px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 50%;
     color: var(--gris-texto);
-    font-size: 18px;
-    cursor: pointer;
+    background: transparent;
+    font-size: 14px;
+    line-height: 1;
+    transition: color var(--transicion), border-color var(--transicion);
+}
+
+.BotonCerrarQr:hover {
+    border-color: var(--borde-fuerte);
+    color: var(--tinta);
 }
 
 .AccionesQr {
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
     margin-top: 18px;
 }
 
 .BotonQr {
-    padding: 9px 12px;
-    border: 0;
-    border-radius: 6px;
-    background-color: var(--verde);
-    color: var(--secondary-color);
-    font-size: 13px;
-    font-weight: bold;
+    padding: 9px 13px;
+    border: 1px solid var(--verde-oscuro);
+    border-radius: var(--radio-pequeno);
+    color: #fbfcfb;
+    background: var(--verde-oscuro);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.2;
     text-decoration: none;
     cursor: pointer;
+    transition: background var(--transicion), border-color var(--transicion),
+        color var(--transicion);
+}
+
+.BotonQr:hover {
+    border-color: var(--verde-hover);
+    background: var(--verde-hover);
 }
 
 .BotonQrSecundario {
-    background-color: var(--primary-color);
+    border-color: var(--borde-fuerte);
+    color: var(--tinta-media);
+    background: transparent;
 }
-.ModalConfirmacion[hidden] {
-    display: none;
-}
-.ModalConfirmacion {
-    position: fixed;
-    inset: 0;
-    z-index: 80;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    background: rgba(2, 6, 23, 0.75);
-}
-.ConfirmacionContenido {
-    width: min(420px, 100%);
-    padding: 28px;
-    border-radius: 12px;
-    background: var(--secondary-color);
-    box-shadow: var(--sombra);
-    text-align: center;
-}
-.ConfirmacionContenido p {
-    margin: 0 0 24px;
-    color: var(--primary-color);
-    font-size: 16px;
-    line-height: 1.5;
-    white-space: pre-line;
-}
-.AccionesConfirmacion {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-}
-.BotonAceptarConfirmacion,
-.BotonCancelarConfirmacion {
-    min-width: 110px;
-    padding: 10px 18px;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-    transition:
-        background-color 0.2s ease,
-        border-color 0.2s ease,
-        color 0.2s ease;
-}
-.BotonAceptarConfirmacion {
-    border: 1px solid var(--verde);
-    background: var(--verde);
-    color: var(--secondary-color);
-}
-.BotonAceptarConfirmacion:hover {
-    border-color: var(--verde-oscuro);
-    background: var(--verde-oscuro);
-}
-.BotonCancelarConfirmacion {
-    border: 1px solid var(--borde);
-    background: var(--secondary-color);
-    color: var(--primary-color);
-}
-.BotonCancelarConfirmacion:hover {
+
+.BotonQrSecundario:hover {
     border-color: var(--verde);
-    background: #eefaf5;
-    color: var(--verde);
+    color: var(--verde-oscuro);
+    background: var(--verde-suave);
 }
-.ZonaCarga {
-    display: block;
-    box-sizing: border-box;
-    width: 100%;
-    width: 100%;
-    color: inherit;
-    font: inherit;
-}
-.ZonaCarga .Formatos {
-    display: block;
-    margin-top: 10px;
-}
-.TarjetaAgregar {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 182px;
-    padding: 0;
-    border: 2px dashed var(--borde);
-    border-radius: 12px;
-    background: var(--secondary-color);
-    color: var(--gris-texto);
-    font-size: 46px;
-    font-weight: 300;
-    line-height: 1;
-    transition:
-        border-color 0.2s ease,
-        background-color 0.2s ease,
-        color 0.2s ease;
-}
-.TarjetaAgregar:hover,
-.TarjetaAgregar:focus-visible {
-    border-color: var(--verde);
-    background: #eefaf5;
-    color: var(--verde);
-}
-.TarjetaAgregar:disabled {
-    opacity: 0.6;
-    cursor: wait;
-}
-#galeria {
-    padding-top: 24px;
-}
-.ModalQrContenido {
-    max-height: 90vh;
-    overflow: auto;
-}
-.ModalQrContenido input {
-    width: 100%;
-}
+
+/* Impresión de la hoja QR -------------------------------------------------- */
 @media print {
+    body {
+        background: #fff;
+    }
+
     body > :not(.ModalQr) {
         display: none;
     }
+
     .ModalQr {
         position: static;
+        display: block;
         padding: 0;
-        background: white;
+        background: #fff;
     }
+
+    .ModalQr[hidden] {
+        display: none !important;
+    }
+
     .ModalQrContenido {
-        box-shadow: none;
+        position: static;
+        inset: auto;
+        width: 100%;
+        height: auto;
         max-height: none;
+        padding: 0;
+        margin: 0;
+        overflow: visible;
+        border: 0;
+        box-shadow: none;
     }
+
     .AccionesQr,
     .BotonCerrarQr {
         display: none;
     }
+
+    .ImagenQr {
+        border: 1px solid #ccc;
+    }
 }
 
-.Toast.Error {
-    background: var(--gris-texto);
+/* Adaptación --------------------------------------------------------------- */
+/* Entre tableta y escritorio angosto la cabecera se ordena en dos filas:
+   título + visibilidad arriba, etiquetas + acciones QR abajo. Así los menús
+   desplegables quedan siempre dentro del área de trabajo y no se montan sobre
+   la barra lateral. */
+@media (min-width: 761px) and (max-width: 1180px) {
+    .Principal > .Encabezado {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 16px 24px;
+    }
+
+    .Principal > .Encabezado > h1 {
+        grid-area: 1 / 1;
+    }
+
+    .Principal > .Encabezado > .ControlPublicar {
+        grid-area: 1 / 2;
+        justify-self: end;
+        margin-left: 0;
+    }
+
+    .Principal > .Encabezado > .TagsColeccion {
+        grid-area: 2 / 1;
+    }
+
+    .Principal > .Encabezado > .ControlesQrColaborativo {
+        grid-area: 2 / 2;
+        justify-self: end;
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 760px) {
+    .TagsColeccion,
+    .TagsColeccion input {
+        width: 100%;
+    }
+
+    .ControlesQrColaborativo {
+        width: 100%;
+    }
+
+    .ControlesQrColaborativo .BotonGenerarQr {
+        flex: 1;
+    }
+
+    .MenuMasOpciones,
+    .MenuVisibilidad {
+        right: auto;
+        left: 0;
+        width: min(280px, calc(100vw - 40px));
+    }
+
+    .ControlPublicar {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .BotonPublicar {
+        flex: 1;
+    }
+
+    .MenuVisibilidad {
+        right: 0;
+        left: auto;
+    }
+
+    .ZonaCarga {
+        padding: 44px 18px;
+        margin-top: 20px;
+    }
+
+    .ModalQr,
+    .ModalQrContenido {
+        padding: 18px;
+    }
+
+    .ModalQr {
+        padding: 16px;
+    }
+
+    .TarjetaAgregar {
+        font-size: 28px;
+    }
 }

@@ -1,222 +1,188 @@
-﻿/* Inicio, acceso y formularios. Los estilos generales están en base.css. */
+﻿/* ==========================================================================
+   CipherPhotos · Fotógrafo · Acceso y páginas de formulario
+   Depende de base.css. El acceso se presenta como la entrada a un espacio de
+   trabajo: una declaración editorial a la izquierda y el panel de acceso a la
+   derecha, sin simetrías de plantilla.
+   ========================================================================== */
 
-/* Entrada principal */
-.PaginaAcceso {
-    display: block;
-    padding: 24px;
-    background: #e8f2ed;
-}
-
-.Acceso {
-    display: grid;
-    grid-template-columns: minmax(0, 1.15fr) minmax(340px, 0.85fr);
-    width: min(1120px, 100%);
-    min-height: calc(100vh - 48px);
-    margin: 0 auto;
-    overflow: hidden;
-    border-radius: 20px;
-    background: var(--secondary-color);
-    box-shadow: var(--sombra);
-}
-
-.AccesoPresentacion {
+/* Acceso ------------------------------------------------------------------ */
+body.AuthPixie {
     display: flex;
     flex-direction: column;
+    min-height: 100vh;
+    background: var(--fondo);
+}
+
+.AuthBarra {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    min-height: 72px;
+    padding: 18px clamp(20px, 5vw, 56px);
+    border-bottom: 1px solid var(--borde);
+    background: var(--superficie);
+}
+
+.AuthMarca {
+    color: var(--tinta);
+    font-family: var(--fuente-titulo);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-decoration: none;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.AuthMarca:hover {
+    color: var(--verde-oscuro);
+}
+
+.AuthCerrar {
+    display: inline-flex;
+    align-items: center;
     justify-content: center;
-    padding: 56px;
-    color: var(--secondary-color);
-    background: var(--verde-oscuro);
+    width: 32px;
+    height: 32px;
+    border: 1px solid transparent;
+    border-radius: 50%;
+    color: var(--gris-texto);
+    font-size: 16px;
+    line-height: 1;
+    text-decoration: none;
+    transition: color var(--transicion), border-color var(--transicion);
 }
 
-.AccesoMarca,
-.AccesoEtiqueta {
-    margin: 0 0 16px;
-    font-size: 12px;
-    font-weight: bold;
-    letter-spacing: 2px;
+.AuthCerrar:hover {
+    border-color: var(--borde-fuerte);
+    color: var(--tinta);
 }
 
-.AccesoPresentacion h1 {
-    max-width: 600px;
-    margin: 0;
-    font-size: 60px;
+.AuthCentro {
+    flex: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(340px, 430px);
+    align-items: center;
+    gap: clamp(36px, 8vw, 128px);
+    width: min(1200px, 100%);
+    margin: 0 auto;
+    padding: 56px clamp(24px, 5vw, 64px) 88px;
+}
+
+/* Declaración de la izquierda: tres palabras, una jerarquía. */
+.AuthCentro::before {
+    content: "Archivo\A Publicación\A Entrega";
+    align-self: end;
+    max-width: 12ch;
+    padding-top: 20px;
+    border-top: 2px solid var(--verde);
+    color: var(--tinta);
+    font-family: var(--fuente-titulo);
+    font-size: clamp(2rem, 4.2vw, 3.6rem);
+    font-weight: 600;
+    letter-spacing: -0.03em;
     line-height: 1.02;
+    white-space: pre-line;
 }
 
-.AccesoDescripcion {
-    max-width: 560px;
-    margin: 22px 0 30px;
-    color: #d8ebe4;
-    font-size: 18px;
+.AuthCaja {
+    width: 100%;
+    padding: clamp(26px, 3vw, 34px);
+    border: 1px solid var(--borde);
+    border-top: 3px solid var(--verde-oscuro);
+    border-radius: var(--radio);
+    background: var(--superficie);
 }
 
-.AccesoFormulario {
-    align-self: center;
-    width: min(440px, 100%);
-    padding: 48px;
-    margin: auto;
-}
-
-.AccesoCabecera h2 {
+.AuthCaja h1 {
     margin: 0;
-    font-size: 34px;
+    font-size: 27px;
+    letter-spacing: -0.02em;
 }
 
-.AccesoCabecera > p:last-child {
+.AuthSubtitulo {
     margin: 8px 0 0;
     color: var(--gris-texto);
+    font-size: 13px;
+    line-height: 1.5;
+    text-align: left;
 }
 
-.AccesoEtiqueta {
-    color: var(--verde);
-}
-
-.AccesoFormulario form {
-    margin: 32px 0 16px;
-}
-
-.BotonAcceso {
-    width: 100%;
-}
-
-.AccesoRegistro {
-    margin: 12px 0 0;
-    color: var(--gris-texto);
-    text-align: center;
-}
-
-.AccesoRegistro a {
-    font-weight: bold;
-}
-
-.MosaicoPresentacion {
-    columns: 3;
-    column-gap: 10px;
-}
-
-.MosaicoBloque {
-    display: flex;
-    align-items: end;
-    min-height: 95px;
-    padding: 14px;
-    margin-bottom: 10px;
-    break-inside: avoid;
-    border-radius: 12px;
+.AuthCaja h2 {
+    margin: 28px 0 18px;
     color: var(--verde-oscuro);
-    background: #bfe0d2;
-    font-size: 13px;
-    font-weight: bold;
+    font-family: var(--fuente-texto);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-align: left;
+    text-transform: uppercase;
 }
 
-.MosaicoAlto {
-    min-height: 155px;
-}
-
-.MosaicoClaro {
-    background: #e6f2ed;
-}
-
-.MosaicoOscuro {
-    color: var(--secondary-color);
-    background: var(--verde);
-}
-
-.MosaicoSuave {
-    background: #8dc6ae;
-}
-
-.ResumenFunciones {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-}
-
-.ResumenFunciones div {
-    padding: 18px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.08);
-}
-
-.ResumenFunciones strong,
-.ResumenFunciones span {
-    display: block;
-}
-
-.ResumenFunciones span {
-    margin-top: 5px;
-    color: #d8ebe4;
-    font-size: 13px;
-}
-
-body {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
-header {
-    padding: 28px 20px;
-    color: var(--secondary-color);
-    background: var(--verde);
-    text-align: center;
-}
-
-header h1 {
+.AuthCaja form {
     margin: 0;
-    font-size: 36px;
 }
 
-header p {
-    margin-bottom: 0;
+.AuthCaja .form-group {
+    margin-bottom: 16px;
 }
 
-.container {
-    flex: 1;
-    width: min(900px, 100%);
-    margin: 28px auto;
-    padding: 0 20px;
+.AuthCaja label {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--tinta-media);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
 }
 
-.card {
-    margin-bottom: 24px;
-    padding: 28px;
-    border: 1px solid var(--borde);
-    border-radius: 12px;
-    background: var(--secondary-color);
-    box-shadow: var(--sombra);
+.AuthCaja input:not([type="checkbox"]),
+.AuthCaja select,
+.AuthCaja textarea {
+    width: 100%;
+    padding: 11px 12px;
+    border: 1px solid var(--borde-fuerte);
+    border-radius: var(--radio-pequeno);
+    background: var(--superficie);
+    font-size: 15px;
 }
 
-.card h2 {
-    margin-top: 0;
-    font-size: 28px;
+.AuthCaja input:not([type="checkbox"]):focus {
+    border-color: var(--verde);
+    box-shadow: 0 0 0 3px rgb(63 139 109 / 14%);
 }
 
-footer {
-    padding: 20px;
-    color: var(--secondary-color);
-    background: var(--verde-oscuro);
-    text-align: center;
+.AuthCaja .btn {
+    width: 100%;
+    padding: 12px 16px;
 }
 
-footer p {
-    margin: 4px;
+.AuthCaja .CampoTerminos {
+    margin-bottom: 18px;
 }
 
-form {
-    max-width: 560px;
-    margin: 24px auto;
+.AuthCaja .mensaje-perfil {
+    margin-top: 16px;
 }
 
-.form-group,
-.campo-coleccion {
-    margin-bottom: 20px;
+.AuthEnlace {
+    margin: 24px 0 0;
+    color: var(--gris-texto);
+    font-size: 12px;
+    text-align: left;
 }
 
+.AuthEnlace a {
+    color: var(--verde-oscuro);
+    font-weight: 600;
+}
+
+/* Términos y condiciones dentro del registro ------------------------------ */
 .CampoTerminos {
     padding: 14px;
     border: 1px solid var(--borde);
-    border-radius: 8px;
+    border-radius: var(--radio-pequeno);
     background: var(--fondo);
 }
 
@@ -225,53 +191,151 @@ form {
     align-items: flex-start;
     gap: 10px;
     margin: 0;
+    color: var(--tinta-media);
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.5;
     cursor: pointer;
 }
 
 .OpcionTerminos input {
     flex: 0 0 auto;
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
     margin-top: 2px;
 }
 
 .ResumenTerminos {
-    margin: 12px 0 0 28px;
+    margin: 10px 0 0 26px;
     color: var(--gris-texto);
-    font-size: 13px;
+    font-size: 11px;
+    line-height: 1.5;
 }
 
 .ResumenTerminos summary {
     color: var(--verde-oscuro);
+    font-weight: 600;
     cursor: pointer;
-    font-weight: bold;
 }
 
 .ResumenTerminos p {
-    margin-bottom: 0;
+    margin: 8px 0 0;
 }
 
-label {
+/* Páginas de trabajo: crear colección y editar perfil --------------------- */
+body:not(.AuthPixie) {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+body:not(.AuthPixie) > header {
+    padding: 40px max(24px, calc((100vw - 1040px) / 2 + 24px)) 26px;
+    border-bottom: 1px solid var(--borde);
+    background: var(--superficie);
+}
+
+body:not(.AuthPixie) > header h1 {
+    margin: 0;
+    font-size: clamp(1.8rem, 3vw, 2.3rem);
+    letter-spacing: -0.025em;
+}
+
+body:not(.AuthPixie) > header p {
+    max-width: 52ch;
+    margin: 8px 0 0;
+    color: var(--gris-texto);
+    font-size: 13px;
+}
+
+.container {
+    flex: 1;
+    width: min(1040px, 100%);
+    margin: 0 auto;
+    padding: 36px 24px 88px;
+}
+
+.card {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: clamp(24px, 3.4vw, 38px);
+    border: 1px solid var(--borde);
+    border-radius: var(--radio);
+    background: var(--superficie);
+}
+
+.card h2 {
+    margin-top: 0;
+    font-size: 22px;
+    letter-spacing: -0.015em;
+}
+
+.card > p {
+    color: var(--gris-texto);
+    font-size: 13px;
+}
+
+.card > a {
+    display: inline-block;
+    margin-top: 22px;
+    color: var(--gris-texto);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+.card > a:hover {
+    color: var(--verde-oscuro);
+}
+
+form {
+    margin: 0;
+}
+
+.formulario-coleccion,
+.formulario-perfil {
+    max-width: none;
+}
+
+.formulario-perfil + .formulario-perfil {
+    margin-top: 6px;
+    padding-top: 22px;
+    border-top: 1px solid var(--borde);
+}
+
+.campo-coleccion {
+    margin-bottom: 22px;
+}
+
+.campo-coleccion > h2 {
+    margin: 0 0 4px;
+    font-size: 16px;
+}
+
+.campo-coleccion > label {
     display: block;
-    margin-bottom: 6px;
-    font-weight: bold;
+    margin-bottom: 7px;
+    font-size: 11px;
+    letter-spacing: 0.02em;
 }
 
-form input,
+form input:not([type="checkbox"]),
 form select,
 form textarea {
     width: 100%;
-    padding: 12px;
 }
 
 textarea {
+    min-height: 92px;
     resize: vertical;
 }
 
 .campo-con-boton {
     display: flex;
-    align-items: end;
-    gap: 12px;
+    align-items: flex-end;
+    gap: 10px;
 }
 
 .campo-con-boton > div {
@@ -279,71 +343,146 @@ textarea {
     min-width: 0;
 }
 
+.boton-save {
+    flex: 0 0 auto;
+}
+
+.acciones-coleccion {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 4px;
+}
+
 .mensaje-perfil {
-    min-height: 24px;
+    min-height: 20px;
+    margin: 16px 0 0;
     color: var(--verde-oscuro);
-    text-align: center;
+    font-size: 12px;
+    text-align: left;
 }
 
 .mensaje-perfil.error {
     color: var(--error);
 }
 
+/* Botones de formulario ---------------------------------------------------- */
 .btn {
-    display: inline-block;
-    padding: 12px 24px;
-    border: 0;
-    border-radius: 6px;
-    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 18px;
+    border: 1px solid transparent;
+    border-radius: var(--radio);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    line-height: 1.2;
+    text-align: center;
     text-decoration: none;
+    cursor: pointer;
+    transition: background var(--transicion), border-color var(--transicion),
+        color var(--transicion);
 }
 
 .btn-principal {
-    color: var(--secondary-color);
-    background: var(--verde);
-}
-
-.btn-secundario {
-    color: var(--secondary-color);
+    border-color: var(--verde-oscuro);
+    color: #fbfcfb;
     background: var(--verde-oscuro);
 }
 
-.btn:hover {
-    filter: brightness(0.95);
+.btn-principal:hover {
+    border-color: var(--verde-hover);
+    background: var(--verde-hover);
+    color: #fbfcfb;
+}
+
+.btn-secundario {
+    border-color: var(--borde-fuerte);
+    color: var(--tinta);
+    background: transparent;
+}
+
+.btn-secundario:hover {
+    border-color: var(--tinta);
+    background: transparent;
+}
+
+.margen-arriba {
+    margin-top: 16px;
+}
+
+.margen-abajo {
+    margin-bottom: 16px;
 }
 
 .texto-centrado {
     text-align: center;
 }
 
-.margen-arriba {
-    margin-top: 20px;
-}
-
+/* Tablas de datos, por si alguna vista las incorpora ---------------------- */
 table {
     width: 100%;
+    margin-top: 14px;
     border-collapse: collapse;
+    background: transparent;
 }
 
 th,
 td {
-    padding: 12px;
-    border: 1px solid var(--borde);
+    padding: 10px 12px;
+    border: 0;
+    border-bottom: 1px solid var(--borde);
     text-align: left;
 }
 
 th {
-    color: var(--secondary-color);
-    background: var(--verde);
+    color: var(--gris-texto);
+    background: transparent;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
 }
 
-@media (max-width: 600px) {
-    .card {
-        padding: 20px;
+/* Adaptación --------------------------------------------------------------- */
+@media (max-width: 900px) {
+    .AuthCentro {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0;
+        width: min(480px, 100%);
+        padding: 40px 24px 72px;
     }
 
-    header h1 {
-        font-size: 30px;
+    .AuthCentro::before {
+        display: none;
+    }
+}
+
+@media (max-width: 760px) {
+    .AuthBarra {
+        min-height: 64px;
+        padding: 16px 20px;
+    }
+
+    .AuthCaja {
+        padding: 24px 20px;
+    }
+
+    .AuthCaja h1 {
+        font-size: 24px;
+    }
+
+    body:not(.AuthPixie) > header {
+        padding: 32px 20px 22px;
+    }
+
+    .container {
+        padding: 28px 20px 72px;
+    }
+
+    .card {
+        padding: 22px;
     }
 
     .campo-con-boton {
@@ -351,192 +490,19 @@ th {
         align-items: stretch;
     }
 
-    .btn {
-        margin-bottom: 8px;
+    .boton-save,
+    .acciones-coleccion .btn {
+        width: 100%;
     }
 }
 
-@media (max-width: 850px) {
-    .PaginaAcceso {
-        padding: 0;
-    }
-
-    .Acceso {
-        display: block;
-        min-height: 100vh;
-        border-radius: 0;
-    }
-
-    .AccesoPresentacion,
-    .AccesoFormulario {
-        padding: 34px 24px;
-    }
-
-    .AccesoPresentacion h1 {
-        font-size: 38px;
-    }
-
-    .MosaicoPresentacion {
-        columns: 3;
-    }
-}
-
-/* Acceso minimalista estilo Pixieset (login y registro de ambos roles). */
-body.AuthPixie {
-    background: #ffffff;
-}
-
-body.AuthPixie .AuthBarra {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 24px;
-    margin: 0;
-    padding: 22px 48px;
-    min-height: 92px;
-    color: inherit;
-    background: #ffffff;
-    text-align: left;
-}
-
-.AuthMarca {
-    margin: 0;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 18px;
-    font-weight: bold;
-    letter-spacing: 6px;
-    text-transform: uppercase;
-    white-space: nowrap;
-    color: var(--primary-color);
-    text-decoration: none;
-}
-
-.AuthCerrar {
-    color: #9ca3af;
-    font-size: 24px;
-    line-height: 1;
-    text-decoration: none;
-    transition: color 0.15s ease;
-}
-
-.AuthCerrar:hover {
-    color: var(--primary-color);
-}
-
-.AuthCentro {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    width: min(400px, 100%);
-    margin: 0 auto;
-    padding: 56px 24px 72px;
-}
-
-.AuthCaja {
-    width: 100%;
-}
-
-.AuthCaja h1 {
-    margin: 0;
-    font-size: 26px;
-    text-align: center;
-}
-
-.AuthSubtitulo {
-    margin: 8px 0 0;
-    color: var(--gris-texto);
-    font-size: 15px;
-    text-align: center;
-}
-
-.AuthCaja h2 {
-    margin: 40px 0 22px;
-    color: var(--gris-texto);
-    font-size: 12px;
-    font-weight: bold;
-    letter-spacing: 2px;
-    text-align: center;
-    text-transform: uppercase;
-}
-
-.AuthCaja form {
-    max-width: none;
-    margin: 0;
-}
-
-.AuthCaja .form-group {
-    margin-bottom: 18px;
-}
-
-.AuthCaja label {
-    font-size: 13px;
-    font-weight: 600;
-    color: #374151;
-}
-
-.AuthCaja input:not([type="checkbox"]),
-.AuthCaja select,
-.AuthCaja textarea {
-    width: 100%;
-    padding: 13px 14px;
-    border: 1px solid #d9dddc;
-    border-radius: 8px;
-    background: #ffffff;
-    font-size: 15px;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-.AuthCaja input:not([type="checkbox"]):focus {
-    border-color: var(--verde);
-    box-shadow: 0 0 0 3px rgba(22, 131, 95, 0.12);
-}
-
-.AuthCaja .CampoTerminos {
-    margin-top: 4px;
-    border-radius: 8px;
-}
-
-.AuthCaja .btn {
-    display: block;
-    width: 100%;
-    padding: 14px;
-    border-radius: 8px;
-    font-size: 15px;
-}
-
-.AuthCaja .btn-principal:hover {
-    background: var(--verde-oscuro);
-    filter: none;
-}
-
-.AuthCaja .mensaje-perfil {
-    margin-top: 16px;
-}
-
-.AuthEnlace {
-    margin-top: 30px;
-    color: var(--gris-texto);
-    font-size: 14px;
-    text-align: center;
-}
-
-.AuthEnlace a {
-    font-weight: 600;
-}
-
-@media (max-width: 600px) {
-    body.AuthPixie .AuthBarra {
-        gap: 12px;
-        padding: 16px 20px;
-        min-height: auto;
-    }
-
+@media (max-width: 480px) {
     .AuthMarca {
-        font-size: 15px;
-        letter-spacing: 3px;
+        font-size: 11px;
+        letter-spacing: 0.16em;
+    }
+
+    .AuthCaja h1 {
+        font-size: 22px;
     }
 }
-
