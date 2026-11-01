@@ -1,4 +1,4 @@
-﻿/* ==========================================================================
+/* ==========================================================================
    CipherPhotos · Fotógrafo · Acceso y páginas de formulario
    Depende de base.css. El acceso se presenta como la entrada a un espacio de
    trabajo: una declaración editorial a la izquierda y el panel de acceso a la
@@ -26,10 +26,10 @@ body.AuthPixie {
 
 .AuthMarca {
     color: var(--tinta);
-    font-family: var(--fuente-titulo);
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.2em;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 18px;
+    font-weight: bold;
+    letter-spacing: 6px;
     text-decoration: none;
     text-transform: uppercase;
     white-space: nowrap;
@@ -48,7 +48,7 @@ body.AuthPixie {
     border: 1px solid transparent;
     border-radius: 50%;
     color: var(--gris-texto);
-    font-size: 16px;
+    font-size: 18px;
     line-height: 1;
     text-decoration: none;
     transition: color var(--transicion), border-color var(--transicion);
@@ -61,44 +61,29 @@ body.AuthPixie {
 
 .AuthCentro {
     flex: 1;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(340px, 430px);
+    display: flex;
+    justify-content: center;
     align-items: center;
-    gap: clamp(36px, 8vw, 128px);
-    width: min(1200px, 100%);
+    width: min(440px, 100%);
     margin: 0 auto;
-    padding: 56px clamp(24px, 5vw, 64px) 88px;
-}
-
-/* Declaración de la izquierda: tres palabras, una jerarquía. */
-.AuthCentro::before {
-    content: "Archivo\A Publicación\A Entrega";
-    align-self: end;
-    max-width: 12ch;
-    padding-top: 20px;
-    border-top: 2px solid var(--verde);
-    color: var(--tinta);
-    font-family: var(--fuente-titulo);
-    font-size: clamp(2rem, 4.2vw, 3.6rem);
-    font-weight: 600;
-    letter-spacing: -0.03em;
-    line-height: 1.02;
-    white-space: pre-line;
+    padding: 48px 24px 72px;
 }
 
 .AuthCaja {
     width: 100%;
-    padding: clamp(26px, 3vw, 34px);
+    padding: clamp(28px, 4vw, 36px);
     border: 1px solid var(--borde);
-    border-top: 3px solid var(--verde-oscuro);
     border-radius: var(--radio);
     background: var(--superficie);
+    box-shadow: var(--sombra-suave);
+    text-align: center;
 }
 
 .AuthCaja h1 {
     margin: 0;
-    font-size: 27px;
+    font-size: 26px;
     letter-spacing: -0.02em;
+    text-align: center;
 }
 
 .AuthSubtitulo {
@@ -106,17 +91,17 @@ body.AuthPixie {
     color: var(--gris-texto);
     font-size: 13px;
     line-height: 1.5;
-    text-align: left;
+    text-align: center;
 }
 
 .AuthCaja h2 {
     margin: 28px 0 18px;
     color: var(--verde-oscuro);
     font-family: var(--fuente-texto);
-    font-size: 10px;
+    font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.16em;
-    text-align: left;
+    text-align: center;
     text-transform: uppercase;
 }
 
@@ -132,9 +117,10 @@ body.AuthPixie {
     display: block;
     margin-bottom: 6px;
     color: var(--tinta-media);
-    font-size: 11px;
+    font-size: 12px;
     font-weight: 600;
     letter-spacing: 0.02em;
+    text-align: left;
 }
 
 .AuthCaja input:not([type="checkbox"]),
@@ -448,14 +434,8 @@ th {
 /* Adaptación --------------------------------------------------------------- */
 @media (max-width: 900px) {
     .AuthCentro {
-        grid-template-columns: minmax(0, 1fr);
-        gap: 0;
-        width: min(480px, 100%);
-        padding: 40px 24px 72px;
-    }
-
-    .AuthCentro::before {
-        display: none;
+        width: min(440px, 100%);
+        padding: 40px 20px 72px;
     }
 }
 
@@ -498,8 +478,8 @@ th {
 
 @media (max-width: 480px) {
     .AuthMarca {
-        font-size: 11px;
-        letter-spacing: 0.16em;
+        font-size: 16px;
+        letter-spacing: 4px;
     }
 
     .AuthCaja h1 {

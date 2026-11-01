@@ -105,45 +105,64 @@
     letter-spacing: -0.035em;
 }
 
-/* Mosaico público: columnas con alturas alternadas, sin tarjetas flotantes. */
+/* Mosaico público: estructura completa a lo ancho restaurada (como antes del rediseño) */
 #galeriaPublica.GaleriaColecciones {
     display: block;
-    columns: 3;
-    column-gap: 28px;
+    columns: 260px;
+    column-gap: 18px;
+    width: 100%;
 }
 
 #galeriaPublica .TarjetaColeccion {
     display: inline-block;
     width: 100%;
-    margin: 0 0 44px;
+    margin: 0 0 18px;
     break-inside: avoid;
-    overflow: visible;
+    overflow: hidden;
+    border-radius: var(--radio-suave);
+    background: var(--superficie);
+    border: 1px solid var(--borde);
+    box-shadow: var(--sombra-suave);
+    transition: transform var(--transicion), box-shadow var(--transicion);
+}
+
+#galeriaPublica .TarjetaColeccion:hover {
+    transform: translateY(-2px);
 }
 
 #galeriaPublica .TarjetaColeccion[hidden] {
     display: none;
 }
 
-#galeriaPublica .CubiertaTarjeta {
-    height: 360px;
-    aspect-ratio: auto;
+#galeriaPublica .CubiertaTarjeta,
+#galeriaPublica .ImagenTarjeta {
+    height: 260px;
+    width: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
 }
 
-#galeriaPublica .CubiertaTarjeta .ImagenTarjeta {
-    height: 100%;
+#galeriaPublica .TarjetaColeccion:nth-child(3n + 1) .CubiertaTarjeta,
+#galeriaPublica .TarjetaColeccion:nth-child(3n + 1) .ImagenTarjeta {
+    height: 340px;
 }
 
-#galeriaPublica .TarjetaColeccion:nth-child(3n + 1) .CubiertaTarjeta {
-    height: 440px;
-}
-
-#galeriaPublica .TarjetaColeccion:nth-child(4n + 2) .CubiertaTarjeta {
-    height: 290px;
+#galeriaPublica .TarjetaColeccion:nth-child(4n + 2) .CubiertaTarjeta,
+#galeriaPublica .TarjetaColeccion:nth-child(4n + 2) .ImagenTarjeta {
+    height: 210px;
 }
 
 #galeriaPublica .NombreColeccion {
-    margin-top: 18px;
-    font-size: 21px;
+    margin: 14px 16px 4px;
+    font-size: 17px;
+    font-weight: 600;
+}
+
+#galeriaPublica .DatosColeccion {
+    margin: 0 16px 14px;
+    font-size: 13px;
+    color: var(--gris-texto);
 }
 
 /* Con etiquetas activas el mosaico vuelve a filas para leer de izquierda a
@@ -151,7 +170,7 @@
 #galeriaPublica.GaleriaColecciones.Filtrando {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 40px 28px;
+    gap: 18px;
     align-items: start;
     align-content: start;
 }
@@ -162,9 +181,18 @@
 }
 
 #galeriaPublica.Filtrando .CubiertaTarjeta,
+#galeriaPublica.Filtrando .ImagenTarjeta {
+    height: 260px;
+}
+
 #galeriaPublica.Filtrando .TarjetaColeccion:nth-child(3n + 1) .CubiertaTarjeta,
-#galeriaPublica.Filtrando .TarjetaColeccion:nth-child(4n + 2) .CubiertaTarjeta {
-    height: 320px;
+#galeriaPublica.Filtrando .TarjetaColeccion:nth-child(3n + 1) .ImagenTarjeta {
+    height: 340px;
+}
+
+#galeriaPublica.Filtrando .TarjetaColeccion:nth-child(4n + 2) .CubiertaTarjeta,
+#galeriaPublica.Filtrando .TarjetaColeccion:nth-child(4n + 2) .ImagenTarjeta {
+    height: 210px;
 }
 
 /* Páginas de colecciones compartidas y favoritos -------------------------- */
@@ -381,8 +409,14 @@
 
 .VisorInterior img,
 .VisorInterior video {
-    max-height: 56vh;
-    border-radius: 0;
+    display: block;
+    max-width: 100%;
+    max-height: 68vh;
+    width: auto;
+    height: auto;
+    margin: 0 auto;
+    object-fit: contain;
+    border-radius: var(--radio);
 }
 
 .BotonCerrarVisor {
@@ -524,21 +558,6 @@
 }
 
 /* Adaptación --------------------------------------------------------------- */
-@media (max-width: 1100px) {
-    #galeriaPublica.GaleriaColecciones {
-        columns: 2;
-    }
-
-    #galeriaPublica .CubiertaTarjeta,
-    #galeriaPublica .TarjetaColeccion:nth-child(3n + 1) .CubiertaTarjeta {
-        height: 400px;
-    }
-
-    #galeriaPublica .TarjetaColeccion:nth-child(4n + 2) .CubiertaTarjeta {
-        height: 280px;
-    }
-}
-
 @media (max-width: 900px) {
     .CabeceraPanel {
         gap: 24px;
@@ -586,29 +605,17 @@
     }
 
     #galeriaPublica .TarjetaColeccion {
-        margin-bottom: 32px;
-    }
-
-    #galeriaPublica .CubiertaTarjeta,
-    #galeriaPublica .TarjetaColeccion:nth-child(3n + 1) .CubiertaTarjeta,
-    #galeriaPublica .TarjetaColeccion:nth-child(4n + 2) .CubiertaTarjeta,
-    #galeriaPublica.Filtrando .CubiertaTarjeta {
-        height: 280px;
-    }
-
-    #galeriaPublica .NombreColeccion {
-        margin-top: 12px;
-        font-size: 18px;
+        margin-bottom: 20px;
     }
 
     #galeriaPublica.GaleriaColecciones.Filtrando {
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 28px 16px;
+        gap: 20px 16px;
     }
 
     #galeria {
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 28px 16px;
+        gap: 20px 16px;
     }
 
     .FlechaVisor.Izquierda {
@@ -641,13 +648,6 @@
 
     #galeriaPublica.GaleriaColecciones {
         columns: 1;
-    }
-
-    #galeriaPublica .CubiertaTarjeta,
-    #galeriaPublica .TarjetaColeccion:nth-child(3n + 1) .CubiertaTarjeta,
-    #galeriaPublica .TarjetaColeccion:nth-child(4n + 2) .CubiertaTarjeta,
-    #galeriaPublica.Filtrando .CubiertaTarjeta {
-        height: 380px;
     }
 
     #galeriaPublica.GaleriaColecciones.Filtrando {
