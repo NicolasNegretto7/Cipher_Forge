@@ -18,8 +18,8 @@ body.AuthPixie {
     align-items: center;
     justify-content: space-between;
     gap: 24px;
-    min-height: 72px;
-    padding: 18px clamp(20px, 5vw, 56px);
+    min-height: 80px;
+    padding: 20px clamp(24px, 5vw, 64px);
     border-bottom: 1px solid var(--borde);
     background: var(--superficie);
 }

@@ -67,13 +67,11 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 28px;
-    padding: 22px clamp(24px, 5vw, 64px);
-    background: rgba(251, 249, 245, 0.94);
-    backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
+    gap: 24px;
+    min-height: 80px;
+    padding: 20px clamp(24px, 5vw, 64px);
+    background: var(--superficie);
     border-bottom: 1px solid var(--borde);
-    transition: background var(--transicion), border-color var(--transicion);
 }
 
 /* Identidad de Marca: 18px, bold, tracking 6px, alineación original estricta */
@@ -520,10 +518,10 @@ body {
 /* 7. Adaptación móvil y pantallas pequeñas --------------------------------- */
 @media (max-width: 960px) {
     .Barra {
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 20px 24px;
-        gap: 16px;
+        flex-wrap: wrap;
+        min-height: 64px;
+        padding: 16px 20px;
+        gap: 12px;
     }
 
     .Accesos {
