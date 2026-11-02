@@ -3,6 +3,8 @@ import {
     listarHashtags,
 } from "../../services/colecciones/coleccionesService.js";
 
+const MAX_TAG = 35;
+
 export async function configurarTags(coleccion) {
     const campo = document.getElementById("tagInput");
     const lista = document.getElementById("listaTags");
@@ -59,13 +61,14 @@ export async function configurarTags(coleccion) {
     campo.addEventListener("input", function () {
         const limpio = campo.value
             .toLowerCase()
-            .replace(/[^a-záéíóúüñ0-9]/gi, "");
+            .replace(/[^a-záéíóúüñ0-9]/gi, "")
+            .slice(0, MAX_TAG);
         if (limpio !== campo.value) campo.value = limpio;
     });
     campo.addEventListener("keydown", async function (evento) {
         if (evento.key !== "Enter") return;
         evento.preventDefault();
-        const tag = campo.value.trim().replace(/^#/, "").toLowerCase();
+        const tag = campo.value.trim().replace(/^#/, "").toLowerCase().slice(0, MAX_TAG);
         if (tag && !tags.includes(tag)) {
             const nuevosTags = tags.slice();
             nuevosTags.push(tag);

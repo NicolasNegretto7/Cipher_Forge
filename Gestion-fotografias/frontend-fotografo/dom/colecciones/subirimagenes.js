@@ -39,7 +39,7 @@ const campoTitulo = document.getElementById("nombreColeccion");
 const campoDescripcion = document.getElementById("descripcionColeccionTexto");
 const LIMITE_IMAGEN_BYTES = 30 * 1024 * 1024;
 const LIMITE_VIDEO_BYTES = 800 * 1024 * 1024;
-const MAX_TITULO = 60;
+const MAX_TITULO = 45;
 const MAX_DESCRIPCION = 90;
 
 let archivos = [];
@@ -336,6 +336,20 @@ function configurarCampoEditable(campo, clave) {
         if (typeof document.execCommand === "function") {
             document.execCommand("insertText", false, texto);
         }
+    });
+    // Límite real de escritura (equivale al maxlength de los <input>).
+    campo.addEventListener("input", function () {
+        const maximo = clave === "titulo" ? MAX_TITULO : MAX_DESCRIPCION;
+        const texto = campo.textContent || "";
+        if (texto.length <= maximo) return;
+        campo.textContent = texto.slice(0, maximo);
+        const rango = document.createRange();
+        rango.selectNodeContents(campo);
+        rango.collapse(false);
+        const seleccion = window.getSelection();
+        if (!seleccion) return;
+        seleccion.removeAllRanges();
+        seleccion.addRange(rango);
     });
     // Sin Enter no se guarda: se restaura el último valor.
     campo.addEventListener("blur", function () {
