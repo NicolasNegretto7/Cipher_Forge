@@ -249,10 +249,10 @@
 
 .BotonPublicar {
     padding: 8px 13px;
-    border: 1px solid var(--borde-fuerte);
+    border: 1px solid var(--verde-oscuro);
     border-radius: var(--radio-pequeno);
-    color: var(--tinta-media);
-    background: transparent;
+    color: #fbfcfb;
+    background: var(--verde-oscuro);
     font-size: 12px;
     font-weight: 600;
     line-height: 1.2;
@@ -262,9 +262,9 @@
 }
 
 .BotonPublicar:hover:not(:disabled) {
-    border-color: var(--verde);
-    color: var(--verde-oscuro);
-    background: var(--verde-suave);
+    border-color: var(--verde-hover);
+    color: #fbfcfb;
+    background: var(--verde-hover);
 }
 
 .BotonPublicar .FlechaPublicar {
