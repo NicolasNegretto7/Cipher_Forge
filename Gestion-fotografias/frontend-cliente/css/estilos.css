@@ -448,23 +448,36 @@ th {
 
 /* Acceso actual: login, registro y verificación --------------------------- */
 body.AuthPixie {
+    /* Misma voz tipográfica que la landing: serif editorial para títulos y
+       sans nativa del sistema para la interfaz. */
+    --fuente-titulo: "Palatino Linotype", "Book Antiqua", Palatino, Georgia,
+        "Times New Roman", serif;
+    --fuente-texto: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica,
+        Arial, sans-serif;
+
     min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    background: var(--fondo);
+    font-family: var(--fuente-texto);
+    font-size: 16px;
+    line-height: 1.65;
+    background: #ffffff;
 }
 
 body.AuthPixie .AuthBarra {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 3;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 24px;
+    width: 50%;
     min-height: 80px;
     margin: 0;
     padding: 20px clamp(24px, 5vw, 64px);
-    border-bottom: 1px solid var(--borde);
+    border: 0;
     color: inherit;
-    background: var(--superficie);
+    background: transparent;
     text-align: left;
 }
 
@@ -505,40 +518,75 @@ body.AuthPixie .AuthBarra {
 }
 
 .AuthCentro {
-    flex: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    width: 100%;
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    background: #ffffff;
+}
+
+.AuthPanelFormulario {
     display: flex;
-    justify-content: center;
     align-items: center;
-    width: min(440px, 100%);
-    margin: 0 auto;
-    padding: 48px 24px 72px;
+    justify-content: center;
+    min-height: 100vh;
+    padding: clamp(104px, 14vh, 148px) clamp(24px, 5vw, 64px) clamp(48px, 8vh, 80px);
+    background: #ffffff;
+}
+
+.AuthPanelImagen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: clamp(28px, 4vw, 48px);
+    overflow: hidden;
+    background: var(--fondo);
+}
+
+.AuthPanelImagen img {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 86vh;
+    object-fit: contain;
+    border: 1px solid var(--borde);
+    border-radius: var(--radio);
+    background: var(--superficie);
+    box-shadow: 0 24px 60px -38px rgb(29 28 25 / 45%);
 }
 
 .AuthCaja {
     width: 100%;
-    margin-left: 0;
-    padding: clamp(28px, 4vw, 36px);
-    border: 1px solid var(--borde);
-    border-radius: var(--radio);
-    background: var(--superficie);
-    box-shadow: var(--sombra-suave);
-    text-align: center;
+    max-width: 430px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    text-align: left;
 }
 
 .AuthCaja h1 {
     margin: 0;
-    font-size: 26px;
-    line-height: 1.15;
-    letter-spacing: -0.02em;
-    text-align: center;
+    font-family: var(--fuente-titulo);
+    font-size: clamp(26px, 2.4vw, 32px);
+    font-weight: 500;
+    line-height: 1.08;
+    letter-spacing: -0.035em;
+    text-align: left;
 }
 
 .AuthSubtitulo {
     margin: 10px 0 0;
-    color: var(--gris-texto);
-    font-size: 14px;
-    line-height: 1.5;
-    text-align: center;
+    color: var(--tinta-media);
+    font-size: 16px;
+    line-height: 1.7;
+    text-align: left;
 }
 
 .AuthCaja h2 {
@@ -547,8 +595,8 @@ body.AuthPixie .AuthBarra {
     font-family: var(--fuente-texto);
     font-size: 11px;
     font-weight: 700;
-    letter-spacing: 0.16em;
-    text-align: center;
+    letter-spacing: 0.22em;
+    text-align: left;
     text-transform: uppercase;
 }
 
@@ -578,7 +626,7 @@ body.AuthPixie .AuthBarra {
     padding: 12px 13px;
     border: 1px solid var(--borde-fuerte);
     border-radius: var(--radio);
-    background: var(--superficie);
+    background: #ffffff;
     font-size: 14px;
 }
 
@@ -601,6 +649,7 @@ body.AuthPixie .AuthBarra {
     border-radius: var(--radio);
     font-size: 14px;
     font-weight: 600;
+    letter-spacing: 0.02em;
 }
 
 .AuthCaja .btn-principal:hover {
@@ -610,14 +659,15 @@ body.AuthPixie .AuthBarra {
 
 .AuthCaja .mensaje-perfil {
     margin-top: 16px;
-    font-size: 13px;
+    font-size: 14px;
 }
 
 .AuthEnlace {
     margin-top: 24px;
     color: var(--gris-texto);
-    font-size: 13px;
-    text-align: center;
+    font-size: 14px;
+    line-height: 1.6;
+    text-align: left;
 }
 
 .AuthEnlace a {
@@ -700,5 +750,60 @@ body.AuthPixie .AuthBarra {
 
     .MosaicoPresentacion {
         columns: 2;
+    }
+}
+
+/* Acceso partido: adaptación --------------------------------------------- */
+@media (max-width: 960px) {
+    body.AuthPixie {
+        display: flex;
+        flex-direction: column;
+    }
+
+    body.AuthPixie .AuthBarra {
+        position: static;
+        width: 100%;
+        min-height: 80px;
+        padding: 20px clamp(20px, 5vw, 40px);
+        border: 0;
+        background: #ffffff;
+    }
+
+    .AuthCentro {
+        flex: 1;
+        grid-template-columns: minmax(0, 1fr);
+        min-height: 0;
+        padding: 0;
+    }
+
+    .AuthPanelFormulario {
+        min-height: 0;
+        padding: 48px 24px 72px;
+    }
+
+    .AuthPanelImagen {
+        display: none;
+    }
+
+    .AuthCaja {
+        max-width: 430px;
+        margin: 0 auto;
+        padding: 0;
+    }
+}
+
+@media (max-width: 760px) {
+    body.AuthPixie .AuthBarra {
+        min-height: 64px;
+        padding: 16px 20px;
+    }
+
+    .AuthPanelFormulario {
+        padding: 40px 20px 64px;
+    }
+
+    .AuthCaja {
+        margin: 0 auto;
+        padding: 0;
     }
 }

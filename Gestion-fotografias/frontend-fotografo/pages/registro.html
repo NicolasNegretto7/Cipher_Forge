@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Registro</title>
         <link rel="stylesheet" href="../css/base.css" />
-        <link rel="stylesheet" href="../css/estilos.css" />
+        <link rel="stylesheet" href="../css/estilos.css?v=split4" />
     </head>
     <body class="AuthPixie">
         <header class="AuthBarra">
@@ -21,101 +21,110 @@
         </header>
 
         <main class="AuthCentro">
-            <section class="AuthCaja">
-                <h1>Crear Cuenta</h1>
-                <p class="AuthSubtitulo">Regístrate como fotógrafo</p>
+            <div class="AuthPanelFormulario">
+                <section class="AuthCaja">
+                    <h1>Crear Cuenta</h1>
+                    <p class="AuthSubtitulo">Regístrate como fotógrafo</p>
 
-                <h2>Completa tus datos</h2>
-                <form id="formRegistro">
-                    <div class="form-group">
-                        <label for="nombre">Nombre completo</label>
-                        <input
-                            type="text"
-                            id="nombre"
-                            name="nombre"
-                            maxlength="30"
-                            pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]+"
-                            title="Solo se permiten letras y espacios"
-                            placeholder="Tu nombre"
-                            autocomplete="name"
-                            required
-                        />
-                    </div>
+                    <h2>Completa tus datos</h2>
+                    <form id="formRegistro">
+                        <div class="form-group">
+                            <label for="nombre">Nombre completo</label>
+                            <input
+                                type="text"
+                                id="nombre"
+                                name="nombre"
+                                maxlength="30"
+                                pattern="[A-Za-zÁÉÍÓÚÜÑáéíóúüñ ]+"
+                                title="Solo se permiten letras y espacios"
+                                placeholder="Tu nombre"
+                                autocomplete="name"
+                                required
+                            />
+                        </div>
 
-                    <div class="form-group">
-                        <label for="correo">Correo electrónico</label>
-                        <input
-                            type="email"
-                            id="correo"
-                            name="correo"
-                            placeholder="tugmail@gmail.com"
-                            autocomplete="email"
-                            title="Usa un correo válido"
-                            required
-                        />
-                    </div>
+                        <div class="form-group">
+                            <label for="correo">Correo electrónico</label>
+                            <input
+                                type="email"
+                                id="correo"
+                                name="correo"
+                                placeholder="tugmail@gmail.com"
+                                autocomplete="email"
+                                title="Usa un correo válido"
+                                required
+                            />
+                        </div>
 
-                    <div class="form-group">
-                        <label for="contraseña">Contraseña</label>
-                        <input
-                            type="password"
-                            id="contraseña"
-                            name="contraseña"
-                            placeholder="Mínimo 8 caracteres"
-                            autocomplete="new-password"
-                            minlength="8"
-                            maxlength="30"
-                            title="La contraseña debe tener entre 8 y 30 caracteres"
-                            required
-                        />
-                    </div>
+                        <div class="form-group">
+                            <label for="contraseña">Contraseña</label>
+                            <input
+                                type="password"
+                                id="contraseña"
+                                name="contraseña"
+                                placeholder="Mínimo 8 caracteres"
+                                autocomplete="new-password"
+                                minlength="8"
+                                maxlength="30"
+                                title="La contraseña debe tener entre 8 y 30 caracteres"
+                                required
+                            />
+                        </div>
 
-                    <div class="form-group">
-                        <label for="telefono">Número de teléfono (opcional)</label>
-                        <input
-                            type="tel"
-                            id="telefono"
-                            name="telefono"
-                            placeholder="Tu número"
-                            autocomplete="tel"
-                            inputmode="numeric"
-                            maxlength="9"
-                            minlength="9"
-                            pattern="[0-9]{9}"
-                            title="Ingresá exactamente 9 números, sin espacios ni guiones"
-                        />
-                    </div>
+                        <div class="form-group">
+                            <label for="telefono">Número de teléfono (opcional)</label>
+                            <input
+                                type="tel"
+                                id="telefono"
+                                name="telefono"
+                                placeholder="Tu número"
+                                autocomplete="tel"
+                                inputmode="numeric"
+                                maxlength="9"
+                                minlength="9"
+                                pattern="[0-9]{9}"
+                                title="Ingresá exactamente 9 números, sin espacios ni guiones"
+                            />
+                        </div>
 
-                    <div class="form-group CampoTerminos">
-                        <label class="OpcionTerminos" for="terminos">
-                            <input id="terminos" name="terminos" type="checkbox" required />
-                            <span>
-                                He leído y acepto los Términos y Condiciones y la Política de
-                                Privacidad.
-                            </span>
-                        </label>
-                        <details class="ResumenTerminos">
-                            <summary>Leer información importante</summary>
-                            <p>
-                                Eres responsable del contenido que publiques y de contar con las
-                                autorizaciones necesarias. El tratamiento de datos debe respetar la
-                                Ley 18.331 y la privacidad de clientes e invitados.
-                            </p>
-                        </details>
-                    </div>
+                        <div class="form-group CampoTerminos">
+                            <label class="OpcionTerminos" for="terminos">
+                                <input id="terminos" name="terminos" type="checkbox" required />
+                                <span>
+                                    He leído y acepto los Términos y Condiciones y la Política de
+                                    Privacidad.
+                                </span>
+                            </label>
+                            <details class="ResumenTerminos">
+                                <summary>Leer información importante</summary>
+                                <p>
+                                    Eres responsable del contenido que publiques y de contar con las
+                                    autorizaciones necesarias. El tratamiento de datos debe respetar la
+                                    Ley 18.331 y la privacidad de clientes e invitados.
+                                </p>
+                            </details>
+                        </div>
 
-                    <div class="margen-arriba">
-                        <button type="submit" class="btn btn-principal">Registrarse</button>
-                    </div>
-                </form>
+                        <div class="margen-arriba">
+                            <button type="submit" class="btn btn-principal">Registrarse</button>
+                        </div>
+                    </form>
 
-                <p id="mensajeRegistro" class="mensaje-perfil" role="status"></p>
+                    <p id="mensajeRegistro" class="mensaje-perfil" role="status"></p>
 
-                <p class="AuthEnlace">
-                    ¿Ya tienes cuenta?
-                    <a id="enlaceLogin" href="login.html">Inicia sesión aquí.</a>
-                </p>
-            </section>
+                    <p class="AuthEnlace">
+                        ¿Ya tienes cuenta?
+                        <a id="enlaceLogin" href="login.html">Inicia sesión aquí.</a>
+                    </p>
+                </section>
+            </div>
+
+            <aside class="AuthPanelImagen">
+                <img
+                    src="../../lading-page/Video%20y%20Imagenes/FotoFotografoDemostrativa.PNG"
+                    alt="Vista previa del espacio de trabajo para fotógrafos"
+                />
+            </aside>
         </main>
         <script type="module" src="../dom/auth/registro.js"></script>
     </body>
