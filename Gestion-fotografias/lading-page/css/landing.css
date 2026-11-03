@@ -137,8 +137,10 @@ body {
 .Hero {
     display: grid;
     grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
-    align-items: center;
-    gap: clamp(48px, 7vw, 96px);
+    grid-template-rows: auto auto;
+    align-content: center;
+    align-items: stretch;
+    gap: 40px clamp(48px, 7vw, 96px);
     width: 100%;
     max-width: 1440px;
     min-height: calc(100vh - 120px);
@@ -151,11 +153,14 @@ body {
 }
 
 .HeroContenido {
+    grid-column: 1;
+    grid-row: 1;
     max-width: 640px;
 }
 
 .HeroCartel {
-    display: inline-block;
+    display: block;
+    width: fit-content;
     margin: 0 0 22px;
     color: var(--verde-oscuro);
     font-size: 11px;
@@ -178,7 +183,7 @@ body {
 }
 
 .HeroParrafo {
-    margin: 0 0 40px;
+    margin: 0;
     color: var(--tinta-media);
     font-size: 18px;
     line-height: 1.7;
@@ -187,9 +192,12 @@ body {
 }
 
 .HeroBotones {
+    grid-column: 1;
+    grid-row: 2;
     display: flex;
     gap: 16px;
     flex-wrap: wrap;
+    align-self: start;
 }
 
 .HeroBotones .BotonHero {
@@ -243,9 +251,13 @@ body {
 /* Imagen de vista previa de la plataforma */
 .HeroImagen {
     display: flex;
+    grid-column: 2;
+    grid-row: 1;
+    align-self: stretch;
     justify-content: center;
     align-items: center;
     position: relative;
+    min-height: 0;
 }
 
 .HeroImagen::before {
@@ -263,9 +275,9 @@ body {
     display: block;
     width: 100%;
     max-width: 540px;
-    aspect-ratio: 4 / 5;
+    height: 100%;
     object-fit: cover;
-    object-position: top center;
+    object-position: center;
     border: 1px solid var(--borde);
     border-radius: var(--radio-suave);
     box-shadow: var(--sombra-editorial);
@@ -531,18 +543,35 @@ body {
 
     .Hero {
         grid-template-columns: 1fr;
+        grid-template-rows: auto;
+        align-content: normal;
+        align-items: start;
         gap: 48px;
         min-height: 0;
         padding: 48px 24px 64px;
+    }
+
+    .HeroContenido,
+    .HeroBotones,
+    .HeroImagen {
+        grid-column: auto;
+        grid-row: auto;
     }
 
     .HeroContenido h1 {
         font-size: 2.6rem;
     }
 
+    .HeroImagen {
+        align-self: start;
+        min-height: auto;
+    }
+
     .HeroImagen img {
         max-width: 100%;
-        aspect-ratio: 16 / 10;
+        height: auto;
+        aspect-ratio: 1171 / 693;
+        object-fit: contain;
     }
 
     .ContactoPanel {
