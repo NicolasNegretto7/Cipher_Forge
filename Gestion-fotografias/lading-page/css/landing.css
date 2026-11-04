@@ -205,28 +205,27 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 220px;
-    height: 52px;
-    padding: 0 28px;
+    width: auto;
+    height: 42px;
+    padding: 0 22px;
     border: 1px solid transparent;
     border-radius: var(--radio);
     background: var(--verde);
     color: #ffffff;
     font-family: var(--fuente-sans);
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
     letter-spacing: 0.02em;
     text-decoration: none;
     text-align: center;
+    white-space: nowrap;
     cursor: pointer;
-    box-shadow: var(--sombra-sutil);
     transition: all var(--transicion);
 }
 
 .HeroBotones .BotonHero:hover {
     background: var(--verde-hover);
-    transform: translateY(-2px);
-    box-shadow: var(--sombra-editorial);
+    transform: translateY(-1px);
 }
 
 /* El botón secundario (Iniciar sesión) en contraste complementario */
