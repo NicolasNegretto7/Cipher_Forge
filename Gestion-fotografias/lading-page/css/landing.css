@@ -111,6 +111,7 @@ body {
     letter-spacing: 0.02em;
     text-decoration: none;
     white-space: nowrap;
+    cursor: pointer;
     transition: all var(--transicion);
 }
 
@@ -121,13 +122,13 @@ body {
     transform: translateY(-1px);
 }
 
-.Accesos .BotonHero:last-child {
+.Accesos .BotonHero.BotonPrimario {
     background: var(--verde);
     border-color: var(--verde);
     color: #ffffff;
 }
 
-.Accesos .BotonHero:last-child:hover {
+.Accesos .BotonHero.BotonPrimario:hover {
     background: var(--verde-hover);
     border-color: var(--verde-hover);
     color: #ffffff;
@@ -228,14 +229,14 @@ body {
     box-shadow: var(--sombra-editorial);
 }
 
-/* El segundo botón (Cliente) en contraste complementario */
-.HeroBotones .BotonHero:nth-child(2) {
+/* El botón secundario (Iniciar sesión) en contraste complementario */
+.HeroBotones .BotonHero.BotonSecundario {
     background: var(--superficie);
     border-color: var(--borde-fuerte);
     color: var(--tinta);
 }
 
-.HeroBotones .BotonHero:nth-child(2):hover {
+.HeroBotones .BotonHero.BotonSecundario:hover {
     background: var(--verde-suave);
     border-color: var(--verde);
     color: var(--verde-oscuro);
@@ -527,7 +528,172 @@ body {
     color: var(--texto-gris);
 }
 
-/* 7. Adaptación móvil y pantallas pequeñas --------------------------------- */
+/* 7. Modal de selección de rol --------------------------------------------- */
+.ModalRol {
+    position: fixed;
+    inset: 0;
+    z-index: 300;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgb(20 20 18 / 55%);
+    backdrop-filter: blur(3px);
+    overscroll-behavior: contain;
+}
+
+.ModalRol[hidden] {
+    display: none;
+}
+
+body.ModalAbierto {
+    overflow: hidden;
+}
+
+.ModalRolCaja {
+    position: relative;
+    width: min(420px, 100%);
+    padding: 40px 32px 34px;
+    border: 1px solid var(--borde);
+    border-top: 3px solid var(--verde-oscuro);
+    border-radius: var(--radio-suave);
+    background: var(--superficie);
+    box-shadow: var(--sombra-editorial);
+    text-align: center;
+    animation: ModalRolEntrada 240ms cubic-bezier(0.2, 0.6, 0.2, 1);
+}
+
+@keyframes ModalRolEntrada {
+    from {
+        opacity: 0;
+        transform: translateY(10px) scale(0.985);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ModalRolCaja {
+        animation: none;
+    }
+}
+
+.ModalRolCerrar {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--texto-gris);
+    font-family: var(--fuente-sans);
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background var(--transicion), color var(--transicion);
+}
+
+.ModalRolCerrar:hover {
+    background: var(--fondo-alt);
+    color: var(--tinta);
+}
+
+.ModalRolEtiqueta {
+    margin: 0;
+    color: var(--verde-oscuro);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+}
+
+.ModalRolTitulo {
+    margin: 10px 0 0;
+    font-family: var(--fuente-display);
+    font-size: 28px;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+}
+
+.ModalRolOpciones {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin-top: 30px;
+}
+
+.RolOpcion {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 4px;
+    border: 0;
+    border-radius: var(--radio-suave);
+    background: transparent;
+    color: var(--tinta);
+    font-family: var(--fuente-sans);
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    cursor: pointer;
+}
+
+.RolOpcion:focus-visible {
+    outline: 2px solid var(--verde);
+    outline-offset: 4px;
+}
+
+.RolCirculo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 104px;
+    height: 104px;
+    border: 1px solid var(--borde-fuerte);
+    border-radius: 50%;
+    background: var(--fondo);
+    color: var(--verde-oscuro);
+    transition: background var(--transicion), border-color var(--transicion),
+        color var(--transicion), transform var(--transicion),
+        box-shadow var(--transicion);
+}
+
+.RolCirculo svg {
+    width: 38px;
+    height: 38px;
+}
+
+.RolOpcion:hover .RolCirculo,
+.RolOpcion:focus-visible .RolCirculo {
+    border-color: var(--verde-oscuro);
+    background: var(--verde-oscuro);
+    color: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: 0 14px 28px -16px rgb(26 74 55 / 60%);
+}
+
+.RolNombre {
+    color: var(--tinta);
+    transition: color var(--transicion);
+}
+
+.RolOpcion:hover .RolNombre,
+.RolOpcion:focus-visible .RolNombre {
+    color: var(--verde-oscuro);
+}
+
+/* 8. Adaptación móvil y pantallas pequeñas --------------------------------- */
 @media (max-width: 960px) {
     .Barra {
         flex-wrap: wrap;
@@ -601,5 +767,36 @@ body {
 
     .ContactoCampoCompleto {
         grid-column: auto;
+    }
+
+    .ModalRol {
+        padding: 18px;
+    }
+
+    .ModalRolCaja {
+        padding: 36px 20px 28px;
+    }
+
+    .ModalRolTitulo {
+        font-size: 24px;
+    }
+
+    .ModalRolOpciones {
+        gap: 10px;
+        margin-top: 26px;
+    }
+
+    .RolCirculo {
+        width: 88px;
+        height: 88px;
+    }
+
+    .RolCirculo svg {
+        width: 32px;
+        height: 32px;
+    }
+
+    .RolNombre {
+        font-size: 13px;
     }
 }
