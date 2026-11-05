@@ -13,7 +13,7 @@ export async function configurarTags(coleccion) {
     let guardando = false;
     // Debounce de las sugerencias y contador para descartar respuestas obsoletas.
     let temporizadorSugerencias = null;
-    let peticionSugerencias = 0;
+    let peticionSugerencias = 0; //ha
 
     function mostrarTags() {
         lista.replaceChildren();
