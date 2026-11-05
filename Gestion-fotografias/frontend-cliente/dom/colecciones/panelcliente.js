@@ -79,8 +79,8 @@ async function mostrarColecciones() {
     });
     // Insertar todas las tarjetas de golpe: con columnas CSS, añadirlas una a
     // una (esperando cada portada) reequilibraba el mosaico y las tarjetas ya
-    // colocadas cambiaban de sitio. Las portadas se cargan en paralelo al final.
-    const cargasPortada = [];
+    // colocadas cambiaban de sitio. Cada portada se marca para carga diferida
+    // y se descarga sola cuando entra en el viewport (Vanilla LazyLoad).
     for (const coleccion of conArchivos) {
         // En el mosaico público solo se ve el nombre de la colección y sus
         // tags: el nombre del fotógrafo no se muestra.
@@ -101,11 +101,8 @@ async function mostrarColecciones() {
         tarjeta.appendChild(etiquetas);
         galeria.appendChild(tarjeta);
         tarjetas.set(coleccion.id, { tarjeta: tarjeta, coleccion: coleccion });
-        cargasPortada.push(
-            cargarPortada(tarjeta.querySelector(".CubiertaTarjeta"), coleccion),
-        );
+        cargarPortada(tarjeta.querySelector(".CubiertaTarjeta"), coleccion);
     }
-    await Promise.all(cargasPortada);
     aplicarFiltroTags();
 }
 

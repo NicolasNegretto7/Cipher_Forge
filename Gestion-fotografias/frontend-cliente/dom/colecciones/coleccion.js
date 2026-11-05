@@ -1,7 +1,11 @@
 import { detalleColeccion } from "../../services/colecciones/coleccionesService.js";
 import { listarMultimedia } from "../../services/multimedia/multimediaService.js";
 import { descargarMultimedia } from "../multimedia/descargas.js";
-import { cargarVista, liberarVistas } from "../multimedia/multimedia.js";
+import {
+    cargarVista,
+    cargarVistaDiferida,
+    liberarVistas,
+} from "../multimedia/multimedia.js";
 import { mostrarToast } from "../comun/interfaz.js";
 import { cargarFavoritos, crearBotonFavorito } from "../favoritos/favoritos.js";
 import { requiereSesion } from "../comun/sesion.js";
@@ -97,6 +101,7 @@ function crearTarjeta(archivo, indice) {
     const vista = document.createElement(archivo.tipo === "video" ? "video" : "img");
     vista.className = "VistaMiniatura";
     vista.tabIndex = 0;
+    if (archivo.tipo !== "video") vista.alt = archivo.titulo || "Fotografía";
     vista.setAttribute("aria-label", archivo.titulo || "Abrir archivo");
     vista.addEventListener("click", async function () {
         await abrirVisor(indice);
@@ -151,7 +156,7 @@ async function iniciar() {
         document.getElementById("estadoVacio").hidden = archivos.length > 0;
         for (let indice = 0; indice < archivos.length; indice++) {
             const vista = crearTarjeta(archivos[indice], indice);
-            await cargarVista(vista, archivos[indice]);
+            cargarVistaDiferida(vista, archivos[indice]);
         }
     } catch (error) {
         mensajeError.textContent = error.message;

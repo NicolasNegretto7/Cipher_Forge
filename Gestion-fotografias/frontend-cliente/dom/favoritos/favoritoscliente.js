@@ -46,7 +46,7 @@ async function iniciar() {
             const tarjeta = crearTarjetaColeccion(coleccion);
             tarjeta.appendChild(crearBotonQuitar(coleccion, tarjeta));
             galeria.appendChild(tarjeta);
-            await cargarPortada(tarjeta.querySelector(".CubiertaTarjeta"), coleccion);
+            cargarPortada(tarjeta.querySelector(".CubiertaTarjeta"), coleccion);
         }
     } catch (error) {
         mensajeError.textContent = error.message;

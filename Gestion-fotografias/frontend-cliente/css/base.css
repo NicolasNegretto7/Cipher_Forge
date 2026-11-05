@@ -427,6 +427,18 @@ hr {
     outline-offset: 4px;
 }
 
+/* 5b. Carga diferida de medios (Vanilla LazyLoad) -------------------------- */
+/* Mientras no exista src se conserva el recuadro con el fondo de marca y se
+   oculta el texto alternativo, evitando saltos visuales durante la espera. */
+.LazyMedia:not([src]):not([srcset]) {
+    color: transparent;
+    background: var(--fondo-alt);
+}
+
+.LazyMedia.MediaError {
+    background: var(--fondo-alt);
+}
+
 .VistaNoDisponible {
     min-height: 180px;
     background: var(--fondo-alt);

@@ -4,14 +4,24 @@ export async function listarMultimedia(coleccionId) {
     return await enviarJson("/colecciones/" + coleccionId + "/multimedia", "GET");
 }
 
-export async function obtenerVistaPrevia(id) {
-    const archivo = await obtenerArchivo("/multimedia/" + id + "/vista-previa");
+// Rutas de los binarios derivados. Se exponen para que la capa DOM pueda
+// declarar el origen diferido (data-src) sin repetir la ruta en dos sitios.
+export function rutaVistaPrevia(id) {
+    return "/multimedia/" + id + "/vista-previa";
+}
+
+export function rutaPoster(id) {
+    return "/multimedia/" + id + "/poster";
+}
+
+// Descarga un binario de la API por su ruta, con la sesión activa.
+export async function obtenerBinario(ruta) {
+    const archivo = await obtenerArchivo(ruta);
     return archivo.blob;
 }
 
-export async function obtenerPoster(id) {
-    const archivo = await obtenerArchivo("/multimedia/" + id + "/poster");
-    return archivo.blob;
+export async function obtenerVistaPrevia(id) {
+    return await obtenerBinario(rutaVistaPrevia(id));
 }
 
 // Entrega los datos necesarios para descargar. El enlace se crea en dom/multimedia/descargas.js.

@@ -162,7 +162,7 @@ async function cargarColecciones() {
                 guardarAcceso(coleccion.id, coleccion.titulo);
                 const tarjeta = crearTarjetaColeccion(coleccion);
                 galeria.appendChild(tarjeta);
-                await cargarPortada(tarjeta.querySelector(".CubiertaTarjeta"), coleccion);
+                cargarPortada(tarjeta.querySelector(".CubiertaTarjeta"), coleccion);
             }
         } catch (error) {
             if (error.status !== 403 && error.status !== 404 && error.message) errores.push(error.message);
