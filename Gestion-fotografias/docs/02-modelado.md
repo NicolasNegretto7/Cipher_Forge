@@ -1,4 +1,4 @@
-﻿# 2. Arquitectura Propuesta, Modelado y Justificación Tecnológica
+# Arquitectura Propuesta, Modelado y Justificación Tecnológica
 
 ---
 

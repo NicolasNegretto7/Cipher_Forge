@@ -1,4 +1,4 @@
-# 9. Control de Cambios Técnicos
+# Control de Cambios Técnicos
 
 ## ¿Para qué sirve este documento?
 
