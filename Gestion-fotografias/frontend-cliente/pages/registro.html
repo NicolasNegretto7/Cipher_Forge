@@ -58,17 +58,120 @@
 
                         <div class="form-group">
                             <label for="contraseña">Contraseña</label>
-                            <input
-                                type="password"
-                                id="contraseña"
-                                name="contraseña"
-                                placeholder="Mínimo 8 caracteres"
-                                autocomplete="new-password"
-                                minlength="8"
-                                maxlength="30"
-                                title="La contraseña debe tener entre 8 y 30 caracteres"
-                                required
-                            />
+                            <div class="CampoContrasena">
+                                <input
+                                    type="password"
+                                    id="contraseña"
+                                    name="contraseña"
+                                    placeholder="Mínimo 8 caracteres"
+                                    autocomplete="new-password"
+                                    minlength="8"
+                                    maxlength="30"
+                                    title="La contraseña debe tener entre 8 y 30 caracteres"
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    class="BotonOjo"
+                                    aria-label="Mostrar contraseña"
+                                    aria-pressed="false"
+                                    title="Mostrar contraseña"
+                                >
+                                    <svg
+                                        class="IconoOjo IconoVer"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="1.8"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        aria-hidden="true"
+                                    >
+                                        <path
+                                            d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"
+                                        />
+                                        <circle cx="12" cy="12" r="3" />
+                                    </svg>
+                                    <svg
+                                        class="IconoOjo IconoOcultar"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="1.8"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        aria-hidden="true"
+                                    >
+                                        <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
+                                        <path
+                                            d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 11 7 11 7a13.16 13.16 0 0 1-1.67 2.68"
+                                        />
+                                        <path
+                                            d="M6.61 6.61A13.5 13.5 0 0 0 1 12s4 7 11 7a10.4 10.4 0 0 0 5.39-1.39"
+                                        />
+                                        <line x1="2" y1="2" x2="22" y2="22" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="confirmarContraseña">Confirmar contraseña</label>
+                            <div class="CampoContrasena">
+                                <input
+                                    type="password"
+                                    id="confirmarContraseña"
+                                    name="confirmarContraseña"
+                                    placeholder="Repite la contraseña"
+                                    autocomplete="new-password"
+                                    minlength="8"
+                                    maxlength="30"
+                                    title="Debe coincidir con la contraseña"
+                                    required
+                                />
+                                <button
+                                    type="button"
+                                    class="BotonOjo"
+                                    aria-label="Mostrar contraseña"
+                                    aria-pressed="false"
+                                    title="Mostrar contraseña"
+                                >
+                                    <svg
+                                        class="IconoOjo IconoVer"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="1.8"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        aria-hidden="true"
+                                    >
+                                        <path
+                                            d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"
+                                        />
+                                        <circle cx="12" cy="12" r="3" />
+                                    </svg>
+                                    <svg
+                                        class="IconoOjo IconoOcultar"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="1.8"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        aria-hidden="true"
+                                    >
+                                        <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
+                                        <path
+                                            d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 11 7 11 7a13.16 13.16 0 0 1-1.67 2.68"
+                                        />
+                                        <path
+                                            d="M6.61 6.61A13.5 13.5 0 0 0 1 12s4 7 11 7a10.4 10.4 0 0 0 5.39-1.39"
+                                        />
+                                        <line x1="2" y1="2" x2="22" y2="22" />
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
 
                         <div class="form-group">

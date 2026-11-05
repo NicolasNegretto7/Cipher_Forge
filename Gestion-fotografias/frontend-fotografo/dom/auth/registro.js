@@ -9,9 +9,25 @@ function mostrarMensaje(elemento, texto, esError) {
     elemento.className = esError ? "mensaje-perfil error" : "mensaje-perfil";
 }
 
+function activarVistaContrasena(input) {
+    if (!input) return;
+    const contenedor = input.closest(".CampoContrasena");
+    const boton = contenedor && contenedor.querySelector(".BotonOjo");
+    if (!boton) return;
+
+    boton.addEventListener("click", function () {
+        const mostrar = input.type === "password";
+        input.type = mostrar ? "text" : "password";
+        boton.setAttribute("aria-pressed", String(mostrar));
+        boton.setAttribute("aria-label", mostrar ? "Ocultar contraseña" : "Mostrar contraseña");
+        boton.setAttribute("title", mostrar ? "Ocultar contraseña" : "Mostrar contraseña");
+    });
+}
+
 const formRegistro = document.getElementById("formRegistro");
 const campoNombre = document.getElementById("nombre");
 const campoContrasena = document.getElementById("contraseña");
+const campoConfirmar = document.getElementById("confirmarContraseña");
 const campoTelefono = document.getElementById("telefono");
 
 const LIMITE_NOMBRE = 30;
@@ -45,8 +61,28 @@ if (campoContrasena) {
         if (campoContrasena.value.length > LIMITE_CONTRASENA) {
             campoContrasena.value = campoContrasena.value.slice(0, LIMITE_CONTRASENA);
         }
+        validarConfirmacion();
     });
 }
+
+if (campoConfirmar) {
+    campoConfirmar.addEventListener("input", function () {
+        if (campoConfirmar.value.length > LIMITE_CONTRASENA) {
+            campoConfirmar.value = campoConfirmar.value.slice(0, LIMITE_CONTRASENA);
+        }
+        validarConfirmacion();
+    });
+}
+
+function validarConfirmacion() {
+    if (!campoConfirmar) return true;
+    const coincide = !campoContrasena || campoConfirmar.value === campoContrasena.value;
+    campoConfirmar.setCustomValidity(coincide ? "" : "Las contraseñas no coinciden");
+    return coincide;
+}
+
+activarVistaContrasena(campoContrasena);
+activarVistaContrasena(campoConfirmar);
 
 if (campoTelefono) {
     campoTelefono.addEventListener("input", function () {
@@ -91,6 +127,12 @@ if (formRegistro) {
         const contrasena = document.getElementById("contraseña").value.slice(0, LIMITE_CONTRASENA);
         const telefono = campoTelefono ? limpiarTelefono(campoTelefono.value).trim() : "";
         const boton = formRegistro.querySelector("button[type=submit]");
+
+        if (!validarConfirmacion()) {
+            mostrarMensaje(mensaje, "Las contraseñas no coinciden.", true);
+            if (campoConfirmar) campoConfirmar.focus();
+            return;
+        }
 
         boton.disabled = true;
         mostrarMensaje(mensaje, "Creando la cuenta...", false);

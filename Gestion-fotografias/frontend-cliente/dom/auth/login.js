@@ -5,6 +5,21 @@ const formulario = document.getElementById("formLogin");
 const mensaje = document.getElementById("mensajeLogin");
 const paginasUrl = new URL("../../pages/", import.meta.url);
 
+function activarVistaContrasena(input) {
+    if (!input) return;
+    const contenedor = input.closest(".CampoContrasena");
+    const boton = contenedor && contenedor.querySelector(".BotonOjo");
+    if (!boton) return;
+
+    boton.addEventListener("click", function () {
+        const mostrar = input.type === "password";
+        input.type = mostrar ? "text" : "password";
+        boton.setAttribute("aria-pressed", String(mostrar));
+        boton.setAttribute("aria-label", mostrar ? "Ocultar contraseña" : "Mostrar contraseña");
+        boton.setAttribute("title", mostrar ? "Ocultar contraseña" : "Mostrar contraseña");
+    });
+}
+
 function abrirPanel() {
     const invitacion = new URLSearchParams(location.search).get("invitacion");
     const destino = invitacion
@@ -44,3 +59,5 @@ const registro = invitacion
     ? "registro.html?invitacion=" + encodeURIComponent(invitacion)
     : "registro.html";
 document.getElementById("enlaceRegistro").href = new URL(registro, paginasUrl).href;
+
+activarVistaContrasena(document.getElementById("contraseña"));

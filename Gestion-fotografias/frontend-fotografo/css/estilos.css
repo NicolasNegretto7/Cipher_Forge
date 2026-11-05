@@ -188,6 +188,65 @@ body.AuthPixie {
     box-shadow: 0 0 0 3px rgb(63 139 109 / 14%);
 }
 
+/* Mostrar u ocultar contraseña (ojo clickeable, diseño genérico) --------- */
+.CampoContrasena {
+    position: relative;
+}
+
+.CampoContrasena input:not([type="checkbox"]) {
+    padding-right: 44px;
+}
+
+.BotonOjo {
+    position: absolute;
+    top: 50%;
+    right: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--gris-texto);
+    cursor: pointer;
+    transform: translateY(-50%);
+    transition:
+        color 0.15s ease,
+        background 0.15s ease;
+}
+
+.BotonOjo:hover {
+    color: var(--verde-oscuro);
+    background: rgb(63 139 109 / 10%);
+}
+
+.BotonOjo:focus-visible {
+    outline: none;
+    color: var(--verde-oscuro);
+    box-shadow: 0 0 0 3px rgb(63 139 109 / 14%);
+}
+
+.BotonOjo svg {
+    width: 20px;
+    height: 20px;
+    pointer-events: none;
+}
+
+.BotonOjo .IconoOcultar {
+    display: none;
+}
+
+.BotonOjo[aria-pressed="true"] .IconoVer {
+    display: none;
+}
+
+.BotonOjo[aria-pressed="true"] .IconoOcultar {
+    display: inline;
+}
+
 .AuthCaja .btn {
     width: 100%;
     padding: 12px 16px;
