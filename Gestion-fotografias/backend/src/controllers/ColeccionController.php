@@ -107,7 +107,8 @@ class ColeccionController
     /**
      * GET /hashtags
      * Lista todos los hashtags existentes con la cantidad de colecciones asociadas (HU27).
-     * Filtro opcional de búsqueda parcial: ?hashtag=palabra (HU27).
+     * Filtro opcional de búsqueda parcial: ?filter=palabra (HU27).
+     * Se mantiene ?hashtag=palabra como alias por compatibilidad con llamadas anteriores.
      * Cada palabra enviada se compara contra el nombre del hashtag y se exige que
      * todas aparezcan (coincidencia parcial, sin distinguir mayúsculas), de modo que
      * "bod" encuentra "bodas" y no hace falta escribir el nombre exacto.
@@ -115,7 +116,12 @@ class ColeccionController
     public function listarHashtags(): void
     {
         $request  = new Request();
-        $busqueda = $request->getQuery('hashtag');
+        $busqueda = $request->getQuery('filter');
+
+        // Compatibilidad: si no se envía 'filter', aceptar el parámetro histórico 'hashtag'.
+        if ($busqueda === null) {
+            $busqueda = $request->getQuery('hashtag');
+        }
 
         if ($busqueda !== null && !is_scalar($busqueda)) {
             Response::error('Error de validación.', 400, ['El filtro de hashtags debe ser un texto.']);
