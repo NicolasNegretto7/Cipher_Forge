@@ -21,6 +21,12 @@ const cajaTags = document.getElementById("buscadorTags");
 const zonaBuscadorTags = document.getElementById("zonaBuscadorTags");
 let colecciones = [];
 let tagsSeleccionados = [];
+// Texto escrito en el buscador: filtra en tiempo real por coincidencia parcial
+// del hashtag, sin exigir pulsar Enter.
+let textoBusqueda = "";
+// Debounce de las sugerencias y contador para descartar respuestas obsoletas.
+let temporizadorSugerencias = null;
+let peticionSugerencias = 0;
 // Tarjetas ya construidas, por id de colección, para poder ocultarlas y
 // reordenarlas al filtrar sin volver a crear el DOM (las imágenes no parpadean).
 const tarjetas = new Map();
@@ -37,6 +43,23 @@ function prioridadTags(coleccion) {
         if (tags.has(tagsSeleccionados[i])) return i;
     }
     return Infinity;
+}
+
+// Coincidencia parcial del texto escrito contra los hashtags de la colección.
+function coincideBusqueda(coleccion) {
+    if (!textoBusqueda) return true;
+    return (coleccion.hashtags || []).some(function (tag) {
+        return normalizarTag(tag).includes(textoBusqueda);
+    });
+}
+
+// Indica si el texto es un hashtag existente (para poder fijarlo con Enter).
+function existeHashtag(tag) {
+    return colecciones.some(function (coleccion) {
+        return (coleccion.hashtags || []).some(function (actual) {
+            return normalizarTag(actual) === tag;
+        });
+    });
 }
 
 function abrirCajaTags() {
@@ -91,9 +114,10 @@ async function mostrarColecciones() {
 // quedan primero. Al borrar el último tag, todas vuelven a verse.
 function aplicarFiltroTags() {
     const hayTags = tagsSeleccionados.length > 0;
-    // Con tags el mosaico fluye en filas (izquierda a derecha); sin tags
+    const hayFiltro = hayTags || textoBusqueda !== "";
+    // Con filtro el mosaico fluye en filas (izquierda a derecha); sin filtro
     // recupera el mosaico de columnas original.
-    galeria.classList.toggle("Filtrando", hayTags);
+    galeria.classList.toggle("Filtrando", hayFiltro);
     const entradas = Array.from(tarjetas.values());
     // Sin tags se conserva el orden original del mosaico; reordenar por título
     // hacía que las tarjetas cambiaran de sitio al terminar de cargar.
@@ -107,7 +131,8 @@ function aplicarFiltroTags() {
     }
     let visibles = 0;
     for (const entrada of entradas) {
-        const coincide = !hayTags || prioridadTags(entrada.coleccion) !== Infinity;
+        const coincideTags = !hayTags || prioridadTags(entrada.coleccion) !== Infinity;
+        const coincide = coincideTags && coincideBusqueda(entrada.coleccion);
         entrada.tarjeta.hidden = !coincide;
         if (coincide) visibles += 1;
         // Mover la tarjeta ya montada la reordena sin recargar la imagen.
@@ -139,17 +164,28 @@ async function agregarTag(valor) {
     if (!tag || tagsSeleccionados.includes(tag)) return;
     tagsSeleccionados.push(tag);
     campoTag.value = "";
+    textoBusqueda = "";
     mostrarTags();
     aplicarFiltroTags();
+    await actualizarSugerencias("");
 }
 
-async function cargarSugerencias() {
+// Recarga el <datalist> con los hashtags que coinciden parcialmente con el
+// texto escrito, usando GET /hashtags?filter=... del backend.
+async function actualizarSugerencias(texto) {
+    peticionSugerencias += 1;
+    const peticion = peticionSugerencias;
     try {
-        const hashtags = await listarHashtags();
+        const hashtags = await listarHashtags(texto);
+        // Si mientras tanto se lanzó otra búsqueda, ignorar esta respuesta.
+        if (peticion !== peticionSugerencias) return;
+        const opciones = document.getElementById("sugerenciasHashtags");
+        opciones.replaceChildren();
         for (const hashtag of hashtags) {
             const opcion = document.createElement("option");
-            opcion.value = "#" + hashtag.nombre_hashtags;
-            document.getElementById("sugerenciasHashtags").appendChild(opcion);
+            // Sin '#': el input ya se normaliza quitando ese símbolo.
+            opcion.value = hashtag.nombre_hashtags;
+            opciones.appendChild(opcion);
         }
     } catch (error) {
         // El buscador también acepta etiquetas escritas a mano.
@@ -168,7 +204,7 @@ async function iniciar() {
         }
         mostrarTags();
         await mostrarColecciones();
-        await cargarSugerencias();
+        await actualizarSugerencias("");
     } catch (error) {
         mensajeError.textContent = error.message;
         mensajeError.hidden = false;
@@ -185,11 +221,24 @@ campoTag.addEventListener("input", function () {
         .replace(/[^a-záéíóúüñ0-9]/gi, "")
         .slice(0, MAX_TAG);
     if (limpio !== campoTag.value) campoTag.value = limpio;
+    // Filtrado parcial en tiempo real: sin esperar a pulsar Enter.
+    textoBusqueda = limpio;
+    aplicarFiltroTags();
+    // Sugerencias del backend con un pequeño retardo para no consultar por cada tecla.
+    if (temporizadorSugerencias) clearTimeout(temporizadorSugerencias);
+    temporizadorSugerencias = setTimeout(function () {
+        actualizarSugerencias(textoBusqueda);
+    }, 200);
 });
 campoTag.addEventListener("keydown", async function (evento) {
-    if (evento.key === "Enter") {
-        evento.preventDefault();
-        await agregarTag(campoTag.value);
+    if (evento.key !== "Enter") return;
+    evento.preventDefault();
+    // El texto parcial ya filtra en vivo. Enter solo fija el tag como chip
+    // cuando coincide exactamente con un hashtag existente; si es parcial,
+    // se deja el filtro en vivo tal cual.
+    const tag = normalizarTag(campoTag.value);
+    if (tag && existeHashtag(tag)) {
+        await agregarTag(tag);
     }
 });
 zonaBuscadorTags.addEventListener("click", function (evento) {
