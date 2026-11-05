@@ -751,6 +751,24 @@ body.AuthPixie .AuthBarra {
     text-underline-offset: 3px;
 }
 
+/* Verificación de correo: formulario único centrado ----------------------- */
+body.AuthVerificacion .AuthBarra {
+    width: 100%;
+}
+
+body.AuthVerificacion .AuthCentro {
+    width: 100%;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: center;
+    justify-items: center;
+    padding: clamp(80px, 10vh, 112px) clamp(24px, 5vw, 64px);
+}
+
+body.AuthVerificacion .AuthCaja {
+    width: 100%;
+    max-width: 430px;
+}
+
 /* Adaptación --------------------------------------------------------------- */
 @media (max-width: 900px) {
     .Acceso {
