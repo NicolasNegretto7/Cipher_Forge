@@ -5,6 +5,39 @@ const formulario = document.getElementById("formLogin");
 const mensaje = document.getElementById("mensajeLogin");
 const paginasUrl = new URL("../../pages/", import.meta.url);
 
+function activarVistaContrasena(input) {
+    if (!input) return;
+    const contenedor = input.closest(".CampoContrasena");
+    const icono = contenedor && contenedor.querySelector("[data-ojo]");
+    if (!icono) return;
+
+    const ojoAbierto = icono.querySelector(".IconoVer");
+    const ojoCerrado = icono.querySelector(".IconoOcultar");
+
+    function pintar(mostrar) {
+        input.type = mostrar ? "text" : "password";
+        icono.setAttribute("aria-pressed", String(mostrar));
+        icono.setAttribute("aria-label", mostrar ? "Ocultar contraseña" : "Mostrar contraseña");
+        icono.setAttribute("title", mostrar ? "Ocultar contraseña" : "Mostrar contraseña");
+        if (ojoAbierto) ojoAbierto.style.display = mostrar ? "none" : "inline";
+        if (ojoCerrado) ojoCerrado.style.display = mostrar ? "inline" : "none";
+    }
+
+    function alternar() {
+        pintar(input.type === "password");
+    }
+
+    icono.addEventListener("click", alternar);
+    icono.addEventListener("keydown", function (evento) {
+        if (evento.key === "Enter" || evento.key === " ") {
+            evento.preventDefault();
+            alternar();
+        }
+    });
+
+    pintar(false);
+}
+
 function abrirPanel() {
     location.href = new URL("panel.html", paginasUrl).href;
 }
@@ -36,3 +69,5 @@ async function ingresar(evento) {
 limpiarSesion();
 formulario.addEventListener("submit", ingresar);
 document.getElementById("enlaceRegistro").href = new URL("registro.html", paginasUrl).href;
+
+activarVistaContrasena(document.getElementById("contraseña"));

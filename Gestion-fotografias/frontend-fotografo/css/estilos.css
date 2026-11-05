@@ -188,6 +188,29 @@ body.AuthPixie {
     box-shadow: 0 0 0 3px rgb(63 139 109 / 14%);
 }
 
+/* Mostrar u ocultar contraseña (ojo clickeable, diseño genérico) --------- */
+.CampoContrasena {
+    position: relative;
+}
+
+.CampoContrasena input:not([type="checkbox"]) {
+    padding-right: 44px;
+}
+
+.BotonOjo:hover,
+.BotonOjo:focus-visible {
+    color: var(--verde-oscuro);
+    outline: none;
+}
+
+.BotonOjo svg {
+    pointer-events: none;
+}
+
+.BotonOjo .IconoOcultar {
+    display: none;
+}
+
 .AuthCaja .btn {
     width: 100%;
     padding: 12px 16px;

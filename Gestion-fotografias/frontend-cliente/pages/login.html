@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Iniciar sesión de cliente</title>
         <link rel="stylesheet" href="../css/base.css" />
-        <link rel="stylesheet" href="../css/estilos.css?v=split4" />
+        <link rel="stylesheet" href="../css/estilos.css?v=eye1" />
     </head>
     <body class="AuthPixie">
         <header class="AuthBarra">
@@ -42,14 +42,66 @@
 
                         <div class="form-group">
                             <label for="contraseña">Contraseña</label>
-                            <input
-                                type="password"
-                                id="contraseña"
-                                name="contraseña"
-                                placeholder="******"
-                                autocomplete="current-password"
-                                required
-                            />
+                            <div class="CampoContrasena" style="position: relative">
+                                <input
+                                    type="password"
+                                    id="contraseña"
+                                    name="contraseña"
+                                    placeholder="******"
+                                    autocomplete="current-password"
+                                    required
+                                />
+                                <i
+                                    class="BotonOjo"
+                                    data-ojo
+                                    role="button"
+                                    tabindex="0"
+                                    aria-label="Mostrar contraseña"
+                                    aria-pressed="false"
+                                    title="Mostrar contraseña"
+                                    style="position: absolute; top: 50%; right: 12px; transform: translateY(-50%); display: inline-flex; color: var(--gris-texto); cursor: pointer"
+                                >
+                                    <svg
+                                        class="IconoOjo IconoVer"
+                                        viewBox="0 0 24 24"
+                                        width="20"
+                                        height="20"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="1.8"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        aria-hidden="true"
+                                    >
+                                        <path
+                                            d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"
+                                        />
+                                        <circle cx="12" cy="12" r="3" />
+                                    </svg>
+                                    <svg
+                                        class="IconoOjo IconoOcultar"
+                                        viewBox="0 0 24 24"
+                                        width="20"
+                                        height="20"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        stroke-width="1.8"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        aria-hidden="true"
+                                        style="display: none"
+                                    >
+                                        <path d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
+                                        <path
+                                            d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 11 7 11 7a13.16 13.16 0 0 1-1.67 2.68"
+                                        />
+                                        <path
+                                            d="M6.61 6.61A13.5 13.5 0 0 0 1 12s4 7 11 7a10.4 10.4 0 0 0 5.39-1.39"
+                                        />
+                                        <line x1="2" y1="2" x2="22" y2="22" />
+                                    </svg>
+                                </i>
+                            </div>
                         </div>
 
                         <div class="margen-arriba">
