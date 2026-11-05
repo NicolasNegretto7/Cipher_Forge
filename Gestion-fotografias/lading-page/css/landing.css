@@ -252,7 +252,7 @@ body {
 .HeroImagen {
     display: flex;
     grid-column: 2;
-    grid-row: 1;
+    grid-row: 1 / span 2;
     align-self: stretch;
     justify-content: center;
     align-items: center;
