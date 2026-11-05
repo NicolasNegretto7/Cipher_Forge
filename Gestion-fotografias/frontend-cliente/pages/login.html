@@ -1,11 +1,11 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="es">
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Iniciar sesión de cliente</title>
         <link rel="stylesheet" href="../css/base.css" />
-        <link rel="stylesheet" href="../css/estilos.css" />
+        <link rel="stylesheet" href="../css/estilos.css?v=split4" />
     </head>
     <body class="AuthPixie">
         <header class="AuthBarra">
@@ -21,48 +21,57 @@
         </header>
 
         <main class="AuthCentro">
-            <section class="AuthCaja">
-                <h1>Iniciar sesión de cliente</h1>
-                <p class="AuthSubtitulo">Accede a tus colecciones</p>
+            <div class="AuthPanelFormulario">
+                <section class="AuthCaja">
+                    <h1>Iniciar sesión de cliente</h1>
+                    <p class="AuthSubtitulo">Accede a tus colecciones</p>
 
-                <h2>Ingresa tus datos</h2>
-                <form id="formLogin">
-                    <div class="form-group">
-                        <label for="correo">Correo electrónico</label>
-                        <input
-                            type="email"
-                            id="correo"
-                            name="correo"
-                            placeholder="tugmail@gmail.com"
-                            autocomplete="email"
-                            required
-                        />
-                    </div>
+                    <h2>Ingresa tus datos</h2>
+                    <form id="formLogin">
+                        <div class="form-group">
+                            <label for="correo">Correo electrónico</label>
+                            <input
+                                type="email"
+                                id="correo"
+                                name="correo"
+                                placeholder="tugmail@gmail.com"
+                                autocomplete="email"
+                                required
+                            />
+                        </div>
 
-                    <div class="form-group">
-                        <label for="contraseña">Contraseña</label>
-                        <input
-                            type="password"
-                            id="contraseña"
-                            name="contraseña"
-                            placeholder="******"
-                            autocomplete="current-password"
-                            required
-                        />
-                    </div>
+                        <div class="form-group">
+                            <label for="contraseña">Contraseña</label>
+                            <input
+                                type="password"
+                                id="contraseña"
+                                name="contraseña"
+                                placeholder="******"
+                                autocomplete="current-password"
+                                required
+                            />
+                        </div>
 
-                    <div class="margen-arriba">
-                        <button type="submit" class="btn btn-principal">Ingresar</button>
-                    </div>
-                </form>
+                        <div class="margen-arriba">
+                            <button type="submit" class="btn btn-principal">Ingresar</button>
+                        </div>
+                    </form>
 
-                <p id="mensajeLogin" class="mensaje-perfil" role="status"></p>
+                    <p id="mensajeLogin" class="mensaje-perfil" role="status"></p>
 
-                <p class="AuthEnlace">
-                    ¿No tienes cuenta?
-                    <a id="enlaceRegistro" href="registro.html">Registrate aquí.</a>
-                </p>
-            </section>
+                    <p class="AuthEnlace">
+                        ¿No tienes cuenta?
+                        <a id="enlaceRegistro" href="registro.html">Registrate aquí.</a>
+                    </p>
+                </section>
+            </div>
+
+            <aside class="AuthPanelImagen">
+                <img
+                    src="../../lading-page/Video%20y%20Imagenes/FotoClienteDemostrativo.PNG"
+                    alt="Vista previa de una galería de fotos para clientes"
+                />
+            </aside>
         </main>
         <script type="module" src="../dom/auth/login.js"></script>
     </body>

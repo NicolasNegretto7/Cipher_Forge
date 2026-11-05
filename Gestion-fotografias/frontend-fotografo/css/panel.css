@@ -4,10 +4,28 @@
    ========================================================================== */
 
 /* Cuenta en la barra lateral ---------------------------------------------- */
+/* Mismo tratamiento que el cierre de sesión del panel del cliente: texto
+   discreto, sin caja, en mayúsculas y con subrayado al pasar el cursor. */
 .Sidebar .BotonCerrarSesion {
-    width: 100%;
+    align-self: center;
     margin-top: auto;
-    text-align: center;
+    padding: 6px 0;
+    border: 0;
+    border-bottom: 1px solid transparent;
+    border-radius: 0;
+    background: transparent;
+    color: var(--gris-texto);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    transition: color var(--transicion), border-color var(--transicion);
+}
+
+.Sidebar .BotonCerrarSesion:hover {
+    border-bottom-color: var(--verde-claro);
+    color: var(--tinta);
+    background: transparent;
 }
 
 .BotonCuenta {

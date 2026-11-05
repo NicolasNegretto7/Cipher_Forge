@@ -1,3 +1,52 @@
+# CipherForge — Informe de seguridad
+
+| Campo | Valor |
+|:--|:--|
+| **Proyecto** | CipherForge — plataforma de gestión fotográfica para fotógrafos y clientes |
+| **Institución y curso** | UTU — BT 3.º Tecnologías de la Información |
+| **Asignatura** | Electiva Ciberseguridad |
+| **Docente** | Ana Victoria Reyes Macedo |
+| **Cliente solicitante** | Lemuel Swec |
+| **Integrantes del equipo** | [Completar con los nombres antes de la entrega] |
+| **Grupo** | [Completar con el número de grupo] |
+| **Fecha de entrega** | [Completar con la fecha fijada por la docente] |
+
+> **Nota de formato.** Este archivo es la fuente Markdown del informe; la entrega se exporta a PDF respetando la guía APA 7 de la asignatura (A4, una sola tipografía, texto alineado a la izquierda, interlineado doble en el cuerpo y sencillo en tablas y código, numeración de páginas en el extremo superior derecho, sangría de 1,27 cm en la primera línea y sangría francesa en las referencias). El archivo se nombra `Grupo_N_Entrega_X.pdf` según la guía. Las capturas propias se insertan en los lugares señalados como *Evidencia pendiente* y se numeran como figuras.
+
+## Resumen
+
+CipherForge es una plataforma web para que fotógrafos publiquen colecciones de imágenes y videos, y para que sus clientes consulten y descarguen el material autorizado. El sistema se compone de dos frontends estáticos (HTML, CSS y JavaScript), una API REST en PHP 8.2 puro sobre Apache, una base de datos MySQL 8.0 y un stack Docker Compose que incorpora el worker de respaldos y un buzón de correo de desarrollo. Este informe documenta el análisis y diseño seguro (amenazas, mapa de riesgos y buenas prácticas), la implementación de autenticación con bcrypt y JWT en cookie `HttpOnly`, el marco legal de la plataforma, el análisis estático con SAST y las correcciones aplicadas, el endurecimiento de la infraestructura y los contenedores, y las pruebas dinámicas con Nmap, OWASP ZAP y una suite Bash de verificaciones. Los resultados muestran controles sólidos de autorización, consultas parametrizadas y protección de archivos; permanecen abiertos la ausencia de cabeceras de seguridad, la política CORS permisiva, la fuga del mensaje interno en las respuestas 500 y la validación incompleta del encabezado JWT, con un plan de cierre priorizado y un procedimiento de respuesta a incidentes.
+
+**Palabras clave:** seguridad web, API REST, OWASP, Ley 18.331, contenedores
+
+## Índice
+
+1. Resumen
+2. Introducción
+3. Descripción del sistema
+4. Primera Entrega — Análisis y Diseño Seguro
+   - Identificación de amenazas
+   - Mapa de riesgos e impacto
+   - Buenas prácticas de seguridad en desarrollo web
+   - Cambios a futuro (pendientes)
+5. Segunda Entrega — Implementación Segura, Criptografía y Aspectos Legales
+   - Mecanismos de autenticación y criptografía
+   - Términos y Condiciones, Política de Privacidad y evidencias de aceptación
+   - Análisis estático (SAST) y correcciones aplicadas
+   - Hardening de infraestructura y contenedores
+6. Tercera Entrega — Hacking Ético, Pruebas Automatizadas y Respuesta a Incidentes
+   - Análisis dinámico de vulnerabilidades (DAST)
+   - Auditoría automatizada de la API REST
+   - Registro de hallazgos y medidas correctivas
+   - Verificación posterior y estado actual
+   - Plan de respuesta a incidentes
+   - Reflexión ética
+7. Conclusiones
+8. Referencias
+9. Anexos
+
+---
+
 # Requerimientos de la Unidad Curricular: Ciberseguridad
 **Proyecto de Egreso – BT 3° Tecnologías de la Información**
 **Ana Victoria Reyes Macedo**
@@ -5,6 +54,10 @@
 ---
 
 ## Introducción
+
+Este informe documenta cómo se integró la seguridad en CipherForge, una plataforma web para que fotógrafos publiquen y vendan su material y para que sus clientes accedan a colecciones privadas mediante invitación. El público usuario está formado por fotógrafos —que administran colecciones, cargan archivos y moderan el contenido de invitados— y por clientes que consultan y descargan el material autorizado. La plataforma se construyó con frontends estáticos en HTML, CSS y JavaScript, una API REST en PHP 8.2 sobre Apache, MySQL 8.0 y contenedores Docker; esa arquitectura define tanto los activos que se protegen como los puntos donde se aplican los controles.
+
+Los objetivos de seguridad se distribuyen a lo largo de las tres entregas: identificar las amenazas y valorar su impacto antes de escribir código; implementar autenticación, criptografía, marco legal, correcciones del análisis estático y endurecimiento de la infraestructura; y probar el sistema en ejecución con herramientas de análisis dinámico, una suite automatizada y un plan de respuesta a incidentes. El criterio que ordena el documento es la trazabilidad: cada amenaza se relaciona con una práctica, cada práctica con un archivo o una respuesta HTTP, y cada hallazgo con su estado real y su medida de cierre.
 
 Cada grupo deberá integrar aspectos teóricos y prácticos de ciberseguridad
 dentro del desarrollo de su Proyecto de Egreso. Esta integración no será un componente
@@ -16,6 +69,64 @@ documentación técnica, el análisis crítico, la aplicación de buenas prácti
 reflexión ética. Cada entrega parcial contará con una calificación específica, y su
 contenido deberá integrarse dentro del documento general del proyecto, siguiendo el
 formato establecido.
+
+---
+
+## Descripción del sistema
+
+CipherForge resuelve un problema concreto del negocio fotográfico: entregar material de un evento sin depender de enlaces públicos ni de servicios de terceros. El fotógrafo crea colecciones, las clasifica como públicas o privadas y sube imágenes JPG y videos MP4. El cliente accede mediante invitación o código QR, consulta las vistas previas con marca de agua y descarga el material original solo cuando el fotógrafo lo autoriza. Los invitados de un evento pueden subir contenido con un QR colaborativo, que queda pendiente de moderación y se elimina automáticamente si no se aprueba en 24 horas.
+
+### Tecnologías y arquitectura
+
+| Capa | Tecnología | Función |
+|:--|:--|:--|
+| Frontend cliente | HTML, CSS y JavaScript sin framework | Registro, inicio de sesión, colecciones públicas, invitaciones, favoritos y descargas |
+| Frontend fotógrafo | HTML, CSS y JavaScript sin framework | Panel, creación de colecciones, carga de multimedia, moderación, QR y perfil |
+| API REST | PHP 8.2 puro sobre Apache 2.4 | Enrutamiento, controladores, servicios, repositorios y validadores |
+| Persistencia | MySQL 8.0 | Usuarios, colecciones, multimedia, accesos, favoritos, tokens QR y respaldos |
+| Archivos | Sistema de archivos del contenedor con volumen Docker | Originales, vistas previas con marca de agua y versiones de buena calidad |
+| Infraestructura | Docker y Docker Compose | Contenedores de aplicación, base de datos, worker de respaldos y Mailpit |
+| Correo de desarrollo | Mailpit | Captura de los códigos de verificación sin enviar correo real |
+
+La API sigue una separación por capas: el controlador valida la petición y delega en un servicio; el servicio aplica las reglas de negocio y llama a uno o más repositorios; el repositorio ejecuta SQL parametrizado sobre MySQL. Los helpers concentran autenticación (`Jwt`, `CookieAuth`), limitación de intentos (`RateLimiter`) y procesamiento de medios (`MediaProcessor`). El frontend consume la API por `fetch` y no contiene lógica de autorización: toda decisión sobre quién puede ver o descargar un recurso se toma en el servidor.
+
+### Diagrama de despliegue
+
+```mermaid
+flowchart LR
+  subgraph Navegador
+    FC[Frontend cliente<br/>HTML/CSS/JS]
+    FF[Frontend fotógrafo<br/>HTML/CSS/JS]
+  end
+  subgraph Docker
+    API[API REST PHP 8.2<br/>Apache · puerto 8080]
+    DB[(MySQL 8.0<br/>sin puerto publicado)]
+    WK[Worker de respaldos<br/>cron-backup.php]
+    MP[Mailpit<br/>SMTP 1025 · UI 8025]
+    VOL[(Volumen uploads<br/>originales · previews · standard)]
+  end
+  FC -->|HTTPS/HTTP + cookie HttpOnly| API
+  FF -->|HTTPS/HTTP + cookie HttpOnly| API
+  API -->|PDO parametrizado| DB
+  API --> VOL
+  WK --> DB
+  WK --> VOL
+  API -->|SMTP| MP
+```
+
+*Figura 1. Arquitectura de despliegue de CipherForge. Elaboración propia.*
+
+### Activos y objetivos de seguridad
+
+Los activos que este informe protege son: la base de datos de usuarios (nombre, correo, teléfono opcional y hash de contraseña), el material original de colecciones privadas, los tokens de sesión y de QR, los respaldos SQL y las credenciales del stack. Los objetivos de seguridad de las tres entregas son: preservar la confidencialidad e integridad de esos activos, garantizar que solo el usuario autorizado acceda a cada recurso, sostener la disponibilidad del servicio frente a abuso o fallos, y cumplir la Ley N.º 18.331 de Protección de Datos Personales de Uruguay.
+
+### Alcance y método
+
+El análisis se realizó sobre el código y el stack local del proyecto, con cuentas y material de prueba. Se combinaron revisión manual, un motor SAST local, escaneos DAST con Nmap y OWASP ZAP, una suite Bash de verificaciones sobre la API y pruebas funcionales. Cada afirmación técnica de este documento se contrastó con el archivo o la respuesta HTTP que la respalda; cuando una medida no está implementada se indica de forma explícita. Las tablas de resultados conservan la fecha de la corrida que las produjo, y la sección de verificación posterior registra los cambios encontrados en el código después de esa fecha.
+
+### Declaración de uso de herramientas de asistencia
+
+La redacción y la revisión de este informe contaron con asistencia de un modelo de lenguaje. Esa asistencia se limitó a ordenar y redactar contenido producido por el equipo y a contrastar el texto con el código y los resultados de las herramientas. Ningún hallazgo, captura, comando ejecutado ni resultado de prueba fue generado por la IA: todos provienen de archivos del repositorio, de la base de datos local o de ejecuciones reales sobre el stack. El criterio y la responsabilidad final son del equipo, conforme a `docs/etica_uso_de_ia.md`.
 
 ---
 
@@ -53,6 +164,27 @@ El modelo de negocio del cliente depende de que las imágenes en vista previa te
 
 El sistema usa códigos QR con dos propósitos distintos: acceso directo a una colección (RF16) y carga colaborativa de contenido por parte de invitados sin cuenta (RF13, RF14). Si estos códigos no expiran, no están vinculados a un evento/colección específica o pueden reutilizarse indefinidamente, un tercero que obtenga el QR (por ejemplo, fotografiándolo en un evento) podría subir contenido no deseado a la colección o acceder a material privado fuera del contexto para el que fue generado.
 
+### 1.7 Tabla consolidada de amenazas
+
+La Tabla 1 resume las seis amenazas desarrolladas arriba, el componente concreto del sistema que expone cada una y el efecto que tendría en CipherForge. Los identificadores A1 a A6 se usan en el resto del informe para relacionar amenazas, riesgos, controles y hallazgos; no deben confundirse con la numeración A01–A10 de OWASP Top 10, que se cita por separado en cada fila.
+
+**Tabla 1**
+
+*Amenazas digitales identificadas para CipherForge*
+
+| # | Amenaza | Componente afectado | Cómo se manifestaría en el proyecto | Referencia |
+|:--:|:--|:--|:--|:--|
+| A1 | Phishing dirigido a fotógrafos y clientes | Registro, inicio de sesión y correo de verificación | Correos falsos que suplantan a CipherForge para robar credenciales y acceder a colecciones privadas | OWASP A07; OWASP A04 (API) |
+| A2 | Fuga de datos personales | Base de datos `usuarios` y respaldos SQL | Exposición de nombre, correo, teléfono y hashes de contraseña de personas reales | OWASP A01; Ley N.º 18.331 |
+| A3 | Inyección SQL | Formularios y parámetros de la API que consultan MySQL | Lectura, alteración o borrado de usuarios, colecciones y accesos mediante SQL malicioso | OWASP A03 |
+| A4 | Acceso no autorizado a colecciones privadas (IDOR) | Endpoints `/colecciones/{id}` y `/multimedia/{id}/*` | Cambio de identificador en la URL o en el cuerpo para acceder a material de otro cliente | OWASP A01; OWASP API1 |
+| A5 | Evasión de la marca de agua y descarga no autorizada | `uploads/originals` y endpoints de descarga | Acceso directo al archivo original sin permiso, saltando la vista previa protegida | OWASP A01; requisito RF11 |
+| A6 | Abuso o reutilización de códigos QR | `qr_tokens` y endpoints `/colaborativo/{token}` | Uso de un QR ajeno o vencido para subir contenido o entrar a una colección fuera de contexto | OWASP A04; OWASP API1 |
+
+*Nota.* Elaboración propia. La clasificación de cada amenaza se apoya en OWASP Foundation (2021) y OWASP Foundation (2023).
+
+La consecuencia de A2 y A3 no se limita a la pérdida técnica del dato: compromete a terceros que no participaron del proyecto y activa obligaciones de notificación y reparación bajo la Ley N.º 18.331 (2008). Esa dimensión legal se retoma en el análisis de impacto y en el plan de respuesta a incidentes.
+
 ---
 
 ## 2. Mapa de Riesgos
@@ -83,8 +215,52 @@ columns 5
  
 *Rojo = Impacto Alto (técnico y a usuarios) · Naranja = Impacto Medio*
  
+### 2.1 Componentes del sistema y vectores de ataque
+
+La matriz anterior ordena las amenazas por probabilidad e impacto, pero no muestra por dónde entra cada una. La Figura 2 relaciona los componentes reales del sistema con los vectores identificados en la Tabla 1 y con los controles que interceptan la petición antes de llegar al dato.
+
+```mermaid
+flowchart TB
+  subgraph Usuarios
+    FOT[Fotógrafo]
+    CLI[Cliente]
+    INV[Invitado con QR]
+    ATA[Atacante externo]
+  end
+  subgraph Aplicación
+    FE[Frontends HTML/CSS/JS]
+    API[API REST PHP 8.2]
+    AUTH[AuthMiddleware<br/>JWT + cookie HttpOnly]
+    RL[RateLimitMiddleware]
+  end
+  subgraph Datos
+    DB[(MySQL 8.0)]
+    UP[(uploads<br/>originales y previews)]
+    BK[(backups SQL)]
+  end
+  FOT --> FE
+  CLI --> FE
+  INV --> API
+  ATA -.->|A1 phishing| FE
+  ATA -.->|A3 inyección SQL| API
+  ATA -.->|A4 IDOR| API
+  ATA -.->|A5 descarga directa| UP
+  ATA -.->|A6 QR ajeno o vencido| API
+  ATA -.->|A2 fuga de datos| DB
+  FE --> API
+  API --> AUTH
+  API --> RL
+  API --> DB
+  API --> UP
+  BK --- DB
+```
+
+*Figura 2. Componentes de CipherForge y vectores de ataque asociados a la Tabla 1. Elaboración propia.*
+
+El diagrama permite leer una propiedad importante del diseño: el atacante no necesita vulnerar el frontend para alcanzar los datos, porque la API es el punto donde se concentran A3, A4 y A6. Por eso los controles decisivos son los del servidor —validación, autorización por recurso, consultas parametrizadas y rate limiting— y no los del navegador.
+
 ---
- 
+
 ## Escala de valoración de riesgo
  
 | Nivel | Probabilidad | Impacto | Resultado (R) | Acción Inmediata |
@@ -133,6 +309,22 @@ Tabla construida a partir de las conexiones reales del Mapa de Riesgos (componen
 | Evasión de marca de agua / descarga no autorizada | Acceso directo al archivo original sin control de permisos | Pérdida económica para el fotógrafo (afecta el objetivo de negocio) |
 | Abuso o reutilización de códigos QR | Carga de contenido no controlado; acceso fuera del contexto previsto | Contenido indebido en la colección; exposición no deseada de material |
 
+### 2.2 Impacto técnico
+
+Una inyección SQL exitosa sobre la API no se limita a devolver filas de más: permite modificar el rol de una cuenta, borrar colecciones completas o vaciar la tabla de accesos. Si el atacante elimina la tabla `usuarios`, el sistema pierde la capacidad de autenticar a cualquier persona y el servicio queda inoperativo hasta restaurar el último respaldo. La misma operación sobre `multimedia` deja filas que apuntan a archivos inexistentes, de modo que las vistas previas y las descargas fallan incluso después de recuperar la base. En un escenario de A2, la caída del servicio es menor que el daño permanente: los datos ya expuestos no vuelven a ser privados al restaurar un respaldo.
+
+El compromiso del contenedor agrava el alcance. Un atacante que consigue ejecutar comandos dentro de `cipher_forge_app` accede a las variables de entorno —incluida la clave de firma JWT y la contraseña de MySQL—, al volumen de `uploads` y a los respaldos montados en el mismo host. Con la clave JWT puede emitir tokens válidos para cualquier usuario sin conocer su contraseña; con la contraseña de la base puede conectarse directamente y saltar todos los controles de la API. La rotación de secretos y la ejecución como usuario no privilegiado son, por eso, medidas de contención y no solo de configuración.
+
+La disponibilidad también es un activo atacable sin necesidad de acceso. Una subida masiva de archivos de 800 MB, una racha de intentos de login o una imagen de dimensiones extremas que dispare el procesamiento con GD pueden agotar disco, CPU o memoria y dejar el servicio sin capacidad de respuesta. Ese vector se relaciona con A6 y con el abuso de los endpoints de carga, y se mitiga con límites de tamaño, cuotas por fotógrafo, rate limiting y tiempos máximos de ejecución.
+
+### 2.3 Impacto sobre los usuarios
+
+El primer efecto para un cliente es la pérdida de control sobre su propia imagen. Las colecciones contienen fotografías de eventos sociales —bodas, cumpleaños, quinceañeros— y el sistema no pide cédula ni dirección precisamente para reducir la exposición; una fuga de A2 o A4 deshace esa precaución y expone material que las personas decidieron compartir en un círculo acotado. El daño no es abstracto: puede habilitar suplantaciones, acoso o difusión no consentida de imágenes.
+
+El segundo efecto es la pérdida de confianza en el fotógrafo y en la plataforma. Un cliente que descubre que el material de su evento quedó accesible por una URL, o que otra persona pudo descargarlo, no solo deja de usar el servicio: difunde el incidente entre potenciales clientes del fotógrafo. Para un proyecto que todavía no cobra por pasarela, la reputación es el activo comercial principal.
+
+El tercer efecto es legal. La Ley N.º 18.331 reconoce a los titulares los derechos de acceso, rectificación, actualización, inclusión y supresión, y obliga a quien trata datos personales a adoptar medidas de seguridad y a responder por su uso indebido. Una filtración de nombre, correo, teléfono y credenciales activa esas obligaciones frente a personas que no tienen relación con el equipo de desarrollo. La respuesta no puede limitarse a un comunicado técnico: exige identificar a los afectados, informarles y corregir la causa, tal como se detalla en el plan de respuesta a incidentes.
+
 ---
 
 ## 3. Buenas prácticas de seguridad en desarrollo web
@@ -175,6 +367,51 @@ Cada código QR se generará como un token único asociado a una colección o ev
 ## 3.6 Registro y monitoreo de eventos sensibles
 
 Se registrarán eventos como inicios de sesión fallidos y uso de códigos QR, lo que permitirá detectar patrones de abuso (por ejemplo, múltiples intentos de acceso a colecciones privadas).
+
+## 3.7 Manejo seguro de errores
+
+Un mensaje de error puede revelar más que una vulnerabilidad: la versión de PHP, la ruta absoluta del proyecto, el nombre de una tabla o la consulta que falló. Esa información reduce el trabajo de reconocimiento del atacante y convierte un fallo funcional en un punto de partida para A2 y A3. La práctica consiste en separar el error interno —que se registra en el servidor— del mensaje que recibe el cliente, que debe ser genérico y con el código HTTP correcto (OWASP Foundation, s.f.).
+
+En CipherForge la aplicación desactiva `display_errors`, activa `log_errors` y registra un *shutdown handler* que convierte los errores fatales en una respuesta JSON con HTTP 500, de modo que un fallo de PHP no devuelva HTML con estado 200 (The PHP Group, s.f.). La implementación es parcial: el `catch (Throwable)` de `backend/public/index.php` todavía concatena `$e->getMessage()` en la respuesta, y el 2026-11-04 una petición a `/fotografos` devolvió el nombre de la tabla y el motor de base de datos. La corrección pendiente es responder con un texto fijo y volcar el detalle al log, tal como se registra en el hallazgo M-02 y en la verificación posterior de la tercera entrega.
+
+## 3.8 Cabeceras HTTP de seguridad
+
+Las cabeceras de respuesta indican al navegador qué restricciones aplicar sobre el documento. `Content-Security-Policy` reduce la ejecución de scripts inyectados, `X-Content-Type-Options: nosniff` impide que el navegador interprete un archivo como un tipo distinto del declarado, `X-Frame-Options` o `frame-ancestors` bloquea el engaño visual por iframes y `Strict-Transport-Security` obliga a usar HTTPS una vez que el sitio se sirve por TLS (OWASP Foundation, s.f.). Su ausencia no es una vulnerabilidad explotable por sí sola, pero elimina defensas en profundidad frente a A1 y A3.
+
+Al 2026-11-04 el backend no emite ninguna de esas cabeceras: una petición a `/api/ping` devuelve únicamente `Server` y `X-Powered-By`, y esa ausencia fue confirmada tanto por ZAP como por la suite Bash. La práctica queda adoptada como requisito de despliegue, con esta configuración prevista en `backend/public/index.php` o en la configuración de Apache:
+
+| Cabecera | Valor propuesto | Efecto |
+|:--|:--|:--|
+| `Content-Security-Policy` | `default-src 'self'; img-src 'self' data:; media-src 'self'; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'` | Limita orígenes de scripts, imágenes y medios; impide el encuadre del sitio |
+| `X-Content-Type-Options` | `nosniff` | Evita la interpretación de archivos con un tipo distinto al declarado |
+| `X-Frame-Options` | `DENY` | Bloquea el clickjacking en navegadores sin soporte de `frame-ancestors` |
+| `Referrer-Policy` | `strict-origin-when-cross-origin` | No filtra rutas internas al salir del sitio |
+| `Permissions-Policy` | `camera=(), microphone=(), geolocation=()` | Desactiva capacidades que la aplicación no usa |
+| `Strict-Transport-Security` | `max-age=31536000; includeSubDomains` | Solo debe activarse cuando el sitio se sirva por HTTPS |
+
+*Nota.* Elaboración propia a partir de OWASP Foundation (s.f.). Ninguna de estas cabeceras está implementada en la versión analizada; se documentan como medida pendiente y no como control activo.
+
+## 3.9 Síntesis: amenaza, práctica y aplicación real
+
+La Tabla 2 relaciona cada práctica con la amenaza que mitiga, el archivo donde se aplica y su estado real. Es el puente entre el diseño de esta entrega y la implementación que se audita en la segunda.
+
+**Tabla 2**
+
+*Relación entre amenazas, buenas prácticas y su aplicación en CipherForge*
+
+| Amenaza | Práctica | Dónde se aplica | Estado | Fuente |
+|:--|:--|:--|:--|:--|
+| A3 Inyección SQL | Consultas parametrizadas con PDO; nunca concatenar entrada del usuario | Repositorios (`UserRepository`, `ColeccionRepository`, `MultimediaRepository`) | Implementado y verificado por SAST y ZAP | OWASP Foundation (2021) |
+| A2 Fuga de datos | Hash de contraseñas con sal y secreto JWT fuera del código | `AuthService`, `Config::jwtSecret()` | Implementado; `Secure` de cookie pendiente en producción | The PHP Group (s.f.) |
+| A4 IDOR | Autorización por recurso en el servidor, no en el frontend | `ColeccionService`, `MultimediaService`, `AuthMiddleware` | Implementado; pruebas M1–M5 devuelven 401/403 | OWASP Foundation (2021) |
+| A5 Evasión de marca de agua | Original fuera de la raíz web y descarga mediante endpoint con permiso | `DocumentRoot` en `public/`, `uploads/.htaccess`, `/multimedia/{id}/original` | Implementado; acceso directo responde 404 | OWASP Foundation (2021) |
+| A1 Phishing | Límite de intentos, mensaje de login genérico y verificación de correo | `RateLimitMiddleware`, `AuthService::login` | Implementado; falta segundo factor y concientización | OWASP Foundation (2021) |
+| A6 Abuso de QR | Token único asociado a la colección y expiración | `ColaborativoController`, tabla `qr_tokens` | Parcial: el QR colaborativo vence a las 24 h; el QR de acceso se crea sin expiración | OWASP Foundation (2023) |
+| A1, A3 | Cabeceras HTTP de seguridad | Pendiente en `public/index.php` o Apache | Pendiente | OWASP Foundation (s.f.) |
+| A2 | Manejo seguro de errores | `public/index.php`: `display_errors=0` y *shutdown handler* | Parcial: el mensaje interno aún se expone en el `catch` | OWASP Foundation (s.f.) |
+
+*Nota.* Elaboración propia. El estado se verificó contra el código y las respuestas del stack local, no contra la intención declarada en el diseño.
+
 ---
 
 ## 4. Cambios a futuro (pendientes)
@@ -188,6 +425,119 @@ Cambios detectados en la auditoría del backend que quedan **documentados y post
 **Cambio a futuro (postergado):** proteger estos endpoints **antes de exponer el servicio**. Opción recomendada: exigir cabecera `Authorization: Bearer <clave>` contra una clave maestra configurada por entorno (`SISTEMA_API_KEY`, con fallback y documentación de despliegue); alternativa: agregar rol `admin` al ENUM `roles` con usuario sembrado y verificación de rol en `AuthMiddleware`. El servicio `worker` y `cron-backup.php` **no se ven afectados** por ninguna de las dos, porque invocan `BackupService`/`MultimediaService` directamente (sin pasar por HTTP).
 
 # Segunda Entrega - Implementación Segura, Criptografía y Aspectos Legales
+
+## 5.1 Mecanismos de autenticación y criptografía
+
+La autenticación de CipherForge combina dos piezas: las contraseñas se almacenan con un hash lento y salteado, y la sesión se transporta en un token JWT firmado que el navegador guarda en una cookie `HttpOnly`. El objetivo es que una lectura de la base de datos no entregue contraseñas utilizables y que una inyección de JavaScript en el frontend no pueda leer el token de sesión.
+
+### 5.1.1 Hashing de contraseñas
+
+El registro y el cambio de contraseña usan `password_hash()` con `PASSWORD_DEFAULT`, que en PHP 8.2 resuelve a **bcrypt**. La verificación se hace con `password_verify()`, nunca comparando cadenas. El código relevante está en `backend/src/services/AuthService.php`:
+
+```php
+// Registro (AuthService::register, líneas 44-45)
+$hashedPassword = password_hash($dto->password, PASSWORD_DEFAULT);
+
+// Login (AuthService::login, líneas 88-91)
+if (!password_verify($dto->password, $user->passwordHash)) {
+    Response::error('Credenciales incorrectas.', 401);
+}
+```
+
+`password_hash()` genera una **sal aleatoria por contraseña** y la incluye dentro del propio hash, de modo que dos usuarios con la misma contraseña producen valores distintos. La función es unidireccional: no existe una operación inversa práctica, solo la comparación mediante `password_verify()`. Esa comparación se hace en tiempo constante dentro de la extensión, lo que evita filtrar información por diferencias de tiempo. La columna `password_hash` es `VARCHAR(255)`, longitud suficiente para bcrypt y para una migración futura a Argon2id sin cambiar el esquema (`backend/database/schema.sql`, línea 11).
+
+No se usan MD5 ni SHA-1 porque son funciones diseñadas para ser rápidas: una GPU puede probar miles de millones de combinaciones por segundo, no incorporan sal por defecto y permiten tablas precalculadas. bcrypt, en cambio, tiene un costo configurable que hace cada intento deliberadamente lento; el valor por defecto del runtime es 10 en PHP 8.2, y la recomendación para producción es subirlo a 12 cuando el hardware lo permita (OWASP Foundation, s.f.; The PHP Group, s.f.).
+
+**Evidencia en la base de datos.** La consulta ejecutada el 2026-11-04 sobre el stack local confirma que la columna no contiene contraseñas legibles:
+
+```sql
+SELECT id, email, LEFT(password_hash, 7) AS prefijo, LENGTH(password_hash) AS longitud
+FROM usuarios ORDER BY id LIMIT 5;
+```
+
+```text
+id | email (parcial)      | prefijo  | longitud
+1  | rk***@gmail.com      | $2y$10$  | 60
+2  | rk***@gmail.com      | $2y$10$  | 60
+3  | rk***@gmail.com      | $2y$10$  | 60
+4  | rk***@gmail.com      | $2y$10$  | 60
+6  | rk***@gmail.com      | $2y$10$  | 60
+```
+
+El prefijo `$2y$` identifica bcrypt, `10` es el costo y 60 caracteres es la longitud fija del formato, que incluye la sal. Los correos se muestran parcialmente enmascarados porque este informe no reproduce datos personales completos.
+
+*Evidencia pendiente:* captura de pantalla de la tabla `usuarios` en un cliente MySQL (Workbench, DBeaver o phpMyAdmin) donde se vea la columna `password_hash` con valores `$2y$…` y sin contraseñas legibles. Debe incluir la consulta ejecutada y la fecha.
+
+La política de contraseñas exige un mínimo de 8 caracteres (`backend/src/validators/AuthValidator.php`, línea 44) y el registro rechaza correos duplicados con HTTP 409. No hay todavía verificación de contraseñas filtradas ni caducidad de credenciales; son mejoras de endurecimiento, no fallas explotables por sí solas.
+
+### 5.1.2 Flujo de autenticación y tokens JWT
+
+El token se genera con `Jwt::encode()` usando **HMAC-SHA256 (HS256)**, un secreto de al menos 32 bytes leído de la variable de entorno `JWT_SECRET` y una expiración de 24 horas (`Config::tokenHoras()`). La firma cubre el encabezado y el payload, y la validación usa `hash_equals()` para comparar en tiempo constante. Si `JWT_SECRET` no está definida, la aplicación falla cerrada con una excepción en lugar de generar un secreto débil (`backend/src/Core/Config.php`, líneas 18-28).
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant U as Usuario
+  participant F as Frontend
+  participant A as API PHP
+  participant DB as MySQL
+  U->>F: correo y contraseña
+  F->>A: POST /auth/login (JSON)
+  A->>A: RateLimitMiddleware (5 intentos / 5 min por IP+correo)
+  A->>DB: buscar usuario por correo
+  DB-->>A: hash almacenado
+  A->>A: password_verify()
+  alt credenciales válidas y correo verificado
+    A->>A: Jwt::encode(HS256, exp = 24 h)
+    A-->>F: Set-Cookie cipher_forge_token (HttpOnly; SameSite=Strict)
+    F-->>U: redirección según rol
+  else credenciales inválidas
+    A-->>F: 401 Credenciales incorrectas
+  end
+  U->>F: abrir una colección privada
+  F->>A: GET /colecciones/{id} (cookie automática)
+  A->>A: AuthMiddleware valida firma y expiración
+  A->>DB: cargar usuario por sub
+  A-->>F: 200 con los datos autorizados
+```
+
+*Figura 3. Flujo de autenticación y uso del token en una petición privada. Elaboración propia.*
+
+El token **no se devuelve en el cuerpo JSON**. `AuthService::login()` llama a `CookieAuth::crear($token)` y responde solo con los datos públicos del usuario, de modo que el token no queda al alcance de `localStorage` ni de un `console.log`. `AuthMiddleware` lo busca primero en la cookie y, por compatibilidad, acepta también `Authorization: Bearer` y un parámetro `?token=` para ventanas de impresión o descargas abiertas directamente por el navegador. Ese último fallback amplía la superficie —el token puede quedar en el historial o en los logs de acceso— y está registrado como hallazgo en `docs/SAST-Analisis-Manual-2026-10-26.md`; se mantiene porque resuelve un caso de uso real, pero debe eliminarse cuando la descarga se resuelva por otro mecanismo.
+
+El cierre de sesión (`POST /auth/logout`) borra la cookie con los mismos atributos y una fecha pasada. Como el token es *stateless*, el JWT sigue siendo válido hasta su expiración aunque la cookie se haya eliminado: un token copiado antes del logout puede reutilizarse. La contención prevista es rotar `JWT_SECRET` —lo que invalida todas las sesiones— o reducir la ventana de validez; una lista de revocación por `jti` queda como mejora pendiente.
+
+### 5.1.3 Atributos de la cookie y almacenamiento en el frontend
+
+`backend/src/helpers/CookieAuth.php` fija `HttpOnly`, `SameSite=Strict`, `path=/` y una expiración igual a la del token. `Secure` se toma de `COOKIE_SECURE`: vale `false` en el entorno local porque el contenedor sirve HTTP detrás del proxy, y debe valer `true` en cualquier despliegue con HTTPS. La combinación `HttpOnly` + `SameSite=Strict` cubre dos riesgos distintos: un XSS no puede leer la cookie, y el navegador no la envía en peticiones iniciadas por otro sitio, lo que reduce el CSRF sobre una API que no usa tokens anti-CSRF.
+
+En el frontend, `localStorage` guarda el correo pendiente de verificación, el perfil público y las colecciones favoritas, pero **no el token**. Esa decisión se verificó en el código de ambos frontends y en el inventario SAST (hallazgos S-14 a S-29): el riesgo residual es que un XSS altere lo que el usuario ve, no que robe la sesión.
+
+| Atributo | Valor en desarrollo | Valor exigido en producción | Motivo |
+|:--|:--|:--|:--|
+| `HttpOnly` | `true` | `true` | Impide la lectura desde JavaScript |
+| `SameSite` | `Strict` | `Strict` | Evita el envío entre sitios (CSRF) |
+| `Secure` | `false` | `true` | Impide el envío por HTTP |
+| `Path` | `/` | `/` | Disponible para toda la API |
+| Expiración | 24 h | 2 h con renovación | Reduce la ventana de un token robado |
+
+*Nota.* Elaboración propia a partir de `CookieAuth.php` y `docker-compose.yml`. La expiración de 2 horas es una recomendación de despliegue, no el valor actual del código.
+
+### 5.1.4 Propiedades criptográficas y pendientes
+
+| Elemento | Implementación actual | Evaluación |
+|:--|:--|:--|
+| Hash de contraseña | bcrypt (`PASSWORD_DEFAULT`), sal automática, costo 10 | Correcto; subir costo a 12 en producción |
+| Firma del token | HMAC-SHA256 con secreto de entorno | Correcto; el secreto no está en el repositorio |
+| Comparación de firma | `hash_equals()` | Correcta, en tiempo constante |
+| Validación del encabezado JWT | No se verifica que `alg` sea `HS256` | Pendiente (M-03); no habilita `alg: none` porque la firma se valida igual |
+| Revocación de tokens | No existe lista de revocación | Pendiente; el logout solo borra la cookie |
+| Transporte | HTTP en desarrollo, HTTPS en producción | Pendiente de TLS y `COOKIE_SECURE=true` |
+| Segundo factor | No implementado | Recomendación para cuentas de fotógrafo |
+
+La conclusión de esta sección es que la base criptográfica es sólida para un proyecto académico: no hay contraseñas en claro, el hash es el adecuado y el token no es accesible desde JavaScript. Los pendientes son de endurecimiento y de operación —rotación de secretos, TLS, revocación y segundo factor—, no de algoritmo.
+
+**Marco legal de la plataforma (sección 5.2).** Los dos apartados siguientes contienen el texto completo de los Términos y Condiciones y de la Política de Seguridad de la Información. La sección 5.2 agrega la Política de Privacidad exigida por la Ley N.º 18.331 y documenta la evidencia técnica de aceptación en el registro.
 
 # Términos y Condiciones
 
@@ -208,10 +558,15 @@ Estos términos definen el uso aceptable de la plataforma web, protegen al equip
 ## 4. Aspectos económicos y cancelación
 * **Precios y pagos:** El sistema otorga a cada fotógrafo una cuota de almacenamiento inicial de 3 GB. En esta primera versión del proyecto (por restricciones institucionales), no se incluyen pasarelas de pago reales ni se procesan cobros financieros dentro del sistema. 
 * **Suspensiones:** El sistema controla activamente el límite de almacenamiento de 3 GB. Si el usuario supera esta cuota, el sistema impide nuevas subidas de archivos y notifica sobre los elementos que exceden el límite. Los archivos colaborativos subidos por invitados que no sean aprobados por el fotógrafo serán eliminados automáticamente luego de 24 horas.
+* **Suspensión de cuentas:** El equipo puede suspender de forma temporal o definitiva una cuenta que incumpla estos términos, que publique contenido ilegal o que afecte la seguridad o la disponibilidad del servicio, con aviso previo cuando sea posible.
 
 ## 5. Responsabilidad y legislación
 * **Limitación de responsabilidad:** El sistema bloqueará cualquier intento de acceso directo mediante URL a las colecciones privadas por parte de usuarios no autorizados. Para mitigar el riesgo de pérdida de datos, el sistema realiza respaldos automáticos diarios de la base de datos.
 * **Ley aplicable y jurisdicción:** La plataforma y el tratamiento de los datos personales se rigen estrictamente por la Ley 18.331 de Protección de Datos Personales de Uruguay. No se solicita la dirección física ni la cédula de identidad de los usuarios para simplificar el registro y minimizar la recolección de datos sensibles.
+
+## 6. Modificaciones de los términos
+
+El equipo puede actualizar estos Términos y la Política de Privacidad para reflejar cambios técnicos, legales u operativos. La versión vigente se publica con su fecha y se comunica a los usuarios antes de que entre en vigencia. El uso continuado del servicio después de la notificación implica la aceptación de la nueva versión; si el usuario no está de acuerdo, puede solicitar la baja de su cuenta.
 
 ---
 
@@ -240,6 +595,86 @@ Estas políticas establecen los lineamientos normativos para proteger la Confide
 * Las políticas actuales están diseñadas para un entorno de pruebas local como parte del proyecto académico. 
 * Estas normativas deberán ser revisadas y actualizadas cuando el sistema se migre a un servidor en la nube de producción y se implementen pasarelas de métodos de pago reales en futuras versiones.
 
+---
+
+## 5.2 Términos y Condiciones, Política de Privacidad y evidencias de aceptación
+
+La segunda entrega exige que la plataforma publique las condiciones de uso y la política de privacidad, y que pueda demostrar que el usuario las acepta antes de crear la cuenta. El texto de los Términos y Condiciones y de la Política de Seguridad de la Información se presenta en las secciones anteriores; esta sección agrega la Política de Privacidad y documenta la evidencia técnica de aceptación.
+
+### 5.2.1 Marco legal aplicable
+
+CipherForge trata datos personales de personas residentes en Uruguay, por lo que queda alcanzado por la **Ley N.º 18.331 de Protección de Datos Personales** y su decreto reglamentario. La ley exige consentimiento informado, finalidad determinada, proporcionalidad en la recolección, medidas de seguridad adecuadas y respeto de los derechos del titular. El equipo actúa como responsable técnico de la plataforma, mientras que cada fotógrafo decide qué contenido publica y asume la responsabilidad legal sobre las imágenes de terceros que carga, tal como se establece en los Términos y Condiciones.
+
+La normativa se aplica aunque el sistema todavía no cobre: el hecho de almacenar nombre, correo, teléfono y credenciales de personas reales ya constituye tratamiento de datos personales. Por eso la política no se limita a describir buenas intenciones, sino que enumera qué dato se guarda, para qué, dónde y por cuánto tiempo.
+
+### 5.2.2 Política de Privacidad
+
+**Responsable del tratamiento.** El equipo de CipherForge, en el marco del Proyecto de Egreso de la Escuela Técnica, con el cliente solicitante Lemuel Swec como responsable del negocio. El correo de contacto para consultas de privacidad debe completarse antes de la entrega final.
+
+**Datos que se recogen y finalidad.**
+
+| Dato | Obligatorio | Finalidad | Dónde se almacena |
+|:--|:--:|:--|:--|
+| Nombre completo | Sí | Identificar al usuario y personalizar la cuenta | `usuarios.nombre_completo` |
+| Correo electrónico | Sí | Autenticación, verificación de cuenta y avisos del servicio | `usuarios.email` |
+| Teléfono | No | Contacto entre fotógrafo y cliente cuando el usuario lo decide | `usuarios.telefono` |
+| Contraseña | Sí | Autenticación; se guarda solo como hash bcrypt | `usuarios.password_hash` |
+| Dirección IP | Automática | Limitar intentos de login y de verificación; se usa como clave de un hash SHA-1 en el contador temporal | Archivo temporal en `sys_get_temp_dir()`, se purga a las 24 h |
+| Contenido multimedia e invitaciones | Según el rol | Prestar el servicio de colecciones y descargas | `uploads/` y tablas `multimedia`, `colecciones`, `acceso_colecciones` |
+| Preferencias y favoritos | No | Recordar la experiencia en el navegador | `localStorage` y tabla `favoritos` |
+
+**Base de legitimación.** El consentimiento expreso del usuario, otorgado al marcar la casilla de aceptación en el registro. En el caso del fotógrafo, se suma la aceptación de la responsabilidad legal sobre el contenido mediante un modal obligatorio en el primer inicio de sesión.
+
+**Conservación.** La cuenta y sus datos se conservan mientras el usuario mantenga la cuenta activa. Los archivos colaborativos no aprobados se eliminan a las 24 horas. Los respaldos automáticos conservan las últimas tres copias de la base de datos; ese plazo se define por la política de rotación y no por una decisión del usuario. Los contadores de intentos se purgan automáticamente a las 24 horas.
+
+**Cookies y almacenamiento local.** La única cookie que emite la API es `cipher_forge_token`, de sesión, con `HttpOnly` y `SameSite=Strict`. No se usan cookies de analítica, publicidad ni seguimiento. El frontend guarda en `localStorage` el correo pendiente de verificación, el perfil público y las colecciones favoritas; no guarda el token de sesión ni contraseñas.
+
+**Comunicación a terceros.** La plataforma no vende ni cede datos personales. En el entorno de desarrollo, los correos de verificación se capturan en Mailpit en lugar de enviarse por Internet. No hay servicios de analítica, mapas, publicidad ni pasarela de pago integrados. Si en el futuro se incorpora un proveedor externo, deberá firmarse un acuerdo de tratamiento y actualizarse esta política.
+
+**Derechos del titular.** El usuario puede solicitar acceso, rectificación, actualización, inclusión o supresión de sus datos escribiendo al correo de contacto. La plataforma debe responder dentro de los plazos que fija la ley y, en caso de supresión, eliminar la cuenta y los datos asociados salvo aquellos que deban conservarse por respaldo o por obligación legal. La solicitud se registra y se responde por escrito.
+
+**Seguridad.** Las contraseñas se almacenan con bcrypt; la sesión viaja en una cookie `HttpOnly`; las consultas usan sentencias preparadas; el acceso a los originales exige autorización en el servidor; los respaldos se almacenan fuera del árbol web. Las medidas pendientes —cabeceras de seguridad, CORS restringido y TLS en producción— se detallan en las secciones 5.3 y 5.4 y afectan directamente el deber de seguridad que impone la ley.
+
+**Notificación de incidentes.** Si se produce un incidente de seguridad con impacto relevante sobre datos personales, el equipo notificará a las personas afectadas y a la autoridad de control en los plazos y por los medios que establece la Ley N.º 18.331, y documentará el hecho, el alcance y las medidas adoptadas. El procedimiento interno se describe en la sección 4 de la tercera entrega.
+
+**Menores de edad.** El registro no está dirigido a menores de edad sin autorización de un adulto responsable. El fotógrafo que publica imágenes de eventos debe contar con el consentimiento de las personas retratadas; esa obligación se declara en los Términos y Condiciones y en el modal de responsabilidad.
+
+**Cambios en la política.** Cualquier cambio sustantivo debe comunicarse a los usuarios antes de entrar en vigencia. La versión vigente se identifica con una fecha al pie del documento legal.
+
+### 5.2.3 Evidencia de aceptación en el registro
+
+La Tabla 3 resume los elementos que hoy sostienen la aceptación legal y el punto en el que la evidencia se corta. La columna «Estado» distingue lo implementado de lo que solo está declarado en la interfaz.
+
+**Tabla 3**
+
+*Evidencia de aceptación de Términos y Condiciones y Política de Privacidad*
+
+| Elemento | Implementación real | Archivo | Estado |
+|:--|:--|:--|:--|
+| Casilla de aceptación en el registro del cliente | Checkbox `id="terminos"` con `required` y enlace al resumen legal | `frontend-cliente/pages/registro.html`, líneas 90-97 | Implementado |
+| Casilla de aceptación en el registro del fotógrafo | Checkbox `id="terminos"` con `required` y resumen de la Ley 18.331 | `frontend-fotografo/pages/registro.html`, líneas 90-103 | Implementado |
+| Envío del consentimiento a la API | `terminos_aceptados: document.getElementById("terminos").checked` en el cuerpo JSON | `frontend-cliente/dom/auth/registro.js` y `frontend-fotografo/dom/auth/registro.js`, línea 105 en ambos | Implementado |
+| Validación en el servidor | `AuthValidator` acepta `true`, `1`, `"1"` o `"true"`; cualquier otro valor produce `400` | `backend/src/validators/AuthValidator.php`, líneas 67-71 | Implementado |
+| Persistencia de la aceptación del cliente | No existe columna ni registro con fecha y versión | `backend/database/schema.sql` (tabla `clientes`) | **Pendiente** |
+| Persistencia de la aceptación del fotógrafo | `fotografos.politicas_aceptadas` booleano, actualizado por `POST /fotografos/aceptar-politicas` | `schema.sql` línea 20; `UserRepository::aceptarPoliticas()` | Implementado |
+| Modal de responsabilidad del fotógrafo | Se muestra si `politicas_aceptadas` es falso; exige desplazarse hasta el final del texto para habilitar el botón | `frontend-fotografo/dom/perfil/privacidad.js`, líneas 4-37 | Implementado |
+
+*Nota.* Elaboración propia a partir del código y del esquema de la base de datos verificados el 2026-11-04.
+
+La validación del servidor impide crear una cuenta sin el flag, pero el flag por sí solo no prueba que la persona haya leído el texto: un cliente HTTP puede enviar `terminos_aceptados: true` sin pasar por la interfaz. La evidencia fuerte es la combinación de la casilla visible, el texto accesible y el registro persistente con fecha y versión. Esa última pieza es la que falta para los clientes.
+
+**Brecha G-01 — aceptación sin trazabilidad para clientes.** La tabla `clientes` solo contiene `id_cliente`; no guarda cuándo ni qué versión de los términos aceptó la persona. La corrección propuesta es agregar `terminos_aceptados_en DATETIME` y `terminos_version VARCHAR(10)` a `clientes`, completarlas en `AuthService::register()` dentro de la misma transacción y exponerlas solo al propio usuario. El cambio requiere modificar el esquema y el flujo de registro, por lo que se registra como pendiente y no se aplicó en esta auditoría.
+
+**Evidencia pendiente de captura.**
+
+1. Pantalla del formulario de registro con la casilla visible y el enlace a los términos.
+2. Petición `POST /auth/register` sin `terminos_aceptados` → `400` con el mensaje «Debes aceptar los Términos y Condiciones & Política de Privacidad».
+3. Petición con `terminos_aceptados: true` → `201` y fila creada en `usuarios`.
+4. Consulta `SELECT id_fotografo, politicas_aceptadas FROM fotografos;` con el valor en `1` después de aceptar el modal.
+
+Las capturas deben tomarse del entorno local con una cuenta de prueba y sin datos personales reales, y guardarse en `docs/evidencias/` con un nombre que identifique la prueba y la fecha.
+
+---
 
 # Reporte de Análisis SAST — Cipher_Forge / Gestion-fotografias
 
@@ -869,6 +1304,141 @@ sustituye una corrida oficial de SonarQube; las limitaciones se describen en la 
 
 ---
 
+**Continuación de la Segunda Entrega — Implementación y endurecimiento**
+
+## 5.3 Análisis estático (SAST) y correcciones aplicadas
+
+El análisis estático se ejecutó en dos frentes complementarios. El motor local recorrió 126 archivos y produjo 49 hallazgos, de los cuales ninguno resultó una vulnerabilidad crítica o alta explotable después del triaje (sección anterior). La revisión manual, en cambio, encontró tres problemas críticos que el motor no podía inferir porque dependían del contexto de despliegue: el secreto JWT escrito dentro de una carpeta servida por HTTP, el árbol completo del backend expuesto como DocumentRoot y la base de datos publicada con credenciales por defecto. Esos tres casos están documentados con evidencia en `docs/SAST-Analisis-Manual-2026-10-26.md` y se corrigieron en el commit `f229c78` del 2026-10-27. La corrida del motor no modificó código: el reporte que precede a esta sección documenta el estado analizado, y las correcciones se aplicaron en un commit separado, fuera de esa corrida.
+
+La segunda entrega exige un mínimo de dos correcciones con evidencia antes/después. CipherForge cierra tres críticas y cinco hallazgos adicionales, todos verificados sobre el stack local el 2026-11-04.
+
+### 5.3.1 Correcciones antes y después
+
+**Tabla 4**
+
+*Correcciones aplicadas a partir del análisis estático*
+
+| ID | Hallazgo | Antes | Después | Evidencia de cierre |
+|:--|:--|:--|:--|:--|
+| C-01 | Secreto de firma JWT almacenado en `uploads/.jwt_secret` | Cualquiera podía leer el secreto por HTTP y firmar tokens para cualquier cuenta | `JWT_SECRET` es obligatorio por variable de entorno; `Config::jwtSecret()` falla cerrada y ya no escribe secretos en disco | `GET /uploads/.jwt_secret` → `404`; `backend/src/Core/Config.php`, líneas 18-28 |
+| C-02 | Backend completo bajo el DocumentRoot de Apache | `src/`, `database/`, `backups/`, `.env` y `uploads/` se servían por HTTP | DocumentRoot en `public/`; `uploads` y `backups` con `Require all denied`; regla equivalente en la configuración de Apache | `GET /uploads/originals/x.jpg` → `404`; `GET /.env` → `404`; `GET /docker-compose.yml` → `404` |
+| C-03 | Credenciales MySQL por defecto y puerto `3306` publicado | `cipher_user` / `cipher_password` en el código y `3306:3306` en Compose | `DB_PASS` obligatorio por entorno; el contenedor de base de datos no publica puertos; la app escucha solo en loopback | `docker ps`: `cipher_forge_db` sin binding; `docker-compose.yml`, servicio `db` sin clave `ports` |
+| H-08 | Contenedor ejecutándose como `root` | Proceso Apache con UID 0 | `USER www-data` y `chown` de `uploads/` en la imagen | `backend/Dockerfile`, líneas 51-54 |
+| H-01 | Sin límite de intentos en login ni en verificación | 25 intentos inválidos respondían siempre `401` | `RateLimitMiddleware`: 5 intentos por 5 minutos por IP + correo en login | 6.º intento → `429` (2026-11-04) |
+| H-10 | `/fotografos/{id}` capturaba `/fotografos/cuota` | Endpoint de cuota inalcanzable y control de rol sin aplicar | Ruta literal registrada antes de la parametrizada | `GET /fotografos/cuota` sin token → `401`; `routes.php`, línea 33 |
+| H-12 | `/sistema/*` solo restringido por red | Accesible sin sesión desde loopback | Rutas con requisito `auth` más la restricción de red existente | `GET /sistema/backups` sin token → `401` (2026-11-04) |
+| H-13 | Error fatal de PHP devolvía `200` con HTML | Fallo enmascarado como respuesta exitosa | `display_errors=0`, `log_errors=1` y *shutdown handler* que responde JSON con `500` | `backend/public/index.php`, líneas 7-29 |
+
+*Nota.* Elaboración propia. La columna «Evidencia de cierre» corresponde a pruebas ejecutadas el 2026-11-04 sobre `http://127.0.0.1:8080`, salvo H-13, verificado en la auditoría e2e con una imagen de 1 × 1 px.
+
+La lógica de cada corrección explica por qué el hallazgo deja de ser explotable. En C-01, el token solo puede emitirse con una clave que el atacante ya no puede leer: al eliminar el archivo de `uploads/` y exigir `JWT_SECRET` por entorno, forjar una firma válida requiere acceso al servidor. En C-02, el cambio de DocumentRoot hace que Apache no tenga una ruta física hacia `src/`, `database/`, `backups/` ni `.env`; aunque el archivo exista en disco, no hay URL que lo resuelva, y la denegación explícita de `uploads/` cubre el caso del volumen. En C-03, la contraseña deja de tener un valor conocido y el puerto deja de estar publicado: la base solo es alcanzable desde la red interna de Docker, de modo que un atacante externo no puede intentar la conexión directa. En H-08, un proceso comprometido ya no puede escribir fuera de `uploads/` ni modificar binarios del sistema. En H-01, el contador por IP y correo encarece la fuerza bruta hasta hacerla inviable dentro de la ventana de 5 minutos. En H-10 y H-12, el orden de rutas y el requisito `auth` hacen que la petición llegue al controlador correcto o se rechace antes de ejecutar lógica de negocio.
+
+### 5.3.2 Verificación de las correcciones
+
+Las comprobaciones se hicieron con `curl` contra el stack levantado, sin modificar datos de usuarios:
+
+```bash
+# C-01 y C-02: archivos internos y uploads fuera del árbol web
+curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080/uploads/.jwt_secret
+curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080/uploads/originals/x.jpg
+curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080/.env
+curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080/docker-compose.yml
+
+# H-01: límite de intentos (el sexto debe responder 429)
+for i in $(seq 1 6); do
+  curl -s -o /dev/null -w "%{http_code} " -X POST http://127.0.0.1:8080/auth/login \
+    -H "Content-Type: application/json" \
+    -d '{"email":"auditoria@prueba.test","password":"mala"}'
+done; echo
+
+# H-10 y H-12: rutas protegidas sin token
+curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080/fotografos/cuota
+curl -s -o /dev/null -w "%{http_code}\n" http://127.0.0.1:8080/sistema/backups
+```
+
+Resultado obtenido: `404`, `404`, `404`, `404`, `401 401 401 401 401 429`, `401` y `401`. Los cuatro `404` confirman que el backend dejó de servir archivos internos; el `429` confirma que el límite de intentos está activo; los `401` confirman que las rutas sensibles exigen sesión.
+
+La verificación de C-03 se hizo con `docker ps`: el contenedor `cipher_forge_db` aparece con los puertos `3306/tcp` y `33060/tcp` **expuestos entre contenedores**, pero sin la flecha `->` que indica publicación al host. La aplicación, en cambio, aparece como `127.0.0.1:8080->8080/tcp`, es decir, accesible solo desde la propia máquina.
+
+### 5.3.3 Hallazgos que el SAST no cerró
+
+El análisis estático no reemplaza la prueba dinámica. Tres observaciones siguen abiertas y se confirman en la tercera entrega: la política CORS refleja cualquier origen (`M-01`), la respuesta `500` todavía concatena el mensaje interno de la excepción (`M-02`) y la validación del JWT no comprueba que `alg` sea `HS256` (`M-03`). A ellas se suman la ausencia de cabeceras de seguridad (`H-02`) y la fuga de versión en `Server` y `X-Powered-By` (`H-05`). Ninguna permite por sí sola tomar una cuenta, pero todas reducen la defensa en profundidad y deben cerrarse antes de publicar el sistema fuera de la red local.
+
+La comparación con la corrida anterior de SonarQube (2026-09-10) se mantiene en la sección 9 del reporte SAST. El motor local no reemplaza esa herramienta: cuando SonarQube vuelva a estar disponible, corresponde repetir la corrida oficial para obtener el Quality Gate y la trazabilidad por regla.
+
+---
+
+## 5.4 Hardening de infraestructura y contenedores
+
+El endurecimiento se aplicó en cuatro capas: la imagen de la aplicación, la red y los secretos de Compose, la configuración de Apache y los archivos `.htaccess`, y la configuración de PHP. El criterio fue reducir privilegios y superficie expuesta sin romper el funcionamiento del sistema; cada medida se contrastó con el contenedor en ejecución.
+
+### 5.4.1 Imagen y proceso de la aplicación
+
+La imagen parte de `php:8.2-apache`, una etiqueta de versión fija y no `latest`, y solo instala las dependencias que el sistema usa: `ffmpeg` para el recorte de video, el cliente de MySQL para los respaldos y las bibliotecas de GD y ZIP. El `apt-get` limpia las listas al final de la misma capa para no dejar caché innecesaria en la imagen.
+
+El proceso no corre como `root`. El Dockerfile crea los directorios de `uploads`, ajusta el propietario a `www-data:www-data`, les asigna permisos `775` y cambia a `USER www-data` antes de arrancar Apache. Para que un proceso sin privilegios pueda escuchar, Apache se reconfigura de `Listen 80` a `Listen 8080` y el `EXPOSE` se alinea con ese puerto. El `CMD ["apache2-foreground"]` mantiene el servidor en primer plano, de modo que Docker pueda reiniciarlo si el proceso muere; el `ENTRYPOINT` respeta `"$@"` para que el servicio `worker` reutilice la misma imagen con `php cron-backup.php --loop`.
+
+El `DocumentRoot` se cambia a `/var/www/html/public`, con lo que `src/`, `database/`, `backups/`, `docs/` y `.env` quedan fuera del árbol servido. Además se agrega `conf-available/cipher-forge-hardening.conf` con `Require all denied` sobre `/var/www/html/uploads`, como segunda barrera independiente del `.htaccess` del volumen.
+
+### 5.4.2 Red, puertos y secretos
+
+La Tabla 5 resume la exposición real del stack, tomada de `docker ps` el 2026-11-04.
+
+**Tabla 5**
+
+*Superficie de red del stack local*
+
+| Contenedor | Puerto | Publicación | Acceso esperado |
+|:--|:--|:--|:--|
+| `cipher_forge_app` | `8080` | `127.0.0.1:8080` | Navegador local y proxy inverso en el mismo host |
+| `cipher_forge_db` | `3306`, `33060` | Sin publicación | Solo la red interna de Docker |
+| `cipher_forge_mail` | `8025` (UI), `1025` (SMTP) | `127.0.0.1` | Revisión de correos de desarrollo |
+| `cipher_forge_worker` | — | Sin puertos | Proceso de respaldo y purga |
+
+*Nota.* Elaboración propia a partir de `docker ps` y `docker-compose.yml`.
+
+La base de datos no publica `3306` y la aplicación solo escucha en loopback. Los secretos (`MYSQL_ROOT_PASSWORD`, `MYSQL_PASSWORD`, `JWT_SECRET` y `FRONTEND_URL`) se leen de `.env` con la sintaxis `${VAR:?mensaje}`, que detiene el arranque si la variable falta; el código de `Database` y `Config` también falla cerrado si no recibe la contraseña o el secreto. No hay credenciales escritas en `docker-compose.yml` ni en el Dockerfile.
+
+El volumen `uploads_data` separa el contenido subido del ciclo de vida del contenedor. En desarrollo, el bind mount `.:/var/www/html` permite editar el código sin reconstruir la imagen, pero también monta el `.env` dentro del contenedor; como el DocumentRoot es `public/`, ese archivo no queda accesible por HTTP. En producción corresponde usar una imagen inmutable y montar solo los volúmenes de datos.
+
+### 5.4.3 Apache y archivos `.htaccess`
+
+La configuración de Apache combina tres piezas. El `.htaccess` de la raíz del backend preserva la cabecera `Authorization` —necesaria para que `AuthMiddleware` reciba el token Bearer— y reescribe las peticiones que no corresponden a un archivo o directorio real hacia `public/index.php`. El `.htaccess` de `public/` repite la preservación de `Authorization` antes de la regla `[L]` y envía el resto a `index.php`. El `.htaccess` de `uploads/` y el de `backups/` niegan todo acceso directo con `Require all denied`, con una rama alternativa para versiones de Apache sin `mod_authz_core`.
+
+Se habilitó `mod_rewrite` con `a2enmod rewrite`. No se habilitó `mod_headers`, por lo que las cabeceras de seguridad propuestas en la sección 3.8 todavía no se emiten. El hardening de Apache tampoco fija `ServerTokens Prod`, `ServerSignature Off` ni `expose_php Off`; por eso una petición a `/api/ping` sigue devolviendo `Server: Apache/2.4.69 (Debian)` y `X-Powered-By: PHP/8.2.35`.
+
+### 5.4.4 Configuración de PHP
+
+El archivo `backend/php.ini` se copia al contenedor como `99-cipher-forge.ini` y ajusta los límites del runtime a lo que la aplicación ya valida: `upload_max_filesize = 900M`, `post_max_size = 1G`, `memory_limit = 512M`, `max_execution_time = 600` y `max_input_time = 600`. Sin esos valores, el límite por defecto de 2 MB de la imagen rechazaba cualquier archivo grande antes de llegar al validador. También fija `date.timezone = America/Montevideo` para que los respaldos, las expiraciones y los logs usen la hora local.
+
+Los errores se controlan en `backend/public/index.php`: `display_errors=0`, `log_errors=1` y un `register_shutdown_function` que convierte los errores fatales en una respuesta JSON con `500`. Esa medida evita el enmascaramiento de fallos, pero —como se indicó en 5.3.3— el `catch (Throwable)` todavía expone el mensaje de la excepción.
+
+### 5.4.5 Brechas de hardening y checklist
+
+| Medida | Estado | Observación |
+|:--|:--:|:--|
+| Imagen con versión fija de PHP | Implementado | `php:8.2-apache` |
+| Usuario no privilegiado | Implementado | `USER www-data` |
+| DocumentRoot restringido a `public/` | Implementado | Verificado con `404` en `.env` y `docker-compose.yml` |
+| `uploads/` y `backups/` fuera del alcance web | Implementado | `.htaccess` + configuración de Apache |
+| Base de datos sin puerto publicado | Implementado | `docker ps` sin binding en `3306` |
+| Secretos por entorno y fallo cerrado | Implementado | `${VAR:?}` en Compose; excepción en `Config` y `Database` |
+| Límites de subida alineados a la aplicación | Implementado | `php.ini` |
+| Cabeceras de seguridad HTTP | Pendiente | Requiere `mod_headers` o `header()` en `index.php` |
+| Ocultamiento de versión de Apache y PHP | Pendiente | `ServerTokens Prod`, `ServerSignature Off`, `expose_php Off` |
+| Contenedor de solo lectura y capacidades reducidas | Pendiente | Evaluar `read_only`, `cap_drop` y `security_opt` en producción |
+| Imagen de Mailpit con versión fija | Pendiente | `axllent/mailpit:latest` |
+| TLS y `COOKIE_SECURE=true` | Pendiente | Obligatorio antes de exponer el sistema a Internet |
+| Healthcheck de la aplicación | Pendiente | Solo existen `depends_on`, sin verificación de disponibilidad |
+
+*Nota.* Elaboración propia. «Implementado» significa verificado en el código o en el contenedor en ejecución; «Pendiente» significa que la medida está diseñada pero no aplicada.
+
+El balance de esta sección es que la contención mejoró de forma sustancial: un atacante que llegue a la aplicación ya no encuentra el `.env`, los respaldos ni el secreto JWT por HTTP, y el proceso no corre como `root`. Lo que falta es la capa de presentación segura —cabeceras, TLS y ocultamiento de versiones— y el endurecimiento fino del runtime de contenedores, que se recomienda para el despliegue en el servidor Ubuntu descrito en `docs/manual-migracion-serverubuntu.md`.
+
+---
+
+**Tercera Entrega — Hacking Ético, Pruebas Automatizadas y Respuesta a Incidentes**
+
 # Análisis Dinámico, Pruebas Automatizadas y Respuesta a Incidentes
 
 El análisis estático (SAST) examina el código sin ejecutarlo; esta sección verifica qué
@@ -933,6 +1503,8 @@ nmap -p 8080 --script http-enum 127.0.0.1 -oN nmap-enum.txt
 | 8025/tcp | `open` | HTTP | Mailpit Web UI | Interfaz de lectura de correos expuesta |
 | 5501/tcp | `open` | HTTP | VS Code Live Server | Frontend de desarrollo |
 
+*Nota.* Esta corrida corresponde al 2026-10-15 y se conserva como evidencia histórica. Después de las correcciones de C-03 y H-12, el 2026-11-04 MySQL ya no publica `3306` y `/sistema/backups` responde `401` sin sesión; el estado actual se documenta en las secciones 5.3 y 3.5. Los puertos de Mailpit y del servidor de desarrollo siguen limitados a loopback.
+
 **Enumeración de rutas (`http-enum`) y verificación manual de defensas:**
 
 | Ruta consultada | Respuesta observada | Interpretación |
@@ -945,7 +1517,8 @@ nmap -p 8080 --script http-enum 127.0.0.1 -oN nmap-enum.txt
 
 **Hallazgos del fingerprinting:**
 
-1. **Servicios de desarrollo publicados en el host** (MySQL `3306`, Mailpit `8025/1025`).
+1. **Servicios de desarrollo publicados en el host** (MySQL `3306`, Mailpit `8025/1025`
+   y el servidor Live Server en `5501`).
    En el entorno local es operativo, pero si el `docker-compose.yml` se despliega tal
    cual en un servidor con IP pública, MySQL quedaría expuesto al Internet con
    credenciales en texto plano en el archivo (`MYSQL_ROOT_PASSWORD: root_password`,
@@ -1117,6 +1690,40 @@ Durante la ejecución de la prueba, se monitoreó el consumo de recursos de los 
 2. **Eficiencia en el Procesamiento:** La arquitectura basada en Docker y Apache/PHP 8.2 mostró un rendimiento fluido con una tasa promedio de **71.49 solicitudes por segundo** y latencias máximas controladas (67 ms).
 3. **Consumo Minimizativo de Recursos:** El contenedor principal de la aplicación (`cipher_forge_app`) absorbió la carga sin mostrar picos de uso de CPU (0.00%) ni saturación de memoria RAM (16.54 MiB).
 4. **Resistencia a Cargas Básicas:** La prueba confirma que la estructura de CipherForge soporta adecuadamente ráfagas de tráfico livianas y continuas en entornos de desarrollo local.
+
+### Evidencia de la sesión de pruebas
+
+Las capturas de esta subsección se obtuvieron el 28 de octubre de 2026 desde la máquina evaluadora (Kali Linux) contra el host `192.168.1.247`, puerto `8081`. Registran la secuencia completa de la prueba: dos modos de fallo descartados (destino y esquema equivocados), la corrida válida sobre HTTP, el consumo de los contenedores durante la carga y la verificación final del endpoint. Los archivos se guardan en `docs/evidencias/` y se enlazan con rutas relativas a este documento.
+
+![Intento de conexión a 127.0.0.1:8081 desde la máquina evaluadora](evidencias/figura-04-curl-loopback-127.0.0.1.png)
+
+*Figura 4. Intento de conexión a la API mediante la dirección de loopback desde la máquina evaluadora. Captura del 28 de octubre de 2026. Elaboración propia.* **Nota.** El comando `curl -i --max-time 5 http://127.0.0.1:8081/api/ping` devuelve `curl: (7) Failed to connect to 127.0.0.1 port 8081 after 2 ms: Could not connect to server` porque `127.0.0.1`, ejecutado en Kali, designa a la propia Kali y no al host del servicio. Es un error de diagnóstico, no una falla del servidor: confirma que la API no se alcanza por reenvío local y que el destino correcto es la dirección de red del host.
+
+![Errores repetidos de handshake TLS en el puerto 8081](evidencias/figura-05-error-handshake-tls.png)
+
+*Figura 5. Errores repetidos de handshake TLS al solicitar el puerto 8081 por HTTPS. Captura del 28 de octubre de 2026. Elaboración propia.* **Nota.** La salida repite `SSL_handshake_failed (1)` con `error:0A00010B:SSL routines::tls_validate_record_header:wrong version number` (`ssl/record/methods/tlsany_meth.c:77`). El mensaje aparece cuando el cliente inicia un handshake TLS contra un listener que responde HTTP en texto plano: el primer registro que recibe no es un `ServerHello` válido. No es una vulnerabilidad del servidor, sino la confirmación de que el puerto `8081` no termina TLS; el cifrado en tránsito sigue pendiente (A02 y Tabla 7).
+
+![ApacheBench contra HTTPS sin completar por fallo de handshake](evidencias/figura-06-apachebench-https-fallido.png)
+
+*Figura 6. ApacheBench contra `https://192.168.1.247:8081/api/ping`: la corrida no se completa por fallo de handshake. Captura del 28 de octubre de 2026. Elaboración propia.* **Nota.** Con `ab -n 100 -c 2 https://192.168.1.247:8081/api/ping` cada solicitud falla antes de recibir respuesta y la herramienta no imprime la tabla de métricas. La captura se conserva para documentar el descarte del esquema HTTPS y justificar la corrida siguiente sobre HTTP.
+
+![ApacheBench sobre HTTP con 100 solicitudes completadas y 71,49 req/s](evidencias/figura-07-apachebench-http-100-solicitudes.png)
+
+*Figura 7. ApacheBench contra `http://192.168.1.247:8081/api/ping`: 100 solicitudes completadas y 71,49 req/s. Captura del 28 de octubre de 2026. Elaboración propia.* **Nota.** La corrida termina en 1,399 s con 100 solicitudes completadas y 0 fallidas, 71,49 req/s, una media de 27,976 ms por solicitud (13,988 ms por petición concurrente), 205 bytes por respuesta y 43,84 KB/s. Los percentiles son 25 ms (50 %), 27 ms (75 %), 31 ms (90 %) y 67 ms (99 % y máximo). Estos son los valores que se transcriben en las tablas de esta sección.
+
+![Consumo de recursos de los cuatro contenedores durante la prueba de carga](evidencias/figura-08-docker-stats-durante-la-carga.png)
+
+*Figura 8. Consumo de CPU, memoria, red y disco de los cuatro contenedores durante la prueba de carga. Captura del 28 de octubre de 2026. Elaboración propia.* **Nota.** `docker stats` muestra `cipher_forge_app` (`8b91c9507bde`) al 0,00 % de CPU y 16,54 MiB; `cipher_forge_db` (`5f6de8fe7cc5`) al 1,03 % y 370,9 MiB; `cipher_forge_worker` (`ff32479fa2c4`) al 0,00 % y 6,84 MiB; y `cipher_forge_mail` (`90abd4c4d32a`) al 0,00 % y 7,84 MiB, sobre un límite informado de 7,708 GiB. La captura es una muestra instantánea y no una serie temporal: prueba el consumo en el momento del monitoreo, no un promedio sostenido.
+
+![Corrida final de ApacheBench con 100 solicitudes y 0 bytes transferidos](evidencias/figura-09-apachebench-corrida-final.png)
+
+*Figura 9. Corrida final de ApacheBench: 100 solicitudes completadas con 0 bytes transferidos. Captura del 28 de octubre de 2026. Elaboración propia.* **Nota.** La captura no conserva el comando ni el código de estado: registra 100 solicitudes completadas, 0 fallidas, 116,66 req/s, una media de 17,143 ms y **0 bytes transferidos** (`Document Length: 0 bytes`, 0,00 KB/s). Sin cuerpo, la medición cubre solo conexión y estado, y el contador de ApacheBench no distingue un `200` de un `500`. Por eso su rendimiento no es comparable con los 71,49 req/s de la Figura 7 y no reemplaza la medición de referencia.
+
+![Respuesta 200 OK de /api/ping y cabeceras HTTP observadas](evidencias/figura-10-curl-200-ok-cabeceras.png)
+
+*Figura 10. Respuesta `200 OK` de `/api/ping` y cabeceras HTTP observadas con `curl -i`. Captura del 28 de octubre de 2026. Elaboración propia.* **Nota.** La respuesta incluye `Date: Wed, 28 Oct 2026 05:52:26 GMT`, `Server: Apache/2.4.69 (Debian)`, `X-Powered-By: PHP/8.2.35`, `Access-Control-Allow-Origin: *`, `Content-Length: 205` y `Content-Type: application/json; charset=utf-8`, con el cuerpo `{"ok": true, "mensaje": "Conexión exitosa con el backend", ...}`. No aparecen `Content-Security-Policy`, `X-Frame-Options`, `X-Content-Type-Options`, `Strict-Transport-Security`, `Referrer-Policy` ni `Permissions-Policy`, lo que confirma H-02; `X-Powered-By` expone la versión exacta de PHP (banner Z7). El comodín de CORS aparece porque la petición no envía `Origin`; la prueba del 4 de noviembre con `Origin: https://atacante.ejemplo` mostró reflexión del origen, que es el hallazgo H-04.
+
+Las figuras 4 a 10 documentan la prueba tal como se ejecutó, incluidas las corridas descartadas. La topología de esa sesión (host `192.168.1.247`, puerto `8081`) se registra tal como aparece en las capturas; el mapeo vigente del stack se verifica por separado en la Tabla 5 y en la sección 3.5.
 
 ---
 
@@ -1320,6 +1927,8 @@ de la primera entrega.
 **Resumen:** 16 hallazgos → **2 corregidos y verificados**, **4 aceptados/mitigados con
 control**, **10 abiertos** con medida correctiva definida.
 
+La columna «Estado» de la tabla de la sección 3.1 conserva el valor que tenía en la corrida original. La verificación posterior del 2026-11-04 se registra en la sección 3.5 y en la Tabla 6, donde se indica qué hallazgos siguen abiertos, cuáles se corrigieron y con qué evidencia.
+
 ---
 
 ### 3.2 Medidas correctivas aplicadas (antes → después)
@@ -1369,6 +1978,71 @@ control**, **10 abiertos** con medida correctiva definida.
 | Pruebas automatizadas de seguridad | 30 (24 PASS / 6 FAIL) + 62 pruebas e2e funcionales |
 | Superficie expuesta | 5 puertos locales, todos los definidos en `docker-compose.yml` |
 | Controles críticos verificados | Autorización/IDOR, bloqueo de `uploads/`, JWT íntegro, validación de MIME, restricción de `/sistema/*` |
+
+---
+
+### 3.5 Verificación posterior y estado actual (2026-11-04)
+
+Las tablas 3.1 a 3.4 conservan la fecha de la corrida que las produjo y no se reescriben, porque son la evidencia histórica del análisis. Esta sección agrega una re-verificación independiente hecha el 2026-11-04 contra el código y el stack actuales, para que el lector sepa qué hallazgos siguen abiertos y cuáles ya no son reproducibles.
+
+**Tabla 6**
+
+*Re-verificación de los hallazgos registrados*
+
+| ID | Estado en la tabla 3.1 | Estado verificado el 2026-11-04 | Evidencia |
+|:--|:--|:--|:--|
+| H-01 | Abierto | **Corregido** | Seis intentos de login inválidos: `401 401 401 401 401 429` |
+| H-02 | Abierto | **Abierto** | `/api/ping` no emite `Content-Security-Policy`, `X-Frame-Options`, `X-Content-Type-Options` ni `Referrer-Policy` |
+| H-03 | Aceptado en desarrollo | **Aceptado en desarrollo** | `COOKIE_SECURE=false` sigue siendo el valor del entorno local; no cambió |
+| H-04 | Abierto | **Abierto** | Un `Origin: https://atacante.ejemplo` recibe `Access-Control-Allow-Origin: https://atacante.ejemplo` y `Allow-Credentials: false` |
+| H-05 | Abierto | **Abierto** | La respuesta incluye `Server: Apache/2.4.69 (Debian)` y `X-Powered-By: PHP/8.2.35` |
+| H-06 | Aceptado en desarrollo | **Corregido en lo crítico** | MySQL ya no publica `3306`; la app escucha en `127.0.0.1:8080`; Mailpit sigue en loopback por ser herramienta de desarrollo |
+| H-07 | Abierto | **No reproducible** | No existe `Math.random()` en el código actual; el hallazgo no puede confirmarse y queda como observación |
+| H-08 | Abierto | **Corregido** | `USER www-data` en el Dockerfile |
+| H-09 | Aceptado con control | **Aceptado con control** | Sin cambios; el `409` del registro duplicado sigue siendo el comportamiento exigido por RF2 |
+| H-10 | Abierto | **Corregido** | `GET /fotografos/cuota` sin token → `401`, ya no lo captura `/{id}` |
+| H-12 | Mitigado | **Reforzado** | `GET /sistema/backups` sin token → `401` (además de la restricción de red) |
+| H-13 | Corregido | **Corregido** | `display_errors=0` y *shutdown handler* presentes en `public/index.php` |
+| H-14 | Corregido | **Corregido** | Paso mínimo en el bucle de la marca de agua |
+| H-15 | Pendiente técnico | **Pendiente técnico** | Sigue sin `composer.json`, `package.json` ni análisis SCA |
+| H-16 | Aceptado con control | **Aceptado con control** | Sin cambios; depende de que CORS se restrinja (H-04) |
+
+*Nota.* Elaboración propia. «Corregido» exige una prueba que lo demuestre, no solo la intención en el código.
+
+La re-verificación dejó además dos hallazgos nuevos que no estaban en el registro original y que afectan el funcionamiento y la confidencialidad de la información interna.
+
+**H-17 — Directorio y perfil público de fotógrafos devuelven `500` por un nombre de tabla mal escrito.** Severidad: Media (disponibilidad). CWE-178, OWASP A05. Las consultas `UserRepository::listarFotografos()` y `obtenerPerfilFotografo()` usan `INNER JOIN Fotografos` con mayúscula inicial (líneas 218 y 235), pero el esquema crea la tabla `fotografos` en minúsculas. En Linux, MySQL distingue mayúsculas en los nombres de tabla, de modo que ambas consultas fallan. El efecto es que `GET /fotografos` y `GET /fotografos/{id}` responden `500` y el directorio público queda inutilizable. La corrección es unificar el identificador a `fotografos` en las dos consultas y agregar una prueba de regresión a la suite.
+
+**H-18 — La respuesta `500` revela el motor de base de datos, el esquema y el nombre de la tabla.** Severidad: Media (exposición de información). CWE-209, OWASP A05. La misma petición devuelve el cuerpo:
+
+```json
+{
+    "ok": false,
+    "mensaje": "Error interno del servidor: SQLSTATE[42S02]: Base table or view not found: 1146 Table 'cipher_forge.Fotografos' doesn't exist",
+    "errores": []
+}
+```
+
+Ese mensaje confirma el gestor (`MySQL`), el nombre de la base (`cipher_forge`), la tabla afectada y el hecho de que la aplicación no captura el error de forma genérica. Es la manifestación concreta de M-02 y de la brecha señalada en 3.7: el `catch (Throwable)` de `public/index.php` sigue concatenando `$e->getMessage()`. La corrección es responder con un texto fijo, registrar el detalle en el log del servidor y devolver un identificador de correlación para soporte.
+
+**Tabla 7**
+
+*Acciones inmediatas surgidas de la verificación*
+
+| Prioridad | Acción | Hallazgo | Plazo |
+|:--|:--|:--|:--|
+| 1 | Corregir `Fotografos` → `fotografos` en las dos consultas y probar `/fotografos` | H-17 | 24 horas |
+| 2 | Reemplazar el mensaje interno del `500` por uno genérico y registrar el detalle en el log | H-18 / M-02 | 24 horas |
+| 3 | Emitir las cabeceras de seguridad y desactivar `expose_php` | H-02 / H-05 | Antes del despliegue |
+| 4 | Lista blanca estricta de CORS | H-04 | Antes del despliegue |
+| 5 | Validar `alg = HS256` en `Jwt::decode()` | M-03 | Próximo sprint |
+| 6 | Persistir la aceptación legal de los clientes con fecha y versión | G-01 | Próximo sprint |
+| 7 | Registrar eventos de seguridad y definir alertas | H-11 | Próximo sprint |
+| 8 | Incorporar SCA y fijar la versión de Mailpit | H-15 / M-07 | Al llevar a producción |
+
+*Nota.* Elaboración propia. Ninguna de estas acciones se aplicó durante esta auditoría: el alcance del trabajo fue documentar y verificar, no modificar el código.
+
+La lectura conjunta de las tablas 6 y 7 muestra un cambio de perfil en el riesgo: los problemas críticos de exposición de secretos, archivos y base de datos están cerrados; lo que queda son fallos de configuración de la capa HTTP, un error funcional con impacto en disponibilidad y una fuga de información en el manejo de errores. Ese conjunto es acotado y tiene corrección directa.
 
 ---
 
@@ -1432,6 +2106,20 @@ flowchart LR
   G --> H[6. Post-mortem<br/>acta, lecciones, actualización<br/>de este documento y de la PSI]
   H --> A
 ```
+
+**Tabla 8**
+
+*Matriz de acciones inmediatas ante un incidente*
+
+| Fase | Acción inmediata | Responsable | Tiempo esperado |
+|:--|:--|:--|:--|
+| 1. Contención | Aislar el contenedor afectado o bloquear la IP atacante; preservar los logs antes de reiniciar | Infraestructura | Menos de 30 minutos |
+| 2. Diagnóstico | Revisar logs de Apache, Docker y de la API; identificar el vector y el alcance | Backend / Seguridad | Menos de 2 horas |
+| 3. Corrección y recuperación | Aplicar el parche, rotar los secretos, ejecutar la suite y volver a desplegar | Todo el equipo | Menos de 4 horas |
+| 4. Comunicación | Notificar al cliente y, si hubo filtración, a las personas afectadas conforme a la Ley N.º 18.331 | Líder del proyecto | Menos de 24 horas |
+| 5. Lecciones aprendidas | Post-mortem, acta de causa raíz y actualización de este documento y de la PSI | Todo el equipo | Menos de 1 semana |
+
+*Nota.* Elaboración propia a partir de Nelson et al. (2025). Los tiempos son objetivos internos y deben ajustarse a la disponibilidad real del equipo. Los roles se asignan a integrantes concretos en la portada del informe.
 
 **Fase 1 — Preparación (previa a cualquier incidente)**
 - Respaldo diario automático con rotación de 3 copias (HU13) y verificación de que el
@@ -1529,3 +2217,128 @@ certificada. El uso de herramientas (Nmap, ZAP, SonarQube) y de asistencia de IA
 redactar guiones se rige por `docs/etica_uso_de_ia.md`: la responsabilidad final del que
 firma este documento es humana, y todo resultado automatizado fue revisado y validado por
 el equipo antes de darse por bueno.
+
+---
+
+# Conclusiones
+
+El informe cubre las tres entregas de la asignatura sobre un mismo sistema y con un hilo conductor: cada control que se propone en el diseño se busca después en el código, se prueba contra el sistema en ejecución y se registra con su estado real. Esa continuidad es el principal aporte del trabajo. La primera entrega identifica seis amenazas, las valora con una escala explícita y las relaciona con los componentes concretos de CipherForge; la segunda implementa y verifica la autenticación, la criptografía, el marco legal, las correcciones del análisis estático y el endurecimiento de la infraestructura; la tercera prueba el sistema con Nmap, OWASP ZAP y una suite Bash, consolida los hallazgos y define un plan de respuesta a incidentes con roles, plazos y criterios de notificación.
+
+El resultado más importante es que las exposiciones críticas están cerradas y demostradas con evidencia reproducible. El secreto JWT ya no se escribe en una carpeta pública, el backend dejó de servir `src/`, `database/`, `backups/` y `.env`, la base de datos no publica el puerto `3306`, el contenedor no corre como `root` y el login tiene límite de intentos. Cada una de esas afirmaciones se contrastó con una respuesta HTTP o con la salida de `docker ps`, no con la intención declarada en el diseño. Esa distinción entre «implementado» y «pendiente» se sostiene en todo el documento y es lo que permite defender el estado del proyecto sin exagerar sus logros.
+
+El sistema todavía no está listo para producción. Quedan abiertos la ausencia de cabeceras de seguridad, la política CORS que refleja cualquier origen, la fuga del mensaje interno en las respuestas `500`, la validación incompleta del encabezado JWT y el error de nombre de tabla que inutiliza el directorio de fotógrafos. A ellos se suman la falta de TLS, la aceptación legal de los clientes sin trazabilidad y la ausencia de análisis de dependencias. Ninguno de esos puntos es cosmético: cada uno reduce la defensa en profundidad o afecta un requisito funcional, y por eso la Tabla 7 los ordena con plazo y responsable.
+
+En términos académicos, el trabajo demuestra un ciclo completo de seguridad: modelado de amenazas, diseño de controles, implementación, verificación estática, prueba dinámica, registro de hallazgos y respuesta. También demuestra sus límites: el motor SAST es propio y no reemplaza a SonarQube, el análisis DAST se hizo sobre un entorno local y las pruebas no cubren ingeniería social ni explotación avanzada. Declarar esos límites no debilita el informe; lo hace verificable y honesto.
+
+La conclusión operativa es simple: CipherForge es defendible como proyecto de egreso y como sistema en entorno controlado, y será desplegable cuando se cierren las acciones de la Tabla 7 y se adjunte la evidencia pendiente del Anexo C. La seguridad no se alcanza con una lista de herramientas, sino con la disciplina de volver a probar cada control después de cada cambio.
+
+---
+
+# Referencias
+
+Docker Inc. (2026). *Docker documentation*. https://docs.docker.com/
+
+Lyon, G. F. (2009). *Nmap network scanning: The official Nmap project guide to network discovery and security scanning*. Insecure.Com.
+
+MITRE. (2026). *Common Weakness Enumeration (CWE)*. https://cwe.mitre.org/
+
+Nelson, A., Rekhi, S., Souppaya, M., & Scarfone, K. (2025). *Incident response recommendations and considerations for cybersecurity risk management: A CSF 2.0 community profile* (NIST SP 800-61r3). National Institute of Standards and Technology. https://doi.org/10.6028/NIST.SP.800-61r3
+
+Oracle. (2026). *MySQL 8.0 reference manual*. https://dev.mysql.com/doc/refman/8.0/en/
+
+OWASP Foundation. (2021). *OWASP Top 10:2021*. https://owasp.org/Top10/
+
+OWASP Foundation. (2023). *OWASP API Security Top 10:2023*. https://owasp.org/API-Security/editions/2023/en/0x00-header/
+
+OWASP Foundation. (s. f.). *OWASP Cheat Sheet Series*. https://cheatsheetseries.owasp.org/
+
+OWASP Foundation. (s. f.). *OWASP Zed Attack Proxy (ZAP)*. https://www.zaproxy.org/
+
+SonarSource. (2026). *SonarQube Community Build documentation*. https://docs.sonarsource.com/sonarqube-community-build/
+
+The Apache Software Foundation. (2026). *Apache HTTP Server version 2.4 documentation*. https://httpd.apache.org/docs/2.4/
+
+The PHP Group. (s. f.). *PHP manual: Password hashing functions*. https://www.php.net/manual/en/ref.password.php
+
+Uruguay. (2008). *Ley N.º 18.331 de Protección de Datos Personales y Acción de Habeas Data*. https://www.impo.com.uy/bases/leyes/18331-2008
+
+*Nota.* En la exportación a PDF se aplica sangría francesa de 1,27 cm y se conserva el orden alfabético. Las referencias internas del proyecto se citan en el cuerpo con la ruta del archivo (`docs/…`) para que puedan ubicarse en el repositorio.
+
+---
+
+# Anexos
+
+## Anexo A. Entorno de reproducción
+
+| Elemento | Valor usado en la auditoría |
+|:--|:--|
+| Sistema operativo | Windows 11, con Docker Desktop |
+| Backend | Contenedor `cipher_forge_app`, PHP 8.2.35 sobre Apache 2.4.69 |
+| Base de datos | Contenedor `cipher_forge_db`, MySQL 8.0.46 |
+| Frontend servido | `http://127.0.0.1:5501/Gestion-fotografias/` |
+| API | `http://127.0.0.1:8080` |
+| Correo de desarrollo | Mailpit en `http://127.0.0.1:8025` |
+| Fecha de la verificación posterior | 2026-11-04 |
+
+Comandos mínimos para reproducir el estado del stack:
+
+```bash
+# Levantar el entorno
+cd Gestion-fotografias/backend
+docker compose up -d
+docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+
+# Comprobar la superficie web
+curl -s -D - -o /dev/null http://127.0.0.1:8080/api/ping
+
+# Ejecutar la suite de seguridad
+BASE=http://127.0.0.1:8080 bash auditoria-api.sh
+```
+
+## Anexo B. Trazabilidad entre la guía de la asignatura y el informe
+
+*Nota.* Los números de tabla siguen el orden de aparición en este informe y no coinciden necesariamente con la numeración ilustrativa de la guía. Las tablas del registro histórico (3.1 a 3.4) y las de la tercera entrega conservan su fecha original; las tablas 6 y 7 agregan la re-verificación del 2026-11-04.
+
+| Requisito de la guía | Dónde se cumple | Estado |
+|:--|:--|:--|
+| Formato APA 7, portada, resumen, palabras clave e índice | Portada, Resumen, Índice y nota de formato | Cubierto en el Markdown; la paginación y la sangría se aplican al exportar a PDF |
+| Al menos tres amenazas relevantes | Sección 1 y Tabla 1 (seis amenazas A1–A6) | Cumplido |
+| Mapa de riesgos con impacto técnico y de usuario | Secciones 2, 2.2 y 2.3; Figuras 1 y 2 | Cumplido |
+| Buenas prácticas aplicadas a las tecnologías reales | Secciones 3.1 a 3.9 y Tabla 2 | Cumplido |
+| Autenticación y criptografía | Sección 5.1 y Figura 3 | Cumplido |
+| Términos y Condiciones y Política de Privacidad | Términos y Condiciones, PSI y sección 5.2 | Cumplido; falta persistir la aceptación de clientes (G-01) |
+| SAST con evidencias antes/después y al menos dos correcciones | Reporte SAST y sección 5.3, Tabla 4 | Cumplido en contenido; faltan capturas (Anexo C) |
+| Hardening de infraestructura y contenedores | Sección 5.4 | Cumplido; brechas de la Tabla 5 documentadas |
+| DAST con Nmap y OWASP ZAP | Secciones 1.2 y 1.3 de la tercera entrega | Cumplido en comandos y resultados; faltan capturas |
+| Script Bash de auditoría de la API | Sección 2 de la tercera entrega | Cumplido; ver Anexo D por el nombre del archivo |
+| Registro de hallazgos y medidas correctivas | Secciones 3.1 a 3.5 y tablas 6 y 7 | Cumplido |
+| Plan de respuesta a incidentes | Sección 4 de la tercera entrega | Cumplido |
+| Reflexión ética | Sección 5 de la tercera entrega | Cumplido |
+| Conclusiones, referencias y anexos | Secciones finales de este documento | Cumplido |
+
+## Anexo C. Evidencias pendientes de captura
+
+Las capturas no se incluyen en el repositorio porque el informe se distribuye como Markdown y las imágenes se incorporan al PDF final. Cada una debe tomarse del entorno local, con cuentas de prueba y sin datos personales reales, y guardarse en `docs/evidencias/` con un nombre que indique la prueba y la fecha.
+
+*Nota.* Las figuras 4 a 10 de la sección 1.6 ya se incorporaron al repositorio en `docs/evidencias/`, con nombres descriptivos y la fecha visible en la captura. El resto de las evidencias de esta lista sigue pendiente.
+
+| # | Evidencia | Sección que la requiere | Estado |
+|:--:|:--|:--|:--|
+| 1 | Nombres de los integrantes y fecha de entrega en la portada | Portada | Pendiente |
+| 2 | Salida del motor SAST y triaje de los 49 hallazgos | Reporte SAST | Pendiente de captura |
+| 3 | Comparativa antes/después de C-01, C-02 y C-03 | Sección 5.3 | Pendiente de captura |
+| 4 | Tabla `usuarios` con `password_hash` en formato `$2y$` | Sección 5.1.1 | Pendiente de captura |
+| 5 | Formulario de registro con la casilla legal visible | Sección 5.2.3 | Pendiente de captura |
+| 6 | Respuesta `400` al registrar sin `terminos_aceptados` | Sección 5.2.3 | Pendiente de captura |
+| 7 | Salida de Nmap con puertos y versiones | Tercera entrega, 1.2 | Pendiente de captura |
+| 8 | Reporte de OWASP ZAP con las alertas y su triaje | Tercera entrega, 1.3 | Pendiente de captura |
+| 9 | Consola de la suite Bash con `24 PASS / 6 FAIL` | Tercera entrega, 2.3 | Pendiente de captura |
+| 10 | Salida de `docker ps` con la superficie de red | Sección 5.4.2 | Pendiente de captura |
+| 11 | Correo de contacto de privacidad | Sección 5.2.2 | Pendiente de definir |
+| 12 | Diagramas Mermaid renderizados como figuras 1 a 3 | Descripción, 2.1 y 5.1.2 | Pendiente de exportar |
+
+## Anexo D. Nomenclatura del script de auditoría
+
+La guía de la asignatura menciona un script llamado `prueba-seguridad.sh`; el proyecto entrega el mismo instrumento con el nombre `auditoria-api.sh`. El cambio de nombre responde a que el script no se limita a una prueba aislada: recorre autenticación, validación de entradas, autorización, archivos, tokens, cabeceras, CORS y rutas de gestión, y devuelve un resumen de `PASS`/`FAIL`. Para evitar que la diferencia se interprete como un requisito incumplido, se recomienda una de dos opciones antes de la entrega: renombrar el archivo a `prueba-seguridad.sh` o agregar un wrapper de una línea con ese nombre que invoque al script actual. Cualquiera de las dos requiere modificar el repositorio y queda sujeta a autorización del equipo.
+
+El contenido completo del script, sus 30 pruebas y la corrida del 2026-10-15 se documentan en la sección 2 de la tercera entrega. La suite se re-ejecuta después de cada corrección para verificar el cierre de los hallazgos.

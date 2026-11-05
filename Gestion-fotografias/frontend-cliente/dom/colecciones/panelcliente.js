@@ -8,6 +8,8 @@ import { requiereSesion } from "../comun/sesion.js";
 import { crearTarjetaColeccion } from "./tarjetas.js";
 import "../comun/auth.js";
 
+const MAX_TAG = 35;
+
 const usuario = requiereSesion("cliente");
 const galeria = document.getElementById("galeriaPublica");
 const estadoVacio = document.getElementById("estadoVacio");
@@ -133,7 +135,7 @@ function mostrarTags() {
 }
 
 async function agregarTag(valor) {
-    const tag = normalizarTag(valor);
+    const tag = normalizarTag(valor).slice(0, MAX_TAG);
     if (!tag || tagsSeleccionados.includes(tag)) return;
     tagsSeleccionados.push(tag);
     campoTag.value = "";
@@ -180,7 +182,8 @@ campoTag.addEventListener("focus", abrirCajaTags);
 campoTag.addEventListener("input", function () {
     const limpio = campoTag.value
         .toLowerCase()
-        .replace(/[^a-záéíóúüñ0-9]/gi, "");
+        .replace(/[^a-záéíóúüñ0-9]/gi, "")
+        .slice(0, MAX_TAG);
     if (limpio !== campoTag.value) campoTag.value = limpio;
 });
 campoTag.addEventListener("keydown", async function (evento) {

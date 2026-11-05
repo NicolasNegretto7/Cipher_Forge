@@ -83,14 +83,14 @@
 
 .BotonModerar.Rechazar {
     border-color: var(--borde-fuerte);
-    color: var(--error);
+    color: var(--tinta-media);
     background: transparent;
 }
 
 .BotonModerar.Rechazar:not(:disabled):hover {
-    border-color: var(--error);
-    color: #fbfcfb;
-    background: var(--error);
+    border-color: var(--tinta);
+    color: var(--tinta);
+    background: transparent;
 }
 
 /* Retícula de pendientes --------------------------------------------------- */
@@ -131,20 +131,6 @@
 
 .MiniaturaNoDisponible {
     visibility: hidden;
-}
-
-.CheckPendiente {
-    position: absolute;
-    top: 9px;
-    left: 9px;
-    z-index: 2;
-    width: 18px;
-    height: 18px;
-    margin: 0;
-    border-radius: 4px;
-    accent-color: var(--verde-oscuro);
-    box-shadow: 0 0 0 2px rgb(251 252 251 / 85%);
-    cursor: pointer;
 }
 
 .DatosPendiente {

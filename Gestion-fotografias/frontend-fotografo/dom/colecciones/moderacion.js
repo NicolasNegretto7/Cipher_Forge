@@ -37,13 +37,6 @@ function formatearTamano(bytes) {
     return valor + " B";
 }
 
-function formatearFecha(fecha) {
-    return new Date(String(fecha).replace(" ", "T")).toLocaleString("es-ES", {
-        dateStyle: "short",
-        timeStyle: "short",
-    });
-}
-
 function tipoLegible(tipo) {
     return tipo === "video" ? "Video" : "Imagen";
 }
@@ -95,11 +88,11 @@ function actualizarBotones() {
         pendientes.length > 0 && idsSeleccionados.length === pendientes.length;
     seleccionarTodas.disabled = moderando;
     for (const tarjeta of galeria.querySelectorAll(".TarjetaPendiente")) {
-        tarjeta.classList.toggle(
-            "Seleccionada",
-            idsSeleccionados.includes(Number(tarjeta.dataset.id)),
-        );
-        tarjeta.querySelector("input").disabled = moderando;
+        const seleccionada = idsSeleccionados.includes(Number(tarjeta.dataset.id));
+        tarjeta.classList.toggle("Seleccionada", seleccionada);
+        const casilla = tarjeta.querySelector("input");
+        casilla.checked = seleccionada;
+        casilla.disabled = moderando;
     }
 }
 
@@ -138,7 +131,7 @@ async function renderizarPendientes() {
 
         const casilla = document.createElement("input");
         casilla.type = "checkbox";
-        casilla.className = "CheckPendiente";
+        casilla.className = "SelectorArchivo";
         casilla.checked = idsSeleccionados.includes(id);
         casilla.addEventListener("change", function () {
             if (casilla.checked && !idsSeleccionados.includes(id)) {
@@ -159,11 +152,7 @@ async function renderizarPendientes() {
 
         const detalle = document.createElement("p");
         detalle.textContent =
-            tipoLegible(archivo.tipo) +
-            " · " +
-            formatearTamano(archivo.tamanio) +
-            " · " +
-            formatearFecha(archivo.creado_en);
+            tipoLegible(archivo.tipo) + " · " + formatearTamano(archivo.tamanio);
 
         datos.appendChild(nombre);
         datos.appendChild(detalle);

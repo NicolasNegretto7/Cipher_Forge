@@ -10,18 +10,22 @@
             href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..700;1,400..700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
             rel="stylesheet"
         />
-        <link rel="stylesheet" href="css/landing.css?v=taste3" />
+        <link rel="stylesheet" href="css/landing.css?v=taste16" />
     </head>
     <body>
         <header class="Barra">
             <p class="Marca">CIPHERPHOTOS</p>
             <nav class="Accesos">
-                <a class="BotonHero" href="../frontend-fotografo/pages/login.html">
-                    Inicia Sesión: Fotógrafo
-                </a>
-                <a class="BotonHero" href="../frontend-cliente/pages/login.html">
-                    Inicia Sesión: Cliente
-                </a>
+                <button
+                    class="BotonHero BotonPrimario"
+                    type="button"
+                    data-destino="registro"
+                >
+                    Registrarse
+                </button>
+                <button class="BotonHero" type="button" data-destino="login">
+                    Iniciar sesión
+                </button>
             </nav>
         </header>
 
@@ -32,20 +36,24 @@
                 <p class="HeroParrafo">
                     Elige tu rol y empieza a subir o descargar imágenes de manera rápida y simple.
                 </p>
-
-                <div class="HeroBotones">
-                    <a class="BotonHero" href="../frontend-fotografo/pages/login.html">
-                        Inicia Sesión: Fotógrafo
-                    </a>
-                    <a class="BotonHero" href="../frontend-cliente/pages/login.html">
-                        Inicia Sesión: Cliente
-                    </a>
-                </div>
             </section>
+
+            <div class="HeroBotones">
+                <button class="BotonHero" type="button" data-destino="registro">
+                    Registrarse
+                </button>
+                <button
+                    class="BotonHero BotonSecundario"
+                    type="button"
+                    data-destino="login"
+                >
+                    Iniciar sesión
+                </button>
+            </div>
 
             <section class="HeroImagen">
                 <img
-                    src="No%20puedo%20mas.PNG" 
+                    src="Video%20y%20Imagenes/ImagenDemostartivaPrincipal1.PNG"
                     alt="Vista previa de la plataforma Cipher Photos con galería de fotografías"
                 />
             </section>
@@ -62,7 +70,7 @@
 
         <section class="SeccionVideo">
             <video
-                src="VideoDemostrativo.mp4"
+                src="Video%20y%20Imagenes/VideoDemostrativo.mp4"
                 autoplay
                 muted
                 loop
@@ -137,5 +145,63 @@
         <footer class="Pie">
             <p>CipherPhotos</p>
         </footer>
+
+        <div class="ModalRol" id="modalRol" hidden>
+            <div
+                class="ModalRolCaja"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="modalRolTitulo"
+                aria-describedby="modalRolEtiqueta"
+            >
+                <button
+                    class="ModalRolCerrar"
+                    id="cerrarModalRol"
+                    type="button"
+                    aria-label="Cerrar"
+                >
+                    ✕
+                </button>
+                <p class="ModalRolEtiqueta" id="modalRolEtiqueta">Iniciar sesión</p>
+                <h2 class="ModalRolTitulo" id="modalRolTitulo">Elige tu rol</h2>
+                <div class="ModalRolOpciones">
+                    <button class="RolOpcion" type="button" data-rol="fotografo">
+                        <span class="RolCirculo" aria-hidden="true">
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.6"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <rect x="3" y="7" width="18" height="13" rx="2" />
+                                <path d="M8 7l1.5-2h5L16 7" />
+                                <circle cx="12" cy="13.5" r="3.5" />
+                            </svg>
+                        </span>
+                        <span class="RolNombre">Fotógrafo</span>
+                    </button>
+                    <button class="RolOpcion" type="button" data-rol="cliente">
+                        <span class="RolCirculo" aria-hidden="true">
+                            <svg
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="1.6"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                            >
+                                <circle cx="12" cy="8" r="3.6" />
+                                <path d="M4.5 20a7.5 7.5 0 0 1 15 0" />
+                            </svg>
+                        </span>
+                        <span class="RolNombre">Cliente</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <script src="js/landing.js?v=3"></script>
     </body>
 </html>
