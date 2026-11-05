@@ -3,6 +3,11 @@
    Depende de base.css. Chrome del espacio de trabajo y política de privacidad.
    ========================================================================== */
 
+/* Panel de colecciones: sin la línea verde superior de la barra lateral ----- */
+body.PanelColecciones .Sidebar {
+    border-top: 0;
+}
+
 /* Cuenta en la barra lateral ---------------------------------------------- */
 /* Mismo tratamiento que el cierre de sesión del panel del cliente: texto
    discreto, sin caja, en mayúsculas y con subrayado al pasar el cursor. */

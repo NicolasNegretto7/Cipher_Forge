@@ -554,7 +554,6 @@ body.ModalAbierto {
     width: min(420px, 100%);
     padding: 40px 32px 34px;
     border: 1px solid var(--borde);
-    border-top: 3px solid var(--verde-oscuro);
     border-radius: var(--radio-suave);
     background: var(--superficie);
     box-shadow: var(--sombra-editorial);

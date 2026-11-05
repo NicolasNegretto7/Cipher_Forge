@@ -4,6 +4,11 @@
    campos editables en línea y una única zona de carga prominente.
    ========================================================================== */
 
+/* Sin la línea verde superior de la barra lateral ------------------------- */
+body.SubirImagenes .Sidebar {
+    border-top: 0;
+}
+
 /* Datos de la colección en la barra lateral ------------------------------- */
 .DatosNuevaColeccion {
     margin-top: 0;
