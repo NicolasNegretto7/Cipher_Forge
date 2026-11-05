@@ -22,7 +22,7 @@ let actualizacionProgramada = false;
 
 const instancia = new LazyLoad({
     elements_selector: ".LazyMedia",
-    threshold: 300,
+    threshold: 0,
     unobserve_entered: true,
     data_src: "lazy-src",
     class_loading: "MediaCargando",
