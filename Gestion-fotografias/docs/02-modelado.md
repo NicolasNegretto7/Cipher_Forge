@@ -1,4 +1,4 @@
-# 2. Arquitectura Propuesta, Modelado y Justificación Tecnológica
+﻿# 2. Arquitectura Propuesta, Modelado y Justificación Tecnológica
 
 ---
 
@@ -6,7 +6,7 @@
 
 El sistema **Cipher_Forge** adopta una **arquitectura en capas (Layered Architecture)** basada en el patrón **Cliente-Servidor desacoplado**, donde el frontend (interfaz de usuario) interactúa con el backend exclusivamente a través de una **API RESTful** sobre HTTP emitiendo y recibiendo cargas en formato JSON o binarios multipart. La persistencia de datos reside en un motor relacional MySQL 8.0 y los archivos multimedia se almacenan de forma estructurada en un volumen de almacenamiento persistente montado en el contenedor de la aplicación.
 
-> **Estado de implementación:** la arquitectura lógica es común a todos los entornos, pero el despliegue no. `LOCAL Windows` usa Docker Desktop y Apache publicado en `:8080`. `SERVIDOR UBUNTU (Server Ubuntu Lab)` usa la misma aplicación en contenedores detrás de Nginx `:80`, con VirtualBox NAT y port forwarding desde Windows; es una demo/laboratorio en LAN, sin TLS ni dominio. `PRODUCCIÓN` **no está implementada**: depende de las decisiones y brechas de [infraestructura.md, Sección 5](infraestructura.md#5-arquitectura-y-requisitos-de-producción-producción--brechas-no-hechos). La migración a Ubuntu no cambia el ERD ni las 11 tablas.
+> **Estado de implementación:** la arquitectura lógica es común a todos los entornos, pero el despliegue no. El **desarrollo local en Windows** usa Docker Desktop y Apache publicado en `:8080`. El **Server Ubuntu Lab (laboratorio)** usa la misma aplicación en contenedores detrás de Nginx `:80`, con VirtualBox NAT y port forwarding desde Windows; es una demo/laboratorio en LAN, sin TLS ni dominio. **Producción no está implementada**: depende de las decisiones y brechas de [infraestructura.md, Sección 5](infraestructura.md#5-arquitectura-y-requisitos-de-producción-brechas-no-hechos). La migración a Ubuntu no cambia el ERD ni las 11 tablas.
 
 ### 1.1 Diagrama de Arquitectura Global
 
@@ -19,8 +19,8 @@ graph TD
     end
 
     subgraph Red ["Capa de Entrada y Servidor Web"]
-        NGINX["Nginx 1.24 (solo SERVIDOR UBUNTU)\n(Puerto 80 - estáticos + proxy_pass)"]
-        APACHE["Servidor Web Apache 2.4\n(Puerto 8080 - .htaccess a public/index.php)\nLOCAL Windows y contenedor app"]
+        NGINX["Nginx 1.24 (solo Server Ubuntu Lab)\n(Puerto 80 - estáticos + proxy_pass)"]
+        APACHE["Servidor Web Apache 2.4\n(Puerto 8080 - .htaccess a public/index.php)\ndesarrollo local en Windows y contenedor app"]
     end
 
     subgraph Backend ["Capa de Aplicación (PHP 8.2 Backend Puro)"]
@@ -52,9 +52,9 @@ graph TD
         BACKUP["Sistema de Respaldos y Purga Diaria\n(worker cipher_forge_worker: cron-backup.php --loop / BackupService / PDO / rotación 3 copias)"]
     end
 
-    FC -->|"LOCAL: HTTP :8080 / SERVIDOR UBUNTU: :8080 → Nginx :80"| NGINX
-    FU -->|"LOCAL: HTTP :8080 / SERVIDOR UBUNTU: :8080 → Nginx :80"| NGINX
-    INV -->|"LOCAL: HTTP :8080 / SERVIDOR UBUNTU: QR → Nginx :80"| NGINX
+    FC -->|"desarrollo local: HTTP :8080 / Server Ubuntu Lab: :8080 → Nginx :80"| NGINX
+    FU -->|"desarrollo local: HTTP :8080 / Server Ubuntu Lab: :8080 → Nginx :80"| NGINX
+    INV -->|"desarrollo local: HTTP :8080 / Server Ubuntu Lab: QR → Nginx :80"| NGINX
     NGINX -->|proxy_pass a 127.0.0.1:8080| APACHE
     
     APACHE --> ROUTER
@@ -78,15 +78,15 @@ graph TD
     BACKUP -.->|purga 24h| FS
 ```
 
-> En `LOCAL Windows` los clientes entran directo a Apache `:8080`; Nginx solo existe en `SERVIDOR UBUNTU` como borde HTTP. El diagrama muestra ambas rutas de entrada para no duplicar la arquitectura lógica.
+> En el **desarrollo local en Windows** los clientes entran directo a Apache `:8080`; Nginx solo existe en el **Server Ubuntu Lab** como borde HTTP. El diagrama muestra ambas rutas de entrada para no duplicar la arquitectura lógica.
 
 ### 1.2 Estado de Implementación y Diagrama de Despliegue
 
 | Entorno | Estado | Entrada web | Base de datos | Multimedia | Notas |
 |---|---|---|---|---|---|
-| `LOCAL Windows` | Implementado | Apache `:8080` | `db` con `3306` publicado | Volumen `uploads_data` | Docker Desktop; frontend con Live Server `:5501` |
-| `SERVIDOR UBUNTU (Server Ubuntu Lab)` | Implementado como demo/laboratorio | Windows `:8080` → VirtualBox NAT → Nginx `:80` → `app` en `127.0.0.1:8080` | `db` sin puerto publicado | Volumen `backend_uploads_data` | Nginx sirve frontends y API en el mismo origen; QR validado desde celular el 28/10/2026 |
-| `PRODUCCIÓN` | **No implementado** | HTTPS con dominio `PENDIENTE DE DEFINICIÓN` | Gestionada, sin puerto público | Almacenamiento externo o gestionado `PENDIENTE DE DEFINICIÓN` | Requiere TLS, SMTP real, backups off-site y restore probado |
+| desarrollo local en Windows | Implementado | Apache `:8080` | `db` con `3306` publicado | Volumen `uploads_data` | Docker Desktop; frontend con Live Server `:5501` |
+| Server Ubuntu Lab (laboratorio) | Implementado como demo/laboratorio | Windows `:8080` → VirtualBox NAT → Nginx `:80` → `app` en `127.0.0.1:8080` | `db` sin puerto publicado | Volumen `backend_uploads_data` | Nginx sirve frontends y API en el mismo origen; QR validado desde celular el 28/10/2026 |
+| producción | **No implementada** | HTTPS con dominio pendiente de decisión | Gestionada, sin puerto público | Almacenamiento externo o gestionado pendiente de decisión | Requiere TLS, SMTP real, backups off-site y restore probado |
 
 **Despliegue concreto del laboratorio:**
 
@@ -101,14 +101,14 @@ graph LR
         FW["Firewall Windows\nTCP 8080 para LocalSubnet"]
         VB["VirtualBox NAT\nhost 8080 → guest 10.0.2.50:80\nSSH host 2222 → guest 22"]
 
-        subgraph LOCAL["LOCAL Windows (Docker Desktop)"]
+        subgraph LOCAL["desarrollo local en Windows (Docker Desktop)"]
             LAPP["app\nApache :8080"]
             LDB[("db\nMySQL :3306")]
             LMAIL["mailpit\n:8025 / :1025"]
             LWORKER["worker"]
         end
 
-        subgraph UBUNTU["Ubuntu-Server-Lab (SERVIDOR UBUNTU)"]
+        subgraph UBUNTU["Ubuntu-Server-Lab (Server Ubuntu Lab)"]
             NGX["Nginx :80\nestáticos + proxy_pass"]
             STATIC["Frontends + landing\n/opt/cipher-forge/Gestion-fotografias"]
             UAPP["app\n127.0.0.1:8080"]
@@ -120,12 +120,12 @@ graph LR
         end
     end
 
-    PROD["PRODUCCIÓN\nNo implementada\nTLS + dominio + SMTP real\nbackups off-site + restore\nPENDIENTE DE DEFINICIÓN"]
+    PROD["producción\nNo implementada\nTLS + dominio + SMTP real\nbackups off-site + restore\npendiente de decisión"]
 
     CEL -->|"http://10.244.239.215:8080\nQR colaborativo"| FW
     PC -->|"http://10.244.239.215:8080"| FW
-    PC -->|"LOCAL: http://localhost:8080"| LAPP
-    PC -.->|"LOCAL: frontend Live Server :5501"| LAPP
+    PC -->|"desarrollo local: http://localhost:8080"| LAPP
+    PC -.->|"desarrollo local: frontend Live Server :5501"| LAPP
     FW --> VB
     VB --> NGX
     NGX -->|"/, /lading-page, /frontend-*"| STATIC
@@ -148,7 +148,7 @@ graph LR
 * **Mismo origen:** al servir frontend y API por el mismo puerto, el navegador no hace CORS y la cookie `SameSite=Strict` funciona. Los dos `config.js` usan `API_URL=""`.
 * **Datos persistentes:** `backend_db_data` y `backend_uploads_data` viven en la VM. `docker compose down -v` los destruye; los backups de `backend/backups/` sobreviven en el filesystem de la VM.
 * **Mailpit** solo escucha en `127.0.0.1` y se consulta por túnel SSH, no está expuesto a la LAN.
-* **PRODUCCIÓN** no es una variante de este diagrama: es un entorno pendiente, con TLS, dominio y decisiones sin resolver.
+* **Producción** no es una variante de este diagrama: es un entorno pendiente, con TLS, dominio y decisiones sin resolver.
 
 ### 1.3 Descripción Detallada de Capas
 
@@ -200,6 +200,7 @@ erDiagram
     USUARIOS ||--o{ COLECCIONES : "crea y administra"
     USUARIOS ||--o{ FAVORITOS : "marca"
     USUARIOS ||--o{ ACCESO_COLECCIONES : "tiene acceso asignado"
+    COLECCIONES ||--o{ FAVORITOS : "es marcada en"
     COLECCIONES ||--o{ MULTIMEDIA : "contiene recursos"
     COLECCIONES ||--o{ QR_TOKENS : "emite tokens"
     COLECCIONES ||--o{ COLECCION_HASHTAGS : "clasificada en"
@@ -210,7 +211,7 @@ erDiagram
         string nombre_completo "Nombre del usuario (max 90 car)"
         string email UK "Correo unico para login (max 60 car)"
         string telefono "Telefono de contacto opcional (max 30 car)"
-        boolean email_verificado DEFAULT FALSE "Estado de verificacion de casilla"
+        boolean email_verificado "Estado de verificacion de casilla (DEFAULT FALSE)"
         string codigo_verificacion "Codigo numerico temporal de validacion"
         datetime codigo_expiracion "Fecha y hora limite del codigo"
         string password_hash "Contrasena hasheada con bcrypt"
@@ -221,15 +222,15 @@ erDiagram
     }
     FOTOGRAFOS {
         int id_fotografo PK,FK "Referencia a usuarios.id (ON DELETE CASCADE)"
-        boolean politicas_aceptadas DEFAULT FALSE "Aceptacion formal Ley 18.331"
+        boolean politicas_aceptadas "Aceptacion formal Ley 18.331 (DEFAULT FALSE)"
     }
     COLECCIONES {
         int id PK "Identificador unico autoincremental"
-        int fotografo_id FK NOT NULL "Dueno de la coleccion (usuarios.id)"
-        enum tipo_visibilidad DEFAULT privada "Visibilidad: privada o publica"
+        int fotografo_id FK "Dueno de la coleccion (usuarios.id) (NOT NULL)"
+        enum tipo_visibilidad "Visibilidad: privada o publica (DEFAULT privada)"
         string titulo "Titulo de la coleccion (max 60 car)"
         string descripcion "Descripcion del evento (max 90 car)"
-        timestamp creado_en DEFAULT CURRENT_TIMESTAMP "Fecha y hora de creacion automatica"
+        timestamp creado_en "Fecha y hora de creacion automatica (DEFAULT CURRENT_TIMESTAMP)"
     }
     MULTIMEDIA {
         int id_multimedia PK "Identificador unico autoincremental"
@@ -238,12 +239,12 @@ erDiagram
         string descripcion "Detalle del recurso (max 90 car)"
         string ruta_original "Ruta del archivo original en disco"
         string vista_previa "Ruta de la vista previa procesada"
-        string poster DEFAULT NULL "Ruta del poster del video"
+        string poster "Ruta del poster del video (DEFAULT NULL)"
         bigint tamanio "Tamano exacto del archivo original en bytes"
-        boolean es_invitado DEFAULT FALSE "Indica si fue aportada via QR por un invitado"
-        boolean aprobado DEFAULT TRUE "Estado de moderacion (TRUE = aprobado, FALSE = pendiente de revision por el fotografo)"
+        boolean es_invitado "Indica si fue aportada via QR por un invitado (DEFAULT FALSE)"
+        boolean aprobado "Estado de moderacion: TRUE = aprobado, FALSE = pendiente de revision por el fotografo (DEFAULT TRUE)"
         enum tipo "Tipo de recurso: video o imagen"
-        timestamp creado_en DEFAULT CURRENT_TIMESTAMP "Fecha y hora de subida"
+        timestamp creado_en "Fecha y hora de subida (DEFAULT CURRENT_TIMESTAMP)"
     }
     ACCESO_COLECCIONES {
         int usuario_id PK,FK "Usuario con acceso (usuarios.id)"
@@ -258,7 +259,7 @@ erDiagram
         int coleccion_id FK "Coleccion asociada (colecciones.id)"
         string token UK "Cadena alfanumerica unica (max 100 car)"
         enum tipo "Tipo de token: colaborativo o acceso"
-        timestamp creacion_token DEFAULT CURRENT_TIMESTAMP "Fecha y hora de generacion"
+        timestamp creacion_token "Fecha y hora de generacion (DEFAULT CURRENT_TIMESTAMP)"
         datetime expiracion "Fecha de caducidad (24h para colaborativo, NULL para acceso)"
     }
     HASHTAGS {
@@ -273,75 +274,25 @@ erDiagram
         int id_backup PK "Identificador unico autoincremental"
         string ruta_backup "Ruta del archivo .sql en disco"
         string nombre_backup "Nombre con marca de tiempo del backup"
-        timestamp fecha_backup DEFAULT CURRENT_TIMESTAMP "Fecha y hora exacta del respaldo"
+        timestamp fecha_backup "Fecha y hora exacta del respaldo (DEFAULT CURRENT_TIMESTAMP)"
     }
 ```
 
 ### 2.2 Diagrama de Clases UML (Mermaid Class Diagram)
 
+> **Nota de lectura:** se listan los métodos públicos de negocio; se omiten constructores, miembros privados, propiedades y valores por defecto de los parámetros. Las relaciones se derivan de las instanciaciones (`new`) y de los tipos de retorno reales del código.
+
+**1. Capa de presentación (controladores)**
+
 ```mermaid
 classDiagram
-    class Router {
-        +add(string method, string path, string controller, string action, string middleware)
-        +dispatch(string method, string path)
-    }
-    
-    class Request {
-        +getBody() array
-        +getQuery(string key, mixed default)
-    }
-    
-    class Response {
-        +success(mixed data, string message, int code)
-        +error(string message, int code)
-    }
-    
-    class AuthMiddleware {
-        +handle(string type) void
-        +user() array
-    }
-    
     class AuthController {
         +register() void
         +login() void
+        +logout() void
         +verificarEmail() void
         +reenviarCodigo() void
     }
-    
-    class AuthService {
-        +register(RegisterDto dto) array
-        +login(LoginDto dto) array
-        +verificarEmail(string email, string codigo) array
-        +reenviarCodigo(string email) array
-    }
-    
-    class AuthValidator {
-        +validateRegister(array data) RegisterDto
-        +validateLogin(array data) LoginDto
-    }
-    
-    class RegisterDto {
-        +readonly string nombre_completo
-        +readonly string email
-        +readonly string password_hash
-        +readonly string telefono
-    }
-    
-    class LoginDto {
-        +readonly string email
-        +readonly string password_hash
-    }
-    
-    class UserRepository {
-        +create(RegisterDto dto) void
-        +findByEmail(string email) array
-        +findById(int id) array
-        +actualizarPerfilFotografo(int id, string nombre, string telefono) void
-        +aceptarPoliticas(int id) void
-        +listarFotografos() array
-        +obtenerPerfilFotografo(int id) array
-    }
-    
     class ColeccionController {
         +create() void
         +listarPublicas() void
@@ -351,206 +302,307 @@ classDiagram
         +canjearInvitacion(string token) void
         +listarHashtags() void
         +actualizar(string id) void
-        +actualizarHashtags(string id) void
         +eliminar(string id) void
+        +actualizarHashtags(string id) void
     }
-    
-    class ColeccionService {
-        +create(CreateColeccionDto dto, array hashtags) array
-        +listarPublicas(string hashtag) array
-        +listarMias() array
-        +obtenerDetalle(int id) array
-        +validarInvitacion(string token) array
-        +canjearInvitacion(string token) array
-        +listarHashtags() array
-        +actualizar(int id, array datos, array hashtags) array
-        +eliminar(int id) void
+    class ColaborativoController {
+        +generar(string id) void
+        +generarAcceso(string id) void
+        +imprimir(string id) void
+        +svg(string token) void
+        +verificar(string token) void
+        +subir(string token) void
     }
-    
-    class ColeccionValidator {
-        +validateCreate(array data) CreateColeccionDto
-        +validateUpdate(array data) array
-        +validateHashtags(array hashtags) array
-    }
-    
-    class CreateColeccionDto {
-        +readonly string titulo
-        +readonly string descripcion
-        +readonly string tipo_visibilidad
-    }
-    
-    class ColeccionRepository {
-        +create(array data) void
-        +listarPublicas(string hashtag) array
-        +listarMias() array
-        +obtenerDetalle(int id) array
-        +actualizar(int id, array datos) array
-        +eliminar(int id) void
-        +listarMiasConPortada() array
-    }
-    
-    class MultimediaController {
-        +upload(string coleccionId) void
-        +listar(string coleccionId) void
-        +vistaPrevia(string idMultimedia) void
-        +poster(string idMultimedia) void
-        +original(string idMultimedia) void
-        +descargar(string idMultimedia) void
-        +actualizar(string idMultimedia) void
-        +eliminar(string idMultimedia) void
-        +listarPendientes(string coleccionId) void
-        +aprobarColaborativo(string coleccionId) void
-        +rechazarColaborativo(string coleccionId) void
-    }
-    
-    class MultimediaService {
-        +uploadMultiple(int coleccionId, array archivos, array data, array ext) array
-        +obtenerVistaPrevia(int id) string
-        +obtenerPoster(int id) string
-        +obtenerOriginal(int id) string
-        +obtenerDescarga(int id, string calidad) string
-        +actualizarMetadatos(int id, array datos) array
-        +eliminar(int id) void
-        +listarColeccion(int id) array
-        +listarPendientes(int coleccionId) array
-        +aprobarColaborativo(int coleccionId, array ids) int
-        +rechazarColaborativo(int coleccionId, array ids) int
-        +generarBuenaCalidadImagen(string rutaOriginal) string
-        +generarBuenaCalidadVideo(string rutaOriginal) string
-        +generarPosterVideo(string rutaOriginal) string
-        +purgarExpirados() int
-    }
-    
-    class MultimediaValidator {
-        +validateUpload(array data) MultimediaDto
-        +validateUpdate(array data) array
-    }
-    
-    class MultimediaDto {
-        +readonly string titulo
-        +readonly string descripcion
-        +readonly string tipo
-    }
-    
-    class MultimediaRepository {
-        +insert(array data) void
-        +findById(int id) array
-        +update(int id, array datos) void
-        +delete(int id) void
-        +listarPorColeccion(int id) array
-        +listarPendientes(int coleccionId) array
-        +aprobar(array ids) void
-        +rechazar(array ids) void
-        +obtenerEspacioUsadoPorFotografo(int fotografoId) int
-    }
-    
-    class MediaProcessor {
-        +guardarOriginal(string tmpFile, string ext) string
-        +generarPreviewImagen(string rutaOriginal) string
-        +generarBuenaCalidadImagen(string rutaOriginal) string
-        +generarBuenaCalidadVideo(string rutaOriginal) string
-        +generarPosterVideo(string rutaOriginal) string
-        +transcodificarVideo(string rutaOriginal) string
-    }
-    
-    class FotografoController {
-        +directorio() void
-        +perfil(string id) void
-        +actualizarPerfil() void
-        +cuota() void
-        +aceptarPoliticas() void
-    }
-    
     class FavoritoController {
         +agregar(string id) void
         +quitar(string id) void
         +listar() void
     }
-    
-    class ColaborativoController {
-        +generar(string id) void
-        +imprimir(string id) void
-        +generarAcceso(string id) void
-        +svg() void
-        +verificar(string token) void
-        +subir(string token) void
+    class FotografoController {
+        +aceptarPoliticas() void
+        +directorio() void
+        +perfil(string id) void
+        +actualizarPerfil() void
+        +cuota() void
     }
-    
+    class HomeController {
+        +ping() void
+    }
+    class MultimediaController {
+        +upload(string coleccionId) void
+        +vistaPrevia(string idMultimedia) void
+        +poster(string idMultimedia) void
+        +original(string idMultimedia) void
+        +descargar(string idMultimedia) void
+        +eliminar(string idMultimedia) void
+        +actualizar(string idMultimedia) void
+        +listarPendientes(string coleccionId) void
+        +aprobarColaborativo(string coleccionId) void
+        +rechazarColaborativo(string coleccionId) void
+        +listar(string coleccionId) void
+    }
     class SistemaController {
         +backup() void
         +listarBackups() void
         +limpiarColaborativos() void
     }
-    
-    class Jwt {
-        +generate(array payload) string
-        +validate(string token) array
+```
+
+**2. Capa de negocio y persistencia (servicios, repositorios, validadores, DTO y modelos)**
+
+```mermaid
+classDiagram
+    class AuthService {
+        +register(RegisterDto dto) array
+        +login(LoginDto dto) array
+        +verificarEmail(string email, string codigo) array
+        +reenviarCodigo(string email) array
     }
-    
-    class Mailer {
-        +enviarCodigoVerificacion(string email) bool
-        +enviarRegistroBienvenida(string email) bool
+    class ColeccionService {
+        +create(CreateColeccionDto dto, array hashtags) array
+        +listarMias() array
+        +listarPublicas(string hashtag) array
+        +obtenerDetalle(int id) array
+        +validarInvitacion(string token) array
+        +canjearInvitacion(string token) array
+        +listarHashtags() array
+        +actualizarHashtags(int id, array hashtags) array
+        +actualizar(int id, array campos, array hashtags) array
+        +eliminar(int id) void
     }
-    
-    class QrGenerator {
-        +svg(string data) string
-        +renderPrintableHtml(string data, string evento, string expiracion) string
-        +codigoReedSolomon(string data) string
+    class MultimediaService {
+        +upload(MultimediaDto dto, array archivo, string extension, string mime, bool aprobado) array
+        +uploadMultiple(int coleccionId, array archivos, array data, array extensionesPorMime) array
+        +obtenerVistaPrevia(int idMultimedia) string
+        +obtenerOriginal(int idMultimedia) string
+        +obtenerDescarga(int idMultimedia, string calidad) string
+        +obtenerPoster(int idMultimedia) string
+        +eliminar(int idMultimedia) void
+        +actualizarMetadatos(int idMultimedia, array data) array
+        +listarPendientes(int coleccionId) array
+        +aprobarColaborativo(int coleccionId, array ids) int
+        +rechazarColaborativo(int coleccionId, array ids) int
+        +purgarExpirados() int
+        +listarColeccion(int coleccionId) array
     }
-    
+
+    class UserRepository {
+        +findByEmail(string email) ?User
+        +findById(int id) ?User
+        +create(RegisterDto dto, string hashedPassword) int
+        +guardarCodigoVerificacion(string email, string codigo, string expiracion) bool
+        +obtenerCodigoVerificacion(string email) ?array
+        +marcarEmailVerificado(string email) bool
+        +aceptarPoliticas(int fotografoId) bool
+        +politicasAceptadas(int fotografoId) bool
+        +actualizarPerfilFotografo(int fotografoId, string nombre, ?string telefono) bool
+        +listarFotografos() array
+        +obtenerPerfilFotografo(int id) ?Fotografo
+    }
+    class ColeccionRepository {
+        +create(CreateColeccionDto dto) int
+        +findById(int id) ?Coleccion
+        +listarPublicas(?string hashtag) array
+        +listarPorFotografo(int fotografoId) array
+        +listarMiasConPortada(int fotografoId) array
+        +actualizar(int id, string titulo, ?string descripcion, string tipoVisibilidad) bool
+        +sincronizarHashtags(int coleccionId, array nombresHashtags) void
+        +obtenerHashtags(int coleccionId) array
+        +contarArchivos(int coleccionId) int
+        +listarHashtags() array
+        +crearTokenColaborativo(int coleccionId, string expiracion) TokenQr
+        +crearTokenAcceso(int coleccionId) TokenQr
+        +buscarTokenAccesoVigente(int coleccionId) ?TokenQr
+        +buscarToken(string token) ?TokenQr
+        +otorgarAcceso(int usuarioId, int coleccionId) bool
+        +obtenerRutasMultimediaDeColeccion(int coleccionId) array
+        +eliminarFavoritosPorColeccion(int coleccionId) void
+        +eliminarConDependencias(int coleccionId) void
+    }
+    class MultimediaRepository {
+        +create(MultimediaDto dto, string rutaOriginal, string vistaPrevia, int tamanio, bool aprobado, ?string poster) int
+        +actualizarPoster(int id, string rutaPoster) bool
+        +findById(int id) ?Multimedia
+        +findByColeccionId(int coleccionId, bool soloAprobados) array
+        +espacioUsadoPorFotografo(int fotografoId) int
+        +delete(int id) bool
+        +actualizarMetadatos(int id, string titulo, ?string descripcion, ?int nuevaColeccionId) bool
+        +listarPendientes(int coleccionId) array
+        +aprobarMultiples(array ids, int coleccionId) int
+        +obtenerRutasPorIds(array ids, int coleccionId) array
+        +purgarNoAprobadosExpirados() array
+        +tieneAcceso(int usuarioId, int coleccionId) bool
+    }
+
+    class AuthValidator {
+        +validateRegister(array data) RegisterDto
+        +validateLogin(array data) LoginDto
+    }
+    class ColeccionValidator {
+        +validateCreate(array data) CreateColeccionDto
+        +validateUpdate(array data) array
+        +validateHashtags(array hashtags) array
+    }
+    class MultimediaValidator {
+        +checkUpload(array archivo, array data, int coleccionId, bool esInvitado) array
+        +validateUpload(array archivo, array data, int coleccionId, bool esInvitado) MultimediaDto
+        +validateUpdate(array data) array
+    }
+
+    class RegisterDto
+    class LoginDto
+    class CreateColeccionDto
+    class MultimediaDto
+
+    class User {
+        +toArray() array
+    }
+    class Cliente {
+        +toArray() array
+    }
+    class Coleccion {
+        +toArray() array
+    }
+    class Fotografo {
+        +toArray() array
+    }
+    class Multimedia {
+        +toArray() array
+    }
+    class TokenQr {
+        +toArray() array
+    }
+
+    AuthService --> UserRepository : usa
+    AuthService ..> RegisterDto : recibe
+    AuthService ..> LoginDto : recibe
+    ColeccionService --> UserRepository : usa
+    ColeccionService --> ColeccionRepository : usa
+    ColeccionService --> MultimediaRepository : usa
+    ColeccionService ..> CreateColeccionDto : recibe
+    MultimediaService --> MultimediaRepository : usa
+    MultimediaService --> ColeccionRepository : usa
+    MultimediaService --> UserRepository : usa
+    MultimediaService ..> MultimediaDto : recibe
+    AuthValidator ..> RegisterDto : crea
+    AuthValidator ..> LoginDto : crea
+    ColeccionValidator ..> CreateColeccionDto : crea
+    MultimediaValidator ..> MultimediaDto : crea
+    UserRepository ..> User : retorna
+    UserRepository ..> Fotografo : retorna
+    ColeccionRepository ..> Coleccion : retorna
+    ColeccionRepository ..> TokenQr : crea
+    MultimediaRepository ..> Multimedia : retorna
+```
+
+**3. Capa de infraestructura y soporte (núcleo, middlewares y helpers)**
+
+```mermaid
+classDiagram
+    class Router {
+        +add(string method, string path, string controller, string action, ?string middleware) void
+        +dispatch(string method, string path) void
+    }
+    class Request {
+        +getBody() array
+        +get(string key, mixed default) mixed
+        +getQuery(string key, mixed default) mixed
+        +getQueryParams() array
+    }
+    class Response {
+        +success(mixed data, string message, int status) void
+        +error(string message, int status, array errors) void
+    }
     class Config {
-        +maxStorageBytes() int
+        +jwtSecret() string
+        +tokenHoras() int
+        +zonaHoraria() string
+        +offsetZonaHoraria() string
+        +uploadsDir() string
+        +originalsDir() string
+        +previewsDir() string
+        +standardDir() string
         +backupsDir() string
+        +maxStorageBytes() int
+        +maxVideoSizeBytes() int
+        +watermarkText() string
+        +ipsPermitidasSistema() array
     }
-    
     class Database {
         +getConnection() PDO
     }
-    
+    class AuthMiddleware {
+        +handle(?string requirement) void
+        +user() ?array
+    }
+    class RateLimitMiddleware {
+        +handle(string method, string path) void
+    }
+    class Jwt {
+        +encode(array payload, string secret, int horasValidez) string
+        +decode(string jwt, string secret) ?array
+    }
+    class Mailer {
+        +lastError() ?string
+        +enviarVerificacion(string email, string nombre, string codigo, string expiracion) bool
+        +enviar(string destinatario, string asunto, string textoPlano, string html) bool
+    }
+    class MediaProcessor {
+        +nombreUnico(string extension) string
+        +guardarOriginal(string tmpPath, string extension) string
+        +generarPreviewImagen(string rutaOriginalAbsoluta) string
+        +generarPreviewVideo(string rutaOriginalAbsoluta) string
+        +generarBuenaCalidadImagen(string rutaOriginalAbsoluta, ?int idMultimedia) string
+        +generarBuenaCalidadVideo(string rutaOriginalAbsoluta, ?int idMultimedia) string
+        +generarPosterVideo(string rutaOriginalAbsoluta) string
+        +eliminarArchivoFisico(?string rutaRelativa) bool
+        +eliminarStandard(int idMultimedia) void
+        +aRutaAbsoluta(string rutaRelativa) string
+    }
+    class QrGenerator {
+        +svg(string text, int size) string
+        +renderPrintableHtml(string tituloEvento, string urlAcceso, string svgQr, ?string expiracion) string
+    }
+    class CookieAuth {
+        +nombre() string
+        +segura() bool
+        +mismoSitio() string
+        +crear(string token) void
+        +leer() string
+        +borrar() void
+    }
+    class RateLimiter {
+        +registrar(string clave, int limite, int ventanaSegundos) array
+        +reiniciarTodo() void
+    }
     class BackupService {
         +generarBackup() array
+        +listarBackups() array
     }
-    
-    Router -- AuthMiddleware : usa
-    AuthController -- AuthService : usa
-    AuthController -- AuthValidator : usa
-    AuthController -- Request : usa
-    AuthController -- Response : usa
-    AuthService -- UserRepository : usa
-    AuthService -- Jwt : usa
-    AuthService -- Mailer : usa
-    UserRepository -- Database : usa
-    UserRepository -- Config : usa
-    AuthValidator -- RegisterDto : genera
-    AuthValidator -- LoginDto : genera
-    
-    ColeccionController -- ColeccionService : usa
-    ColeccionController -- ColeccionValidator : usa
-    ColeccionService -- ColeccionRepository : usa
-    ColeccionService -- UserRepository : usa
-    ColeccionRepository -- Database : usa
-    ColeccionValidator -- CreateColeccionDto : genera
-    
-    MultimediaController -- MultimediaService : usa
-    MultimediaController -- MultimediaValidator : usa
-    MultimediaService -- MultimediaRepository : usa
-    MultimediaService -- MediaProcessor : usa
-    MultimediaService -- Config : usa
-    MultimediaRepository -- Database : usa
-    
-    FotografoController -- UserRepository : usa
-    FotografoController -- MultimediaRepository : usa
-    
-    FavoritoController -- ColeccionRepository : usa
-    ColaborativoController -- MultimediaService : usa
-    ColaborativoController -- ColeccionService : usa
-    ColaborativoController -- MultimediaRepository : usa
-    SistemaController -- BackupService : usa
-    
-    BackupService -- Database : usa
-    MediaProcessor -- Config : usa
-    BackupService -- Config : usa
+
+    Router ..> AuthMiddleware : invoca
+    Router ..> Response : responde
+    AuthMiddleware ..> CookieAuth : lee
+    AuthMiddleware ..> Jwt : valida
+    AuthMiddleware ..> Config : usa
+    CookieAuth ..> Config : usa
+    RateLimitMiddleware ..> RateLimiter : usa
+    RateLimitMiddleware ..> Response : responde
+    Database ..> Config : usa
+    MediaProcessor ..> Config : usa
+    BackupService ..> Database : usa
+    BackupService ..> Config : usa
 ```
+
+**Dependencias entre capas (confirmadas en el código):**
+
+- `AuthController` instancia `AuthService`, `AuthValidator` y `Request`; usa `CookieAuth` en el logout.
+- `ColeccionController` instancia `ColeccionService`, `ColeccionValidator` y `Request`.
+- `MultimediaController` instancia `MultimediaService`, `MultimediaValidator` y `Request`.
+- `ColaborativoController` instancia `ColeccionRepository`, `MultimediaRepository`, `UserRepository`, `MultimediaService`, `MultimediaValidator` y `Request`; usa `QrGenerator`, `AuthMiddleware` y `Config`.
+- `FavoritoController` y `FotografoController` instancian repositorios y `Request`; usan `AuthMiddleware`.
+- `SistemaController` instancia `BackupService` y `MultimediaService`.
+- Los servicios instancian `Database` y sus repositorios; `AuthService` usa `Jwt`, `Mailer` y `CookieAuth`; `ColeccionService` y `MultimediaService` usan `MediaProcessor`.
 
 ### 2.3 Decisiones de Diseño en el Modelo
 
@@ -649,9 +701,9 @@ A continuación se fundamenta la selección técnica del stack de **Cipher_Forge
 | Componente | Tecnología Seleccionada | Justificación Técnica | Alternativas Descartadas y Motivo |
 | :--- | :--- | :--- | :--- |
 | **Backend** | **PHP 8.2 (Vanilla OOP con PSR-4 nativo)** | Tipado estricto (`declare(strict_types=1)`), manejo robusto de excepciones y soporte nativo de extensiones para flujos de datos binarios y procesamiento de imágenes. Un autoloader PSR-4 escrito desde cero mediante `spl_autoload_register` garantiza portabilidad total y despliegue rápido sin requerir herramientas intermedias. | **Node.js / Express:** Mayor complejidad para el manejo eficiente de streams binarios pesados (imágenes de alta resolución y videos de hasta 800 MB) en entornos locales sin colas dedicadas.<br>**Laravel / Symfony:** Sobrecarga innecesaria de dependencias y falta de conocimientos tecnológicos para defenderlo ante los evaluadores de UTU. |
-| **Servidor Web** | **Apache 2.4 con mod_rewrite + Nginx 1.24 como borde en Server Ubuntu** | Apache mantiene la integración nativa con PHP vía `mod_php` en la imagen oficial y la canalización de rutas con `.htaccess` hacia `public/index.php`. En `SERVIDOR UBUNTU` se antepone Nginx para servir frontends y landing como estáticos, proxear la API a `127.0.0.1:8080` y unificar el origen: eso elimina CORS en el navegador, permite `SameSite=Strict` y hace que el QR use una única URL pública. Nginx también deniega `/backend`, `/docs`, `/sistema` y extensiones sensibles. | **Nginx + PHP-FPM como reemplazo total:** buen desempeño en alta concurrencia, pero exige administrar dos procesos y cambiar la imagen/base del proyecto; no se adoptó. **Publicar Apache directo a la LAN:** obliga a CORS entre puertos, expone el backend y complica las cookies y el QR; se descartó para el laboratorio. |
+| **Servidor Web** | **Apache 2.4 con mod_rewrite + Nginx 1.24 como borde en Server Ubuntu** | Apache mantiene la integración nativa con PHP vía `mod_php` en la imagen oficial y la canalización de rutas con `.htaccess` hacia `public/index.php`. En el **Server Ubuntu Lab** se antepone Nginx para servir frontends y landing como estáticos, proxear la API a `127.0.0.1:8080` y unificar el origen: eso elimina CORS en el navegador, permite `SameSite=Strict` y hace que el QR use una única URL pública. Nginx también deniega `/backend`, `/docs`, `/sistema` y extensiones sensibles. | **Nginx + PHP-FPM como reemplazo total:** buen desempeño en alta concurrencia, pero exige administrar dos procesos y cambiar la imagen/base del proyecto; no se adoptó. **Publicar Apache directo a la LAN:** obliga a CORS entre puertos, expone el backend y complica las cookies y el QR; se descartó para el laboratorio. |
 | **Frontend** | **HTML5 Semántico, Vanilla CSS y Vanilla JavaScript** | **HTML5 Semántico:** Estructuración accesible y limpia de la interfaz.<br>**Vanilla CSS:** Control milimétrico de la apariencia mediante Variables CSS (`:root`), Flexbox y Grid, evitando conflictos de especificidad o carga de estilos innecesarios.<br>**Vanilla JS:** Empleo nativo de `fetch`, Promesas, `async/await`, manipulación directa del DOM y `localStorage`, garantizando comprensión integral del código línea por línea sin intermediarios. | **Bootstrap 5 / Tailwind:** Descartados para evitar el peso muerto de hojas de estilo prefabricadas con clases genéricas y dependencias externas que restan mérito a la maquetación propia del equipo.<br>**React / Vue / Angular:** Requerirían un entorno de compilación adicional (Node.js, Vite, npm) que desvía el foco del proyecto de los fundamentos de red, seguridad y arquitectura cliente-servidor. |
 | **Helpers Nativos (Seguridad y QR)** | **PHP Puro sin Composer (`Jwt.php` y `QrGenerator.php`)** | Máxima independencia tecnológica: la generación de tokens JWT HS256 mediante `hash_hmac` y la construcción de la matriz modular QR en SVG vectorial se programaron algorítmicamente en PHP puro, logrando un backend liviano, seguro y sin dependencias de paquetes externos. | **Librerías Composer (`firebase/php-jwt`, `endroid/qr-code`):** Descartadas para eliminar riesgos asociados a la cadena de suministros, evitar dependencias de Composer en la entrega y demostrar solvencia algorítmica ante UTU. |
 | **Base de Datos** | **MySQL 8.0 Relacional** | Soporte estricto para transacciones ACID, integridad referencial (`FOREIGN KEY` con `ON DELETE CASCADE`), tipos ENUM para roles y visibilidad, y funciones de agregación para el cómputo exacto de cuotas de almacenamiento en bytes. | **PostgreSQL:** Prestaciones similares, pero MySQL ofrece mayor compatibilidad directa con las herramientas didácticas y el entorno curricular de UTU.<br>**MongoDB:** Descartado categóricamente debido a la naturaleza estrictamente relacional de las colecciones, permisos de usuario y auditoría de eventos. |
 | **Procesamiento de Video** | **FFmpeg en Contenedor Docker** | Herramienta líder a nivel industrial para manipulación y transcodificación audiovisual. Permite recortar clips ligeros de 15 segundos sin saturar la memoria RAM del servidor web, aislando los códecs en la capa del contenedor Linux. | **Librerías JavaScript en el cliente:** Técnicamente incapaces de procesar videos de hasta 800 MB sin bloquear el hilo principal y saturar la memoria del navegador del usuario. |
-| **Contenedores y Despliegue** | **Docker & Docker Compose + VirtualBox NAT en el laboratorio** | Garantiza paridad entre los entornos de desarrollo y la computadora de evaluación del tribunal de UTU. Un solo comando (`docker compose up`) levanta la base de datos, el servidor Apache con PHP 8.2 y los binarios de FFmpeg. En `SERVIDOR UBUNTU`, Docker Compose corre dentro de la VM `Ubuntu-Server-Lab` y VirtualBox NAT con port forwarding `8080 → 80` permite que el celular acceda por la IP de Windows. La misma imagen y el mismo código se reutilizan; solo cambia la configuración del borde (Nginx) y el `.env`. | **Instalaciones locales con XAMPP / WampServer:** Fuente constante de conflictos por discrepancias entre versiones de PHP/MySQL en los sistemas Windows de los alumnos, sumado a la carencia de FFmpeg preinstalado. **Servidor físico dedicado:** descartado para esta etapa por costo y por no aportar nada a la demo; la VM en NAT es suficiente para el laboratorio, aunque depende de que Windows esté encendido. |
+| **Contenedores y Despliegue** | **Docker & Docker Compose + VirtualBox NAT en el laboratorio** | Garantiza paridad entre los entornos de desarrollo y la computadora de evaluación del tribunal de UTU. Un solo comando (`docker compose up`) levanta la base de datos, el servidor Apache con PHP 8.2 y los binarios de FFmpeg. En el **Server Ubuntu Lab**, Docker Compose corre dentro de la VM `Ubuntu-Server-Lab` y VirtualBox NAT con port forwarding `8080 → 80` permite que el celular acceda por la IP de Windows. La misma imagen y el mismo código se reutilizan; solo cambia la configuración del borde (Nginx) y el `.env`. | **Instalaciones locales con XAMPP / WampServer:** Fuente constante de conflictos por discrepancias entre versiones de PHP/MySQL en los sistemas Windows de los alumnos, sumado a la carencia de FFmpeg preinstalado. **Servidor físico dedicado:** descartado para esta etapa por costo y por no aportar nada a la demo; la VM en NAT es suficiente para el laboratorio, aunque depende de que Windows esté encendido. |

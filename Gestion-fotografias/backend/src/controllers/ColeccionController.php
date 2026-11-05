@@ -107,11 +107,74 @@ class ColeccionController
     /**
      * GET /hashtags
      * Lista todos los hashtags existentes con la cantidad de colecciones asociadas (HU27).
+     * Filtro opcional de búsqueda parcial: ?hashtag=palabra (HU27).
+     * Cada palabra enviada se compara contra el nombre del hashtag y se exige que
+     * todas aparezcan (coincidencia parcial, sin distinguir mayúsculas), de modo que
+     * "bod" encuentra "bodas" y no hace falta escribir el nombre exacto.
      */
     public function listarHashtags(): void
     {
+        $request  = new Request();
+        $busqueda = $request->getQuery('hashtag');
+
+        if ($busqueda !== null && !is_scalar($busqueda)) {
+            Response::error('Error de validación.', 400, ['El filtro de hashtags debe ser un texto.']);
+        }
+
         $tags = $this->coleccionService->listarHashtags();
-        Response::success($tags, 'Listado de hashtags disponibles.');
+
+        $palabras = $this->palabrasDeBusquedaHashtags(is_string($busqueda) ? $busqueda : '');
+
+        if ($palabras === []) {
+            Response::success($tags, 'Listado de hashtags disponibles.');
+        }
+
+        $filtrados = array_values(array_filter(
+            $tags,
+            static function (array $tag) use ($palabras): bool {
+                $nombre = mb_strtolower((string) ($tag['nombre_hashtags'] ?? ''));
+                foreach ($palabras as $palabra) {
+                    if (mb_strpos($nombre, $palabra) === false) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        ));
+
+        Response::success($filtrados, 'Hashtags que coinciden con la búsqueda.');
+    }
+
+    /**
+     * Normaliza el término de búsqueda de GET /hashtags en palabras válidas.
+     * Separa por espacios, quita el '#' inicial de cada palabra y valida el conjunto
+     * de caracteres y la longitud (VARCHAR(40) en schema.sql). Si el término no es
+     * válido responde 400 y detiene el flujo (mismo convenio que los validadores).
+     *
+     * @return string[]
+     */
+    private function palabrasDeBusquedaHashtags(string $busqueda): array
+    {
+        $palabras = [];
+
+        foreach (preg_split('/\s+/u', trim($busqueda)) ?: [] as $palabra) {
+            $limpia = mb_strtolower(ltrim($palabra, '#'));
+            if ($limpia === '') {
+                continue;
+            }
+
+            if (mb_strlen($limpia) > 40) {
+                Response::error('Error de validación.', 400, ['Cada palabra del filtro de hashtags puede tener como máximo 40 caracteres.']);
+            }
+
+            if (preg_match('/^[\p{L}\p{N}_-]+$/u', $limpia) !== 1) {
+                Response::error('Error de validación.', 400, ['El filtro de hashtags solo admite letras, números, guiones y guiones bajos.']);
+            }
+
+            $palabras[] = $limpia;
+        }
+
+        return $palabras;
     }
 
     /**

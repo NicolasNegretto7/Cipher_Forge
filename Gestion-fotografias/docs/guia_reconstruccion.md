@@ -1,23 +1,23 @@
 # Guía Paso a Paso para la Reconstrucción de la Infraestructura
 
-> **Convenciones de esta guía:** los bloques `LOCAL Windows` describen desarrollo/testing/evaluación UTU con Docker Desktop. Los bloques `SERVIDOR UBUNTU (Server Ubuntu Lab)` describen el entorno implementado en la VM `Ubuntu-Server-Lab` con Nginx y VirtualBox NAT; es una demo/laboratorio, no producción. Los bloques `PRODUCCIÓN` describen preparación para entorno real y **no están implementados**. Los bloques `COMPARTIDO` aplican a todos los entornos. Todo valor no confirmado figura como `PENDIENTE DE DEFINICIÓN`.
+> **Cómo leer esta guía:** cada parte y sección indica su entorno: **desarrollo local en Windows**, **Server Ubuntu Lab (laboratorio)** o **producción**. «Compartido» significa que aplica a todos los entornos. Todo valor no confirmado figura como «pendiente de decisión». **Producción no está implementada.**
 >
 > **Referencia técnica:** el detalle de `Dockerfile`, `docker-compose.yml`, esquema SQL y respaldos vive en [infraestructura.md](infraestructura.md). Esta guía contiene pasos, no duplica ese detalle.
 >
 > **Alcance:** la Parte 1 describe hechos comprobados en el repositorio local. La Parte 2 describe prerrequisitos y brechas verificadas; no es una guía de despliegue ejecutable hasta que se resuelvan las decisiones pendientes (ver [Parte 2.6](#26-decisiones-pendientes-y-advertencias-producción) e [infraestructura.md, Sección 6](infraestructura.md#6-riesgos-restricciones-y-decisiones-pendientes)). La Parte 3 describe el entorno Ubuntu implementado como laboratorio, sin TLS ni dominio.
 >
 > **Índice de partes:**
-> * [Parte 1 — Reconstrucción y ejecución local [LOCAL]](#parte-1--reconstrucción-y-ejecución-local-local)
-> * [Parte 2 — Preparación y reconstrucción en producción [PRODUCCIÓN]](#parte-2--preparación-y-reconstrucción-en-producción-producción)
-> * [Parte 3 — Reconstrucción en Server Ubuntu [SERVIDOR UBUNTU]](#parte-3--reconstrucción-en-server-ubuntu-servidor-ubuntu)
+> * [Parte 1 — Reconstrucción y ejecución local (desarrollo local)](#parte-1--reconstrucción-y-ejecución-local-desarrollo-local)
+> * [Parte 2 — Preparación y reconstrucción en producción (no implementada)](#parte-2--preparación-y-reconstrucción-en-producción-no-implementada)
+> * [Parte 3 — Reconstrucción en Server Ubuntu (laboratorio)](#parte-3--reconstrucción-en-server-ubuntu-laboratorio)
 
 ---
 
-# Parte 1 — Reconstrucción y ejecución local [LOCAL]
+# Parte 1 — Reconstrucción y ejecución local (desarrollo local)
 
 Propósito original conservado: desplegar, inicializar y reconstruir desde cero el entorno completo de **Cipher_Forge** en máquina host (Windows, Linux o macOS) con fines de desarrollo o evaluación tribunalicia de UTU.
 
-## 1. Requisitos previos [LOCAL]
+## 1. Requisitos previos (desarrollo local)
 
 1. **Docker Desktop:** versión 24.0 o superior, motor activo y soporte para Docker Compose v2.
 2. **Git:** para clonar el repositorio y gestionar versiones.
@@ -29,7 +29,7 @@ Propósito original conservado: desplegar, inicializar y reconstruir desde cero 
    * **1025:** entrada SMTP usada por la app (`backend/docker-compose.yml:77-78`).
    *(Detén XAMPP, WampServer o MySQL locales para evitar conflictos).*
 
-## 2. Puesta en marcha local [LOCAL]
+## 2. Puesta en marcha local
 
 ### Paso 1: Obtener el código fuente
 
@@ -42,9 +42,9 @@ cd Cipher_Forge/Gestion-fotografias/backend
 
 En `Gestion-fotografias/backend` deben existir:
 
-* `Dockerfile` — receta del contenedor `php:8.2-apache` + FFmpeg + GD + `pdo_mysql` + `zip` (ver [infraestructura.md, Sección 2](infraestructura.md#2-especificación-del-dockerfile-backenddockerfile-compartido-con-notas-producción)).
-* `docker-compose.yml` — orquestador de 4 servicios (ver [infraestructura.md, Sección 3](infraestructura.md#3-especificación-de-docker-compose-backenddocker-composeyml-local-y-servidor-ubuntu)).
-* `database/schema.sql` — DDL de las 11 tablas iniciales (ver [infraestructura.md, Sección 4.1](infraestructura.md#41-esquema-backenddatabaseschemasql-compartido)).
+* `Dockerfile` — receta del contenedor `php:8.2-apache` + FFmpeg + GD + `pdo_mysql` + `zip` (ver [infraestructura.md, Sección 2](infraestructura.md#2-especificación-del-dockerfile-backenddockerfile-aplica-a-todos-los-entornos-notas-de-producción)).
+* `docker-compose.yml` — orquestador de 4 servicios (ver [infraestructura.md, Sección 3](infraestructura.md#3-especificación-de-docker-compose-backenddocker-composeyml-desarrollo-local-y-server-ubuntu)).
+* `database/schema.sql` — DDL de las 11 tablas iniciales (ver [infraestructura.md, Sección 4.1](infraestructura.md#41-esquema-backenddatabaseschemasql-aplica-a-todos-los-entornos)).
 * `database/migration.sql` — migración idempotente aplicada en cada arranque por `docker-entrypoint.sh:33-38`.
 * `php.ini` — inyectado como `99-cipher-forge.ini` (`Dockerfile:26`).
 * `docker-entrypoint.sh` — crea `uploads/originals,previews,standard` y aplica la migración.
@@ -55,7 +55,7 @@ En `Gestion-fotografias/backend` deben existir:
 docker compose up --build -d
 ```
 
-> **¿Qué ocurre internamente? [LOCAL — lógica compartida, valores solo-local]**
+> **¿Qué ocurre internamente? (desarrollo local; lógica común, valores solo locales)**
 > 1. Descarga `mysql:8.0`, base `php:8.2-apache` y `axllent/mailpit`.
 > 2. Compila `ffmpeg`, `libpng`, `libjpeg`, `libfreetype`, `libzip` y extensiones `gd`, `pdo_mysql`, `zip` (`backend/Dockerfile:5-18`).
 > 3. Crea la red puente interna.
@@ -116,7 +116,7 @@ curl http://localhost:8080/api/ping
 
 > **Corrección respecto a versión anterior:** el body `{status,message,timestamp}` no corresponde al código. El formato real es `{ok,mensaje,datos}`.
 
-## 3. Uso de los portales frontend [LOCAL]
+## 3. Uso de los portales frontend (desarrollo local)
 
 Servir la carpeta `Cipher_Forge` con Live Server en `http://localhost:5501` y abrir por HTTP, nunca con doble clic. Usar `localhost` (no `127.0.0.1`) para que `SameSite=Strict` envíe la cookie de sesión (ver `backend/docker-compose.yml:20-24`, `src/helpers/CookieAuth.php:48-62`). Divergencia conocida: el README raíz indica `127.0.0.1:5500`, desactualizado frente a compose y `.vscode/settings.json`.
 
@@ -130,7 +130,7 @@ Detalles verificados:
 * Correo de verificación: abrir `http://localhost:8025` (Mailpit). Gmail/proveedores externos fuera de alcance (`backend/EMAIL_CONFIG.md`).
 * Límites reales: imagen JPG ≤30 MB, video MP4 ≤800 MB (`src/validators/MultimediaValidator.php:15-17`); transporte PHP `900M/1G` (`backend/php.ini:10-13`).
 
-## 4. Diagnóstico y mantenimiento local [LOCAL]
+## 4. Diagnóstico y mantenimiento local
 
 ```bash
 # Logs backend Apache/PHP
@@ -152,7 +152,7 @@ docker compose stop
 docker compose start
 ```
 
-## 5. Reconstrucción limpia desde cero [LOCAL]
+## 5. Reconstrucción limpia desde cero (desarrollo local)
 
 ```bash
 # 1. Detener y destruir volúmenes (borra BD y uploads persistidos)
@@ -162,9 +162,9 @@ docker compose down -v
 docker compose up --build -d
 ```
 
-> **Advertencia:** `docker compose down -v` borra el volumen de MySQL y el de uploads. No hay recuperación de fotos ni de base dentro de Docker. Los `.sql` de `backend/backups/` sobreviven en el host, pero los binarios de `uploads` no. En el Server Ubuntu, ver la advertencia de la [Parte 3.8](#38-advertencias-servidor-ubuntu).
+> **Advertencia:** `docker compose down -v` borra el volumen de MySQL y el de uploads. No hay recuperación de fotos ni de base dentro de Docker. Los `.sql` de `backend/backups/` sobreviven en el host, pero los binarios de `uploads` no. En el Server Ubuntu, ver la advertencia de la [Parte 3.8](#38-advertencias-server-ubuntu-lab).
 
-## 6. Configuración efectiva local y advertencias [LOCAL]
+## 6. Configuración efectiva local y advertencias
 
 | Variable / archivo | Valor local efectivo | Fuente |
 |---|---|---|
@@ -183,64 +183,64 @@ docker compose up --build -d
 
 ---
 
-# Parte 2 — Preparación y reconstrucción en producción [PRODUCCIÓN]
+# Parte 2 — Preparación y reconstrucción en producción (no implementada)
 
-> **Estado:** escenario solicitado por el cliente, no implementado. Los requisitos vigentes declaran hosting/dominio en producción como excluido ([01-requerimientos.md, Sección 10](01-requerimientos.md#10-alcance-excluido-para-esta-primera-versión), `project_charter.md Alcance excluido`, restricción UTU). Esta parte define prerrequisitos, brechas y trabajo necesario. No sustituye una decisión de alcance. Todo lo no decidido figura como `PENDIENTE DE DEFINICIÓN`. Detalle técnico en [infraestructura.md, Secciones 5 y 6](infraestructura.md#5-arquitectura-y-requisitos-de-producción-producción--brechas-no-hechos).
+> **Estado:** escenario solicitado por el cliente, no implementado. Los requisitos vigentes declaran hosting/dominio en producción como excluido ([01-requerimientos.md, Sección 10](01-requerimientos.md#10-alcance-excluido-para-esta-primera-versión), `project_charter.md Alcance excluido`, restricción UTU). Esta parte define prerrequisitos, brechas y trabajo necesario. No sustituye una decisión de alcance. Todo lo no decidido figura como `pendiente de decisión`. Detalle técnico en [infraestructura.md, Secciones 5 y 6](infraestructura.md#5-arquitectura-y-requisitos-de-producción-brechas-no-hechos).
 
-## 2.1 Prerrequisitos [PRODUCCIÓN]
+## 2.1 Prerrequisitos (producción)
 
 * Dominio, DNS y terminación TLS delante de Apache. Sin HTTPS no hay producción: el contenedor expone HTTP (`8080:80`) y `COOKIE_SECURE=false` es solo-local.
 * Secretos fuera de imagen y repo: `JWT_SECRET`, `DB_*`, `SMTP_*`, `SISTEMA_ALLOWED_IPS`. Valores actuales de compose son de desarrollo.
 * MySQL sin puerto público; persistencia gestionada con snapshots; respaldo off-site y restauración probada. Hoy solo hay 3 copias locales en `backend/backups/` (Windows) y un backup one-shot verificado en Ubuntu, sin restore ni off-site confirmados.
-* Frontend estático con origen fijo; `API_URL` y `FRONTEND_URL` como parámetros de despliegue (hoy hardcodeadas en `frontend-*/services/config.js:2` en LOCAL; en Ubuntu se sirve por Nginx con `API_URL=""`).
-* Proveedor SMTP real con TLS. `src/helpers/Mailer.php:91-146` solo habla SMTP plano; Mailpit no es transporte de producción. `PENDIENTE DE DEFINICIÓN`: proveedor, host, puerto, credenciales.
-* Correcciones BLOQUEANTES previas (ver [infraestructura.md, Sección 6](infraestructura.md#6-riesgos-restricciones-y-decisiones-pendientes)): migración sin `DELETE`, CORS con lista cerrada (`public/index.php:80`), sin fuga de `$e->getMessage()` (`public/index.php:102`), sin JWT en `?token=` (`AuthMiddleware.php:87-90`), throttling en auth, validación de longitudes, paginación.
+* Frontend estático con origen fijo; `API_URL` y `FRONTEND_URL` como parámetros de despliegue (hoy hardcodeadas en `frontend-*/services/config.js:2` en desarrollo local; en Ubuntu se sirve por Nginx con `API_URL=""`).
+* Proveedor SMTP real con TLS. `src/helpers/Mailer.php:91-146` solo habla SMTP plano; Mailpit no es transporte de producción. `pendiente de decisión`: proveedor, host, puerto, credenciales.
+* Correcciones bloqueantes previas (ver [infraestructura.md, Sección 6](infraestructura.md#6-riesgos-restricciones-y-decisiones-pendientes)): migración sin `DELETE`, CORS con lista cerrada (`public/index.php:80`), sin fuga de `$e->getMessage()` (`public/index.php:102`), sin JWT en `?token=` (`AuthMiddleware.php:87-90`), throttling en auth, validación de longitudes, paginación.
 
-## 2.2 Configuración por entorno [COMPARTIDO → PRODUCCIÓN]
+## 2.2 Configuración por entorno (compartido, orientado a producción)
 
-| Clave | LOCAL Windows (hecho) | SERVIDOR UBUNTU (hecho) | PRODUCCIÓN (requerido) |
+| Clave | desarrollo local en Windows (hecho) | Server Ubuntu Lab (hecho) | producción (requerido) |
 |---|---|---|---|
-| `FRONTEND_URL` | `http://localhost:5501/Gestion-fotografias` | `http://IP_WINDOWS:8080` (ejemplo actual: `http://10.244.239.215:8080`) | `PENDIENTE DE DEFINICIÓN` (origen HTTPS fijo) |
-| `API_URL` frontends | `http://localhost:8080` en código | `""` en ambos `config.js`; mismo origen vía Nginx | `PENDIENTE DE DEFINICIÓN` (parámetro de despliegue, no edición manual) |
+| `FRONTEND_URL` | `http://localhost:5501/Gestion-fotografias` | `http://IP_WINDOWS:8080` (ejemplo actual: `http://10.244.239.215:8080`) | `pendiente de decisión` (origen HTTPS fijo) |
+| `API_URL` frontends | `http://localhost:8080` en código | `""` en ambos `config.js`; mismo origen vía Nginx | `pendiente de decisión` (parámetro de despliegue, no edición manual) |
 | `COOKIE_SECURE` | `false` | `false` (HTTP de laboratorio) | `true` (exige HTTPS) |
-| `JWT_SECRET` | Ausente (autogenerado en `uploads/.jwt_secret`) | Definido en `backend/.env` (fuera del repo, permisos `600`) | `PENDIENTE DE DEFINICIÓN` (obligatorio, secreto gestionado) |
-| `SISTEMA_ALLOWED_IPS` | Ausente (regla no-pública) | `/sistema/*` denegado en Nginx; backend no expuesto a la LAN | `PENDIENTE DE DEFINICIÓN` (CIDRs explícitos; tras proxy exigir `mod_remoteip` o auth) |
-| SMTP | Mailpit `mailpit:1025` | Mailpit `127.0.0.1:1025`, UI por túnel SSH | `PENDIENTE DE DEFINICIÓN` (proveedor TLS; requiere cambio en `Mailer.php`) |
+| `JWT_SECRET` | Ausente (autogenerado en `uploads/.jwt_secret`) | Definido en `backend/.env` (fuera del repo, permisos `600`) | `pendiente de decisión` (obligatorio, secreto gestionado) |
+| `SISTEMA_ALLOWED_IPS` | Ausente (regla no-pública) | `/sistema/*` denegado en Nginx; backend no expuesto a la LAN | `pendiente de decisión` (CIDRs explícitos; tras proxy exigir `mod_remoteip` o auth) |
+| SMTP | Mailpit `mailpit:1025` | Mailpit `127.0.0.1:1025`, UI por túnel SSH | `pendiente de decisión` (proveedor TLS; requiere cambio en `Mailer.php`) |
 
-## 2.3 Preparación del servidor y despliegue [PRODUCCIÓN]
+## 2.3 Preparación del servidor y despliegue (producción)
 
-Sin comandos inventados. Procedimiento ejecutable `PENDIENTE DE DEFINICIÓN` hasta resolver P1-P10. Condiciones verificadas que el procedimiento deberá cumplir:
+Sin comandos inventados. Procedimiento ejecutable `pendiente de decisión` hasta resolver P1-P10. Condiciones verificadas que el procedimiento deberá cumplir:
 
 1. Sin bind mount `.:/var/www/html` en producción; imagen inmutable construida desde `Dockerfile`.
 2. `restart` y healthcheck definidos para `app`. El Server Ubuntu ya tiene `restart: unless-stopped`, pero sigue sin healthcheck; en local `app` no tiene `restart`. `/api/ping` hoy no chequea BD.
 3. Migración versionada con bloqueo o job único.
 4. `AllowOverride` debe permitir `.htaccess` de `uploads/` y `backups/` (`Require all denied`), o migrar la denegación a configuración del servidor. En Ubuntu la denegación de `/backend` y extensiones sensibles ya está en Nginx.
-5. `JWT_SECRET` compartido si hay réplicas; volumen `uploads_data` compartido o almacenamiento `PENDIENTE DE DEFINICIÓN`.
+5. `JWT_SECRET` compartido si hay réplicas; volumen `uploads_data` compartido o almacenamiento `pendiente de decisión`.
 
-## 2.4 Comprobaciones posteriores [PRODUCCIÓN]
+## 2.4 Comprobaciones posteriores (producción)
 
-Reutilizar las comprobaciones de Parte 1 adaptadas al origen HTTPS real: `SHOW TABLES` (11 tablas), `GET /api/ping` con formato `{ok,mensaje,datos}`, `GET /fotografos/cuota` (fotógrafo 200 / cliente 403 / anónimo 401, `routes.php:32-34`), subida JPG/MP4 dentro de límites, QR con `FRONTEND_URL` de producción, correo real `PENDIENTE DE DEFINICIÓN`, restauración de respaldo `PENDIENTE DE DEFINICIÓN`.
+Reutilizar las comprobaciones de Parte 1 adaptadas al origen HTTPS real: `SHOW TABLES` (11 tablas), `GET /api/ping` con formato `{ok,mensaje,datos}`, `GET /fotografos/cuota` (fotógrafo 200 / cliente 403 / anónimo 401, `routes.php:32-34`), subida JPG/MP4 dentro de límites, QR con `FRONTEND_URL` de producción, correo real `pendiente de decisión`, restauración de respaldo `pendiente de decisión`.
 
-## 2.5 Operación y mantenimiento [PRODUCCIÓN]
+## 2.5 Operación y mantenimiento (producción)
 
-* Respaldos: `worker` (`cron-backup.php --loop`) + `POST /sistema/backup` restringido por `SistemaController::restringirALocal` + `SISTEMA_ALLOWED_IPS`. Tras proxy, validar `REMOTE_ADDR` o exigir auth. Detalle en [infraestructura.md, Sección 4.2](infraestructura.md#42-respaldo-diario-y-rotación-rnf5rnf6rnf7-compartido-en-lógica-local-y-servidor-ubuntu-en-almacenamiento) y [Sección 5.8](infraestructura.md#58-copias-de-seguridad-y-recuperación).
+* Respaldos: `worker` (`cron-backup.php --loop`) + `POST /sistema/backup` restringido por `SistemaController::restringirALocal` + `SISTEMA_ALLOWED_IPS`. Tras proxy, validar `REMOTE_ADDR` o exigir auth. Detalle en [infraestructura.md, Sección 4.2](infraestructura.md#42-respaldo-diario-y-rotación-rnf5rnf6rnf7-lógica-común-almacenamiento-local-y-en-server-ubuntu) y [Sección 5.8](infraestructura.md#58-copias-de-seguridad-y-recuperación).
 * Purga colaborativa 24h: `MultimediaService::purgarExpirados` + `POST /sistema/limpiar-colaborativos`.
-* Logs/monitorización: hoy solo `docker compose logs` (más logs de Nginx en Ubuntu). Sin métricas ni alertas. `PENDIENTE DE DEFINICIÓN`.
-* Reversión: `PENDIENTE DE DEFINICIÓN` (snapshot DB + volumen uploads + versión de imagen).
+* Logs/monitorización: hoy solo `docker compose logs` (más logs de Nginx en Ubuntu). Sin métricas ni alertas. `pendiente de decisión`.
+* Reversión: `pendiente de decisión` (snapshot DB + volumen uploads + versión de imagen).
 
-## 2.6 Decisiones pendientes y advertencias [PRODUCCIÓN]
+## 2.6 Decisiones pendientes y advertencias (producción)
 
 Ver [infraestructura.md, Sección 6](infraestructura.md#6-riesgos-restricciones-y-decisiones-pendientes) (P1-P10): alcance, proveedor/entorno, dominios/mismo-site (`SameSite=Strict` exige mismo site), SMTP, volumen/retención, off-site/RPO-RTO, privacidad del directorio (`GET /fotografos` expone email/teléfono), secretos/TLS obligatorios, operador, modelo `/sistema/*`, criterios de aceptación. Ninguna tratada como aprobada.
 
 ---
 
-# Parte 3 — Reconstrucción en Server Ubuntu [SERVIDOR UBUNTU]
+# Parte 3 — Reconstrucción en Server Ubuntu (laboratorio)
 
-> **Clasificación:** `SERVIDOR UBUNTU (Server Ubuntu Lab)` es el entorno implementado en la VM `Ubuntu-Server-Lab`. Se usa como demo/laboratorio en una LAN. **No es PRODUCCIÓN:** no tiene TLS, dominio, backups off-site confirmados ni alta disponibilidad.
+> **Clasificación:** **Server Ubuntu Lab (laboratorio)** es el entorno implementado en la VM `Ubuntu-Server-Lab`. Se usa como demo/laboratorio en una LAN. **No es producción:** no tiene TLS, dominio, backups off-site confirmados ni alta disponibilidad.
 >
 > **Runbook completo:** [manual-migracion-serverubuntu.md](manual-migracion-serverubuntu.md). Esta parte ordena el trabajo y las verificaciones; no reemplaza el manual ni duplica cada comando.
 
-## 3.1 Topología y requisitos [SERVIDOR UBUNTU]
+## 3.1 Topología y requisitos (Server Ubuntu Lab)
 
 | Elemento | Valor implementado |
 |---|---|
@@ -256,7 +256,7 @@ Requisitos: VirtualBox con la VM encendida, Docker + Compose dentro de Ubuntu, N
 
 **Dependencia de Windows:** en NAT, Windows debe quedar encendido porque aporta la IP de la WiFi y el port forwarding. La VM por sí sola no es accesible desde el celular. La reserva DHCP de `10.244.239.215` y el autostart de la VM no están confirmados.
 
-## 3.2 Exportar desde Windows [LOCAL → SERVIDOR UBUNTU]
+## 3.2 Exportar desde Windows (desde desarrollo local hacia Server Ubuntu)
 
 1. Verificar el stack y anotar conteos (`colecciones`, `multimedia`, usuarios).
 2. Detener `app` y `worker` para congelar escrituras.
@@ -267,7 +267,7 @@ Requisitos: VirtualBox con la VM encendida, Docker + Compose dentro de Ubuntu, N
 
 > No borrar los datos de Windows hasta completar el corte y las pruebas. El manual deja Windows detenido, no destruido ([Sección 3.7](manual-migracion-serverubuntu.md#37-dejar-windows-detenido)).
 
-## 3.3 Configurar el proyecto en Ubuntu [SERVIDOR UBUNTU]
+## 3.3 Configurar el proyecto en Ubuntu (Server Ubuntu Lab)
 
 1. Verificar la transferencia: [manual, Sección 4.1](manual-migracion-serverubuntu.md#41-verificar-la-transferencia).
 2. Crear `backend/.env` con `MYSQL_ROOT_PASSWORD`, `MYSQL_DATABASE`, `MYSQL_USER`, `MYSQL_PASSWORD`, `JWT_SECRET` y `FRONTEND_URL=http://IP_WINDOWS:8080`: [Sección 4.2](manual-migracion-serverubuntu.md#42-crear-el-archivo-env). Permisos `600`.
@@ -276,7 +276,7 @@ Requisitos: VirtualBox con la VM encendida, Docker + Compose dentro de Ubuntu, N
 
 > El compose corregido y `API_URL=""` en los dos `config.js` están aplicados **solo en Ubuntu**, no en el repo local. Si se reconstruye la VM desde el repo tal cual, hay que repetir esos cambios.
 
-## 3.4 Restaurar base, uploads y respaldos [SERVIDOR UBUNTU]
+## 3.4 Restaurar base, uploads y respaldos (Server Ubuntu Lab)
 
 1. Levantar solo `db`: [manual, Sección 5.1](manual-migracion-serverubuntu.md#51-levantar-solo-la-base).
 2. Importar el dump: [Sección 5.2](manual-migracion-serverubuntu.md#52-importar-el-dump).
@@ -285,7 +285,7 @@ Requisitos: VirtualBox con la VM encendida, Docker + Compose dentro de Ubuntu, N
 5. Verificar permisos de respaldos (`33:33`, `775`): [Sección 5.5](manual-migracion-serverubuntu.md#55-verificar-permisos-de-respaldos).
 6. Generar un respaldo de prueba: [Sección 5.6](manual-migracion-serverubuntu.md#56-generar-un-respaldo-de-prueba).
 
-## 3.5 Nginx, firewall y port forwarding [SERVIDOR UBUNTU]
+## 3.5 Nginx, firewall y port forwarding (Server Ubuntu Lab)
 
 1. Crear el sitio con `root /opt/cipher-forge/Gestion-fotografias`, redirección a la landing, estáticos y proxy de `/auth`, `/fotografos?`, `/colecciones`, `/multimedia`, `/invitaciones`, `/hashtags`, `/favoritos`, `/colaborativo`, `/qr` y `/api`: [manual, Sección 6.1](manual-migracion-serverubuntu.md#61-crear-el-sitio). La configuración fue verificada como idéntica a la del manual.
 2. Activar el sitio: [Sección 6.2](manual-migracion-serverubuntu.md#62-activar-el-sitio).
@@ -296,7 +296,7 @@ Requisitos: VirtualBox con la VM encendida, Docker + Compose dentro de Ubuntu, N
 
 Nginx conserva el puerto público con `Host $http_host`; si se usa `$host`, el QR puede perder `:8080` y fallar. `client_max_body_size 900m` y timeouts de `600s` son necesarios para videos de hasta 800 MB.
 
-## 3.6 QR y validación desde el celular [SERVIDOR UBUNTU]
+## 3.6 QR y validación desde el celular (Server Ubuntu Lab)
 
 1. Confirmar `FRONTEND_URL` en `backend/.env`: `http://IP_WINDOWS:8080`.
 2. En `frontend-cliente/services/config.js` y `frontend-fotografo/services/config.js`, dejar `API_URL = ""` para que las llamadas vayan al mismo origen de Nginx.
@@ -306,7 +306,7 @@ Nginx conserva el puerto público con `Host $http_host`; si se usa `$host`, el Q
 
 > **Validado el 28/10/2026:** el escaneo del QR desde un celular real funciona correctamente. La URL esperada es `http://10.244.239.215:8080/frontend-cliente/pages/colaborativo.html?token=...`. Si cambia la IP de Windows, hay que actualizar `FRONTEND_URL` y regenerar los QR.
 
-## 3.7 Operación y mantenimiento [SERVIDOR UBUNTU]
+## 3.7 Operación y mantenimiento (Server Ubuntu Lab)
 
 | Tarea | Referencia |
 |---|---|
@@ -322,11 +322,11 @@ Nginx conserva el puerto público con `Host $http_host`; si se usa `$host`, el Q
 
 Estado de respaldos: backup one-shot ejecutado y verificado; ejecución programada del `worker` no confirmada; restore y off-site documentados pero no ejecutados. Detalle en [infraestructura.md, Sección 4.3](infraestructura.md#43-respaldos-en-el-server-ubuntu-estado-actual).
 
-## 3.8 Advertencias [SERVIDOR UBUNTU]
+## 3.8 Advertencias (Server Ubuntu Lab)
 
 > **`docker compose down -v` es destructivo:** borra la base y el volumen de uploads. Los `.sql` de `backend/backups/` sobreviven porque viven en el filesystem de la VM, pero las fotos no. No ejecutarlo sin backup verificado de base y uploads.
 >
-> **No es producción:** HTTP sin TLS, sin dominio, sin backups off-site confirmados, sin restore probado y sin autostart de VM confirmado. `PRODUCCIÓN` sigue sin implementar.
+> **No es producción:** HTTP sin TLS, sin dominio, sin backups off-site confirmados, sin restore probado y sin autostart de VM confirmado. producción sigue sin implementar.
 >
 > **IP y DHCP:** `10.244.239.215` es la IP actual; la reserva DHCP no está confirmada. Si cambia, hay que actualizar `FRONTEND_URL`, el port forwarding y regenerar los QR.
 >
@@ -336,7 +336,7 @@ Estado de respaldos: backup one-shot ejecutado y verificado; ejecución programa
 
 ## 3.9 Tabla comparativa de entornos
 
-| Aspecto | LOCAL Windows | SERVIDOR UBUNTU (Server Ubuntu Lab) | PRODUCCIÓN |
+| Aspecto | desarrollo local en Windows | Server Ubuntu Lab (laboratorio) | producción |
 |---|---|---|---|
 | Estado | Implementado | Implementado como demo/laboratorio | No implementado |
 | Entrada | Apache `:8080` | Windows `:8080` → NAT → Nginx `:80` → app `127.0.0.1:8080` | HTTPS con dominio |
@@ -353,10 +353,10 @@ Estado de respaldos: backup one-shot ejecutado y verificado; ejecución programa
 ## Trazabilidad
 
 * Requisitos: [01-requerimientos.md, Sección 9](01-requerimientos.md#9-alcance-incluido), [Sección 10](01-requerimientos.md#10-alcance-excluido-para-esta-primera-versión), [Sección 11](01-requerimientos.md#11-requerimientos-funcionales) y [Sección 12](01-requerimientos.md#12-requerimientos-no-funcionales) (RF/RNF, EP4/EP7), restricción UTU.
-* Arquitectura/datos: [02-modelado.md, Sección 1](02-modelado.md#1-arquitectura-propuesta-del-sistema) y [Sección 2](02-modelado.md#2-modelado-de-datos-diagrama-entidad-relación); [infraestructura.md, Secciones 1-4](infraestructura.md#1-visión-general-de-la-infraestructura-compartido-en-lógica-local-en-valores).
+* Arquitectura/datos: [02-modelado.md, Sección 1](02-modelado.md#1-arquitectura-propuesta-del-sistema) y [Sección 2](02-modelado.md#2-modelado-de-datos-diagrama-entidad-relación); [infraestructura.md, Secciones 1-4](infraestructura.md#1-visión-general-de-la-infraestructura-lógica-común-valores-locales).
 * Seguridad/privacidad: [03-seguridad.md](03-seguridad.md) (STRIDE, Términos, PSI; [Sección 4.1](03-seguridad.md#41-protección-de-endpoints-de-administración-sistema-cf-08--cc-14) desactualizado sobre `/sistema/*`), Ley 18.331.
 * Cambios: `08_control_de_cambios.md` CC-11 (worker), CC-14 (postergado `/sistema/*`), CC-16 (php.ini), CC-27 (30 MB); `09_control_de_cambios_tecnicos.md` CCT-11/CCT-16.
 * Migración Ubuntu: [manual-migracion-serverubuntu.md](manual-migracion-serverubuntu.md) (runbook completo, Nginx, backup/restore y QR validado).
 * Hallazgos: `backend/important.md` H01/H02/H09 resueltos, H03/H04/H10 con estado desactualizado; `backend/SISTEMA_LOCAL.md`; `backend/EMAIL_CONFIG.md`; `backend/Done.md`; `backend/FAILS-TESTED.md`.
 
-> Estado documental: LOCAL Windows y SERVIDOR UBUNTU reflejan el código/configuración inspeccionados y las pruebas declaradas por el equipo; PRODUCCIÓN sigue siendo un conjunto de brechas no implementadas. Sin ejecución propia del stack Docker ni pruebas propias. La validación del QR desde un celular real (28/10/2026) fue reportada por el equipo.
+> Estado documental: el desarrollo local en Windows y el Server Ubuntu Lab reflejan el código/configuración inspeccionados y las pruebas declaradas por el equipo; producción sigue siendo un conjunto de brechas no implementadas. Sin ejecución propia del stack Docker ni pruebas propias. La validación del QR desde un celular real (28/10/2026) fue reportada por el equipo.
