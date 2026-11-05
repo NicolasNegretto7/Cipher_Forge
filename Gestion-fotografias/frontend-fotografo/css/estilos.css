@@ -197,8 +197,8 @@ body.AuthPixie {
     padding-right: 46px;
 }
 
-.AuthCaja input[type="password"]::-ms-reveal,
-.AuthCaja input[type="password"]::-ms-clear {
+.AuthCaja .campo-password input[type="password"]::-ms-reveal,
+.AuthCaja .campo-password input[type="password"]::-ms-clear {
     display: none;
 }
 
