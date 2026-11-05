@@ -8,16 +8,34 @@ const paginasUrl = new URL("../../pages/", import.meta.url);
 function activarVistaContrasena(input) {
     if (!input) return;
     const contenedor = input.closest(".CampoContrasena");
-    const boton = contenedor && contenedor.querySelector(".BotonOjo");
-    if (!boton) return;
+    const icono = contenedor && contenedor.querySelector("[data-ojo]");
+    if (!icono) return;
 
-    boton.addEventListener("click", function () {
-        const mostrar = input.type === "password";
+    const ojoAbierto = icono.querySelector(".IconoVer");
+    const ojoCerrado = icono.querySelector(".IconoOcultar");
+
+    function pintar(mostrar) {
         input.type = mostrar ? "text" : "password";
-        boton.setAttribute("aria-pressed", String(mostrar));
-        boton.setAttribute("aria-label", mostrar ? "Ocultar contraseña" : "Mostrar contraseña");
-        boton.setAttribute("title", mostrar ? "Ocultar contraseña" : "Mostrar contraseña");
+        icono.setAttribute("aria-pressed", String(mostrar));
+        icono.setAttribute("aria-label", mostrar ? "Ocultar contraseña" : "Mostrar contraseña");
+        icono.setAttribute("title", mostrar ? "Ocultar contraseña" : "Mostrar contraseña");
+        if (ojoAbierto) ojoAbierto.style.display = mostrar ? "none" : "inline";
+        if (ojoCerrado) ojoCerrado.style.display = mostrar ? "inline" : "none";
+    }
+
+    function alternar() {
+        pintar(input.type === "password");
+    }
+
+    icono.addEventListener("click", alternar);
+    icono.addEventListener("keydown", function (evento) {
+        if (evento.key === "Enter" || evento.key === " ") {
+            evento.preventDefault();
+            alternar();
+        }
     });
+
+    pintar(false);
 }
 
 function abrirPanel() {
