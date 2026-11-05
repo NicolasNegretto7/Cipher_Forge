@@ -11,6 +11,9 @@ export async function configurarTags(coleccion) {
     const zonaTags = document.getElementById("zonaTags");
     let tags = coleccion.hashtags || [];
     let guardando = false;
+    // Debounce de las sugerencias y contador para descartar respuestas obsoletas.
+    let temporizadorSugerencias = null;
+    let peticionSugerencias = 0;
 
     function mostrarTags() {
         lista.replaceChildren();
@@ -56,6 +59,30 @@ export async function configurarTags(coleccion) {
         }
     }
 
+    // Recarga el <datalist> con los hashtags que empiezan con el texto escrito
+    // (GET /hashtags?filter=...), para no depender del filtrado nativo del
+    // navegador, que busca la letra en cualquier posición del nombre.
+    async function actualizarSugerencias(texto) {
+        peticionSugerencias += 1;
+        const peticion = peticionSugerencias;
+        try {
+            const sugerencias = await listarHashtags(texto);
+            // Si mientras tanto se lanzó otra búsqueda, ignorar esta respuesta.
+            if (peticion !== peticionSugerencias) return;
+            const opciones = document.getElementById("sugerenciasHashtags");
+            opciones.replaceChildren();
+            for (const tag of sugerencias) {
+                const opcion = document.createElement("option");
+                // Sin '#': el input ya se normaliza quitando ese símbolo.
+                opcion.value = tag.nombre_hashtags;
+                opciones.appendChild(opcion);
+            }
+        } catch (error) {
+            // Se pueden escribir etiquetas aunque no carguen las sugerencias.
+            console.warn("No se pudieron cargar sugerencias de hashtags.", error);
+        }
+    }
+
     campo.addEventListener("focus", abrirCajaTags);
     // Solo letras y números: sin símbolos ni espacios raros.
     campo.addEventListener("input", function () {
@@ -64,6 +91,11 @@ export async function configurarTags(coleccion) {
             .replace(/[^a-záéíóúüñ0-9]/gi, "")
             .slice(0, MAX_TAG);
         if (limpio !== campo.value) campo.value = limpio;
+        // Sugerencias del backend con un pequeño retardo para no consultar por cada tecla.
+        if (temporizadorSugerencias) clearTimeout(temporizadorSugerencias);
+        temporizadorSugerencias = setTimeout(function () {
+            actualizarSugerencias(limpio);
+        }, 200);
     });
     campo.addEventListener("keydown", async function (evento) {
         if (evento.key !== "Enter") return;
@@ -83,16 +115,5 @@ export async function configurarTags(coleccion) {
         if (evento.key === "Escape") cerrarCajaTags();
     });
     mostrarTags();
-    try {
-        const sugerencias = await listarHashtags();
-        const opciones = document.getElementById("sugerenciasHashtags");
-        for (const tag of sugerencias) {
-            const opcion = document.createElement("option");
-            opcion.value = "#" + tag.nombre_hashtags;
-            opciones.appendChild(opcion);
-        }
-    } catch (error) {
-        // Se pueden escribir etiquetas aunque no carguen las sugerencias.
-        console.warn("No se pudieron cargar sugerencias de hashtags.", error);
-    }
+    await actualizarSugerencias("");
 }
