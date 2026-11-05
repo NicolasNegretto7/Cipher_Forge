@@ -9,6 +9,7 @@ export async function detalleColeccion(id) {
     return await enviarJson("/colecciones/" + id, "GET");
 }
 
-export async function listarHashtags() {
-    return await enviarJson("/hashtags", "GET");
+export async function listarHashtags(filtro) {
+    const query = filtro ? "?filter=" + encodeURIComponent(filtro) : "";
+    return await enviarJson("/hashtags" + query, "GET");
 }
