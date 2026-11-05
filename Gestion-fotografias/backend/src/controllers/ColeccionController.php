@@ -107,11 +107,11 @@ class ColeccionController
     /**
      * GET /hashtags
      * Lista todos los hashtags existentes con la cantidad de colecciones asociadas (HU27).
-     * Filtro opcional de búsqueda parcial: ?filter=palabra (HU27).
+     * Filtro opcional por prefijo: ?filter=palabra (HU27).
      * Se mantiene ?hashtag=palabra como alias por compatibilidad con llamadas anteriores.
-     * Cada palabra enviada se compara contra el nombre del hashtag y se exige que
-     * todas aparezcan (coincidencia parcial, sin distinguir mayúsculas), de modo que
-     * "bod" encuentra "bodas" y no hace falta escribir el nombre exacto.
+     * Cada palabra enviada se compara contra el inicio del nombre del hashtag
+     * (coincidencia por prefijo, sin distinguir mayúsculas), de modo que "bod"
+     * encuentra "bodas" pero "odas" no.
      */
     public function listarHashtags(): void
     {
@@ -140,7 +140,7 @@ class ColeccionController
             static function (array $tag) use ($palabras): bool {
                 $nombre = mb_strtolower((string) ($tag['nombre_hashtags'] ?? ''));
                 foreach ($palabras as $palabra) {
-                    if (mb_strpos($nombre, $palabra) === false) {
+                    if (!str_starts_with($nombre, $palabra)) {
                         return false;
                     }
                 }

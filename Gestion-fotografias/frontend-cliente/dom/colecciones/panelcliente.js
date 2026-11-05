@@ -21,8 +21,8 @@ const cajaTags = document.getElementById("buscadorTags");
 const zonaBuscadorTags = document.getElementById("zonaBuscadorTags");
 let colecciones = [];
 let tagsSeleccionados = [];
-// Texto escrito en el buscador: filtra en tiempo real por coincidencia parcial
-// del hashtag, sin exigir pulsar Enter.
+// Texto escrito en el buscador: filtra en tiempo real por prefijo del hashtag
+// (desde el inicio), sin exigir pulsar Enter.
 let textoBusqueda = "";
 // Debounce de las sugerencias y contador para descartar respuestas obsoletas.
 let temporizadorSugerencias = null;
@@ -45,11 +45,11 @@ function prioridadTags(coleccion) {
     return Infinity;
 }
 
-// Coincidencia parcial del texto escrito contra los hashtags de la colección.
+// Coincidencia por prefijo: el hashtag debe empezar con el texto escrito.
 function coincideBusqueda(coleccion) {
     if (!textoBusqueda) return true;
     return (coleccion.hashtags || []).some(function (tag) {
-        return normalizarTag(tag).includes(textoBusqueda);
+        return normalizarTag(tag).startsWith(textoBusqueda);
     });
 }
 
@@ -170,8 +170,8 @@ async function agregarTag(valor) {
     await actualizarSugerencias("");
 }
 
-// Recarga el <datalist> con los hashtags que coinciden parcialmente con el
-// texto escrito, usando GET /hashtags?filter=... del backend.
+// Recarga el <datalist> con los hashtags que empiezan con el texto escrito,
+// usando GET /hashtags?filter=... del backend.
 async function actualizarSugerencias(texto) {
     peticionSugerencias += 1;
     const peticion = peticionSugerencias;
@@ -221,7 +221,7 @@ campoTag.addEventListener("input", function () {
         .replace(/[^a-záéíóúüñ0-9]/gi, "")
         .slice(0, MAX_TAG);
     if (limpio !== campoTag.value) campoTag.value = limpio;
-    // Filtrado parcial en tiempo real: sin esperar a pulsar Enter.
+    // Filtrado por prefijo en tiempo real: sin esperar a pulsar Enter.
     textoBusqueda = limpio;
     aplicarFiltroTags();
     // Sugerencias del backend con un pequeño retardo para no consultar por cada tecla.
