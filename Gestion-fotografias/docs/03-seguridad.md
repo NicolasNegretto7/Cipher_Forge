@@ -11,7 +11,7 @@
 | **Grupo** | [Completar con el número de grupo] |
 | **Fecha de entrega** | [Completar con la fecha fijada por la docente] |
 
-> **Nota de formato.** Este archivo es la fuente Markdown del informe; la entrega se exporta a PDF respetando la guía APA 7 de la asignatura (A4, una sola tipografía, texto alineado a la izquierda, interlineado doble en el cuerpo y sencillo en tablas y código, numeración de páginas en el extremo superior derecho, sangría de 1,27 cm en la primera línea y sangría francesa en las referencias). Las capturas propias se insertan en los lugares señalados como *Evidencia pendiente* y se numeran como figuras.
+> **Nota de formato.** Este archivo es la fuente Markdown del informe; la entrega se exporta a PDF respetando la guía APA 7 de la asignatura (A4, una sola tipografía, texto alineado a la izquierda, interlineado doble en el cuerpo y sencillo en tablas y código, numeración de páginas en el extremo superior derecho, sangría de 1,27 cm en la primera línea y sangría francesa en las referencias). El archivo se nombra `Grupo_N_Entrega_X.pdf` según la guía. Las capturas propias se insertan en los lugares señalados como *Evidencia pendiente* y se numeran como figuras.
 
 ## Resumen
 
@@ -537,6 +537,8 @@ En el frontend, `localStorage` guarda el correo pendiente de verificación, el p
 
 La conclusión de esta sección es que la base criptográfica es sólida para un proyecto académico: no hay contraseñas en claro, el hash es el adecuado y el token no es accesible desde JavaScript. Los pendientes son de endurecimiento y de operación —rotación de secretos, TLS, revocación y segundo factor—, no de algoritmo.
 
+**Marco legal de la plataforma (sección 5.2).** Los dos apartados siguientes contienen el texto completo de los Términos y Condiciones y de la Política de Seguridad de la Información. La sección 5.2 agrega la Política de Privacidad exigida por la Ley N.º 18.331 y documenta la evidencia técnica de aceptación en el registro.
+
 # Términos y Condiciones
 
 Estos términos definen el uso aceptable de la plataforma web, protegen al equipo de desarrollo/empresa y establecen cómo se gestionan los datos en cumplimiento con la normativa uruguaya.
@@ -563,6 +565,7 @@ Estos términos definen el uso aceptable de la plataforma web, protegen al equip
 * **Ley aplicable y jurisdicción:** La plataforma y el tratamiento de los datos personales se rigen estrictamente por la Ley 18.331 de Protección de Datos Personales de Uruguay. No se solicita la dirección física ni la cédula de identidad de los usuarios para simplificar el registro y minimizar la recolección de datos sensibles.
 
 ## 6. Modificaciones de los términos
+
 El equipo puede actualizar estos Términos y la Política de Privacidad para reflejar cambios técnicos, legales u operativos. La versión vigente se publica con su fecha y se comunica a los usuarios antes de que entre en vigencia. El uso continuado del servicio después de la notificación implica la aceptación de la nueva versión; si el usuario no está de acuerdo, puede solicitar la baja de su cuenta.
 
 ---
@@ -650,7 +653,7 @@ La Tabla 3 resume los elementos que hoy sostienen la aceptación legal y el punt
 |:--|:--|:--|:--|
 | Casilla de aceptación en el registro del cliente | Checkbox `id="terminos"` con `required` y enlace al resumen legal | `frontend-cliente/pages/registro.html`, líneas 90-97 | Implementado |
 | Casilla de aceptación en el registro del fotógrafo | Checkbox `id="terminos"` con `required` y resumen de la Ley 18.331 | `frontend-fotografo/pages/registro.html`, líneas 90-103 | Implementado |
-| Envío del consentimiento a la API | `terminos_aceptados: document.getElementById("terminos").checked` en el cuerpo JSON | `frontend-cliente/dom/auth/registro.js`, línea 105 | Implementado |
+| Envío del consentimiento a la API | `terminos_aceptados: document.getElementById("terminos").checked` en el cuerpo JSON | `frontend-cliente/dom/auth/registro.js` y `frontend-fotografo/dom/auth/registro.js`, línea 105 en ambos | Implementado |
 | Validación en el servidor | `AuthValidator` acepta `true`, `1`, `"1"` o `"true"`; cualquier otro valor produce `400` | `backend/src/validators/AuthValidator.php`, líneas 67-71 | Implementado |
 | Persistencia de la aceptación del cliente | No existe columna ni registro con fecha y versión | `backend/database/schema.sql` (tabla `clientes`) | **Pendiente** |
 | Persistencia de la aceptación del fotógrafo | `fotografos.politicas_aceptadas` booleano, actualizado por `POST /fotografos/aceptar-politicas` | `schema.sql` línea 20; `UserRepository::aceptarPoliticas()` | Implementado |
@@ -1514,7 +1517,8 @@ nmap -p 8080 --script http-enum 127.0.0.1 -oN nmap-enum.txt
 
 **Hallazgos del fingerprinting:**
 
-1. **Servicios de desarrollo publicados en el host** (MySQL `3306`, Mailpit `8025/1025`).
+1. **Servicios de desarrollo publicados en el host** (MySQL `3306`, Mailpit `8025/1025`
+   y el servidor Live Server en `5501`).
    En el entorno local es operativo, pero si el `docker-compose.yml` se despliega tal
    cual en un servidor con IP pública, MySQL quedaría expuesto al Internet con
    credenciales en texto plano en el archivo (`MYSQL_ROOT_PASSWORD: root_password`,
@@ -1686,6 +1690,40 @@ Durante la ejecución de la prueba, se monitoreó el consumo de recursos de los 
 2. **Eficiencia en el Procesamiento:** La arquitectura basada en Docker y Apache/PHP 8.2 mostró un rendimiento fluido con una tasa promedio de **71.49 solicitudes por segundo** y latencias máximas controladas (67 ms).
 3. **Consumo Minimizativo de Recursos:** El contenedor principal de la aplicación (`cipher_forge_app`) absorbió la carga sin mostrar picos de uso de CPU (0.00%) ni saturación de memoria RAM (16.54 MiB).
 4. **Resistencia a Cargas Básicas:** La prueba confirma que la estructura de CipherForge soporta adecuadamente ráfagas de tráfico livianas y continuas en entornos de desarrollo local.
+
+### Evidencia de la sesión de pruebas
+
+Las capturas de esta subsección se obtuvieron el 28 de octubre de 2026 desde la máquina evaluadora (Kali Linux) contra el host `192.168.1.247`, puerto `8081`. Registran la secuencia completa de la prueba: dos modos de fallo descartados (destino y esquema equivocados), la corrida válida sobre HTTP, el consumo de los contenedores durante la carga y la verificación final del endpoint. Los archivos se guardan en `docs/evidencias/` y se enlazan con rutas relativas a este documento.
+
+![Intento de conexión a 127.0.0.1:8081 desde la máquina evaluadora](evidencias/figura-04-curl-loopback-127.0.0.1.png)
+
+*Figura 4. Intento de conexión a la API mediante la dirección de loopback desde la máquina evaluadora. Captura del 28 de octubre de 2026. Elaboración propia.* **Nota.** El comando `curl -i --max-time 5 http://127.0.0.1:8081/api/ping` devuelve `curl: (7) Failed to connect to 127.0.0.1 port 8081 after 2 ms: Could not connect to server` porque `127.0.0.1`, ejecutado en Kali, designa a la propia Kali y no al host del servicio. Es un error de diagnóstico, no una falla del servidor: confirma que la API no se alcanza por reenvío local y que el destino correcto es la dirección de red del host.
+
+![Errores repetidos de handshake TLS en el puerto 8081](evidencias/figura-05-error-handshake-tls.png)
+
+*Figura 5. Errores repetidos de handshake TLS al solicitar el puerto 8081 por HTTPS. Captura del 28 de octubre de 2026. Elaboración propia.* **Nota.** La salida repite `SSL_handshake_failed (1)` con `error:0A00010B:SSL routines::tls_validate_record_header:wrong version number` (`ssl/record/methods/tlsany_meth.c:77`). El mensaje aparece cuando el cliente inicia un handshake TLS contra un listener que responde HTTP en texto plano: el primer registro que recibe no es un `ServerHello` válido. No es una vulnerabilidad del servidor, sino la confirmación de que el puerto `8081` no termina TLS; el cifrado en tránsito sigue pendiente (A02 y Tabla 7).
+
+![ApacheBench contra HTTPS sin completar por fallo de handshake](evidencias/figura-06-apachebench-https-fallido.png)
+
+*Figura 6. ApacheBench contra `https://192.168.1.247:8081/api/ping`: la corrida no se completa por fallo de handshake. Captura del 28 de octubre de 2026. Elaboración propia.* **Nota.** Con `ab -n 100 -c 2 https://192.168.1.247:8081/api/ping` cada solicitud falla antes de recibir respuesta y la herramienta no imprime la tabla de métricas. La captura se conserva para documentar el descarte del esquema HTTPS y justificar la corrida siguiente sobre HTTP.
+
+![ApacheBench sobre HTTP con 100 solicitudes completadas y 71,49 req/s](evidencias/figura-07-apachebench-http-100-solicitudes.png)
+
+*Figura 7. ApacheBench contra `http://192.168.1.247:8081/api/ping`: 100 solicitudes completadas y 71,49 req/s. Captura del 28 de octubre de 2026. Elaboración propia.* **Nota.** La corrida termina en 1,399 s con 100 solicitudes completadas y 0 fallidas, 71,49 req/s, una media de 27,976 ms por solicitud (13,988 ms por petición concurrente), 205 bytes por respuesta y 43,84 KB/s. Los percentiles son 25 ms (50 %), 27 ms (75 %), 31 ms (90 %) y 67 ms (99 % y máximo). Estos son los valores que se transcriben en las tablas de esta sección.
+
+![Consumo de recursos de los cuatro contenedores durante la prueba de carga](evidencias/figura-08-docker-stats-durante-la-carga.png)
+
+*Figura 8. Consumo de CPU, memoria, red y disco de los cuatro contenedores durante la prueba de carga. Captura del 28 de octubre de 2026. Elaboración propia.* **Nota.** `docker stats` muestra `cipher_forge_app` (`8b91c9507bde`) al 0,00 % de CPU y 16,54 MiB; `cipher_forge_db` (`5f6de8fe7cc5`) al 1,03 % y 370,9 MiB; `cipher_forge_worker` (`ff32479fa2c4`) al 0,00 % y 6,84 MiB; y `cipher_forge_mail` (`90abd4c4d32a`) al 0,00 % y 7,84 MiB, sobre un límite informado de 7,708 GiB. La captura es una muestra instantánea y no una serie temporal: prueba el consumo en el momento del monitoreo, no un promedio sostenido.
+
+![Corrida final de ApacheBench con 100 solicitudes y 0 bytes transferidos](evidencias/figura-09-apachebench-corrida-final.png)
+
+*Figura 9. Corrida final de ApacheBench: 100 solicitudes completadas con 0 bytes transferidos. Captura del 28 de octubre de 2026. Elaboración propia.* **Nota.** La captura no conserva el comando ni el código de estado: registra 100 solicitudes completadas, 0 fallidas, 116,66 req/s, una media de 17,143 ms y **0 bytes transferidos** (`Document Length: 0 bytes`, 0,00 KB/s). Sin cuerpo, la medición cubre solo conexión y estado, y el contador de ApacheBench no distingue un `200` de un `500`. Por eso su rendimiento no es comparable con los 71,49 req/s de la Figura 7 y no reemplaza la medición de referencia.
+
+![Respuesta 200 OK de /api/ping y cabeceras HTTP observadas](evidencias/figura-10-curl-200-ok-cabeceras.png)
+
+*Figura 10. Respuesta `200 OK` de `/api/ping` y cabeceras HTTP observadas con `curl -i`. Captura del 28 de octubre de 2026. Elaboración propia.* **Nota.** La respuesta incluye `Date: Wed, 28 Oct 2026 05:52:26 GMT`, `Server: Apache/2.4.69 (Debian)`, `X-Powered-By: PHP/8.2.35`, `Access-Control-Allow-Origin: *`, `Content-Length: 205` y `Content-Type: application/json; charset=utf-8`, con el cuerpo `{"ok": true, "mensaje": "Conexión exitosa con el backend", ...}`. No aparecen `Content-Security-Policy`, `X-Frame-Options`, `X-Content-Type-Options`, `Strict-Transport-Security`, `Referrer-Policy` ni `Permissions-Policy`, lo que confirma H-02; `X-Powered-By` expone la versión exacta de PHP (banner Z7). El comodín de CORS aparece porque la petición no envía `Origin`; la prueba del 4 de noviembre con `Origin: https://atacante.ejemplo` mostró reflexión del origen, que es el hallazgo H-04.
+
+Las figuras 4 a 10 documentan la prueba tal como se ejecutó, incluidas las corridas descartadas. La topología de esa sesión (host `192.168.1.247`, puerto `8081`) se registra tal como aparece en las capturas; el mapeo vigente del stack se verifica por separado en la Tabla 5 y en la sección 3.5.
 
 ---
 
@@ -1889,6 +1927,8 @@ de la primera entrega.
 **Resumen:** 16 hallazgos → **2 corregidos y verificados**, **4 aceptados/mitigados con
 control**, **10 abiertos** con medida correctiva definida.
 
+La columna «Estado» de la tabla de la sección 3.1 conserva el valor que tenía en la corrida original. La verificación posterior del 2026-11-04 se registra en la sección 3.5 y en la Tabla 6, donde se indica qué hallazgos siguen abiertos, cuáles se corrigieron y con qué evidencia.
+
 ---
 
 ### 3.2 Medidas correctivas aplicadas (antes → después)
@@ -2079,7 +2119,7 @@ flowchart LR
 | 4. Comunicación | Notificar al cliente y, si hubo filtración, a las personas afectadas conforme a la Ley N.º 18.331 | Líder del proyecto | Menos de 24 horas |
 | 5. Lecciones aprendidas | Post-mortem, acta de causa raíz y actualización de este documento y de la PSI | Todo el equipo | Menos de 1 semana |
 
-*Nota.* Elaboración propia a partir de Nelson et al. (2025). Los tiempos son objetivos internos y deben ajustarse a la disponibilidad real del equipo.
+*Nota.* Elaboración propia a partir de Nelson et al. (2025). Los tiempos son objetivos internos y deben ajustarse a la disponibilidad real del equipo. Los roles se asignan a integrantes concretos en la portada del informe.
 
 **Fase 1 — Preparación (previa a cualquier incidente)**
 - Respaldo diario automático con rotación de 3 copias (HU13) y verificación de que el
@@ -2257,6 +2297,8 @@ BASE=http://127.0.0.1:8080 bash auditoria-api.sh
 
 ## Anexo B. Trazabilidad entre la guía de la asignatura y el informe
 
+*Nota.* Los números de tabla siguen el orden de aparición en este informe y no coinciden necesariamente con la numeración ilustrativa de la guía. Las tablas del registro histórico (3.1 a 3.4) y las de la tercera entrega conservan su fecha original; las tablas 6 y 7 agregan la re-verificación del 2026-11-04.
+
 | Requisito de la guía | Dónde se cumple | Estado |
 |:--|:--|:--|
 | Formato APA 7, portada, resumen, palabras clave e índice | Portada, Resumen, Índice y nota de formato | Cubierto en el Markdown; la paginación y la sangría se aplican al exportar a PDF |
@@ -2277,6 +2319,8 @@ BASE=http://127.0.0.1:8080 bash auditoria-api.sh
 ## Anexo C. Evidencias pendientes de captura
 
 Las capturas no se incluyen en el repositorio porque el informe se distribuye como Markdown y las imágenes se incorporan al PDF final. Cada una debe tomarse del entorno local, con cuentas de prueba y sin datos personales reales, y guardarse en `docs/evidencias/` con un nombre que indique la prueba y la fecha.
+
+*Nota.* Las figuras 4 a 10 de la sección 1.6 ya se incorporaron al repositorio en `docs/evidencias/`, con nombres descriptivos y la fecha visible en la captura. El resto de las evidencias de esta lista sigue pendiente.
 
 | # | Evidencia | Sección que la requiere | Estado |
 |:--:|:--|:--|:--|
