@@ -12,11 +12,14 @@ function mostrarMensaje(elemento, texto, esError) {
 const formRegistro = document.getElementById("formRegistro");
 const campoNombre = document.getElementById("nombre");
 const campoContrasena = document.getElementById("contraseña");
+const campoConfirmar = document.getElementById("confirmarContrasena");
+const mensajeContrasena = document.getElementById("mensajeContrasena");
 const campoTelefono = document.getElementById("telefono");
 
 const LIMITE_NOMBRE = 30;
 const LIMITE_CONTRASENA = 30;
 const LIMITE_TELEFONO = 9;
+const ERROR_CONTRASENA = "Las contraseñas no coinciden";
 
 function limpiarNombre(valor) {
     return String(valor || "")
@@ -80,11 +83,61 @@ if (campoTelefono) {
     });
 }
 
+function hayCoincidenciaContrasena() {
+    if (!campoContrasena || !campoConfirmar) return true;
+    return campoContrasena.value === campoConfirmar.value;
+}
+
+function validarConfirmacion() {
+    if (!campoConfirmar) return true;
+
+    const coinciden = hayCoincidenciaContrasena();
+    const hayError = !coinciden && campoConfirmar.value !== "";
+
+    campoConfirmar.setCustomValidity(hayError ? ERROR_CONTRASENA : "");
+
+    if (mensajeContrasena) {
+        mensajeContrasena.textContent = hayError ? ERROR_CONTRASENA : "";
+    }
+
+    return coinciden;
+}
+
+if (campoContrasena) {
+    campoContrasena.addEventListener("input", validarConfirmacion);
+}
+
+if (campoConfirmar) {
+    campoConfirmar.addEventListener("input", validarConfirmacion);
+}
+
+function configurarTogglePassword(boton) {
+    const input = document.getElementById(boton.dataset.target);
+    if (!input) return;
+
+    boton.addEventListener("click", function () {
+        const visible = input.type === "password";
+        input.type = visible ? "text" : "password";
+        boton.setAttribute("aria-pressed", String(visible));
+        boton.setAttribute(
+            "aria-label",
+            visible ? "Ocultar contraseña" : "Mostrar contraseña",
+        );
+    });
+}
+
+document.querySelectorAll(".toggle-password").forEach(configurarTogglePassword);
+
 if (formRegistro) {
     const mensaje = document.getElementById("mensajeRegistro");
 
     formRegistro.addEventListener("submit", async function (evento) {
         evento.preventDefault();
+
+        if (!validarConfirmacion()) {
+            if (campoConfirmar) campoConfirmar.focus();
+            return;
+        }
 
         const nombre = limpiarNombre(document.getElementById("nombre").value).trim();
         const correo = document.getElementById("correo").value.trim();

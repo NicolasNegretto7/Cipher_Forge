@@ -635,6 +635,80 @@ body.AuthPixie .AuthBarra {
     box-shadow: 0 0 0 3px rgb(63 139 109 / 14%);
 }
 
+/* Mostrar / ocultar contraseña ------------------------------------------- */
+.campo-password {
+    position: relative;
+}
+
+.AuthCaja .campo-password input:not([type="checkbox"]) {
+    padding-right: 46px;
+}
+
+.AuthCaja input[type="password"]::-ms-reveal,
+.AuthCaja input[type="password"]::-ms-clear {
+    display: none;
+}
+
+.toggle-password {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radio-suave);
+    color: var(--gris-texto);
+    background: none;
+    transform: translateY(-50%);
+    cursor: pointer;
+    transition: color var(--transicion), background var(--transicion);
+}
+
+.toggle-password:hover {
+    color: var(--verde-oscuro);
+    background: var(--verde-suave);
+}
+
+.toggle-password:focus-visible {
+    outline: 2px solid var(--verde);
+    outline-offset: 1px;
+}
+
+.toggle-password svg {
+    width: 18px;
+    height: 18px;
+    pointer-events: none;
+}
+
+.toggle-password .icono-ojo {
+    display: none;
+}
+
+.toggle-password .icono-ojo-tachado {
+    display: block;
+}
+
+.toggle-password[aria-pressed="true"] .icono-ojo {
+    display: block;
+}
+
+.toggle-password[aria-pressed="true"] .icono-ojo-tachado {
+    display: none;
+}
+
+.mensaje-password {
+    min-height: 18px;
+    margin: 6px 0 0;
+    color: var(--error);
+    font-size: 12px;
+    line-height: 1.4;
+    text-align: left;
+}
+
 .AuthCaja .CampoTerminos {
     margin-top: 4px;
     border-radius: var(--radio);
